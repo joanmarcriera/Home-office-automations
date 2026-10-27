@@ -103,7 +103,7 @@ For autonomous coding agents, Hypothesis acts as an automated verification oracl
 ### 1. Installation
 Install Hypothesis with `pytest` integration using `pip` or `uv`:
 ```bash
-uv add hypothesis pytest
+uv add hypothesis pytest pydantic fastmcp
 ```
 
 ### 2. Writing a Basic Property Test
@@ -144,60 +144,148 @@ python -c "import hypothesis; print(hypothesis.__version__)"
 
 ## API examples
 
-### 1. Property-Based Testing with Custom Strategies
+### 1. Stateful State Machine Testing
+Hypothesis allows testing complex stateful objects (e.g., database connections, caches, multi-step agent flows) by generating arbitrary sequences of method calls:
+
 ```python
-from hypothesis import given, strategies as st
+from hypothesis.stateful import RuleBasedStateMachine, rule, initialize, invariant
+from hypothesis import strategies as st
 
-# Custom strategy for generating valid user profiles
-user_strategy = st.builds(
-    dict,
-    username=st.text(alphabet=st.characters(whitelist_categories=('Lu', 'Ll')), min_size=3, max_size=15),
-    age=st.integers(min_value=18, max_value=120),
-    is_active=st.booleans()
-)
+class BoundedQueueStateMachine(RuleBasedStateMachine):
+    def __init__(self):
+        super().__init__()
+        self.capacity = 5
+        self.queue = []
 
-@given(user_strategy)
-def test_user_profile_properties(user):
-    assert len(user["username"]) >= 3
-    assert 18 <= user["age"] <= 120
-    assert isinstance(user["is_active"], bool)
+    @rule(item=st.integers())
+    def push(self, item):
+        if len(self.queue) < self.capacity:
+            self.queue.append(item)
+
+    @rule()
+    def pop(self):
+        if self.queue:
+            self.queue.pop(0)
+
+    @invariant()
+    def check_capacity(self):
+        assert len(self.queue) <= self.capacity
+
+TestQueue = BoundedQueueStateMachine.TestCase
 ```
 
-### 2. Pydantic v2 Schema Property Validation Engine
-The following script demonstrates how to integrate Hypothesis with Pydantic v2 schemas and FastMCP 3.1 task protocols in early January 2027 standards:
+### 2. FastMCP 3.1 & Pydantic v2 Automated Testing Tool Bridge
+The following script builds an MCP tool server that executes property-based testing runs on target functions dynamically, returning minimal shrinking counterexamples to an AI agent:
 
 ```python
-from pydantic import BaseModel, Field, EmailStr
-from hypothesis import given, strategies as st
-from hypothesis.strategies import composite
 import json
+import pytest
+from pydantic import BaseModel, Field
+from hypothesis import given, settings, strategies as st
+from fastmcp import FastMCP
 
-class AgentTaskPayload(BaseModel):
-    task_id: str = Field(..., pattern=r"^task-[a-f0-9]{8}$")
-    priority: int = Field(default=1, ge=1, le=5)
-    payload_data: dict = Field(default_factory=dict)
+mcp = FastMCP("Hypothesis Verification Server")
 
-@composite
-def task_payload_strategy(draw):
-    hex_id = draw(st.text(alphabet="0123456789abcdef", min_size=8, max_size=8))
-    task_id = f"task-{hex_id}"
-    priority = draw(st.integers(min_value=1, max_value=5))
-    data = draw(st.dictionaries(st.text(min_size=1, max_size=5), st.integers()))
-    return {"task_id": task_id, "priority": priority, "payload_data": data}
+class TestExecutionRequest(BaseModel):
+    module_name: str = Field(..., description="Target module to test")
+    max_examples: int = Field(default=100, ge=10, le=1000)
+    deadline_ms: int = Field(default=200, ge=50, le=1000)
 
-@given(task_payload_strategy())
-def test_pydantic_schema_validation(data_dict):
-    model = AgentTaskPayload.model_validate(data_dict)
-    assert model.task_id.startswith("task-")
-    assert 1 <= model.priority <= 5
-    dumped = model.model_dump()
-    assert dumped["task_id"] == data_dict["task_id"]
+@mcp.tool()
+def execute_property_check(request: TestExecutionRequest) -> str:
+    """Executes a property check with specified Hypothesis settings."""
+    custom_settings = settings(
+        max_examples=request.max_examples,
+        deadline=request.deadline_ms
+    )
+
+    failing_example = None
+
+    def target_property(val: int):
+        if val > 99 and val % 7 == 0:
+            raise ValueError(f"Discovered edge case violation for {val}")
+
+    try:
+        @given(st.integers(min_value=0, max_value=500))
+        @custom_settings
+        def run_test(x):
+            target_property(x)
+
+        run_test()
+        return json.dumps({"status": "passed", "examples_tested": request.max_examples})
+    except Exception as e:
+        return json.dumps({
+            "status": "failed",
+            "minimal_failing_example": str(e),
+            "error_type": type(e).__name__
+        }, indent=2)
 
 if __name__ == "__main__":
-    print("Executing Hypothesis property test verification...")
-    test_pydantic_schema_validation()
-    print("Verification complete.")
+    mcp.run()
 ```
+
+## Deployment & Containerization
+
+### Docker Compose Test Execution Sandbox
+Deploy an isolated Hypothesis runner container for executing property-based fuzzing and test suites safely:
+
+```yaml
+version: "3.8"
+
+services:
+  hypothesis-runner:
+    image: python:3.12-slim
+    container_name: hypothesis-runner
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - hypothesis-cache:/workspace/.hypothesis
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HYPOTHESIS_STORAGE_DIRECTORY=/workspace/.hypothesis
+    command: >
+      bash -c "pip install hypothesis pytest pydantic fastmcp &&
+               pytest --hypothesis-verbosity=verbose"
+
+volumes:
+  hypothesis-cache:
+```
+
+### Systemd Daemon Setup (`/etc/systemd/system/hypothesis-runner.service`)
+Configure a background daemon for executing continuous nightly property-based stress tests:
+
+```ini
+[Unit]
+Description=Hypothesis Property-Based Testing Background Runner
+After=network.target
+
+[Service]
+Type=simple
+User=testrunner
+Group=testrunner
+WorkingDirectory=/opt/hypothesis-suite
+ExecStart=/usr/bin/python3 -m pytest --hypothesis-profile=ci
+Restart=on-failure
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/hypothesis-suite/.hypothesis
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Corrective Resolution Strategy |
+| :--- | :--- | :--- |
+| **`DeadlineExceeded` Exception** | Individual test function execution exceeded the allocated deadline (default 200ms). | Increase deadline via `@settings(deadline=1000)` or disable for slow I/O calls. |
+| **Unbounded Shrinking Hangs** | Infinite or highly complex strategy graph without size bounds. | Set `max_size` or `min_size` on `st.lists()` and `st.text()` strategies. |
+| **`Flaky` Failure Report** | Function behavior depends on non-deterministic external state or unseeded random state. | Mock external dependencies or use `hypothesis.seed()` to ensure deterministic behavior. |
+| **Stale State Cache** | Hypothesis re-runs old failing examples after bug fixes due to corrupted cache. | Run `pytest --hypothesis-clear` to purge local `.hypothesis` SQLite database. |
 
 ## Production Operational Best Practices
 

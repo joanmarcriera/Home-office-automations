@@ -254,6 +254,79 @@ if __name__ == "__main__":
 | **MCP Tool Attribute Filtering** | `{ span.mcp.tool = "vector_store" && span.execution.duration_ms > 200 }` | Filters spans executing specific agent tools over duration threshold |
 | **LLM Token Usage Query** | `{ span.llm.total_tokens > 2000 }` | Isolates trace spans involving large context window completions |
 
+## Deployment & Production Infrastructure
+
+### Full-Stack LGTM & MinIO Docker Compose Setup
+Deploy Grafana Tempo alongside MinIO object storage, OpenTelemetry Collector, and Grafana for trace visual analysis:
+
+```yaml
+version: "3.8"
+
+services:
+  tempo:
+    image: grafana/tempo:2.6.0
+    container_name: tempo-backend
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "3200:3200" # Tempo Query Frontend
+    depends_on:
+      - minio
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-01T00-00-00Z
+    container_name: tempo-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: tempo-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+```
+
+### Systemd Daemon Setup (`/etc/systemd/system/tempo-ingester.service`)
+Configure a dedicated background service for local Tempo distributed tracing instances:
+
+```ini
+[Unit]
+Description=Grafana Tempo Distributed Tracing Backend Ingester
+After=network.target minio.service
+Wants=minio.service
+
+[Service]
+Type=simple
+User=tempo
+Group=tempo
+WorkingDirectory=/etc/tempo
+ExecStart=/usr/local/bin/tempo -config.file=/etc/tempo/tempo.yaml
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/tempo
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Troubleshooting & Diagnostics
 
 | Symptom | Probable Cause | Diagnostic Command | Remediation Action |
