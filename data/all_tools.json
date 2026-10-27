@@ -702,6 +702,12 @@
       "doc_path": "docs/tools/frameworks/crewai.md"
     },
     {
+      "id": "crosshair",
+      "name": "CrossHair",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/crosshair.md"
+    },
+    {
       "id": "curiosity",
       "name": "Curiosity",
       "category": "Enterprise AI",
@@ -898,6 +904,12 @@
       "doc_path": "docs/tools/infrastructure/docker-compose.md"
     },
     {
+      "id": "docker-mcp",
+      "name": "Docker MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/docker-mcp.md"
+    },
+    {
       "id": "docker-sandbox-ai-agent",
       "name": "Docker Sandbox for AI Agents",
       "category": "infrastructure",
@@ -1058,6 +1070,12 @@
       "name": "Fastmail",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/fastmail.md"
+    },
+    {
+      "id": "fastmcp",
+      "name": "FastMCP",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/fastmcp.md"
     },
     {
       "id": "fiddler",
