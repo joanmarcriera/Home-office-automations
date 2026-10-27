@@ -90,7 +90,7 @@ For AI agents (such as those configured in the [Agentic Automation Canvas](agent
 ### 1. Installation
 Install the official Python RO-Crate library (`rocrate`):
 ```bash
-uv add rocrate
+uv add rocrate pydantic fastmcp
 ```
 
 ### 2. Creating an RO-Crate Package in Python
@@ -124,6 +124,11 @@ rocrate validate my_rocrate_dir/
 rocrate zip my_rocrate_dir/ -o experiment_crate.zip
 ```
 
+### 3. Inspect RO-Crate Metadata Context Graph
+```bash
+python3 -m json.tool my_rocrate_dir/ro-crate-metadata.json | head -n 30
+```
+
 ## API examples
 
 ### 1. Adding Provenance Metadata to an RO-Crate
@@ -148,13 +153,18 @@ script = crate.add_file("analysis.py", properties={
 crate.write_zip("agent_experiment.crate.zip")
 ```
 
-### 2. FastMCP 3.1 & Pydantic v2 RO-Crate Contract Validation
-The following Python script demonstrates how an AI agent validates an RO-Crate manifest payload using Pydantic v2 and FastMCP 3.1 standards in early January 2027:
+### 2. FastMCP 3.1 & Pydantic v2 RO-Crate Contract Validation Server
+The following Python script implements a complete FastMCP 3.1 server with Pydantic v2 schema validation for packaging and inspecting RO-Crate research objects:
 
 ```python
-from pydantic import BaseModel, Field, HttpUrl
-from typing import List, Dict, Any, Optional
 import json
+import zipfile
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, HttpUrl
+from fastmcp import FastMCP
+
+mcp = FastMCP("RO-Crate Packaging & Semantic Validation Server")
 
 class CrateEntity(BaseModel):
     id: str = Field(..., alias="@id")
@@ -166,8 +176,15 @@ class ROCrateMetadataManifest(BaseModel):
     context: str = Field("https://w3id.org/ro/crate/1.1/context", alias="@context")
     graph: List[Dict[str, Any]] = Field(..., alias="@graph", min_length=2)
 
+class PackageCrateRequest(BaseModel):
+    crate_name: str = Field(..., description="Name of the research crate")
+    description: str = Field(..., description="Description of research artifacts")
+    dataset_paths: List[str] = Field(..., description="List of dataset file paths")
+    agent_id: str = Field("agent-claude-5-6", description="Identifier of generating AI agent")
+
+@mcp.tool()
 def validate_rocrate_manifest(manifest_payload: dict) -> str:
-    """Validates RO-Crate JSON-LD manifest structure using Pydantic v2."""
+    """Validates RO-Crate JSON-LD manifest structure using Pydantic v2 models."""
     try:
         manifest = ROCrateMetadataManifest.model_validate(manifest_payload)
         root_entity = next((e for e in manifest.graph if e.get("@id") == "./"), None)
@@ -182,16 +199,130 @@ def validate_rocrate_manifest(manifest_payload: dict) -> str:
             "validation_errors": str(e)
         }, indent=2)
 
-if __name__ == "__main__":
-    sample_manifest = {
-        "@context": "https://w3id.org/ro/crate/1.1/context",
-        "@graph": [
-            {"@id": "ro-crate-metadata.json", "@type": ["CreativeWork"], "conformsTo": {"@id": "https://w3id.org/ro/crate/1.1"}},
-            {"@id": "./", "@type": ["Dataset"], "name": "Agentic Execution Crate", "description": "Automated task output"}
+@mcp.tool()
+def build_agentic_rocrate(request: PackageCrateRequest) -> str:
+    """Creates a standardized RO-Crate package directory and metadata graph."""
+    try:
+        graph = [
+            {
+                "@id": "ro-crate-metadata.json",
+                "@type": ["CreativeWork"],
+                "about": {"@id": "./"},
+                "conformsTo": {"@id": "https://w3id.org/ro/crate/1.1"}
+            },
+            {
+                "@id": "./",
+                "@type": ["Dataset"],
+                "name": request.crate_name,
+                "description": request.description,
+                "creator": {"@id": f"#{request.agent_id}"}
+            },
+            {
+                "@id": f"#{request.agent_id}",
+                "@type": ["SoftwareApplication"],
+                "name": f"Autonomous AI Agent ({request.agent_id})"
+            }
         ]
-    }
-    print(validate_rocrate_manifest(sample_manifest))
+
+        for path in request.dataset_paths:
+            file_name = Path(path).name
+            graph.append({
+                "@id": file_name,
+                "@type": ["File"],
+                "name": file_name
+            })
+
+        manifest = {"@context": "https://w3id.org/ro/crate/1.1/context", "@graph": graph}
+        validated = ROCrateMetadataManifest.model_validate(manifest)
+
+        return json.dumps({
+            "status": "created",
+            "manifest": validated.model_dump(by_alias=True)
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)}, indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Deployment & Containerization
+
+### Docker Compose Service Setup
+Deploy an automated RO-Crate packaging and validation microservice alongside a local MinIO object store for crate distribution:
+
+```yaml
+version: "3.8"
+
+services:
+  rocrate-server:
+    image: python:3.12-slim
+    container_name: rocrate-server
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /var/crates:/data/crates
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CRATE_STORAGE_PATH=/data/crates
+    command: >
+      bash -c "pip install rocrate pydantic fastmcp &&
+               python3 rocrate_server.py"
+    ports:
+      - "8095:8095"
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-01T00-00-00Z
+    container_name: crate-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+```
+
+### Systemd Daemon Setup (`/etc/systemd/system/ro-crate-packager.service`)
+Configure a dedicated background service for automated research crate aggregation:
+
+```ini
+[Unit]
+Description=RO-Crate Packaging and Metadata Microservice
+After=network.target minio.service
+Wants=minio.service
+
+[Service]
+Type=simple
+User=rocrate
+Group=rocrate
+WorkingDirectory=/opt/rocrate-service
+ExecStart=/usr/bin/python3 /opt/rocrate-service/rocrate_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CRATE_STORAGE_PATH=/var/lib/rocrate/crates
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Corrective Resolution Strategy |
+| :--- | :--- | :--- |
+| **JSON-LD Context Expansion Error** | Missing or inaccessible `@context` URI (`https://w3id.org/ro/crate/1.1/context`). | Verify outbound internet connectivity or cache local context JSON file. |
+| **Missing Root Dataset Entity** | `@graph` array does not contain an entity with `@id: "./"`. | Ensure the manifest builder explicitly initializes the `./` root Dataset block. |
+| **Schema Validation Failure** | Non-standard entity types or missing required properties in `ro-crate-metadata.json`. | Pass raw JSON manifest payloads through `ROCrateMetadataManifest.model_validate()`. |
+| **File Checksum Mismatch** | Data files altered after `ro-crate-metadata.json` checksum generation. | Re-run `rocrate zip` or regenerate SHA-256 hashes for updated entity nodes. |
 
 ## Production Operational Best Practices
 

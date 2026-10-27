@@ -126,7 +126,7 @@ Exposing Genkit flows and agent tools via a FastMCP 3.1 server:
 ```python
 import os
 import requests
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
 mcp = FastMCP("firebase-genkit-mcp-gateway", version="3.1.0")
@@ -270,6 +270,81 @@ try:
 except Exception as e:
     print(f"Validation failed: {e}")
 ```
+
+## Deployment & Containerization
+
+### Docker Compose Local Emulator Setup
+Run Firebase Genkit flows and Developer UI alongside the Firebase Local Emulator Suite in Docker:
+
+```yaml
+version: "3.8"
+
+services:
+  genkit-devui:
+    image: node:22-slim
+    container_name: genkit-devui
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "4000:4000"   # Genkit Dev UI
+      - "5001:5001"   # Cloud Functions Emulator
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - NODE_ENV=development
+    command: >
+      bash -c "npm install &&
+               npx genkit start --port 4000"
+    restart: unless-stopped
+
+  firebase-emulator:
+    image: andreysenov/firebase-tools:latest
+    container_name: firebase-emulator
+    ports:
+      - "9099:9099"   # Auth Emulator
+      - "8080:8080"   # Firestore Emulator
+      - "4001:4001"   # Emulator Suite UI
+    command: firebase emulators:start --only auth,firestore
+    restart: unless-stopped
+```
+
+### Systemd Service Setup (`/etc/systemd/system/firebase-genkit-gateway.service`)
+Configure a background daemon for running the Genkit FastMCP gateway:
+
+```ini
+[Unit]
+Description=Firebase Genkit FastMCP 3.1 Gateway Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=genkit
+Group=genkit
+WorkingDirectory=/opt/genkit-gateway
+ExecStart=/usr/bin/python3 /opt/genkit-gateway/genkit_mcp_server.py
+Restart=always
+RestartSec=5s
+Environment=GENKIT_FUNCTION_URL=http://127.0.0.1:5001/app/us-central1/genkitFlow
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Corrective Resolution Strategy |
+| :--- | :--- | :--- |
+| **Cloud Function Cold Start Timeout** | Plugin initialization (e.g., Google GenAI or vector store) causes initial request latency > 10s. | Set min instances in Cloud Run / Firebase (`minInstances: 1`) or pre-warm connections. |
+| **`GEMINI_API_KEY` Missing Error** | Genkit plugin fails to authenticate with Google Gemini 4.0 Ultra API endpoints. | Export `GEMINI_API_KEY` or configure Firebase Secret Manager bindings. |
+| **FastMCP Tool Connection Reset** | Timeout during multi-step Genkit agent execution across HTTP bridge. | Increase HTTP client timeout to 30s+ in `trigger_genkit_flow()`. |
+| **Zod / Pydantic Schema Mismatch** | Agent parameter keys emitted by model do not match expected Zod or Pydantic schemas. | Enable strict schema enforcement in `ai.defineTool` or add fallback field validators. |
 
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md)

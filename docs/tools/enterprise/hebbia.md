@@ -143,7 +143,7 @@ import os
 import json
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, ConfigDict
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP(
@@ -218,8 +218,72 @@ def execute_matrix_diligence(
         }
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
 ```
+
+## Deployment & Containerization
+
+### Docker Compose Service Setup
+Deploy an enterprise FastMCP 3.1 agent gateway for Hebbia API integration:
+
+```yaml
+version: "3.8"
+
+services:
+  hebbia-bridge:
+    image: python:3.12-slim
+    container_name: hebbia-mcp-bridge
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      - HEBBIA_API_TOKEN=${HEBBIA_API_TOKEN}
+      - PYTHONUNBUFFERED=1
+    command: >
+      bash -c "pip install fastmcp pydantic requests &&
+               python3 hebbia_mcp_server.py"
+    ports:
+      - "8098:8098"
+    restart: unless-stopped
+```
+
+### Systemd Service Setup (`/etc/systemd/system/hebbia-mcp-bridge.service`)
+Configure a dedicated background service for automated enterprise document reasoning bridges:
+
+```ini
+[Unit]
+Description=Hebbia Matrix FastMCP 3.1 Integration Bridge
+After=network.target
+
+[Service]
+Type=simple
+User=hebbia
+Group=hebbia
+WorkingDirectory=/opt/hebbia-bridge
+ExecStart=/usr/bin/python3 /opt/hebbia-bridge/hebbia_mcp_server.py
+Restart=always
+RestartSec=5s
+Environment=HEBBIA_API_TOKEN=/etc/hebbia/api_token
+Environment=PYTHONUNBUFFERED=1
+
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom / Failure Mode | Root Cause Analysis | Corrective Resolution Strategy |
+| :--- | :--- | :--- |
+| **VDR Token Authorization Expired** | Session token for connected virtual deal room (e.g., Intralinks) timed out. | Re-authenticate VDR connector in Hebbia admin settings or refresh OAuth credentials. |
+| **Citation Link PDF Rendering Error** | Deep citation URL fails to open source PDF page coordinate. | Ensure document viewer has proper CORS settings and PDF page indexing completed. |
+| **Matrix Processing Delay** | Large bulk deal rooms (50,000+ pages) exceeding standard execution window. | Break project down by document category (e.g., *Contracts* vs *Financials*) or use async webhooks. |
+| **429 Rate Exceeded on API** | Concurrent AI agent polling exceeds account quota limits. | Implement backoff retry loops in FastMCP tool wrapper functions. |
 
 ## Related tools / concepts
 - [Bloomberg Terminal](bloomberg-terminal.md)
