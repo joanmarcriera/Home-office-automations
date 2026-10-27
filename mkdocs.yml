@@ -425,6 +425,7 @@ nav:
           - Google Stitch: tools/development_ops/google-stitch.md
           - Gpt Engineer: tools/development_ops/gpt_engineer.md
           - Humanizer: tools/development_ops/humanizer.md
+          - Hypothesis: tools/development_ops/hypothesis.md
           - Junie Cli: tools/development_ops/junie-cli.md
           - Jupyter Kernel MCP: tools/development_ops/jupyter-kernel-mcp.md
           - Lophius: tools/development_ops/lophius.md
@@ -496,6 +497,8 @@ nav:
           - Langflow: tools/frameworks/langflow.md
           - Lightwell AI: tools/frameworks/lightwell-ai.md
           - MageVL: tools/frameworks/magevl.md
+          - Maestro: tools/frameworks/maestro.md
+          - Malli: tools/frameworks/malli.md
           - Mastra: tools/frameworks/mastra.md
           - mini-AGI: tools/frameworks/mini-agi.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
@@ -609,6 +612,7 @@ nav:
           - Pizza Bot: tools/agents/pizza-bot.md
           - Replit Agent: tools/agents/replit-agent.md
           - Roo Code: tools/agents/roo-code.md
+          - RO-Crate Standard: tools/agents/ro-crate.md
           - Superpowers: tools/agents/superpowers.md
           - Symphony: tools/agents/symphony.md
           - WorldClaw: tools/agents/worldclaw.md

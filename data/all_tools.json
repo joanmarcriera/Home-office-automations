@@ -1574,6 +1574,12 @@
       "doc_path": "docs/tools/development_ops/humanizer.md"
     },
     {
+      "id": "hypothesis",
+      "name": "Hypothesis",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/hypothesis.md"
+    },
+    {
       "id": "ifttt",
       "name": "IFTTT",
       "category": "Automation & Orchestration",
@@ -2081,6 +2087,12 @@
       "doc_path": "docs/tools/ai_knowledge/luma-dream-machine.md"
     },
     {
+      "id": "maestro",
+      "name": "Maestro",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/maestro.md"
+    },
+    {
       "id": "magevl",
       "name": "MageVL",
       "category": "Frameworks",
@@ -2107,6 +2119,12 @@
       "name": "Makefile MCP",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/makefile-mcp.md"
+    },
+    {
+      "id": "malli",
+      "name": "Malli",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/malli.md"
     },
     {
       "id": "manual-assistant",
@@ -3073,6 +3091,12 @@
       "name": "Rivet",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/rivet.md"
+    },
+    {
+      "id": "ro-crate",
+      "name": "Research Object Crate (RO-Crate)",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/ro-crate.md"
     },
     {
       "id": "roam-research",
