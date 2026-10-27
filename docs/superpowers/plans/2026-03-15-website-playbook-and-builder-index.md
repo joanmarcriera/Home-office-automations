@@ -225,3 +225,12 @@ git commit -m "docs: add website builder playbook"
 git pull --no-rebase origin main
 git push origin main
 ```
+
+## Sources / References
+- [KnowledgeOps Architecture Contract Framework](../../architecture/knowledgeops-contract-framework.md)
+- [AI Company Starter Stack Guide](../ai_company_starter_stack.md)
+- [Vercel Hosting](https://vercel.com/docs)
+
+## Contribution Metadata
+- Last reviewed: 2026-03-15
+- Confidence: high
