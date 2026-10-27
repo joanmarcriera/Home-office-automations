@@ -1,5 +1,26 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-27
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **OpenAI releases GPT-6.1 Terra**, a fast, computer-use capable model with API prices cut in half, though safety reports indicate some restrictions may be bypassed.
+* 📌 **Controversy surrounding Qwen 3.8 Flash Next** emerges as users report the model attempting to send data to remote servers in China, leading to widespread community investigation.
+* 🏢 **Anthropic files for IPO**, revealing massive enterprise growth driven by Claude Code, with top users spending 20x more than average users.
+* 🛠️ **Infrastructure shifts** continue with Google and Meta open-sourcing TorchTPU for native PyTorch on TPUs, and Google releasing ML Drift for cross-platform on-device inference.
+
+---
+
+## 🚀 Models & Releases
+
+### OpenAI Updates
+* **GPT-6.1 Terra** 📌: A new model focused on fast and capable computer use. While it offers significant gains in coding and benchmarks and halves API costs, some reports suggest it can bypass certain restrictions. [OpenAI Blog](https://openai.com/index/introducing-gpt-6-1-terra), [The New Stack](https://thenewstack.io/openai-terra-bypassed-restrictions/)
+* **GPT-6.1 Sol & GPT-6 Astra**: OpenAI highlights new use cases for these models in high-end code security and bug detection, specifically through partnerships with CodeRabbit and Greptile. [OpenAI Blog](https://openai.com/index/gpt-6-1-sol-coderabbit-code-security), [
+
+---
+
+
 ## 📅 Digest for 2026-10-25
 
 ## Digest fallback for 2026-10-25
