@@ -47,16 +47,6 @@ Implementing standard Model Context Protocol servers directly using low-level JS
 ## Where it fits in the stack
 **Frameworks & Developer Tools Layer**. FastMCP operates as the core application engine for building custom tools, agent connectors, and system resource bridges that communicate over the Model Context Protocol.
 
-## Feature Matrix & Framework Comparison
-
-| Feature | FastMCP 3.1 | Standard MCP SDK (Python) | TypeScript MCP SDK | LangChain Tool Wrapping |
-| :--- | :--- | :--- | :--- | :--- |
-| **Developer API** | FastAPI-like `@mcp.tool()` | Low-level Class Handlers | Object Literals & Classes | `@tool` Decorators |
-| **Schema Engine** | Native Pydantic v2 | Manual JSON Schema | Zod Schema Validation | Pydantic v1 / v2 |
-| **Transports Supported** | Stdio, SSE, HTTP/WS Transports | Stdio, SSE | Stdio, SSE | Custom Middleware |
-| **Task Correlation ID** | Built-in `taskId` & Execution Context | Manual Implementation | Manual Implementation | N/A |
-| **OpenAPI / FastMCP 3.1** | Native FastMCP 3.1 Protocol | Basic MCP 1.0 | Basic MCP 1.0 | Custom Bridge |
-
 ## Typical use cases
 - **Building Custom Agent Tools**: Wrapping local Python functions, database queries, and web scrapers as MCP tools.
 - **Microservice API Gateways**: Exposing enterprise REST APIs and database functions to AI agents via FastMCP 3.1 SSE endpoints.
@@ -69,6 +59,26 @@ Implementing standard Model Context Protocol servers directly using low-level JS
 
 ## Limitations
 - **Python Async Loop Awareness**: Handlers executing heavy blocking I/O must use async routines or executor pools to avoid stalling transport loops.
+
+## When to use it
+- Building custom MCP servers in Python or TypeScript with minimal protocol boilerplate.
+- Exposing existing Python functions, databases, or REST APIs as FastMCP 3.1 tools and resources.
+- Leveraging Pydantic v2 type hints and validation for AI agent tool calling schemas.
+
+## When not to use it
+- Non-Python / non-TypeScript environments where official low-level SDKs for C++, Go, or Rust are required.
+- Simple single-file scripts that do not interface with Model Context Protocol agents.
+- Legacy architectures restricted from using modern Pydantic v2 validation layers.
+
+## Feature Matrix & Framework Comparison
+
+| Feature | FastMCP 3.1 | Standard MCP SDK (Python) | TypeScript MCP SDK | LangChain Tool Wrapping |
+| :--- | :--- | :--- | :--- | :--- |
+| **Developer API** | FastAPI-like `@mcp.tool()` | Low-level Class Handlers | Object Literals & Classes | `@tool` Decorators |
+| **Schema Engine** | Native Pydantic v2 | Manual JSON Schema | Zod Schema Validation | Pydantic v1 / v2 |
+| **Transports Supported** | Stdio, SSE, HTTP/WS Transports | Stdio, SSE | Stdio, SSE | Custom Middleware |
+| **Task Correlation ID** | Built-in `taskId` & Execution Context | Manual Implementation | Manual Implementation | N/A |
+| **OpenAPI / FastMCP 3.1** | Native FastMCP 3.1 Protocol | Basic MCP 1.0 | Basic MCP 1.0 | Custom Bridge |
 
 ## Getting started
 1. **Installation**:
@@ -90,7 +100,34 @@ Implementing standard Model Context Protocol servers directly using low-level JS
        mcp.run(transport="stdio")
    ```
 
-## CLI & FastMCP 3.1 Production Examples
+## CLI examples
+```bash
+# Install FastMCP package
+pip install fastmcp
+
+# Run FastMCP server using CLI runner
+fastmcp run server.py
+
+# Inspect FastMCP server version and protocol capabilities
+fastmcp --version
+```
+
+## API examples
+```python
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("Simple Tool Provider")
+
+@mcp.tool()
+def multiply(x: float, y: float) -> float:
+    """Multiply two numbers together."""
+    return x * y
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## API & FastMCP 3.1 Production Examples
 
 ### FastMCP 3.1 Multi-Tool & Resource Server
 ```python
