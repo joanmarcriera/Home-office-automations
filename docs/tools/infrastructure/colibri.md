@@ -106,6 +106,63 @@ Register Colibri as a local FastMCP 3.1 tool provider:
 mcp register colibri-streaming --command "colibri-server" --args "--model hy3-299b --mcp-sse --port 8080"
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Daemon (`/etc/systemd/system/colibri-inference.service`)
+To manage Colibri as a background streaming inference daemon on local workstation nodes:
+
+```ini
+[Unit]
+Description=Colibri DMA MoE Layer Streaming Inference Engine
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=colibri
+Group=colibri
+WorkingDirectory=/opt/colibri
+ExecStart=/opt/colibri/venv/bin/colibri-server --model /opt/colibri/models/hy3-299b-q4.gguf --vram-limit 12G --streaming-buffer 16G --active-experts 4 --port 8080
+Restart=always
+RestartSec=10
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="PYTHONUNBUFFERED=1"
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Workstation Deployment (`docker-compose.yml`)
+Deploy Colibri in a containerized GPU-accelerated environment with PCIe host sharing:
+
+```yaml
+version: '3.8'
+
+services:
+  colibri-engine:
+    image: colibri/inference-runtime:v1.4
+    container_name: colibri-streaming-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - VRAM_LIMIT=12G
+      - RAM_BUFFER=32G
+      - MODEL_PATH=/models/hy3-299b-q4.gguf
+    volumes:
+      - ./models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
+
 ## API examples
 
 ### 1. FastMCP 3.1 Server Configuration & Validation (Pydantic v2)

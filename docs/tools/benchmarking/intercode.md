@@ -106,6 +106,81 @@ python -m intercode.run --env bash --data data/bash/sample.json
 python -m intercode.run --env sql --data data/sql/sample.json
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Daemon (`/etc/systemd/system/intercode-mcp.service`)
+To run InterCode as a persistent background FastMCP 3.1 evaluation daemon across multi-agent benchmarking nodes:
+
+```ini
+[Unit]
+Description=InterCode FastMCP 3.1 Evaluation Gateway Server
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=benchmarker
+WorkingDirectory=/opt/intercode
+ExecStart=/opt/intercode/venv/bin/python -m intercode.fastmcp_server --port 9190 --env-pool-size 16
+Restart=always
+RestartSec=10
+Environment="PYTHONUNBUFFERED=1"
+Environment="DOCKER_HOST=unix:///var/run/docker.sock"
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Multi-Agent Benchmarking Environment (`docker-compose.yml`)
+Deploy an isolated multi-container InterCode execution cluster with PostgreSQL and Redis state stores:
+
+```yaml
+version: '3.8'
+
+services:
+  intercode-gateway:
+    image: intercode/fastmcp-gateway:3.1
+    container_name: intercode-fastmcp-gateway
+    restart: unless-stopped
+    ports:
+      - "9190:9190"
+    environment:
+      - PORT=9190
+      - REDIS_URL=redis://redis-cache:6379/0
+      - DB_URL=postgresql://benchuser:benchpass@postgres-db:5432/intercode_eval
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/opt/intercode/data
+    depends_on:
+      - redis-cache
+      - postgres-db
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: intercode-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: intercode-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: benchuser
+      POSTGRES_PASSWORD: benchpass
+      POSTGRES_DB: intercode_eval
+    ports:
+      - "5432:5432"
+    volumes:
+      - intercode_db_data:/var/lib/postgresql/data
+
+volumes:
+  intercode_db_data:
+```
+
 ## API examples
 
 ### Environment Interaction Loop (Python)

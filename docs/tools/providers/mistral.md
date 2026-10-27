@@ -131,6 +131,73 @@ curl https://api.mistral.ai/v1/embeddings \
   }'
 ```
 
+## Production Deployment & Proxy Orchestration
+
+### Systemd Service Daemon (`/etc/systemd/system/mistral-mcp-proxy.service`)
+To manage a persistent local Mistral FastMCP 3.1 proxy server for enterprise agent dispatching:
+
+```ini
+[Unit]
+Description=Mistral FastMCP 3.1 Sovereign Proxy Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=mistralproxy
+Group=mistralproxy
+WorkingDirectory=/opt/mistral-proxy
+ExecStart=/opt/mistral-proxy/venv/bin/python -m mistral_proxy.server --port 9095 --host 0.0.0.0
+Restart=always
+RestartSec=5
+Environment="MISTRAL_API_KEY=your_secured_mistral_api_key"
+Environment="PYTHONUNBUFFERED=1"
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Local Gateway Deployment (`docker-compose.yml`)
+Deploy a self-hosted Mixtral / vLLM inference node alongside a Mistral FastMCP gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  mistral-mcp-gateway:
+    image: mistral/fastmcp-gateway:3.1
+    container_name: mistral-fastmcp-gateway
+    restart: unless-stopped
+    ports:
+      - "9095:9095"
+    environment:
+      - PORT=9095
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - LOCAL_VLLM_URL=http://vllm-inference:8000/v1
+    depends_on:
+      - vllm-inference
+
+  vllm-inference:
+    image: vllm/vllm-openai:v0.6.0
+    container_name: mixtral-vllm
+    restart: unless-stopped
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: --model mistralai/Mixtral-8x22B-Instruct-v0.1 --tensor-parallel-size 4 --enable-chunked-prefill
+```
+
 ## FastMCP 3.1 Mistral Integration Pattern
 
 The following Python script illustrates how to build a FastMCP 3.1 tool server that routes tool requests through Mistral Large 3.5:
@@ -259,6 +326,15 @@ def validate_mistral_response(raw_json: str) -> Optional[MistralResponse]:
 
 ### 2. GDPR Data Residency Configs
 - **Explicit EU Endpoint Enforcement**: Ensure all client requests target Mistral's sovereign EU infrastructure (`https://api.mistral.ai/v1`) and configure enterprise zero-data-retention headers in the API portal.
+
+### Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **HTTP 401 Unauthorized** | Invalid or missing `MISTRAL_API_KEY` environment variable | Verify API key format and export key via `export MISTRAL_API_KEY="your_key"`. |
+| **HTTP 429 Rate Limit Exceeded** | API concurrency limit reached for current tier | Implement exponential backoff or route low-priority queries to local Mixtral vLLM endpoints. |
+| **Invalid JSON Tool Arguments** | Model output malformed function arguments | Wrap output parsing in Pydantic v2 `model_validate` with fallback repair prompts. |
+| **vLLM OOM CUDA Error** | KV cache memory overcommitted on GPU | Decrease `--gpu-memory-utilization` to 0.90 or reduce max context length (`--max-model-len 16384`). |
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local runner for Mistral and Mixtral models.

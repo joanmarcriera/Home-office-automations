@@ -112,6 +112,28 @@ services:
       - DEFAULT_PASSWORD=ChangeThisStrongPassword123
       - DEFAULT_GROUP=Home
       - DEFAULT_HOUSEHOLD=Family
+      - DB_ENGINE=postgres
+      - POSTGRES_USER=mealieuser
+      - POSTGRES_PASSWORD=mealiepass
+      - POSTGRES_SERVER=postgres-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mealiedb
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: mealie-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mealieuser
+      POSTGRES_PASSWORD: mealiepass
+      POSTGRES_DB: mealiedb
+    volumes:
+      - mealie_pg_data:/var/lib/postgresql/data
+
+volumes:
+  mealie_pg_data:
 ```
 
 ### Execution Sequence Diagram
@@ -133,6 +155,38 @@ sequenceDiagram
     Core->>DB: Store Recipe & Ingredient Records
     Core-->>WebUI: Return Created Recipe Object
     Core->>HA: Push Notification ("New Recipe Added")
+```
+
+## Production Deployment & Orchestration
+
+### Systemd Service Daemon (`/etc/systemd/system/mealie.service`)
+To manage Mealie directly via systemd in non-Docker or bare-metal LXC setups:
+
+```ini
+[Unit]
+Description=Mealie Household Recipe & Meal Planning Backend Service
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=mealie
+Group=mealie
+WorkingDirectory=/opt/mealie
+ExecStart=/opt/mealie/venv/bin/uvicorn mealie.app:app --host 0.0.0.0 --port 9925 --workers 4
+Restart=always
+RestartSec=5
+Environment="PRODUCTION=true"
+Environment="DB_ENGINE=postgres"
+Environment="POSTGRES_SERVER=127.0.0.1"
+Environment="POSTGRES_USER=mealieuser"
+Environment="POSTGRES_PASSWORD=mealiepass"
+Environment="POSTGRES_DB=mealiedb"
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -209,14 +263,14 @@ if __name__ == "__main__":
 
 ### FastMCP 3.1 Agent Tool Server
 
-Exposing Mealie to autonomous agents for meal querying:
+Exposing Mealie to autonomous agents for meal querying and automated shopping list item creation:
 
 ```python
 """
 FastMCP 3.1 Server: Mealie Household Agent Integration
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import requests
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
@@ -226,6 +280,11 @@ mcp = FastMCP("MealieAgentTool")
 class RecipeSearchInput(BaseModel):
     query: str = Field(..., description="Dish or ingredient keyword search string.")
     limit: int = Field(default=5, ge=1, le=20, description="Maximum number of matches.")
+
+class ShoppingListItemInput(BaseModel):
+    shopping_list_id: str = Field(..., description="Target shopping list UUID string.")
+    note: str = Field(..., description="Item name or description with quantity (e.g., '2 kg Organic Carrots').")
+    display_category: Optional[str] = Field("Produce", description="Grocery store section grouping.")
 
 @mcp.tool()
 def search_mealie_recipes(input_data: RecipeSearchInput) -> Dict[str, Any]:
@@ -247,9 +306,41 @@ def search_mealie_recipes(input_data: RecipeSearchInput) -> Dict[str, Any]:
     except Exception as err:
         return {"success": False, "error": str(err)}
 
+@mcp.tool()
+def add_item_to_mealie_shopping_list(input_data: ShoppingListItemInput) -> Dict[str, Any]:
+    """
+    Adds a missing ingredient or household item directly to a specified Mealie shopping list.
+    """
+    url = f"http://localhost:9925/api/groups/shopping-lists/{input_data.shopping_list_id}/items"
+    headers = {
+        "Authorization": "Bearer YOUR_MEALIE_API_TOKEN",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "note": input_data.note,
+        "checked": False
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=5.0)
+        if response.status_code in (200, 201):
+            return {"success": True, "added_item": input_data.note}
+        return {"success": False, "error": f"HTTP status {response.status_code}"}
+    except Exception as err:
+        return {"success": False, "error": str(err)}
+
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **Recipe Scraping Fails (403/500)** | Target site blocked scraper user-agent or altered HTML structure | Update Mealie container to the latest release to pull updated `recipe-scrapers` package (`docker compose pull`). |
+| **Database Migration Timeout** | SQLite locked during multi-threaded worker access | Convert storage engine from SQLite to PostgreSQL via `DB_ENGINE=postgres` in Docker environment. |
+| **FastMCP Token Authorization Error** | Mealie API bearer token expired or lacking write scope | Generate an explicit API key under Mealie Profile -> Manage API Tokens with `Household` write access. |
+| **Home Assistant Sync Stalled** | Webhook endpoint unreachable or port mismatch | Verify Mealie API port (default 9000/9925) and check CORS settings under `ALLOW_CORS=true`. |
 
 ## Related tools / concepts
 
