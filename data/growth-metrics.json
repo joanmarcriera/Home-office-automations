@@ -20,13 +20,9 @@
   },
   "docs_with_code_examples": 605,
   "docs_without_code_examples": 0,
-  "shallow_docs": [
-    "docs/tools/frameworks/fastmcp.md",
-    "docs/tools/development_ops/crosshair.md",
-    "docs/tools/development_ops/docker-mcp.md"
-  ],
+  "shallow_docs": [],
   "underdeveloped_categories": [],
-  "weekly_additions": 4,
+  "weekly_additions": 0,
   "intake_items_7d": 15,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
