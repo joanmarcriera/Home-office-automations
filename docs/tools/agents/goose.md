@@ -279,6 +279,88 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Deployment & Production Configuration
+
+### Systemd Service Unit (`goose-agent.service`)
+Deploy Goose as a background headless worker daemon for automated CI/CD task queues:
+
+```ini
+[Unit]
+Description=Goose Autonomous AI Developer Agent Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=goose
+Group=goose
+WorkingDirectory=/var/lib/goose
+ExecStart=/usr/local/bin/goose session --mcp-server http://localhost:8000/mcp --headless
+Restart=always
+RestartSec=10s
+Environment=GOOSE_PROVIDER=litellm
+Environment=LITELLM_KEY=sk-proxy-goose-production-key
+Environment=GOOSE_MAX_TURNS=30
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Sandbox Stack (`docker-compose.yml`)
+Isolate Goose agent executions inside sandboxed containers paired with LiteLLM proxy:
+
+```yaml
+version: "3.8"
+
+services:
+  goose-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.goose
+    container_name: goose-agent-worker
+    restart: unless-stopped
+    environment:
+      - GOOSE_PROVIDER=openai
+      - OPENAI_API_BASE=http://litellm-proxy:4000/v1
+      - OPENAI_API_KEY=sk-litellm-master-key
+      - GOOSE_MAX_TURNS=25
+    volumes:
+      - ./workspace:/workspace
+      - ./goose_config:/root/.config/goose
+    depends_on:
+      - litellm-proxy
+    networks:
+      - goose-sandbox-net
+
+  litellm-proxy:
+    image: ghcr.io/berriai/litellm:main-v1.30.0
+    container_name: goose-litellm-proxy
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    networks:
+      - goose-sandbox-net
+
+networks:
+  goose-sandbox-net:
+    driver: bridge
+```
+
+## Operational Hardening & Troubleshooting
+
+| Diagnostic Symptom / Error | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Tool execution permission denied` | Goose attempting host shell modifications without required privilege | Configure sandbox container permissions or grant explicitly in `config.yaml` |
+| `Context window token limit exceeded` | Long multi-turn agent iterations filling prompt history | Lower `--max-turns` parameter or enable session context summarization |
+| `LiteLLM proxy connection refused` | Network routing misconfiguration between container nodes | Verify LiteLLM service availability on port 4000 and inspect DNS settings |
+| `FastMCP tool timeout` | Subprocess execution in custom tool exceeding default threshold | Increase MCP tool execution timeout parameter in server configuration |
+
 ## Related tools / concepts
 
 - [Aider](../development_ops/aider.md): Pair-programming CLI tool.

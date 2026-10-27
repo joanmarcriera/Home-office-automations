@@ -263,6 +263,87 @@ results = evaluate(
 print(f"EvalPlus Hardened MBPP Score: {results['pass@1']}")
 ```
 
+## Deployment & Infrastructure Configuration
+
+### Systemd Service Unit (`mbpp-evaluator.service`)
+To run an automated MBPP code evaluation service on benchmark runner nodes, deploy the following systemd unit file:
+
+```ini
+[Unit]
+Description=MBPP FastMCP 3.1 Code Evaluation Daemon
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=benchmark
+Group=benchmark
+WorkingDirectory=/opt/mbpp-evaluator
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8090
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=MBPP_SANDBOX_TIMEOUT=5
+Environment=MBPP_MAX_MEMORY=512M
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack Setup
+For orchestrated multi-container MBPP benchmark sweeps with vLLM and EvalPlus test runners, use this `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  mbpp-evaluator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mbpp-fastmcp-evaluator
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8090
+      - VLLM_ENDPOINT=http://vllm-server:8000/v1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data:ro
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=512m
+    networks:
+      - eval-net
+
+  vllm-server:
+    image: vllm/vllm-openai:latest
+    container_name: mbpp-vllm-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=deepseek-ai/deepseek-coder-7b-v1.5
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - eval-net
+
+networks:
+  eval-net:
+    driver: bridge
+```
+
 ## Operational Hardening Guidelines
 - **Network-Disabled Container Sandboxing**: Always run code assertion tests inside unprivileged Docker containers with `--network none` to prevent arbitrary socket connections or data exfiltration.
 - **Strict Execution Timeouts**: Apply hard subprocess timeouts (e.g., 5 seconds per test) to prevent infinite loops from hanging evaluation runners.

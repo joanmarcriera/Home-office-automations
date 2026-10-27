@@ -253,6 +253,83 @@ def process_school_payload(raw_json_str: str) -> None:
         print("Invalid JSON structure received from LLM model.")
 ```
 
+## Production Deployment Configuration
+
+### Systemd Service Unit (`school-intake.service`)
+Deploy the FastMCP 3.1 School Admin Intake server as a persistent systemd service on household automation servers:
+
+```ini
+[Unit]
+Description=School Admin Intake FastMCP 3.1 Service Engine
+After=network.target paperless-ngx.service ollama.service
+Requires=paperless-ngx.service
+
+[Service]
+Type=simple
+User=familyadmin
+Group=familyadmin
+WorkingDirectory=/opt/school-admin-intake
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8085
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=PAPERLESS_URL=http://localhost:8000
+Environment=OLLAMA_ENDPOINT=http://localhost:11434
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack (`docker-compose.yml`)
+Full self-hosted stack configuring Paperless-ngx, n8n ingestion, and FastMCP intake server:
+
+```yaml
+version: "3.8"
+
+services:
+  school-intake-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: school-admin-intake-mcp
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - PAPERLESS_URL=http://paperless-ngx:8000
+      - OLLAMA_URL=http://ollama-service:11434
+    networks:
+      - family-admin-net
+
+  n8n-intake-trigger:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: school-intake-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=n8n.local
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - family-admin-net
+
+networks:
+  family-admin-net:
+    driver: bridge
+
+volumes:
+  n8n_data:
+```
+
+## Troubleshooting & Common Failure Modes
+
+| Failure Symptom | Likely Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| `Pydantic ValidationError on Date Field` | Non-standard date format in unstructured text (e.g., "Next Fri") | Route text through local Llama 4 pre-normalizer step to convert to YYYY-MM-DD |
+| `Paperless OCR missing text` | Low DPI physical slip scan | Enable `PAPERLESS_OCR_DESKEW=true` and force Docling PDF parsing fallback |
+| `Ollama Connection Timeout` | 70B vision model parameter swap latency on local GPU | Pin model weights in VRAM or fallback to 27B quantization model |
+
 ## Related tools / concepts
 
 - [Paperless-ngx](../services/paperless-ngx.md): Document management archive.
