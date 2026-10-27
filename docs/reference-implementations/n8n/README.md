@@ -51,3 +51,41 @@ To use local models within n8n, use the **OpenAI Chat Model** node with a custom
 
 ### Token-Efficiency Tip
 Disable **Memory** (History) in the LLM node for one-off extraction tasks to keep the context window small and save local compute resources.
+
+## When not to use it
+- When simple cron scripts or native webhooks suffice without full visual workflow orchestration.
+- When hard real-time latency (< 5ms) is strictly required between low-level message brokers.
+
+## Getting started
+Import workflow templates into n8n or run n8n CLI commands to activate references:
+
+```bash
+docker run -d --name n8n -p 5678:5678 n8nio/n8n:latest
+```
+
+## CLI examples
+Manage n8n workflows and active instances directly from the terminal:
+
+```bash
+n8n export:workflow --backup --output=./workflows/
+n8n import:workflow --input=./email-to-paperless.json
+n8n update:workflow --id=1 --active=true
+```
+
+## API examples
+Trigger n8n workflow webhooks and retrieve execution statistics programmatically:
+
+```python
+import json
+import urllib.request
+
+def trigger_n8n_webhook(webhook_url: str, payload: dict) -> dict:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(webhook_url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+if __name__ == "__main__":
+    res = trigger_n8n_webhook("http://localhost:5678/webhook/voice-to-vikunja", {"transcription": "Schedule dentist appointment for tomorrow at 10am"})
+    print(res)
+```

@@ -319,7 +319,7 @@ if __name__ == "__main__":
 - [Open WebUI](../services/open-webui.md) — Multi-model interface with fallback routing.
 - [Fallback Patterns](../knowledge_base/patterns/fallback-patterns.md) — Resilient system pattern specs.
 - [Self-Healing Agent Research](../knowledge_base/self-healing-agent-research.md) — Autonomous recovery patterns.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for context-aware model selection.
+- [Model Routing Guide](../knowledge_base/model_routing_guide.md) — Strategy for context-aware model selection.
 
 ## Sources / References
 - [LiteLLM Router & Fallbacks Guide](https://docs.litellm.ai/docs/proxy/fallbacks)
