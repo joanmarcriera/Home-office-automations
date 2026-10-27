@@ -418,6 +418,7 @@ nav:
           - Firebase Studio: tools/development_ops/firebase-studio.md
           - Free Will MCP: tools/development_ops/free-will-mcp.md
           - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
+          - Hypothesis: tools/development_ops/hypothesis.md
           - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
           - GitHub Copilot Computer Use: tools/development_ops/github-copilot-computer-use.md
           - GitHub Pages: tools/development_ops/github-pages.md
@@ -503,6 +504,8 @@ nav:
           - mini-AGI: tools/frameworks/mini-agi.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
           - Microsoft Agent Framework Harness: tools/frameworks/microsoft-agent-framework-harness.md
+          - Maestro: tools/frameworks/maestro.md
+          - Malli: tools/frameworks/malli.md
           - Mycelium: tools/frameworks/mycelium.md
           - NeMo AutoModel: tools/frameworks/nemo-automodel.md
           - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
@@ -585,6 +588,7 @@ nav:
           - Agentic Workbench: tools/agents/agentic-workbench.md
           - Agency-Agents: tools/agents/agency-agents.md
           - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
+          - RO-Crate Standard: tools/agents/ro-crate.md
           - Cline: tools/agents/cline.md
           - Agno: tools/agents/agno.md
           - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
