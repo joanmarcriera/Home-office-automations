@@ -269,7 +269,7 @@ if __name__ == "__main__":
 - [Claude 5.6](../tools/ai_knowledge/claude.md): Recommended frontier model for temporal reasoning and structured extraction.
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md): Primary enterprise and personal cloud calendar endpoint.
 - [JMAP](../tools/calendar_tasks/jmap.md): Modern open protocol for calendar and mail synchronization.
-- [Radicale](../../services/radicale.md): Lightweight, self-hosted CalDAV/CardDAV calendar server.
+- [Radicale](../services/radicale.md): Lightweight, self-hosted CalDAV/CardDAV calendar server.
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md): Specialized calendar MCP server for multi-calendar querying.
 - [Temporal Reasoning](../knowledge_base/patterns/date-extraction.md): Knowledge base pattern for resolving relative timestamps.
 

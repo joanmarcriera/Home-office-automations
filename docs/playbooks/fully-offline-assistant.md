@@ -12,6 +12,19 @@ It eliminates complete operational dependence on external cloud AI providers (An
 
 ## System Architecture
 
+```mermaid
+flowchart TD
+    User["User / Client Interface\n(Open WebUI / Mobile PWA)"] --> Router["FastMCP 3.1 Intent Router\n& Query Classifier"]
+    Router -->|RAG Vector Query| VectorDB["Local Vector Store\n(Milvus / Qdrant)"]
+    Router -->|Offline Knowledge Lookup| Kiwix["Kiwix Server\n(Wikipedia / Docs ZIMs)"]
+    Router -->|System Automation| Tools["Local FastMCP Tools\n(Filesystem / SQLite Sandbox)"]
+    VectorDB --> Engine["Local LLM Engine\n(Ollama / vLLM Runtime)"]
+    Kiwix --> Engine
+    Tools --> Engine
+    Engine --> Synthesizer["FastMCP Response Synthesizer\n& Token Streamer"]
+    Synthesizer --> User
+```
+
 ```
                   +-------------------------------------------------------+
                   |  User / Client Interface                              |
