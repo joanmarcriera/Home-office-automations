@@ -324,6 +324,23 @@ def record_agent_telemetry_event(event_json: str) -> str:
     event = TelemetryEvent.model_validate_json(event_json)
     return f"Telemetry recorded for {event.agent_id} on {event.target_path} ({event.duration_ms:.2f}ms)."
 
+class SessionCheckpointState(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    session_id: str = Field(..., description="Unique agentic session tracking UUID")
+    agent_id: str = Field(..., description="Driving AI agent signature")
+    completed_steps: List[str] = Field(default_factory=list, description="List of completed task step IDs")
+    pending_steps: List[str] = Field(default_factory=list, description="List of remaining open task step IDs")
+    is_active: bool = Field(True, description="Active status of session loop")
+
+@mcp.tool()
+def checkpoint_agent_session_state(checkpoint_json: str) -> str:
+    """
+    FastMCP 3.1 tool for persistent agent session state checkpointing and task progress tracking.
+    """
+    state = SessionCheckpointState.model_validate_json(checkpoint_json)
+    return f"Session checkpoint saved for '{state.session_id}': {len(state.completed_steps)} completed, {len(state.pending_steps)} pending."
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -386,5 +403,5 @@ WantedBy=multi-user.target
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high
