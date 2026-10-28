@@ -84,12 +84,81 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 - If strict data privacy requirements forbid any cloud-based telemetry (and enterprise self-hosting is not feasible).
 - When a lightweight, open-source alternative like [Promptfoo](promptfoo.md) is sufficient.
 
+## Systemd Service Configuration
+For managing self-hosted LangSmith ingestion proxies or local collector sidecars in enterprise hybrid environments, systemd provides background daemon lifecycle control:
+
+```ini
+[Unit]
+Description=LangSmith Local Ingestion Proxy Sidecar
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=simple
+User=langsmith
+Group=langsmith
+WorkingDirectory=/opt/langsmith-proxy
+Environment="LANGSMITH_TRACING=true"
+Environment="LANGSMITH_ENDPOINT=http://localhost:1980"
+Environment="LANGSMITH_API_KEY=ls__internal_proxy_key_2027"
+ExecStart=/opt/langsmith-proxy/bin/langsmith-proxy --port 1980 --workers 4
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment
+Self-hosted enterprise setups deploy LangSmith tracing collectors along with ClickHouse OLAP stores and Redis caching nodes using Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  langsmith-backend:
+    image: langchain/langsmith-backend:v0.8.2
+    container_name: langsmith-backend
+    restart: unless-stopped
+    ports:
+      - "1980:1980"
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=9000
+      - REDIS_URL=redis://redis:6379/0
+      - LANGSMITH_LICENSE_KEY=${LANGSMITH_LICENSE_KEY}
+    depends_on:
+      - clickhouse
+      - redis
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8-alpine
+    container_name: langsmith-clickhouse
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: langsmith-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  clickhouse-data:
+```
+
 ## Getting started
 LangSmith requires an API key and the `langsmith` Python package.
 
 ### 1. Installation
 ```bash
-pip install langsmith
+pip install langsmith pydantic>=2.0
 ```
 
 ### 2. Configuration
@@ -139,20 +208,29 @@ Exposing trace telemetry extraction over FastMCP 3.1 Task Protocol:
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 
-mcp = FastMCP("LangSmith Tracing Gateway")
+mcp = FastMCP("LangSmith Tracing Gateway", version="3.1.0")
 
 class TraceQueryRequest(BaseModel):
     project_name: str = Field(..., description="Target LangSmith project")
     hours_back: int = Field(24, ge=1, le=168)
     filter_failures_only: bool = Field(False)
 
+    @field_validator("project_name")
+    @classmethod
+    def validate_project(cls, val: str) -> str:
+        if not val.strip():
+            raise ValueError("Project name cannot be empty")
+        return val.strip()
+
 class TraceTelemetrySummary(BaseModel):
     total_traces: int
     error_rate: float
     p95_latency_sec: float
+    project_name: str
+    status: str = "active"
 
 @mcp.tool()
 async def query_project_telemetry(req: TraceQueryRequest, ctx: Context) -> TraceTelemetrySummary:
@@ -162,7 +240,8 @@ async def query_project_telemetry(req: TraceQueryRequest, ctx: Context) -> Trace
     return TraceTelemetrySummary(
         total_traces=14200,
         error_rate=0.012,
-        p95_latency_sec=0.85
+        p95_latency_sec=0.85,
+        project_name=req.project_name
     )
 
 if __name__ == "__main__":
@@ -264,6 +343,7 @@ def sanitize_trace_inputs(inputs: dict) -> dict:
 | Missing child trace nodes in async agent loops | Loss of context propagation across `asyncio.gather`. | Wrap async tasks using `langsmith.run_helpers.traceable` with explicit parent run context. |
 | High trace submission latency / worker lag | Synchronous export blocking the event loop. | Set `LANGSMITH_BACKGROUND_THREAD=true` to process trace exports asynchronously. |
 | Evaluator timeout on large datasets | Golden dataset test cases exceeding LLM-as-a-judge timeout. | Adjust evaluation batch size or increase judge model timeout in the evaluation runner configuration. |
+| ClickHouse buffer overflow on self-host | Ingestion rate exceeds ClickHouse disk write throughput. | Increase ClickHouse `max_insert_block_size` or scale Redis queue workers in Docker Compose. |
 
 ## Related tools / concepts
 - [Promptfoo](promptfoo.md) — Open-source evaluation CLI.

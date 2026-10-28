@@ -5,18 +5,7 @@ Claude Cookbooks is Anthropic's official open-source repository of implementatio
 
 The repository covers state-of-the-art integration patterns, including **FastMCP 3.1 (Model Context Protocol)** tool server construction, ephemeral prompt caching strategies (yielding up to 90% latency and cost reductions), speculative execution, vision-aware document parsing, structured output enforcement via Pydantic v2, and agentic multi-tool orchestration for [Claude Code](claude-code.md).
 
-## What problem it solves
-Integrating frontier LLMs into production software systems requires moving beyond basic text completions. Developers encounter recurring architectural and operational challenges:
-- **Design & Orchestration Uncertainty**: Establishing reliable patterns for Retrieval-Augmented Generation (RAG), multi-agent delegation, and complex tool calling without reinventing workflows.
-- **Latency & API Token Costs**: Unoptimized prompt structures that re-send large context documents repeatedly inflate API token billing and response latency.
-- **Malformed Outputs & Hallucination**: Non-deterministic model responses breaking downstream JSON parsers or missing mandatory fields.
-- **Fragmentation Across Frameworks**: Abstract third-party libraries hiding underlying model capabilities, making performance tuning difficult.
-
-Claude Cookbooks addresses these challenges by providing:
-- **First-Party Executable Recipes**: Production-tested Python scripts and notebooks maintained directly by Anthropic engineers.
-- **FastMCP 3.1 Standard Reference Implementations**: Standardized server and client wrappers for tool discovery, resource listing, and prompt handling.
-- **Cost & Latency Optimization Patterns**: Explicit code examples for ephemeral prompt caching (`cache_control`) and streaming response parsing.
-- **Type-Safe JSON Schema Enforcement**: Patterns combining Claude's native `tool_choice` or structured output modes with **Pydantic v2** validation schemas.
+## Architectural Overview & Execution Dynamics
 
 ```
 +---------------------------------------------------------------------------------------------------+
@@ -43,6 +32,31 @@ Claude Cookbooks addresses these challenges by providing:
 +---------------------------------------------------------------------------------------------------+
 ```
 
+```mermaid
+graph TD
+    A[Developer / Application Pipeline] -->|Loads Cookbook Pattern| B[FastMCP 3.1 Tool Gateway]
+    B -->|Formats Ephemeral System Prompt| C[Anthropic Claude 5.6 API]
+    C -->|Evaluates Cache Key| D{Prompt Cache Hit?}
+    D -->|Yes: 90% Cost / Latency Cut| E[Fast Response Stream]
+    D -->|No: Cache Creation| F[Full Context Inference]
+    F --> E
+    E -->|Structured JSON Output| G[Pydantic v2 Payload Validation]
+    G -->|Validated Execution Result| A
+```
+
+## What problem it solves
+Integrating frontier LLMs into production software systems requires moving beyond basic text completions. Developers encounter recurring architectural and operational challenges:
+- **Design & Orchestration Uncertainty**: Establishing reliable patterns for Retrieval-Augmented Generation (RAG), multi-agent delegation, and complex tool calling without reinventing workflows.
+- **Latency & API Token Costs**: Unoptimized prompt structures that re-send large context documents repeatedly inflate API token billing and response latency.
+- **Malformed Outputs & Hallucination**: Non-deterministic model responses breaking downstream JSON parsers or missing mandatory fields.
+- **Fragmentation Across Frameworks**: Abstract third-party libraries hiding underlying model capabilities, making performance tuning difficult.
+
+Claude Cookbooks addresses these challenges by providing:
+- **First-Party Executable Recipes**: Production-tested Python scripts and notebooks maintained directly by Anthropic engineers.
+- **FastMCP 3.1 Standard Reference Implementations**: Standardized server and client wrappers for tool discovery, resource listing, and prompt handling.
+- **Cost & Latency Optimization Patterns**: Explicit code examples for ephemeral prompt caching (`cache_control`) and streaming response parsing.
+- **Type-Safe JSON Schema Enforcement**: Patterns combining Claude's native `tool_choice` or structured output modes with **Pydantic v2** validation schemas.
+
 ## Where it fits in the stack
 **Category**: Development & Ops / Reference Implementations & Accelerator.
 
@@ -64,6 +78,72 @@ Claude Cookbooks sits in the **Developer Acceleration & Reference Layer**, posit
 - **Reference Nature**: Code samples focus on clarity and algorithm demonstration; production deployments require wrapping in enterprise logging, auth, and monitoring.
 - **Python & JS/TS Centric**: Most recipes are written in Python or TypeScript, requiring adaptation for C# or Java environments.
 
+## Systemd Service Configuration
+For managing persistent local FastMCP gateway servers implementing Claude Cookbook recipes in background production environments:
+
+```ini
+[Unit]
+Description=Claude Cookbook FastMCP 3.1 Gateway Service
+After=network.target
+
+[Service]
+Type=simple
+User=claudecookbook
+Group=claudecookbook
+WorkingDirectory=/opt/claude-cookbooks
+Environment="PATH=/opt/claude-cookbooks/venv/bin:/usr/local/bin:/usr/bin"
+Environment="ANTHROPIC_API_KEY=sk-ant-api03-..."
+Environment="COOKBOOK_MCP_PORT=8095"
+ExecStart=/opt/claude-cookbooks/venv/bin/python3 -m mcp.server.fastmcp run server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment Setup
+Deploying a Jupyter Notebook environment alongside a FastMCP 3.1 gateway container for experimenting with Claude Cookbooks:
+
+```yaml
+version: '3.8'
+
+services:
+  claude-cookbook-jupyter:
+    image: jupyter/scipy-notebook:2026.1
+    container_name: claude-cookbook-jupyter
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - JUPYTER_ENABLE_LAB=yes
+    volumes:
+      - ./notebooks:/home/jovyan/work
+
+  cookbook-mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.cookbook-mcp
+    container_name: cookbook-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MCP_PORT=8095
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `cache_creation_input_tokens` equal to prompt length on every call | Prompt text altered between requests or expired 5-min ephemeral TTL. | Ensure identical string structure in system prompt array with `cache_control: {"type": "ephemeral"}`. |
+| `HTTP 400 Bad Request: invalid_tool_schema` | Invalid JSON Schema generated for Claude tool call definition. | Validate tool schema using `Pydantic v2` `model_json_schema()` before submitting to API. |
+| FastMCP connection drop during stream | Telemetry response payload size exceeds client HTTP timeout. | Enable chunked response streaming or adjust socket timeout in client configuration. |
+| `RateLimitError: 429` on parallel agent branches | Concurrency limit exceeded on Anthropic Tier tier. | Implement exponential backoff retry decorator or limit parallel branch execution in supervisor loop. |
+
 ## When to use it
 - When learning official integration patterns for new Anthropic features (FastMCP 3.1, prompt caching, vision parsing).
 - When bootstrapping new agentic tools or custom MCP servers for [Claude Code](claude-code.md).
@@ -84,7 +164,7 @@ cd claude-cookbooks
 
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt pydantic>=2.0
 ```
 
 Set your Anthropic API key:
@@ -102,7 +182,7 @@ grep -rn "cache_control" .
 jupyter notebook
 
 # Execute a Python script from the cookbook suite
-python33 notebooks/prompt_caching_example.py
+python3 notebooks/prompt_caching_example.py
 ```
 
 ## API examples
