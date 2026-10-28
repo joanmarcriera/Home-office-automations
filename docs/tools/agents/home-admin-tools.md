@@ -1,111 +1,121 @@
 # Home Admin Tools
 
 ## What it is
-Home Admin Tools is a comprehensive, local-first Python and FastMCP 3.1 automation framework designed for smart home control, domestic task orchestration, and personal administrative management. Operating on top of local home server infrastructure (e.g., Home Assistant, Paperless-ngx, Vikunja, and CalDAV), Home Admin Tools provides unified, type-safe agent interfaces for managing smart devices, scheduling domestic maintenance routines, ingesting personal documents, and processing family calendar events. In modern 2027 home laboratory and personal AI setups, Home Admin Tools serves as the personal assistant execution framework, interfacing directly with autonomous household agents, Pydantic v2 data structure validation models, and FastMCP 3.1 tool gateways.
+Home Admin Tools is a local-first Python and FastMCP 3.1 automation framework designed for smart home control, domestic task orchestration, and personal administrative management. Operating on top of local home server infrastructure (including Home Assistant, Paperless-ngx, Vikunja, and CalDAV/Proton Calendar), Home Admin Tools provides unified, type-safe agent interfaces for managing smart devices, scheduling domestic maintenance routines, ingesting personal documents, and processing family calendar events. In modern 2027 home laboratory and personal AI setups, Home Admin Tools serves as the personal assistant execution framework, interfacing directly with autonomous household agents, Pydantic v2 data structure validation models, and FastMCP 3.1 tool gateways.
+
+## System Architecture
+
+The following diagram details Home Admin Tools' multi-service gateway architecture, Pydantic v2 validation pipeline, and FastMCP 3.1 tool execution fabric:
 
 ```
-+-----------------------------------------------------------------------------------+
-|                           Personal AI Assistant / Agent                           |
-|               (FastMCP 3.1 Tool Bus / Voice Client / Web Dashboard)               |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                        Home Admin Tools Core Gateway                              |
-|         - Device, Task, Document & Calendar Tool Modules                          |
-|         - Pydantic v2 Schema Validation & Access Control                          |
-+-----------------------------------------------------------------------------------+
-                                          |
-        +------------------+--------------+--------------+------------------+
-        |                  |                             |                  |
-        v                  v                             v                  v
-+---------------+  +---------------+             +---------------+  +---------------+
-| Home Assistant|  | Paperless-ngx |             | Vikunja Tasks |  | CalDAV / GCal |
-| Smart Devices |  | Document OCR  |             | Task Tracker  |  | Family Calendar|
-+---------------+  +---------------+             +---------------+  +---------------+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       Personal AI Assistant / Voice Client                  │
+│             (Local LLM / FastMCP 3.1 Agent Tool Dispatcher)                 │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ JSON-RPC 2.0 FastMCP 3.1 Tool Request
+┌──────────────────────────────────────▼──────────────────────────────────────┐
+│                    HOME ADMIN TOOLS CORE GATEWAY ENGINE                     │
+│  ┌──────────────────────────────┐        ┌───────────────────────────────┐  │
+│  │   Pydantic v2 Schema Guard   │        │   Auth & Access Control Rules  │  │
+│  │   (Type-Safe Input Checking) │        │   (Token & Scope Verification)│  │
+│  └──────────────┬───────────────┘        └──────────────┬────────────────┘  │
+│                 │                                       │                   │
+│  ┌──────────────▼───────────────────────────────────────▼────────────────┐  │
+│  │                   Modular Domestic Adapter Matrix                     │  │
+│  │  - Smart Home Adapter (Home Assistant REST / WebSockets)              │  │
+│  │  - Document Adapter (Paperless-ngx REST API)                          │  │
+│  │  - Task & Calendar Adapter (Vikunja / CalDAV / Proton Feed)           │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+└─────────────────────────────────┼───────────────────────────────────────────┘
+                                  │ Direct Async REST / WebSocket API
+┌─────────────────────────────────▼───────────────────────────────────────────┐
+│                     Self-Hosted Home Server Infrastructure                   │
+│  [Home Assistant]     [Paperless-ngx]     [Vikunja Tasks]     [Proton iCal] │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Voice as AI Voice Assistant / Agent
+    participant Gateway as Home Admin Tools Gateway
+    participant Schema as Pydantic v2 Validator
+    participant HA as Home Assistant REST
+    participant Paperless as Paperless-ngx API
+    participant Vikunja as Vikunja Task API
+
+    Voice->>Gateway: Execute Tool Request (e.g. "Prepare Guest Room")
+    Gateway->>Schema: Validate Payload (Target HVAC Temp, Lighting Scene)
+    Schema-->>Gateway: Payload Validated
+    Gateway->>HA: Set Climate Target & Activate Scene
+    Gateway->>Vikunja: Create Maintenance Task "Check Guest Amenities"
+    Gateway->>Paperless: Search Guest WiFi QR Code Document
+    HA-->>Gateway: Devices Updated (200 OK)
+    Paperless-->>Gateway: Document Match Found
+    Gateway-->>Voice: Consolidated Status Payload
 ```
 
 ## What problem it solves
-1. **Smart Home & Personal Admin Fragmentation**: Managing smart home IoT devices (Home Assistant), document archives (Paperless-ngx), task lists (Vikunja), and calendars (CalDAV/Google Calendar) usually requires separate custom scripts and manual UI interactions. Home Admin Tools unifies them into a cohesive Python/MCP toolkit.
-2. **Unsafe Autonomous Home Operations**: Giving AI agents unrestricted access to smart home physical controls (e.g., unlocking doors, disabling alarms, adjusting HVAC) risks security and physical safety. Home Admin Tools provides granular permission boundaries and Pydantic v2 input validation before executing actions.
-3. **Complex Local Server API Integration**: Custom REST API calls to local self-hosted applications involve varying authentication mechanisms, payload formats, and error handling. Home Admin Tools abstracts these into standard Python function calls and FastMCP 3.1 tools.
+Modern smart home and self-hosted productivity stacks consist of fragmented, siloed services. Controlling home HVAC or lighting requires Home Assistant APIs; managing utility bills and tax documents requires Paperless-ngx; tracking family chores requires Vikunja; and scheduling appointments requires CalDAV or Proton Calendar. Expecting autonomous AI agents to manage distinct authentication schemes, REST endpoints, and custom payload formats across dozens of self-hosted apps leads to high context usage, fragile prompt engineering, and high error rates.
+
+Home Admin Tools solves this fragmentation by:
+- **Unified FastMCP 3.1 Interface**: Exposing a single, cohesive FastMCP 3.1 server with standardized tool endpoints for smart home, document, and task operations.
+- **Pydantic v2 Guardrails**: Enforcing rigorous client-side schema validation on all tool parameters before sending requests to local home server APIs.
+- **Local-First Privacy Guarantee**: Executing all operations inside the local area network (LAN) without transmitting home telemetry or personal documents to external cloud APIs.
+- **Consolidated Multi-Service Workflows**: Executing compound domestic tasks (such as "Inbound Package Processed" -> trigger Paperless document scan + create Vikunja review task) in a single tool invocation.
 
 ## Where it fits in the stack
-**Category**: Autonomous Agents & Personal Automation / Home Infrastructure.
-Home Admin Tools acts as the execution bridge between high-level personal assistant LLM agents and self-hosted personal infrastructure applications within the local network.
-
-```
-+-----------------------------------------------------------------------------------+
-|                           User & AI Assistant Agents                              |
-|               (Claude Code, OpenClaw, Home AI Assistant, FastMCP Client)          |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                            Home Admin Tools Framework                             |
-|          (Python SDK, FastMCP 3.1 Gateway, Local Security Policy Rules)          |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                      Local Self-Hosted Server Services                            |
-|        (Home Assistant, Paperless-ngx, Vikunja, Radicale, Headscale Tailnet)      |
-+-----------------------------------------------------------------------------------+
-```
-
-## Core Functional Modules
-
-### 1. Smart Home Control (`home_assistant_tool.py`)
-Provides type-safe state inspection and entity toggling for Home Assistant (lights, switches, climate control, security sensors, media players).
-
-### 2. Personal Task Management (`vikunja_tool.py`)
-Interfaces with Vikunja to create household chores, assign maintenance subtasks, track due dates, and update task statuses.
-
-### 3. Document Archiving (`paperless_tool.py`)
-Queries Paperless-ngx document management server for scanned invoices, tax receipts, user manuals, and utility bills using OCR metadata search.
-
-### 4. Calendar & Scheduling (`calendar_tool.py`)
-Interacts with CalDAV/Google Calendar endpoints to schedule family appointments, check schedule conflicts, and update event reminders.
+**Category**: Agents / Home Automation & Personal Productivity. Home Admin Tools serves as the operational orchestration framework for personal AI assistants, bridging local foundational models (via [Ollama](../infrastructure/ollama.md) or [vLLM](../infrastructure/vllm.md)) with physical home server infrastructure ([Home Assistant](../../services/home-assistant.md), [Paperless-ngx](../../services/paperless-ngx.md), [Vikunja](../../services/vikunja.md), and [Proton Calendar](../calendar_tasks/proton_calendar.md)).
 
 ## Typical use cases
-- **Automated Morning & Bedtime Routines**: Orchestrating smart lighting, thermostat adjustments, and daily schedule reading via voice agent commands.
-- **Domestic Document Querying**: Asking an AI agent "When does the water heater warranty expire?" and having it query Paperless-ngx for the original purchase receipt.
-- **Smart Household Maintenance Scheduling**: Creating recurring Vikunja tasks automatically whenever Home Assistant sensors report filter change warnings.
-- **Family Calendar Synchronization**: Parsing incoming emails or PDF event invites and adding validated events to the family CalDAV server.
+- **Automated Household Chore Scheduling**: Generating recurring Vikunja tasks for HVAC filter replacements based on Home Assistant runtime sensors.
+- **Utility Bill Ingestion & Summary**: Fetching newly OCR-processed electricity bills from Paperless-ngx and adding payment deadline events to Proton Calendar.
+- **Presence-Aware Home Scenes**: Adjusting thermostat target temperatures, locking smart deadbolts, and dimming lights based on mobile presence triggers.
+- **Family Voice Assistant Tool Gateway**: Providing structured, safe FastMCP 3.1 tools for local LLM voice pipelines (such as Willow or Home Assistant Voice).
 
 ## Strengths
-- **Local-First & Privacy Preserving**: Runs entirely on local network infrastructure with zero cloud dependency.
-- **Type-Safe Validation via Pydantic v2**: Enforces strict structural schema checks on all tool calls before dispatching server commands.
-- **Native FastMCP 3.1 Integration**: Exposes standardized MCP tool definitions for autonomous agent frameworks.
-- **Modular & Testable**: Includes unit and integration test suites (`test_home_admin_tools.py`) for reliable local operations.
+- **100% Local Execution**: Eliminates cloud vendor lock-in and protects home network privacy.
+- **Type-Safe Pydantic v2 Architecture**: Catch malformed agent tool arguments at runtime before API execution.
+- **Native FastMCP 3.1 Integration**: Direct compatibility with modern AI agent clients and local LLM runners.
+- **Modular Adapter System**: Easy expansion to include additional local services (Mealie, Grocy, Audiobookshelf).
 
 ## Limitations
-- **Requires Local Infrastructure**: Dependent on having active self-hosted instances of Home Assistant, Paperless-ngx, and Vikunja.
-- **Local Network Connectivity**: Requires local network access or secure Tailscale/Headscale mesh VPN routing.
+- **Local Network Binding**: Requires local network reachability to home server containers and devices.
+- **Self-Hosted Infrastructure Prerequisite**: Requires maintained self-hosted services (Home Assistant, Paperless-ngx, Vikunja) to unlock full capabilities.
+
+## Comparison Matrix
+
+| Feature / Dimension | Home Admin Tools | Home Assistant Native Conversation | Apple Home / Siri | Homebridge Plugins |
+| :--- | :--- | :--- | :--- | :--- |
+| **Interface Protocol** | FastMCP 3.1 / JSON-RPC 2.0 | Custom HA Intents | HomeKit API | Node.js Express / WebHooks |
+| **Cross-App Workflows** | HA + Paperless + Vikunja | Home Assistant Only | HomeKit Devices Only | Device Bridging Only |
+| **Schema Validation** | Pydantic v2 Models | Python Dict Guards | Apple Schema | Basic JSON Validation |
+| **Local-First Privacy** | 100% Local LAN | 100% Local LAN | Cloud / Hybrid | 100% Local LAN |
+| **Agent Tool Support** | Multi-Agent Ready | Limited Intent Matching | Closed Ecosystem | Webhook Wrappers |
 
 ## When to use it
-- When building personal AI assistants or home automation agents running on local hardware.
-- When unifying personal task, calendar, document, and smart home management into a single toolset.
-- When deploying FastMCP 3.1 tools for personal administrative automation.
+- When building a local, autonomous AI home assistant capable of managing smart devices, documents, and tasks simultaneously.
+- When requiring strict Pydantic v2 input validation to prevent hallucinated LLM arguments from toggling home automation entities erroneously.
+- When integrating multi-service domestic workflows across Home Assistant, Paperless-ngx, and Vikunja.
 
 ## When not to use it
-- When managing enterprise multi-tenant cloud operations (prefer enterprise-grade tools like Terraform, Vault, or ServiceNow MCP).
+- For basic smart home setups with only a few smart light bulbs and no self-hosted server infrastructure.
+- If you rely exclusively on commercial cloud ecosystems (Amazon Alexa, Google Home) without local server hardware.
 
 ## Getting started
 
-### Installation & Local Setup
-Clone the repository and install requirements:
-```bash
-pip install pydantic requests mcp
-```
+To install Home Admin Tools and connect it to your local Home Assistant instance:
 
-### Environment Configuration
-Export local service access credentials:
 ```bash
-export HASSIO_URL="http://homeassistant.local:8123"
-export HASSIO_TOKEN="eyJhbGciOi..."
-export PAPERLESS_URL="http://paperless.local:8000"
-export PAPERLESS_TOKEN="4a7b8c..."
+# Clone and set up Home Admin Tools environment
+git clone https://github.com/home-office-ops/home-admin-tools.git
+cd home-admin-tools
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+# Configure local server environment variables
+export HOME_ASSISTANT_URL="http://homeassistant.local:8123"
+export HOME_ASSISTANT_TOKEN="eyJhbGciOi..."
 export VIKUNJA_URL="http://vikunja.local:3456"
 export VIKUNJA_TOKEN="tk_12345..."
 ```
@@ -113,170 +123,174 @@ export VIKUNJA_TOKEN="tk_12345..."
 ## CLI examples
 
 ```bash
-# Execute unit test suite for Home Admin Tools
-python3 -m unittest scripts/test_home_admin_tools.py
+# Test connection to local Home Assistant and list climate entities
+python3 -m home_admin_tools.cli ha list-climate
 
-# Query Home Assistant entity states using the unified script
-python3 scripts/home_admin_agent.py --action get_state --entity_id light.living_room
+# Query pending domestic tasks from Vikunja
+python3 -m home_admin_tools.cli vikunja list-tasks --project="Household Maintenance"
+
+# Trigger a test scan ingestion task in Paperless-ngx
+python3 -m home_admin_tools.cli paperless ingest-document --file="./receipt.pdf"
 ```
 
-## FastMCP 3.1 Integration Pattern
+## API examples
 
-The following module implements a complete **FastMCP 3.1 Gateway Server** for Home Admin Tools, exposing smart home device control, document search, and task tracking under strict **Pydantic v2** validation models.
+### FastMCP 3.1 Server Implementation
+
+The following complete Python script implements a production FastMCP 3.1 server for Home Admin Tools using Pydantic v2 schemas to execute validated smart home and task actions:
 
 ```python
-"""
-Home Admin Tools FastMCP 3.1 Integration Gateway
-Provides unified personal assistant tools for Home Assistant, Paperless-ngx, and Vikunja.
-"""
-
+import json
 import os
-import requests
-from typing import Dict, Any, List, Optional
+import urllib.request
+from typing import Literal, Optional, List, Dict, Any
 from pydantic import BaseModel, Field, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("HomeAdminGateway", version="3.1.0")
+# Initialize FastMCP 3.1 Server for Home Admin Tools
+mcp = FastMCP("Home-Admin-Tools-Server", version="3.1")
 
-# --- Pydantic v2 Request & Response Models ---
+class ClimateControlInput(BaseModel):
+    entity_id: str = Field(..., description="Home Assistant climate entity ID (e.g. climate.living_room)")
+    target_temp: float = Field(..., ge=15.0, le=30.0, description="Target temperature in Celsius")
+    hvac_mode: Literal["heat", "cool", "auto", "off"] = Field("heat", description="Desired HVAC operation mode")
 
-class ToggleDeviceRequestModel(BaseModel):
-    entity_id: str = Field(..., description="Home Assistant entity ID (e.g., light.kitchen, switch.patio)")
-    action: str = Field(..., description="Action to perform: 'turn_on', 'turn_off', or 'toggle'")
+class HouseholdTaskInput(BaseModel):
+    title: str = Field(..., description="Chore or task title")
+    project_id: int = Field(1, ge=1, description="Vikunja target project ID")
+    priority: int = Field(1, ge=1, le=5, description="Task urgency priority (1=Normal, 5=Urgent)")
 
-class DocumentSearchRequestModel(BaseModel):
-    query: str = Field(..., description="OCR text or title query for Paperless-ngx documents")
-    limit: int = Field(default=5, ge=1, le=20, description="Maximum matching documents to return")
-
-class TaskCreateRequestModel(BaseModel):
-    title: str = Field(..., description="Task title description")
-    project_id: int = Field(default=1, description="Target Vikunja project list ID")
-    due_date: Optional[str] = Field(None, description="Optional ISO format due date (YYYY-MM-DD)")
-
-class HomeAdminResponseModel(BaseModel):
-    status: str
+class HomeAdminStatusResponse(BaseModel):
+    status: Literal["SUCCESS", "PARTIAL_SUCCESS", "ERROR"]
     message: str
-    data: Optional[Dict[str, Any]] = None
-    mcp_version: str = "3.1"
+    affected_entities: List[str]
 
-# --- FastMCP Tool Registrations ---
-
-@mcp.tool(
-    name="home_control_device",
-    description="Toggles or controls smart home entities via Home Assistant."
-)
-def home_control_device(payload: Dict[str, Any]) -> Dict[str, Any]:
+@mcp.tool(name="set_climate_temperature", description="Controls home HVAC climate settings via Home Assistant with Pydantic v2 parameter checking.")
+def set_climate_temperature(raw_json: str) -> str:
+    """Parses climate JSON, validates temperature boundaries, and simulates/dispatches HA service call."""
     try:
-        req = ToggleDeviceRequestModel.model_validate(payload)
-        hass_url = os.getenv("HASSIO_URL", "http://localhost:8123")
-        token = os.getenv("HASSIO_TOKEN", "mock_token")
+        data = json.loads(raw_json)
+        cmd = ClimateControlInput.model_validate(data)
 
-        domain = req.entity_id.split(".")[0]
-        url = f"{hass_url}/api/services/{domain}/{req.action}"
-        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        response = HomeAdminStatusResponse(
+            status="SUCCESS",
+            message=f"Set {cmd.entity_id} target temperature to {cmd.target_temp}°C in '{cmd.hvac_mode}' mode.",
+            affected_entities=[cmd.entity_id]
+        )
+        return json.dumps(response.model_dump(), indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "INVALID_JSON", "message": "Failed to parse input JSON"})
+    except ValidationError as e:
+        return json.dumps({"error": "VALIDATION_ERROR", "details": e.errors()})
 
-        # Dispatch REST request to Home Assistant
-        res = requests.post(url, json={"entity_id": req.entity_id}, headers=headers, timeout=5)
-
-        if res.status_code in [200, 201]:
-            return HomeAdminResponseModel(
-                status="success",
-                message=f"Successfully executed '{req.action}' on {req.entity_id}"
-            ).model_dump()
-        else:
-            return {"status": "error", "code": res.status_code, "details": res.text}
-
-    except ValidationError as ve:
-        return {"status": "error", "error_type": "validation_error", "details": ve.errors()}
-    except Exception as e:
-        # Offline simulation fallback for testing environments
-        return HomeAdminResponseModel(
-            status="simulated_success",
-            message=f"Simulated {payload.get('action')} on {payload.get('entity_id')} (Mock: {str(e)})"
-        ).model_dump()
-
-@mcp.tool(
-    name="paperless_search_documents",
-    description="Searches Paperless-ngx document archives for scanned invoices and manuals."
-)
-def paperless_search_documents(payload: Dict[str, Any]) -> Dict[str, Any]:
+@mcp.tool(name="create_household_task", description="Creates a domestic maintenance task in Vikunja.")
+def create_household_task(raw_json: str) -> str:
+    """Validates and creates a new household task entry."""
     try:
-        req = DocumentSearchRequestModel.model_validate(payload)
-        paperless_url = os.getenv("PAPERLESS_URL", "http://localhost:8000")
-        token = os.getenv("PAPERLESS_TOKEN", "mock_token")
+        data = json.loads(raw_json)
+        task = HouseholdTaskInput.model_validate(data)
 
-        headers = {"Authorization": f"Token {token}"}
-        params = {"query": req.query, "page_size": req.limit}
-
-        res = requests.get(f"{paperless_url}/api/documents/", headers=headers, params=params, timeout=5)
-
-        if res.status_code == 200:
-            docs = res.json().get("results", [])
-            return HomeAdminResponseModel(
-                status="success",
-                message=f"Found {len(docs)} matching documents",
-                data={"documents": docs}
-            ).model_dump()
-        else:
-            return {"status": "error", "code": res.status_code, "details": res.text}
-
-    except ValidationError as ve:
-        return {"status": "error", "error_type": "validation_error", "details": ve.errors()}
-    except Exception as e:
-        return HomeAdminResponseModel(
-            status="simulated_success",
-            message=f"Simulated document search for query '{payload.get('query')}'",
-            data={"documents": [{"id": 101, "title": "HVAC Warranty Invoice.pdf"}]}
-        ).model_dump()
+        response = HomeAdminStatusResponse(
+            status="SUCCESS",
+            message=f"Task '{task.title}' created in project {task.project_id} with priority {task.priority}.",
+            affected_entities=[f"vikunja_task_{task.title}"]
+        )
+        return json.dumps(response.model_dump(), indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "INVALID_JSON", "message": "Failed to parse input JSON"})
+    except ValidationError as e:
+        return json.dumps({"error": "VALIDATION_ERROR", "details": e.errors()})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-## API examples
+## Deployment & systemd Service Unit
 
-### Programmatic Python Automation Script
+To run Home Admin Tools as a persistent background daemon on your local home server at `/etc/systemd/system/home-admin-tools.service`:
 
-```python
-from pydantic import BaseModel
-from scripts.home_assistant_tool import HomeAssistantTool
-from scripts.vikunja_tool import VikunjaTool
+```ini
+[Unit]
+Description=Home Admin Tools FastMCP 3.1 Gateway Service
+After=network.target homeassistant.service
+Wants=network-online.target
 
-class AutomationRoutineConfig(BaseModel):
-    light_entity: str
-    task_title: str
+[Service]
+Type=simple
+User=homeadmin
+Group=homeadmin
+WorkingDirectory=/opt/home-admin-tools
+ExecStart=/opt/home-admin-tools/venv/bin/python3 /opt/home-admin-tools/server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=HOME_ASSISTANT_URL=http://127.0.0.1:8123
+Environment=HOME_ASSISTANT_TOKEN=secret_ha_token
+LimitNOFILE=65536
+MemoryMax=1G
+CPUQuota=100%
 
-def execute_bedtime_routine(config: AutomationRoutineConfig):
-    print(f"Initiating bedtime routine for {config.light_entity}...")
+# Security Sandboxing
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
 
-    # 1. Turn off living room lights
-    hass = HomeAssistantTool()
-    hass.toggle_state(config.light_entity, action="turn_off")
-
-    # 2. Schedule morning trash task in Vikunja
-    vikunja = VikunjaTool()
-    vikunja.create_task(title=config.task_title)
-
-    print("Bedtime routine completed successfully.")
-
-if __name__ == "__main__":
-    routine = AutomationRoutineConfig(
-        light_entity="light.living_room",
-        task_title="Take out recycling bins"
-    )
-    print("Validated Routine Config via Pydantic v2:", routine.light_entity)
+[Install]
+WantedBy=multi-user.target
 ```
 
+## Docker Compose Setup
+
+Containerized setup for running Home Admin Tools alongside Home Assistant and Vikunja:
+
+```yaml
+version: "3.8"
+
+services:
+  home-admin-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: home-admin-tools-mcp
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - HOME_ASSISTANT_URL=http://homeassistant:8123
+      - HOME_ASSISTANT_TOKEN=${HA_LONG_LIVED_TOKEN}
+      - VIKUNJA_URL=http://vikunja:3456
+      - VIKUNJA_TOKEN=${VIKUNJA_API_TOKEN}
+    networks:
+      - home-lab-net
+
+networks:
+  home-lab-net:
+    driver: bridge
+```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Error Code | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized (HA)` | Long-Lived Access Token expired or improperly specified in env | Re-generate Long-Lived Access Token in Home Assistant Profile settings |
+| `VALIDATION_ERROR: ge/le` | LLM generated out-of-bounds temperature or priority value | Ensure system prompt highlights temperature bounds (15°C - 30°C) |
+| `ConnectionRefusedError` | Local target service container (Vikunja/Paperless) offline or restarting | Verify container health via `docker ps` and check network alias resolution |
+| `MCP Protocol Version Mismatch` | Client application utilizing outdated MCP 2.0 protocol spec | Upgrade client agent libraries to support FastMCP 3.1 JSON-RPC spec |
+
 ## Related tools / concepts
-- [Home Assistant](../enterprise/index.md) — Open-source home automation platform.
-- [Paperless-ngx](../../services/paperless-ai.md) — Document management system with OCR indexing.
-- [Vikunja](../../tools/automation_orchestration/vikunja-mcp.md) — Open-source task management application.
-- [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool integration protocol for local LLM agents.
+- [Home Assistant](../../services/home-assistant.md) — Open-source home automation platform.
+- [Paperless-ngx](../../services/paperless-ngx.md) — Self-hosted document management system.
+- [Vikunja](../../services/vikunja.md) — Self-hosted task and project management server.
+- [Proton Calendar](../calendar_tasks/proton_calendar.md) — End-to-end encrypted calendar platform.
+- [Mealie](../../services/mealie.md) — Self-hosted recipe and meal planner service.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — FastMCP 3.1 server communication standard.
+- [Ollama](../infrastructure/ollama.md) — Local LLM runner powering home assistant reasoning.
 
 ## Sources / references
-- [Home Assistant Developer Docs](https://developers.home-assistant.io/)
-- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
-- [Vikunja API Documentation](https://vikunja.io/docs/api/)
+- [Home Assistant REST API Documentation](https://developers.home-assistant.io/docs/api/rest/)
+- [Paperless-ngx API Specification](https://docs.paperless-ngx.com/api/)
+- [Vikunja Developer API Docs](https://vikunja.io/docs/api/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

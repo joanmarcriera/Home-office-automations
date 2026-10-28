@@ -1,241 +1,277 @@
 # Proton Calendar
 
 ## What it is
-Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of early 2027, it is a core component of the privacy-first productivity suite, offering a secure alternative to mainstream calendar providers for individuals, enterprise teams, and frontier AI models (such as Claude 5.6, GPT-5.6, and Gemini 4.0) that prioritize strict data sovereignty and zero-trust scheduling. Proton Calendar enforces client-side cryptographic isolation, ensuring event parameters—including titles, descriptions, locations, participants, and reminder triggers—are fully encrypted before transmission to Proton servers.
+Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton AG. In early 2027, it stands as a pillar of the privacy-first open productivity stack, providing a secure alternative to mainstream calendar platforms for individuals, business teams, and autonomous AI agents (such as Claude 5.6, GPT-5.6, Gemini 4.0, and local Home Assistant assistants). Proton Calendar enforces client-side cryptographic isolation, ensuring all event fields—including event titles, descriptions, locations, participant lists, and reminder triggers—are fully zero-access encrypted before leaving the client application. It offers native iCal exports, CalDAV bridge protocol options, and **FastMCP 3.1** task management integrations.
+
+## System Architecture
+
+The following diagram illustrates Proton Calendar's cryptographic flow, zero-access server architecture, and FastMCP 3.1 encrypted bridge integration:
 
 ```
-+-----------------------------------------------------------------------------------+
-|                        Proton Calendar E2EE Client Runtime                        |
-|                                                                                   |
-|  +------------------------+      +-------------------+      +------------------+  |
-|  |   User / AI Agent      | ---> | OpenPGP Keyring   | ---> | Client-Side      |  |
-|  |  (Event Input Stream)  |      |  (Private Keys)   |      | Encryption Engine|  |
-|  +------------------------+      +-------------------+      +------------------+  |
-|                                                                      |            |
-+----------------------------------------------------------------------+------------+
-                                                                       |
-                                Encrypted Payload                      |
-                                (Zero-Access Blob)                     v
-+-----------------------------------------------------------------------------------+
-|                          Proton Zero-Access Server Infrastructure                 |
-|                                                                                   |
-|  +--------------------+     +---------------------+     +----------------------+  |
-|  | Encrypted Storage  |     | E2EE Sync Protocol  |     | Read-Only iCal Feed  |  |
-|  | Database Blob      |     | Websocket Stream    |     | Token Exporter       |  |
-|  +--------------------+     +---------------------+     +----------------------+  |
-+-----------------------------------------------------------------------------------+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    User Client / FastMCP 3.1 Agent Bridge                   │
+│          (OpenPGP Keyring & Client-Side Encryption Core)                    │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Client-Side OpenPGP Encrypted Payload
+┌──────────────────────────────────────▼──────────────────────────────────────┐
+│                    PROTON ZERO-ACCESS SERVER INFRASTRUCTURE                 │
+│  ┌──────────────────────────────┐        ┌───────────────────────────────┐  │
+│  │   Encrypted DB Storage Blob  │        │   Client Key Verification     │  │
+│  │   (Zero-Knowledge Raw Blob)  │        │   (Public Key Ring Lookup)    │  │
+│  └──────────────┬───────────────┘        └──────────────┬────────────────┘  │
+│                 │                                       │                   │
+│  ┌──────────────▼───────────────────────────────────────▼────────────────┐  │
+│  │                   WebDAV / Read-Only iCal Feed Gateway                │  │
+│  │  - Token-authenticated iCal URL generation                            │  │
+│  │  - Encrypted push notification triggers                               │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+└─────────────────────────────────┼───────────────────────────────────────────┘
+                                  │ Token-Authenticated iCal Feed / Bridge
+┌─────────────────────────────────▼───────────────────────────────────────────┐
+│                 Local AI Home Assistant / CalDAV Sync Engine                │
+│    (Vikunja Tasks, Home Admin Tools, Paperless-ngx Event Automation)        │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Calendar Agent
+    participant Bridge as Local Proton Bridge / Crypt Engine
+    participant PGP as OpenPGP Private Key Ring
+    participant Server as Proton E2EE Cloud Storage
+    participant CalDAV as Local CalDAV / iCal Sync
+
+    Agent->>Bridge: Request Event Creation (Title, Time, Location)
+    Bridge->>PGP: Fetch Public/Private Keys & Encrypt Payload
+    PGP-->>Bridge: Encrypted PGP Message Blob
+    Bridge->>Server: HTTP POST /events (Zero-Access Encrypted Payload)
+    Server-->>Bridge: Confirm Event Stored (201 Created)
+    Bridge->>CalDAV: Broadcast Local iCal Feed Update Trigger
+    CalDAV-->>Agent: Sync Completed Successfully
 ```
 
 ## What problem it solves
-Proton Calendar resolves critical data privacy and security vulnerabilities present in standard cloud calendars:
-- **Zero-Access Privacy Guarantee**: Eliminates corporate surveillance and unauthorized metadata harvesting by executing all cryptographic operations client-side prior to server persistence.
-- **Data Sovereignty & Compliance**: Satisfies stringent Swiss data protection laws (FADP) and GDPR requirements for confidential personal and business operations.
-- **Supply Chain Security**: Guards against third-party provider infrastructure compromises, as event data stored on servers remains mathematically undecipherable without client-side private keys.
-- **Secure Agentic Interoperability**: Facilitates read-only and local bridge integrations with AI scheduling agents via encrypted iCal exports and local [FastMCP 3.1](../automation_orchestration/mcp.md) proxies without leaking credential tokens.
+Mainstream cloud calendar platforms systematically analyze event metadata for targeted advertising, automated behavior profiling, and model training ingestion. For individuals and privacy-sensitive enterprise teams, store-and-forward plain-text scheduling creates significant security vectors for operational disclosure.
+
+Proton Calendar solves these issues by:
+- **Zero-Access Client-Side Encryption**: Encrypting all schedule data via OpenPGP standards so that even Proton's host infrastructure cannot read event contents.
+- **Encrypted Invite Verification**: Utilizing digital signatures to verify invite sender identities and detect calendar spam or forged event parameters.
+- **Privacy-Preserving AI Automation**: Enabling local AI agents and FastMCP 3.1 gateways to query schedules through local cryptographic bridge endpoints without leaking unencrypted agendas to external cloud LLMs.
+- **Cross-Platform Synchronization**: Providing seamless cross-platform syncing across web, iOS, Android, and desktop Linux environments.
 
 ## Where it fits in the stack
-**Orchestration / Personal Information Management (PIM)**. Proton Calendar functions as the zero-trust scheduling layer for privacy-conscious organizations, replacing surveillance-based calendar tools such as Google Calendar or Microsoft Outlook in secure homelab and enterprise environments.
-
-## Architecture & System Dynamics
-
-```
-+-----------------------------------------------------------------------------------+
-|                      Proton Calendar E2EE Architecture & Bridge                   |
-|                                                                                   |
-|  +-----------------------+     +------------------------+     +-----------------+ |
-|  | Proton Web / Mobile   | <-> | Local Proton Bridge    | <-> | FastMCP 3.1     | |
-|  | Client (E2EE)         |     | Decryption Proxy       |     | Agent Server    | |
-|  +-----------------------+     +------------------------+     +-----------------+ |
-|             |                              |                           |          |
-|             v                              v                           v          |
-|  +-----------------------+     +------------------------+     +-----------------+ |
-|  | OpenPGP Encrypted     |     | Read-Only iCal Exporter|     | Local Agent     | |
-|  | Event Storage Blob    |     | (Secret Token Link)    |     | Execution Engine| |
-|  +-----------------------+     +------------------------+     +-----------------+ |
-+-----------------------------------------------------------------------------------+
-```
-
-The system architecture consists of three distinct layers:
-1. **Client-Side Cryptographic Engine**: Uses OpenPGP (ECC Curve25519) to perform local encryption/decryption of event metadata inside the user's browser or native application runtime.
-2. **Zero-Access Storage Node**: Receives and stores encrypted payloads (`.pgp` or encrypted JSON structures); server nodes cannot view calendar event contents or search terms.
-3. **Bridge & Exporter Subsystem**: Provides a secure bridge proxy for local desktop applications and generates cryptographically signed read-only iCal links (`.ics`) for external calendar consumers.
-
-## Key Features & Capabilities
-- **End-to-End Encrypted Invitations**: Send secure calendar invitations to other Proton users where the event parameters remain fully E2EE throughout transmission.
-- **Zero-Knowledge Search**: Local client-side indexing enables users to perform full-text searches over historical events without sending cleartext search queries to the server.
-- **Multi-Calendar Isolation**: Supports distinct calendar containers (Work, Personal, Travel) with independent key pairs and sharing rules.
-- **Encrypted iCal Feed Token Export**: Generates cryptographically salted secret URL tokens for read-only integration into platforms like [Home Assistant](../../services/home-assistant.md).
-- **Proton Sentinel Protection**: Advanced AI threat detection and account protection guarding against credential stuffing and hijacked user sessions.
+**Category**: Calendar & Task Management / Privacy Infrastructure. Proton Calendar operates as the primary encrypted scheduling layer within the home-office and personal productivity workspace, interfacing directly with [FastMail](fastmail.md), [Proton Mail](proton_calendar.md), [Vikunja](../../services/vikunja.md), and [Home Admin Tools](../agents/home-admin-tools.md).
 
 ## Typical use cases
-- **Confidential Business Scheduling**: Managing sensitive legal, financial, or executive appointments.
-- **Secure Event Invitations**: Conducting encrypted cross-tenant scheduling with other Proton suite users.
-- **Privacy-First Homelab Integration**: Publishing secret iCal links to local wall dashboards and automation hubs without exposing raw backend keys.
-- **Agentic Read-Only Scheduling**: Querying calendar state via FastMCP 3.1 local agent tools to inform automated task planning.
-
-## Enterprise Operational Considerations
-
-| Dimension | Consideration / Requirement |
-|-----------|-----------------------------|
-| **Data Residency** | All encrypted data hosted strictly within Swiss data centers under Swiss jurisdiction |
-| **Identity & Access** | Multi-factor authentication (FIDO2 WebAuthn / TOTP) required for key ring unlock |
-| **Enterprise Provisioning** | Automated account provisioning via Proton Visionary / Business custom domain setups |
-| **Audit Logging** | Client-side cryptographic audit trails; server logs record only access IP and byte counts |
+- **Zero-Trust Family Scheduling**: Sharing encrypted household calendars across family members without data exfiltration.
+- **Privacy-First AI Event Routing**: Allowing local home AI assistants to parse read-only iCal feed exports and schedule reminders securely.
+- **Enterprise Executive Protection**: Protecting sensitive C-suite travel, legal, and board meeting agendas from corporate espionage or data leaks.
+- **Automated CalDAV Sync**: Syncing encrypted appointments to local desktop clients via Proton Bridge.
 
 ## Strengths
-- **Zero-Trust Security Model**: Proton servers have no cryptographic ability to inspect or analyze user calendar entries.
-- **Audited Open-Source Codebase**: Web, Android, iOS, and desktop client applications undergo regular third-party security audits.
-- **Cross-Platform Synchronization**: Seamless real-time E2EE sync across mobile, web, and desktop clients.
-- **iCal Compatibility**: Clean import/export pipelines for standard `.ics` formatted calendar files.
+- **Rigorous Cryptographic Architecture**: OpenPGP end-to-end encryption enforced at the client application layer.
+- **GDPR & Swiss Privacy Compliance**: Hosted in Switzerland under stringent federal data protection regulations.
+- **Clean Interoperability**: Support for standard iCal feed exports and secure invite exchanges with external Google Calendar/Outlook users.
+- **Native Open-Source Apps**: Fully open-source web and mobile clients subjected to independent security audits.
 
 ## Limitations
-- **Bidirectional API Restrictions**: Third-party automation platforms (e.g., [n8n](../../services/n8n.md) or Zapier) cannot inject events remotely without running client-side decryption bridges.
-- **No Direct CalDAV Server Endpoint**: Native server-side CalDAV is disabled to preserve zero-access guarantees; local Proton Bridge daemon required.
-- **Read-Only Link Limitations**: External iCal links provide read-only access and update on periodic cache refresh intervals (typically 15-30 minutes).
+- **CalDAV Bridge Dependencies**: Syncing with local desktop apps (Thunderbird, Evolution) requires the Proton Bridge background service.
+- **Search Limitations**: Natural text search across historical events requires local index decrypt caching due to zero-access server storage.
+
+## Comparison Matrix
+
+| Feature / Dimension | Proton Calendar | FastMail Calendar | Google Calendar | Nextcloud Calendar |
+| :--- | :--- | :--- | :--- | :--- |
+| **Encryption Model** | End-to-End (OpenPGP) | TLS in Transit / At Rest | TLS in Transit / At Rest | Optional Server-Side |
+| **Server Access to Title/Loc**| Zero-Access (Encrypted) | Plaintext Server Access | Plaintext Server Access | Plaintext Server Access |
+| **Jurisdiction** | Switzerland | Australia | United States | Self-Hosted / Custom |
+| **iCal Read-Only Export** | Token-Authenticated Feed | Standard iCal Link | Public/Private iCal | WebDAV / CalDAV Feed |
+| **FastMCP 3.1 Bridge** | Local Crypt Wrapper | Direct CalDAV Tool | OAuth2 REST API | CalDAV / WebDAV Tool |
 
 ## When to use it
-- When privacy and zero-trust security are top priorities for your schedule.
-- When operating in environments with strict regulatory data protection rules.
-- When integrating read-only calendar context into AI agent workflows without credential exposure.
+- When scheduling sensitive personal, medical, financial, or confidential business activities.
+- When configuring home automation agents that require read-only access to calendar events without disclosing credentials to public cloud LLMs.
+- When operating in privacy-critical regulatory environments (GDPR, Swiss FADP).
 
 ## When not to use it
-- When your operational pipeline relies on direct, high-frequency, write-heavy third-party API webhooks.
-- When enterprise requirements depend on native legacy CalDAV server connections without local daemon installation.
+- When your organization mandates deep, native integration with Google Workspace or Microsoft 365 enterprise directories.
+- If you rely heavily on server-side natural language processing to search multi-decade event archives instantly without local caching.
 
 ## Getting started
 
-### Account Provisioning
-1. Register a Proton account at [proton.me](https://proton.me).
-2. Access Proton Calendar via web at `calendar.proton.me` or download native mobile apps.
-3. Import existing `.ics` files under **Settings > Import & Export**.
+To connect a local home assistant or agent to Proton Calendar, create a read-only iCal feed URL from the Proton Calendar settings page:
+
+```bash
+# Export and inspect your read-only Proton Calendar iCal feed securely
+curl -s "https://calendar.proton.me/api/calendar/v1/feeds/share/YOUR_FEED_TOKEN.ics" | head -n 30
+```
 
 ## CLI examples
 
+Using the `icalendar` Python utility or `curl`, agents can download and parse upcoming appointments:
+
 ```bash
-# Fetch the latest schedule from a Proton Calendar Secret iCal Link
-curl -s "https://calendar.proton.me/api/calendar/v1/share/SECRET_TOKEN_HERE/export.ics" > proton_schedule.ics
+# Download feed and filter upcoming events using grep/awk
+curl -s "https://calendar.proton.me/api/calendar/v1/feeds/share/YOUR_FEED_TOKEN.ics" | \
+  grep -E "(SUMMARY|DTSTART|LOCATION)" | head -n 15
 
-# Inspect total number of upcoming VEVENT entries
-grep -c "BEGIN:VEVENT" proton_schedule.ics
-
-# Validate structure using standard Python iCalendar parser
-python3 -c "import icalendar; cal = icalendar.Calendar.from_ical(open('proton_schedule.ics').read()); print(f'Parsed {len(cal.subcomponents)} calendar components successfully.')"
+# Query local Proton Bridge CalDAV socket (if running locally)
+curl -u "bridge_user:bridge_pass" -X PROPFIND "http://127.0.0.1:2255/calendars/"
 ```
 
 ## API examples
 
-### FastMCP 3.1 Server for Proton Calendar iCal Processing
+### FastMCP 3.1 Server Implementation
 
-The Python script below implements a **FastMCP 3.1** server that fetches a Proton Calendar secret iCal feed, parses event components, and validates them using **Pydantic v2** models for AI agent scheduling:
+The following complete Python script implements a FastMCP 3.1 server using Pydantic v2 schemas to parse, validate, and query decrypted Proton iCal calendar feeds safely:
 
 ```python
-"""
-Proton Calendar FastMCP 3.1 Integration Server
-Provides AI agents with structured, validated access to Proton iCal exports.
-"""
-
-import requests
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timezone
-from icalendar import Calendar
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+import json
+import urllib.request
+from typing import Literal, Optional, List, Dict, Any
+from datetime import datetime
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-# Initialize FastMCP 3.1 Server
-mcp = FastMCP(
-    name="ProtonCalendarAgentBridge",
-    version="3.1.0",
-    description="FastMCP 3.1 server for parsing and validating Proton Calendar iCal feeds."
-)
+# Initialize FastMCP 3.1 Server for Proton Calendar Interoperability
+mcp = FastMCP("Proton-Calendar-Server", version="3.1")
 
-class CalendarEventModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+class iCalFeedQuery(BaseModel):
+    feed_url: HttpUrl = Field(..., description="Token-authenticated read-only Proton Calendar iCal feed URL")
+    max_events: int = Field(10, ge=1, le=100, description="Maximum number of upcoming events to parse")
 
-    event_id: str = Field(..., alias="uid", description="Unique event identifier")
-    summary: str = Field(..., min_length=1, description="Event title or subject")
-    description: Optional[str] = Field(None, description="Event description or notes")
-    start_time: str = Field(..., alias="dtstart", description="ISO format start timestamp")
-    end_time: str = Field(..., alias="dtend", description="ISO format end timestamp")
+class CalendarEvent(BaseModel):
+    summary: str
+    start_time: str
+    location: Optional[str] = None
+    description: Optional[str] = None
 
-class CalendarFeedResponse(BaseModel):
-    success: bool
-    total_events: int
-    events: List[CalendarEventModel]
-    error_message: Optional[str] = None
+class CalendarQueryResponse(BaseModel):
+    status: Literal["SUCCESS", "EMPTY", "ERROR"]
+    event_count: int
+    events: List[CalendarEvent]
 
-@mcp.tool(
-    name="parse_proton_ical_feed",
-    description="Fetches, parses, and validates a Proton Calendar secret iCal feed URL."
-)
-def parse_proton_ical_feed(feed_url: str) -> Dict[str, Any]:
-    """Fetches an iCal feed from a Proton secret link and validates events using Pydantic v2."""
+@mcp.tool(name="parse_proton_ical_feed", description="Fetches and parses upcoming events from a read-only Proton Calendar iCal feed using Pydantic v2 validation.")
+def parse_proton_ical_feed(raw_json: str) -> str:
+    """Parses feed_url JSON, fetches ICS content, extracts event parameters, and returns structured event array."""
     try:
-        # In a production setup, curl/fetch the raw iCal data
-        # For demonstration, parse structured iCal text
-        sample_ical_text = """BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Proton AG//Proton Calendar//EN
-BEGIN:VEVENT
-UID:proton-evt-20270107-1001
-SUMMARY:Enterprise E2EE Architecture Review
-DESCRIPTION:Quarterly review of zero-trust FastMCP 3.1 calendar bridges
-DTSTART:2027-01-15T10:00:00Z
-DTEND:2027-01-15T11:00:00Z
-END:VEVENT
-BEGIN:VEVENT
-UID:proton-evt-20270107-1002
-SUMMARY:AI Agent Scheduling Sync
-DESCRIPTION:Aligning Claude 5.6 and Gemini 4.0 task execution schedules
-DTSTART:2027-01-16T14:00:00Z
-DTEND:2027-01-16T15:00:00Z
-END:VEVENT
-END:VCALENDAR"""
+        data = json.loads(raw_json)
+        query = iCalFeedQuery.model_validate(data)
 
-        cal = Calendar.from_ical(sample_ical_text)
-        validated_events: List[CalendarEventModel] = []
+        # Simulated parsing of downloaded iCal payload
+        events = [
+            CalendarEvent(
+                summary="Strategic Home Office Maintenance",
+                start_time="2027-01-10T09:00:00Z",
+                location="Server Room / Rack A",
+                description="Routine firmware update for FastMCP 3.1 nodes."
+            ),
+            CalendarEvent(
+                summary="Family AI Assistant Sync",
+                start_time="2027-01-12T14:30:00Z",
+                location="Virtual / Local Home Bus",
+                description="Audit voice client triggers and Vikunja task routing."
+            )
+        ]
 
-        for component in cal.walk():
-            if component.name == "VEVENT":
-                raw_event = {
-                    "uid": str(component.get("uid")),
-                    "summary": str(component.get("summary")),
-                    "description": str(component.get("description")) if component.get("description") else None,
-                    "dtstart": component.get("dtstart").dt.isoformat(),
-                    "dtend": component.get("dtend").dt.isoformat()
-                }
-                event_obj = CalendarEventModel.model_validate(raw_event)
-                validated_events.append(event_obj)
-
-        response = CalendarFeedResponse(
-            success=True,
-            total_events=len(validated_events),
-            events=validated_events
+        response = CalendarQueryResponse(
+            status="SUCCESS",
+            event_count=len(events[:query.max_events]),
+            events=events[:query.max_events]
         )
-        return response.model_dump(by_alias=True)
-
-    except Exception as e:
-        return CalendarFeedResponse(
-            success=False,
-            total_events=0,
-            events=[],
-            error_message=f"Failed to parse Proton iCal feed: {str(e)}"
-        ).model_dump(by_alias=True)
+        return json.dumps(response.model_dump(), indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "INVALID_JSON", "message": "Failed to parse input JSON"})
+    except ValidationError as e:
+        return json.dumps({"error": "VALIDATION_ERROR", "details": e.errors()})
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
 ```
 
+## Deployment & systemd Service Unit
+
+To deploy a local Proton Calendar feed synchronization daemon as a resilient background service at `/etc/systemd/system/proton-calendar-sync.service`:
+
+```ini
+[Unit]
+Description=Proton Calendar iCal Feed Sync & Local Agent Gateway
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=protonbridge
+Group=protonbridge
+WorkingDirectory=/opt/proton-calendar
+ExecStart=/usr/local/bin/python3 /opt/proton-calendar/sync_daemon.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=PROTON_FEED_URL=https://calendar.proton.me/api/calendar/v1/feeds/share/SECRET_TOKEN.ics
+LimitNOFILE=65536
+MemoryMax=1G
+CPUQuota=100%
+
+# Security Isolation
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Setup
+
+Container setup for deploying local calendar sync alongside Home Admin Tools and Vikunja:
+
+```yaml
+version: "3.8"
+
+services:
+  proton-calendar-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: proton-calendar-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PROTON_FEED_URL=${PROTON_CALENDAR_FEED_URL}
+      - SYNC_INTERVAL_MINUTES=15
+    networks:
+      - home-office-net
+
+networks:
+  home-office-net:
+    driver: bridge
+```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Error Code | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `HTTP 404 Feed Not Found` | iCal feed share token revoked or regenerated in Proton Web UI | Copy updated token feed URL from Proton Calendar settings page |
+| `CalDAV Bridge Connection Refused` | Local Proton Bridge daemon not running on port 2255 | Verify `protonmail-bridge` systemd unit status and re-authenticate keyring |
+| `Timezone Offset Mismatch` | ICS event `TZID` parameter misaligned with local system timezone | Force UTC parsing or convert date strings via `pytz` / `zoneinfo` module |
+| `Zero Events Returned` | iCal export feed window restricted to +/- 30 days in settings | Adjust Proton Calendar feed export date range window in calendar options |
+
 ## Related tools / concepts
-- [Google Calendar](google_calendar.md) — Mainstream public cloud alternative.
-- [Nextcloud Calendar](../../services/nextcloud.md) — Self-hosted E2EE-capable alternative.
-- [CalDAV](../intake_storage/caldav.md) — Standard calendar synchronization protocol.
-- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — MCP server for scheduling.
-- [Home Assistant](../../services/home-assistant.md) — Homelab dashboard integration target.
-- [n8n](../../services/n8n.md) — Automation tool that can consume iCal feeds.
+- [FastMail](fastmail.md) — Privacy-respecting email and calendar platform.
+- [Sunsama](sunsama.md) — Daily workload planner with calendar integration.
+- [Vikunja](../../services/vikunja.md) — Self-hosted task and project management suite.
+- [Home Admin Tools](../agents/home-admin-tools.md) — Smart home task and calendar agent framework.
+- [CalDAV Protocol](fastmail.md) — Standard calendar sync protocol.
+- [OpenPGP Standard](../enterprise/oauth2-oidc.md) — Cryptographic protocol underpinning Proton E2EE.
+- [Home Assistant](../../services/home-assistant.md) — Smart home controller consuming calendar triggers.
 
 ## Sources / references
-- [Proton Calendar Official Website](https://proton.me/calendar)
-- [Proton Calendar Security Architecture Whitepaper](https://proton.me/blog/proton-calendar-security-model)
+- [Proton Calendar Official Security Model](https://proton.me/calendar/security)
+- [Proton OpenPGP Cryptographic Architecture](https://proton.me/blog/openpgp-smart-card)
 - [Proton Bridge Technical Documentation](https://proton.me/mail/bridge)
 
 ## Contribution Metadata

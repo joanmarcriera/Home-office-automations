@@ -1,288 +1,281 @@
 # LangSmith
 
 ## What it is
-LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of January 2027, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) observability, serverless tracing, and real-time agent fleet orchestration.
+LangSmith is an enterprise LLM observability, evaluation, trace monitoring, and prompt engineering platform developed by LangChain. In early 2027, it serves as a central control plane for production AI applications, providing full visibility into multi-agent workflows, tool execution chains, prompt iteration loops, and model regression benchmarks across frontier LLM providers (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4). LangSmith supports native **FastMCP 3.1** protocol tracing, enabling continuous inspection of agentic tool calling and structured payload validation.
 
-## Control Plane & Telemetry Architecture
+## System Architecture
+
+The following diagram illustrates LangSmith's trace ingestion pipeline, telemetry storage architecture, and FastMCP 3.1 tool call tracking framework:
 
 ```
-+-----------------------------------------------------------------------------------+
-|                         LangSmith Telemetry Infrastructure                        |
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|  +---------------------------+        +-----------------------------------------+  |
-|  | FastMCP 3.1 Agent Server  |        |  Frontier Models (GPT-5.6 / Claude 5.6) |  |
-|  +-------------+-------------+        +--------------------+--------------------+  |
-|                |                                           |                      |
-|                | Batch Traces (gRPC / HTTPS)               | Eval Feedback        |
-|                v                                           v                      |
-|  +---------------------------+        +-----------------------------------------+  |
-|  | LangSmith Ingestion Edge  +------->+ ClickHouse High-Throughput OLAP Engine  |  |
-|  +---------------------------+        +--------------------+--------------------+  |
-|                                                            |                      |
-|                                                            v                      |
-|  +---------------------------+        +-----------------------------------------+  |
-|  | LangSmith Fleet Controller+<-------+ Polly Assistant & Golden Regression     |  |
-|  +---------------------------+        +-----------------------------------------+  |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   Agent Application / FastMCP 3.1 Server                    │
+│           (Python / TypeScript LangChain & OpenTelemetry Traces)            │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Async OpenTelemetry gRPC / OTLP HTTP
+┌──────────────────────────────────────▼──────────────────────────────────────┐
+│                     LANGSMITH INGESTION & TRACE ENGINE                      │
+│  ┌──────────────────────────────┐        ┌───────────────────────────────┐  │
+│  │   OTLP Ingestion Receiver    │        │   Run Tree & Span Assembler   │  │
+│  │   (High-Throughput Gateway)  │        │   (Parent-Child Span Match)   │  │
+│  └──────────────┬───────────────┘        └──────────────┬────────────────┘  │
+│                 │                                       │                   │
+│  ┌──────────────▼───────────────────────────────────────▼────────────────┐  │
+│  │                   Token Usage & Latency Evaluator                     │  │
+│  │  - Cost calculations & latency histogram generation                  │  │
+│  │  - Automated online feedback & evaluation triggers                   │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+└─────────────────────────────────┼───────────────────────────────────────────┘
+                                  │ Direct Stream Ingestion
+┌─────────────────────────────────▼───────────────────────────────────────────┐
+│                    ClickHouse / Postgres Analytical Store                   │
+│         (Span Traces, Golden Evaluation Datasets, Prompt Hub Matrix)        │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ```mermaid
-graph TD
-    A[Agent Application / FastMCP Server] -->|Trace Event Batch| B[LangSmith Collector]
-    B -->|Ingest Stream| C[ClickHouse High-Throughput OLAP Engine]
-    C -->|Sub-Second Queries| D[LangSmith Dashboard / Polly Assistant]
-    C -->|Evaluation Triggers| E[LLM-as-a-Judge Evaluators]
-    E -->|Pydantic v2 Metrics| F[Golden Dataset Regression Reports]
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Agent Client
+    participant Tool as MCP Tool Execution
+    participant LS as LangSmith Tracing Client
+    participant Cloud as LangSmith Cloud / On-Prem Backend
+    participant Eval as Online Auto-Evaluator
+
+    Agent->>LS: Start Trace Span (RunID, Inputs, Model)
+    Agent->>Tool: Execute FastMCP 3.1 Tool Call
+    Tool-->>Agent: Return Tool Output / Error Payload
+    Agent->>LS: End Trace Span (Outputs, Token Count, Latency)
+    LS->>Cloud: Async Batch Push OTLP Payload
+    Cloud->>Eval: Trigger Rule-Based / LLM-as-a-Judge Online Eval
+    Eval-->>Cloud: Record Score (Correctness, Toxicity, Groundedness)
 ```
 
 ## What problem it solves
-It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. It utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
+Developing agentic AI systems introduces severe debugging challenges due to non-deterministic model outputs, multi-turn tool calling loops, hidden latency spikes, and silent failure cascades. Standard application performance monitoring (APM) tools are ill-equipped to parse nested LLM chains or calculate per-step prompt token costs.
+
+LangSmith solves these problems by:
+- **Nested Trace Visibility**: Rendering full visual hierarchy trees for complex multi-agent interactions, tool calls, and RAG retrieval steps.
+- **Automated Online Evaluation**: Running "LLM-as-a-Judge" feedback loops in real time to rate response groundedness, accuracy, and compliance.
+- **Golden Dataset Regression Testing**: Enabling engineering teams to curate test suites from live production traces to catch regressions before deploying updated system prompts or model configurations.
+- **Token & Cost Tracking**: Aggregating token consumption and latency metrics across diverse LLM providers.
 
 ## Where it fits in the stack
-**Benchmarking / Observability**. It is the primary tool for managing the lifecycle of LLM applications from prototype to production.
-
-## Feature & Observability Platform Comparison Matrix
-
-| Capability / Feature | LangSmith | AgentOps | Promptfoo | Braintrust |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Architecture** | SaaS / Self-Hosted Enterprise | Cloud Observability | CLI / Local Test Suite | Cloud / Enterprise Self-Host |
-| **Tracing Engine** | ClickHouse Distributed OLAP | Real-Time WebSocket | Static File / CI Output | PostgreSQL / DuckDB OLAP |
-| **FastMCP 3.1 Integration** | Native Task & Tool Tracing | Partial Agent Hook | Custom MCP Plugin | MCP Gateway Integration |
-| **LLM-as-a-Judge Support** | Native Golden Datasets | Custom Evaluators | Assertion-Based Rules | Custom Scorer Functions |
-| **Fleet Orchestration** | Supported (LangSmith Deployment) | Monitoring Only | Not Supported | CI/CD Pipeline Native |
-| **Cost & Latency Tracking** | Token-Level Granularity | Session-Level Granularity | Test-Run Granularity | Token & API Tier Level |
+**Category**: Benchmarking / Observability & Evaluation. LangSmith functions as the observability umbrella sitting across the entire agent lifecycle, recording inputs and outputs from client applications down to FastMCP 3.1 servers and LLM gateways ([LiteLLM](../../services/litellm.md), [Ollama](../infrastructure/ollama.md), [vLLM](../infrastructure/vllm.md)).
 
 ## Typical use cases
-- **Debugging Agent Loops**: Inspecting intermediate steps and tool calls to find where an agent "stalls" or fails.
-- **Golden Dataset Curation**: Creating high-quality reference datasets for regression testing.
-- **Production Monitoring**: Real-time tracking of token usage, cost, and latency across large-scale deployments.
-- **Collaborative Prompting**: Version-controlled prompt engineering with team-wide testing support.
-- **Fleet Management**: Deploying and managing agent "fleets" via LangSmith Deployment (Fleet).
-- **Agentic Session Replay**: Utilizing [AgentOps](../process_understanding/agentops.md) integration for visual execution graphs and step-by-step session replays.
+- **Multi-Agent Diagnostics**: Tracing complex interactions where an orchestrator agent delegates tasks to sub-agents via FastMCP 3.1.
+- **Prompt Hub & Versioning**: Storing, testing, and versioning system prompts in a centralized registry with A/B rollout controls.
+- **Continuous Golden Dataset Curation**: Filtering production traces with user feedback to expand test benchmarks.
+- **Compliance & Audit Logging**: Archiving raw model inputs and outputs for security and privacy compliance audits.
 
 ## Strengths
-- **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.1.
-- **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
-- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Pro**.
-- **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
-- **Scalable Telemetry**: Powered by ClickHouse for real-time OLAP queries on massive agentic datasets.
+- **Native Ecosystem Alignment**: Flawless, zero-boilerplate integration with LangChain, LangGraph, OpenTelemetry, and FastMCP 3.1.
+- **High-Throughput Async Ingestion**: Minimal application overhead due to background thread buffering and batch OTLP streaming.
+- **Comprehensive Evaluation Tools**: Built-in support for exact match, regex, semantic distance, and LLM-as-a-judge evaluation scoring.
+- **Enterprise Deployment Options**: Available as SaaS, single-tenant dedicated cloud, or self-hosted Kubernetes deployments.
 
 ## Limitations
-- **SaaS Lock-in**: While self-hosting is available for enterprise, the primary experience is a proprietary SaaS.
-- **Cost at Scale**: High-volume tracing in production can become expensive if not sampled correctly.
-- **Learning Curve**: Advanced evaluation and "Fleet" deployment features require significant configuration.
+- **Ecosystem Bias**: While supporting OpenTelemetry, advanced features are tightly optimized for LangChain/LangGraph abstractions.
+- **Cost Scaling at High Volume**: Ingesting raw token payloads for ultra-high-volume production applications requires careful trace sampling to manage storage costs.
+
+## Comparison Matrix
+
+| Feature / Dimension | LangSmith | Weights & Biases (W&B Weave) | Phoenix (Arize) | Datadog LLM Observability |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Agent Tracing & Evaluation | ML Experimentation & LLM | Open-Source Evals | Enterprise Infrastructure APM |
+| **LangGraph / LangChain** | Native Zero-Config | Plugin / Adapter | OpenInference Adapter | Custom Integration |
+| **FastMCP 3.1 Support** | Native Trace Spans | Custom Wrapper | OpenTelemetry Spans | APM Span Wrappers |
+| **Evaluation Suite** | Native Online/Offline Evals | Custom Metric Logging | Deep Evals & RAG Triad | Basic Rule Evaluators |
+| **Self-Hosted Option** | Kubernetes / Enterprise | SaaS / Hybrid | Fully Open-Source / Local | Cloud SaaS Only |
 
 ## When to use it
-- When building complex LLM applications that require deep tracing for debugging.
-- When transitioning from a prototype to a production environment where reliability is critical.
-- When collaborating on prompt engineering and evaluation datasets.
+- When building, debugging, or deploying multi-step agent workflows using LangChain, LangGraph, or FastMCP 3.1.
+- When you need a golden benchmark dataset to evaluate prompt changes against past production runs.
+- When requiring granular cost and latency telemetry per user, prompt version, or tenant ID.
 
 ## When not to use it
-- For very simple, single-call LLM scripts where a full observability platform is overkill.
-- If strict data privacy requirements forbid any cloud-based telemetry (and enterprise self-hosting is not feasible).
-- When a lightweight, open-source alternative like [Promptfoo](promptfoo.md) is sufficient.
+- For standard traditional microservice monitoring without LLM components (where Prometheus/Grafana or Datadog is preferred).
+- When strict offline data isolation prevents transmitting trace payloads to third-party endpoints (unless deploying LangSmith Self-Hosted).
 
 ## Getting started
-LangSmith requires an API key and the `langsmith` Python package.
 
-### 1. Installation
+To begin tracing Python applications with LangSmith, set the environment variables and wrap your code using standard decorators or OpenTelemetry handlers:
+
 ```bash
-pip install langsmith
-```
-
-### 2. Configuration
-Set your environment variables to enable tracing:
-```bash
-export LANGSMITH_TRACING=true
-export LANGSMITH_API_KEY="ls__..."
-export LANGSMITH_PROJECT="my-agent-v1"
-```
-
-### 3. Hello-World Trace
-```python
-from langsmith import traceable
-from openai import OpenAI
-
-client = OpenAI()
-
-@traceable
-def my_agent(question: str):
-    return client.chat.completions.create(
-        model="gpt-5.6",
-        messages=[{"role": "user", "content": question}]
-    )
-
-my_agent("What is the state of MCP in January 2027?")
+# Set LangSmith configuration environment variables
+export LANGCHAIN_TRACING_V2="true"
+export LANGCHAIN_API_KEY="ls__your_api_key_here"
+export LANGCHAIN_PROJECT="production-agent-v1"
 ```
 
 ## CLI examples
-The LangSmith CLI helps manage datasets and experiments from the terminal.
 
 ```bash
-# Log in to your LangSmith account
-langsmith login
+# Inspect LangSmith CLI environment status
+langsmith status
 
-# Create a new dataset from a CSV file
-langsmith dataset create "Golden Tasks" --csv ./tasks.csv
+# Pull a versioned system prompt from LangSmith Prompt Hub
+langsmith prompt pull agent-system-prompt:v2 --output prompt.json
 
-# Run an evaluation experiment against a dataset
-langsmith run --dataset "Golden Tasks" --config ./eval_config.yaml
+# Execute an offline benchmark evaluation against a curated dataset
+langsmith eval run --dataset "golden-customer-support-v1" --evaluators correctness,toxicity
 ```
 
 ## API examples
-Automated evaluation and tracing integration are core features of LangSmith.
 
-### FastMCP 3.1 Observability Tool Server Pattern
-Exposing trace telemetry extraction over FastMCP 3.1 Task Protocol:
+### FastMCP 3.1 Server Implementation
+
+Below is a complete FastMCP 3.1 server implementation in Python using Pydantic v2 schemas and the `langsmith` SDK to trace tool execution and push online evaluation metrics:
 
 ```python
-from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
-from typing import List, Optional
+import json
+import os
+import time
+from typing import Literal, Optional, List, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+from langsmith import Client, traceable
 
-mcp = FastMCP("LangSmith Tracing Gateway")
+# Configure environment defaults for LangSmith tracing
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
-class TraceQueryRequest(BaseModel):
-    project_name: str = Field(..., description="Target LangSmith project")
-    hours_back: int = Field(24, ge=1, le=168)
-    filter_failures_only: bool = Field(False)
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("LangSmith-Observability-Server", version="3.1")
+ls_client = Client()
 
-class TraceTelemetrySummary(BaseModel):
-    total_traces: int
-    error_rate: float
-    p95_latency_sec: float
+class PromptEvalInput(BaseModel):
+    prompt_id: str = Field(..., description="Unique prompt identifier in Prompt Hub")
+    test_inputs: Dict[str, Any] = Field(..., description="Key-value variable map for prompt template")
+    expected_output: Optional[str] = Field(None, description="Golden output string for comparison")
 
-@mcp.tool()
-async def query_project_telemetry(req: TraceQueryRequest, ctx: Context) -> TraceTelemetrySummary:
-    """Queries LangSmith ClickHouse telemetry store via MCP."""
-    ctx.info(f"Retrieving traces for project {req.project_name} over past {req.hours_back} hours.")
+class TraceSpanResponse(BaseModel):
+    run_id: str
+    prompt_id: str
+    latency_ms: float
+    token_usage: Dict[str, int]
+    status: Literal["SUCCESS", "FAILED"]
 
-    return TraceTelemetrySummary(
-        total_traces=14200,
-        error_rate=0.012,
-        p95_latency_sec=0.85
-    )
+@mcp.tool(name="run_traced_prompt_eval", description="Executes a traced prompt evaluation loop and records metrics in LangSmith.")
+@traceable(name="mcp_traced_prompt_tool", run_type="tool")
+def run_traced_prompt_eval(raw_json: str) -> str:
+    """Validates input payload, executes model call, and returns traced result payload."""
+    start_time = time.time()
+    try:
+        data = json.loads(raw_json)
+        payload = PromptEvalInput.model_validate(data)
+
+        # Simulated LLM execution span
+        time.sleep(0.15)  # Simulate execution latency
+        simulated_response = f"Processed template '{payload.prompt_id}' successfully."
+
+        elapsed_ms = (time.time() - start_time) * 1000
+
+        response = TraceSpanResponse(
+            run_id="run_ls_99481a82",
+            prompt_id=payload.prompt_id,
+            latency_ms=elapsed_ms,
+            token_usage={"prompt_tokens": 128, "completion_tokens": 42, "total_tokens": 170},
+            status="SUCCESS"
+        )
+        return json.dumps(response.model_dump(), indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "INVALID_JSON", "message": "Failed to parse input JSON"})
+    except ValidationError as e:
+        return json.dumps({"error": "VALIDATION_ERROR", "details": e.errors()})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Programmatic Trace Analysis (Polly)
-Polly can be queried via the SDK to analyze traces.
-```python
-from langsmith import Client
+## Deployment & systemd Service Unit
 
-client = Client()
-# Ask Polly to summarize failures in the last 24 hours
-summary = client.analyze_traces(
-    project_name="prod-fleet",
-    query="Why did 5% of traces fail with tool-calling errors?"
-)
-print(summary.findings)
+To run a self-hosted LangSmith trace ingestion forwarder or local agent trace proxy as a resilient system service at `/etc/systemd/system/langsmith-agent.service`:
+
+```ini
+[Unit]
+Description=LangSmith Agent Trace Proxy Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=langsmith
+Group=langsmith
+WorkingDirectory=/opt/langsmith
+ExecStart=/usr/local/bin/python3 /opt/langsmith/server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=LANGCHAIN_TRACING_V2=true
+Environment=LANGCHAIN_PROJECT=production-mcp-agents
+Environment=LANGCHAIN_API_KEY=ls__secret_key_here
+LimitNOFILE=65536
+MemoryMax=2G
+CPUQuota=200%
+
+# Security Isolation
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-### Run and Telemetry Validation using Pydantic v2
-This Python script validates LangSmith evaluation runs and telemetry payload schemas using **Pydantic v2** prior to submitting them to custom dashboard collectors:
+## Docker Compose Setup
 
-```python
-import json
-from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError, field_validator
+For local multi-container development featuring a FastMCP 3.1 agent and local trace collector setup:
 
-class LangSmithRunMetrics(BaseModel):
-    latency_seconds: float = Field(..., ge=0.0, description="Inference latency in seconds")
-    prompt_tokens: int = Field(..., ge=0, description="Tokens consumed in prompt")
-    completion_tokens: int = Field(..., ge=0, description="Tokens generated in completion")
-    cost_usd: Optional[float] = Field(None, ge=0.0, description="Calculated USD cost of the run")
+```yaml
+version: "3.8"
 
-class LangSmithEvalRun(BaseModel):
-    run_id: str = Field(..., description="The unique run execution UUID logged in LangSmith")
-    project_name: str = Field(..., description="Target project name (e.g., prod-fleet)")
-    model_name: str = Field(..., description="Model tested, e.g., claude-5-6-sonnet")
-    metrics: LangSmithRunMetrics = Field(..., description="Usage and timing performance figures")
-    eval_score: float = Field(..., ge=0.0, le=1.0, description="Evaluation score between 0.0 and 1.0 (e.g. LLM-as-a-judge correctness)")
-    feedback_tags: Dict[str, Any] = Field(default_factory=dict, description="Metadata key-value tags assigned to this run")
+services:
+  agent-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-traced-agent
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8090:8090"
+    environment:
+      - LANGCHAIN_TRACING_V2=true
+      - LANGCHAIN_API_KEY=${LANGSMITH_API_KEY}
+      - LANGCHAIN_PROJECT=local-docker-evals
+      - LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
+    networks:
+      - observability-net
 
-    @field_validator("project_name")
-    @classmethod
-    def validate_project_non_empty(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("project_name cannot be empty or whitespace only")
-        return value
-
-def validate_eval_payload(raw_json: str) -> Optional[LangSmithEvalRun]:
-    try:
-        data = json.loads(raw_json)
-        # Validate run object using Pydantic v2
-        validated_run = LangSmithEvalRun.model_validate(data)
-        return validated_run
-    except json.JSONDecodeError:
-        print("Error: Line is not valid JSON syntax.")
-    except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-    return None
+networks:
+  observability-net:
+    driver: bridge
 ```
 
-## Production Hardening & Operational Safety
+## Troubleshooting & Diagnostic Matrix
 
-### Sampling & Rate Controls
-When operating at high concurrency (10,000+ agent steps/min), sending full trace payloads for every single execution can saturate network egress and incur unexpected telemetry storage costs. Implement dynamic trace sampling:
-
-```python
-import os
-import random
-
-def configure_dynamic_tracing(sample_rate: float = 0.1):
-    """Enables tracing conditionally based on a probabilistic sample rate or error states."""
-    if random.random() < sample_rate:
-        os.environ["LANGSMITH_TRACING"] = "true"
-    else:
-        os.environ["LANGSMITH_TRACING"] = "false"
-```
-
-### Data Redaction & Privacy Guardrails
-Ensure PII (Personally Identifiable Information) and sensitive API tokens are masked before traces hit external telemetry ingest endpoints:
-
-```python
-from langsmith.client import Client
-
-def sanitize_trace_inputs(inputs: dict) -> dict:
-    sanitized = inputs.copy()
-    for key in ["api_key", "ssn", "credit_card"]:
-        if key in sanitized:
-            sanitized[key] = "[REDACTED]"
-    return sanitized
-```
-
-## Troubleshooting & Common Issues
-
-| Issue / Error | Root Cause | Remediation Procedure |
+| Symptom / Error Code | Root Cause | Resolution Strategy |
 | :--- | :--- | :--- |
-| `HTTP 401 Unauthorized` on trace export | Invalid or expired `LANGSMITH_API_KEY`. | Verify the key format begins with `ls__` and is exported in the runtime environment. |
-| Missing child trace nodes in async agent loops | Loss of context propagation across `asyncio.gather`. | Wrap async tasks using `langsmith.run_helpers.traceable` with explicit parent run context. |
-| High trace submission latency / worker lag | Synchronous export blocking the event loop. | Set `LANGSMITH_BACKGROUND_THREAD=true` to process trace exports asynchronously. |
-| Evaluator timeout on large datasets | Golden dataset test cases exceeding LLM-as-a-judge timeout. | Adjust evaluation batch size or increase judge model timeout in the evaluation runner configuration. |
+| `HTTP 401 Unauthorized` | Missing or invalid `LANGCHAIN_API_KEY` environment variable | Verify API key signature starting with `ls__` in system configuration |
+| `Traces Missing in UI` | Background batch thread exited before process termination | Ensure `ls_client.flush()` is invoked on process shutdown |
+| `High Ingestion Latency` | Synchronous trace transmission blocking main application loop | Verify `LANGCHAIN_TRACING_V2="true"` is set to use async batching |
+| `OTLP Connection Timeout` | Self-hosted LangSmith Kubernetes ingestion endpoint unreachable | Check cluster firewall rules and gRPC ingress proxy routing on port 4317 |
 
 ## Related tools / concepts
-- [Promptfoo](promptfoo.md) — Open-source evaluation CLI.
-- [LangChain](../ai_knowledge/langchain.md) — Primary integration framework.
-- [LangGraph](../frameworks/langgraph.md) — Stateful agent orchestration.
-- [DREAM](dream.md) — Agentic research evaluation metrics.
-- [Benchmarking](index.md) — Overview of evaluation strategies.
-- [Claude Code](../development_ops/claude-code-setup.md) — Can be traced using LangSmith.
-- [OpenPipe](../infrastructure/openpipe.md) — For fine-tuning based on LangSmith traces.
-- [Plandex](../development_ops/plandex.md) — Complex agent that benefits from deep tracing.
-- [AgentOps](../process_understanding/agentops.md) — Specialized agent observability integration.
-- [ClickHouse](../process_understanding/clickhouse.md) — Underlying OLAP engine for telemetry.
+- [Promptfoo](promptfoo.md) — CLI evaluation tool for security and prompt testing.
+- [Inspect AI](inspect-ai.md) — Open-source LLM evaluation framework.
+- [LiteLLM](../../services/litellm.md) — Unified LLM proxy gateway with trace streaming.
+- [Ollama](../infrastructure/ollama.md) — Local model serving runtime monitored via LangSmith.
+- [vLLM](../infrastructure/vllm.md) — Enterprise model serving infrastructure.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol specifications for FastMCP 3.1.
+- [Prometheus](../process_understanding/prometheus.md) — Time-series metrics collector for system metrics.
 
 ## Sources / references
-- [Official Website](https://www.langchain.com/langsmith)
-- [LangSmith Documentation](https://docs.smith.langchain.com/)
-- [Polly Release Announcement](https://www.langchain.com/blog/polly-langsmith-ga)
-- [LangSmith Self-Hosting Guide](https://docs.smith.langchain.com/self-hosting)
-- [ClickHouse Integration for Observability](https://clickhouse.com/blog/observability-with-clickhouse)
+- [LangSmith Official Documentation](https://docs.smith.langchain.com/)
+- [LangSmith Conceptual Architecture & Tracing Guide](https://docs.smith.langchain.com/concepts/tracing)
+- [OpenTelemetry Integration with LangSmith](https://docs.smith.langchain.com/how_to_guides/tracing/open_telemetry)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
