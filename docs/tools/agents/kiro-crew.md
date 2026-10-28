@@ -32,17 +32,40 @@ Kiro Crew uses a hierarchical supervisor-worker topology with isolated workspace
                        +-------------------------------+
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Software Engineer
+    participant Sup as Supervisor Agent (Claude 5.6)
+    participant Arch as Architect Agent
+    participant DevAgent as Developer Agent (DeepSeek-V4)
+    participant QA as QA Compliance Agent (Qwen 3.6 VL)
+    participant Worktree as Git Worktree Sandbox
+
+    Dev->>Sup: Submit Feature Request ("Implement OAuth2 PKCE")
+    Sup->>Arch: Request Architecture Spec & Interface Contracts
+    Arch-->>Sup: Return Spec Artifact
+    Sup->>Worktree: Create Isolated Git Worktree Branch (`feature/pkce`)
+    Sup->>DevAgent: Delegate Implementation Task
+    DevAgent->>Worktree: Write Code & Unit Tests
+    Worktree-->>DevAgent: Commit & Build Status
+    DevAgent-->>Sup: Submit Code Patch for Review
+    Sup->>QA: Delegate Verification & Security Audit
+    QA->>Worktree: Run Test Suite & Static Analysis
+    alt Audit Passed
+        QA-->>Sup: Verification Approved
+        Sup-->>Dev: Merge Ready PR Signal
+    else Vulnerability / Test Failure
+        QA-->>Sup: Return Diagnostic Feedback
+        Sup->>DevAgent: Re-assign Remediation Task
+    end
+```
+
 ## What problem it solves
 Managing multiple autonomous agents on complex codebases often leads to context drift, race conditions in workspace modifications, duplicate effort, and uncoordinated pull requests. Kiro Crew solves these challenges by providing a centralized agent coordinator and execution sandbox that enforces task boundaries, synchronized state management, automated code reviews between agent personas, and strict resource isolation.
 
 ## Where it fits in the stack
 **Agent Orchestration and Execution Layer**. Kiro Crew operates above individual LLM foundation models and MCP tool servers, serving as the multi-agent control plane that schedules, monitors, and evaluates multi-agent task execution.
-
-## Typical use cases
-- **Autonomous Feature Delivery**: Orchestrating a crew consisting of a Product Manager Agent (specs), Software Architecture Agent (design), Coding Agent (implementation), and QA Agent (test generation & verification).
-- **Large-Scale Repository Refactoring**: Dividing large monolith refactoring projects into discrete, non-overlapping tasks assigned to concurrent agent workers.
-- **Continuous Documentation & Compliance Sync**: Deploying background agents that monitor code commits and automatically update documentation, OpenAPI specs, and security audit logs.
-- **Incident Mitigation**: Running automated triage crews that collect telemetry, analyze log streams, run diagnostic commands, and propose hotfixes.
 
 ## Performance & Feature Benchmark Matrix
 
@@ -55,8 +78,9 @@ Managing multiple autonomous agents on complex codebases often leads to context 
 | **State Persistence** | SQLite / Redis Sync | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer |
 | **Target Scale** | Enterprise Codebases | Lightweight Agent Teams | Conversational Swarms | Production Workflows |
 
-## Service & Daemon Management (systemd Unit Configuration)
+## Service & Daemon Management
 
+### systemd Unit Configuration (`/etc/systemd/system/kiro-crew.service`)
 To run Kiro Crew orchestrator workers as resilient background services under systemd on enterprise servers, deploy the unit file configuration below:
 
 ```ini
@@ -93,6 +117,43 @@ NoNewPrivileges=true
 WantedBy=multi-user.target
 ```
 
+### Docker Compose Multi-Agent Runtime (`docker-compose.yml`)
+Deploy Kiro Crew alongside Redis state checkpointer and FastMCP 3.1 proxy:
+
+```yaml
+version: '3.8'
+
+services:
+  kiro-orchestrator:
+    image: kirocrew/orchestrator:v3.1
+    container_name: kiro-orchestrator
+    ports:
+      - "8092:8092"
+    environment:
+      - FASTMCP_PORT=8092
+      - REDIS_URL=redis://kiro-redis:6379/0
+      - LOG_LEVEL=info
+    volumes:
+      - ./crew.yaml:/etc/kiro-crew/crew.yaml
+      - kiro_worktree_data:/opt/kiro-crew/sandboxes
+    depends_on:
+      - kiro-redis
+    restart: unless-stopped
+
+  kiro-redis:
+    image: redis:7-alpine
+    container_name: kiro-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - kiro_redis_store:/data
+    restart: unless-stopped
+
+volumes:
+  kiro_worktree_data:
+  kiro_redis_store:
+```
+
 ## Diagnostic & Troubleshooting Matrix
 
 | Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
@@ -101,6 +162,12 @@ WantedBy=multi-user.target
 | **Agent Handoff Context Truncation** | Accumulated raw chat history exceeded model context window | Check `total_token_count` in telemetry output | Enable `summarize_on_handoff` in `crew.yaml` config |
 | **FastMCP Tool Execution Timeout** | Integration test suite exceeded default 30s tool response timeout | Inspect stderr log for `MCPToolTimeoutError` | Set `mcp_tool_timeout: 120` in agent role declaration |
 | **Role Permission Denial** | Agent attempted to invoke tool outside assigned `allowed_tools` | Check role policy log for `UnauthorizedToolCall` | Add target tool ID to agent persona definition in `crew.yaml` |
+
+## Typical use cases
+- **Autonomous Feature Delivery**: Orchestrating a crew consisting of a Product Manager Agent (specs), Software Architecture Agent (design), Coding Agent (implementation), and QA Agent (test generation & verification).
+- **Large-Scale Repository Refactoring**: Dividing large monolith refactoring projects into discrete, non-overlapping tasks assigned to concurrent agent workers.
+- **Continuous Documentation & Compliance Sync**: Deploying background agents that monitor code commits and automatically update documentation, OpenAPI specs, and security audit logs.
+- **Incident Mitigation**: Running automated triage crews that collect telemetry, analyze log streams, run diagnostic commands, and propose hotfixes.
 
 ## Strengths
 - **FastMCP 3.1 Task Protocol Support**: Native support for task decomposition, progress reporting, and tool execution across distributed MCP servers.

@@ -74,6 +74,80 @@ sequenceDiagram
 | **Tail Sampling** | Native Stateful Processor | Paid SaaS Feature | Hard to Implement | N/A |
 | **Protocol Standards** | OTLP / FastMCP 3.1 | Custom REST APIs | Custom Formats | OpenMetrics / Prometheus |
 
+## Service & Daemon Management
+
+### systemd Service Configuration (`/etc/systemd/system/otel-collector.service`)
+Deploy the following unit file to operate the OTel Collector as a systemd background service on enterprise hosts:
+
+```ini
+[Unit]
+Description=OpenTelemetry Collector Daemon & OTLP Telemetry Gateway
+Documentation=https://opentelemetry.io/docs/collector/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=otel
+Group=otel
+WorkingDirectory=/opt/otel-collector
+ExecStart=/usr/local/bin/otelcol-contrib --config=/etc/otel-collector/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=LOG_LEVEL=info
+Environment=GOMAXPROCS=4
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/log/otel-collector /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Multi-Service Observability Stack (`docker-compose.yml`)
+Deploy the OTel Collector alongside Prometheus and Jaeger trace backends:
+
+```yaml
+version: '3.8'
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.118.0
+    container_name: otel-collector-gateway
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./config.yaml:/etc/otelcol/config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC Receiver
+      - "4318:4318" # OTLP HTTP Receiver
+      - "8888:8888" # OTel Collector Metrics
+    depends_on:
+      - prometheus
+      - jaeger
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: otel-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: otel-jaeger
+    ports:
+      - "16686:16686" # Jaeger Web UI
+      - "14250:14250"
+    restart: unless-stopped
+```
+
 ## Strengths
 - **Ultimate Vendor Freedom**: Compatible with nearly every commercial and open-source observability engine on the market.
 - **Architectural Extensibility**: Modular "Receivers, Processors, and Exporters" pipeline design allows developers to write custom processors in Go.

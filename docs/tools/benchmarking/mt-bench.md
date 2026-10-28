@@ -40,9 +40,27 @@ Many traditional benchmarks only evaluate single-turn responses, failing to capt
 |  +-----------------------------------+   +-------------------------------------+  |
 |  |    Pydantic v2 Scorecard Schema   |   |     FastChat / LMSYS Leaderboard    |  |
 |  |  - Decimal Score Constraints      |   |  - Category-Level Breakdown         |  |
-|  |  - Judge Rationale Validation     |   |  - Human Correlation Telemetry      |  |
+|  |  - Human Correlation Telemetry      |   |  - Human Correlation Telemetry      |  |
 |  +-----------------------------------+   +-------------------------------------+  |
 +-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Runner as Evaluation Runner / FastMCP
+    participant EvalModel as Target LLM (Gemma 4 / Llama 4)
+    participant Judge as Referee LLM (GPT-5.6 / Claude 5.6)
+    participant Scorecard as Pydantic v2 Score Engine
+
+    Runner->>EvalModel: Send Turn 1 Prompt ("Write a python function to compute fibonacci")
+    EvalModel-->>Runner: Return Turn 1 Response
+    Runner->>EvalModel: Send Turn 2 Follow-Up ("Now optimize it with memoization and add type hints")
+    EvalModel-->>Runner: Return Turn 2 Response
+    Runner->>Judge: Submit Full 2-Turn Transcript & Rubric
+    Judge-->>Runner: Return Structured Judgment & Score [[1-10]]
+    Runner->>Scorecard: Validate Payload (Score Bounds & Rationale)
+    Scorecard-->>Runner: Approved Scorecard Output & Category Metrics
 ```
 
 ## Where it fits in the stack
@@ -85,8 +103,9 @@ Many traditional benchmarks only evaluate single-turn responses, failing to capt
 - When you only need to measure narrow technical capabilities like raw code execution (use [BigCodeBench](bigcodebench.md) instead).
 - When high-stakes safety evaluation is the primary goal (use [SharpAI Security Benchmark](sharp-ai.md)).
 
-## Systemd Service Unit Configuration
+## Service & Daemon Management
 
+### Systemd Service Unit Configuration
 To run automated MT-Bench evaluations as a continuous background evaluation daemon, deploy the following unit file to `/etc/systemd/system/mt-bench-evaluator.service`:
 
 ```ini
@@ -118,11 +137,33 @@ MemoryMax=12G
 WantedBy=multi-user.target
 ```
 
-Enable and start the service:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now mt-bench-evaluator.service
-sudo systemctl status mt-bench-evaluator.service
+### Docker Compose Evaluation Suite (`docker-compose.yml`)
+To orchestrate MT-Bench evaluation alongside a local vLLM / Ollama endpoint and FastMCP 3.1 server:
+
+```yaml
+version: '3.8'
+
+services:
+  mt-bench-server:
+    image: python:3.11-slim
+    container_name: mt-bench-evaluator
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - eval_results:/app/data
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FASTMCP_PORT=8090
+    ports:
+      - "8090:8090"
+    command: >
+      bash -c "pip install fastmcp pydantic requests &&
+               python3 server.py"
+    restart: unless-stopped
+
+volumes:
+  eval_results:
 ```
 
 ## Getting started
