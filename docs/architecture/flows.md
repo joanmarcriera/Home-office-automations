@@ -232,6 +232,85 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Containerized Deployment & Docker Compose Setup
+
+In an automated homelab, agentic workflows run continuously as containerized background processes, interacting with n8n and Home Assistant. The following `docker-compose.yml` configures an isolated FastMCP workflow execution runner:
+
+```yaml
+version: "3.8"
+
+services:
+  agentic-flow-runner:
+    image: ghcr.io/openclaw/agentic-flow-runner:v2.5.0
+    container_name: agentic-flow-runner
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/agent-flow
+      - HOME_ASSISTANT_URL=http://homeassistant:8123
+      - MCP_PORT=8090
+      - LOG_LEVEL=INFO
+      - MAX_SELF_HEAL_RETRIES=3
+    volumes:
+      - /opt/homelab/flows/config:/etc/flow-runner:ro
+      - /opt/homelab/flows/logs:/var/log/flow-runner:rw
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4096M
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    networks:
+      - ai-agent-network
+
+networks:
+  ai-agent-network:
+    external: true
+```
+
+## Systemd Service Unit Specification
+
+For host-level Linux execution, the following systemd service unit (`agentic-flow-runner.service`) maintains the workflow runner lifecycle:
+
+```ini
+[Unit]
+Description=Agentic Workflow Runner & Self-Healing Engine Daemon
+After=network.target n8n.service home-assistant.service
+Documentation=https://github.com/OpenClaw/OpenClaw/docs/architecture/flows.md
+
+[Service]
+Type=simple
+User=flow-agent
+Group=flow-agent
+WorkingDirectory=/opt/homelab/agentic-flow-runner
+ExecStart=/usr/bin/python3 /opt/homelab/agentic-flow-runner/runner.py --config /etc/flow-runner/config.yaml
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=N8N_WEBHOOK_URL=http://127.0.0.1:5678/webhook/agent-flow
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/log/flow-runner
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 504: n8n Workflow Webhook Timeout` | Downstream n8n agent execution exceeded gateway timeout. | Convert synchronous n8n webhook node to async mode with callback webhook response. |
+| `Self-Healing Retry Limit Exceeded` | Target service (e.g. Paperless or Vikunja) unreachable or credentials expired. | Inspect flow runner logs (`journalctl -u agentic-flow-runner`). Check target API service health and credentials. |
+| `Non-Deterministic JSON Output` | Model temperature too high ($> 0.1$) causing schema validation failure. | Set model temperature to $0.0$ and enforce Pydantic v2 strict schema validation on output parsers. |
+| `FastMCP Task Registration Error` | Duplicate tool name or incompatible MCP protocol version. | Verify tool naming uniqueness in `mcp.tool()` registry and confirm client uses MCP 3.1 protocol. |
+
 ## Operational Safety & Self-Healing Guidelines
 - **Circuit Breakers**: Implement request rate limits and retry caps on automated loops to prevent continuous API token drain during tool outage events.
 - **Dead-Letter Task Sinks**: Route unresolvable workflow exceptions to human approval queues in Vikunja or Home Assistant dashboards.

@@ -242,6 +242,85 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
+## Containerized Deployment & Docker Compose Setup
+
+Running the Google Workspace CLI FastMCP 3.1 service within Docker ensures isolated credential storage and prevents OAuth refresh tokens from being exposed to other host processes. The following `docker-compose.yml` configures the containerized `gws` service wrapper:
+
+```yaml
+version: "3.8"
+
+services:
+  gws-mcp-server:
+    image: ghcr.io/googleworkspace/gws-mcp-server:v1.4.0
+    container_name: gws-mcp-server
+    restart: unless-stopped
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/etc/gws/service_account.json
+      - GWS_ACCOUNT=admin@homelab.internal
+      - MCP_PORT=8080
+      - LOG_LEVEL=INFO
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/homelab/gws/credentials:/etc/gws:ro
+      - /opt/homelab/gws/tokens:/root/.config/gws:rw
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    networks:
+      - ai-agent-network
+
+networks:
+  ai-agent-network:
+    external: true
+```
+
+## Systemd Service Unit Specification
+
+For native host execution, the following systemd service unit (`gws-mcp.service`) manages the `gws` FastMCP daemon with strict security sandboxing:
+
+```ini
+[Unit]
+Description=Google Workspace CLI FastMCP 3.1 Daemon
+After=network.target
+Documentation=https://github.com/googleworkspace/cli
+
+[Service]
+Type=simple
+User=gws-agent
+Group=gws-agent
+WorkingDirectory=/opt/homelab/gws-mcp
+ExecStart=/usr/local/bin/python3 /opt/homelab/gws-mcp/server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=GOOGLE_APPLICATION_CREDENTIALS=/etc/gws/service_account.json
+Environment=GWS_ACCOUNT=admin@homelab.internal
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/home/gws-agent/.config/gws
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `gws: TokenExpiredError: OAuth 2.0 token expired` | Refresh token invalidated or system clock skewed. | Re-run `gws auth login` or verify NTP synchronization on host (`chronyc tracking`). |
+| `GoogleAPIError (403): Quota Exceeded` | API query frequency exceeded GCP project quota limits. | Implement backoff/retry in FastMCP server wrapper or request quota increase in GCP Console. |
+| `FileNotFoundError: service_account.json missing` | Container volume mount or environment variable misconfigured. | Verify file existence at `/etc/gws/service_account.json` and ensure correct permissions (`chmod 600`). |
+| `FastMCP Task Execution Failure (HTTP 500)` | Invalid query parameter passed to `gws drive` or `gws calendar`. | Inspect agent payload against `GWSDriveListQuery` Pydantic schema and check `gws` stderr output. |
+
 ## Related tools / concepts
 - [Google Calendar](../calendar_tasks/google_calendar.md) — Native calendar configuration.
 - [n8n](../../services/n8n.md) — Visual workflow automation tool.
