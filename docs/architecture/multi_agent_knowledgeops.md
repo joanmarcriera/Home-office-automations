@@ -355,6 +355,45 @@ To safeguard enterprise-grade KnowledgeOps repositories from accidental corrupti
 
 ## Production Deployment & Systemd Service Architecture
 
+### Container Orchestration with Docker Compose
+
+To deploy the Multi-Agent KnowledgeOps FastMCP 3.1 Policy Engine in a containerized controller environment, use the production Docker Compose setup below:
+
+```yaml
+version: "3.8"
+
+services:
+  knowledgeops-policy-engine:
+    image: python:3.11-slim
+    container_name: knowledgeops-policy-engine
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run knowledgeops_policy_engine.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - KNOWLEDGE_BASE_ROOT=/var/lib/knowledgeops/docs
+      - FASTMCP_VERSION=3.1.0
+    volumes:
+      - ./:/var/lib/knowledgeops:rw
+    working_dir: /var/lib/knowledgeops
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "python3", "scripts/check_docs_contract.py", "docs/architecture/multi_agent_knowledgeops.md"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+```
+
+### Systemd Service Daemon Specification
+
 To run the KnowledgeOps FastMCP 3.1 Policy Engine as a resilient background service on enterprise Linux hosts or agent controller nodes, use the systemd unit template below:
 
 ```ini

@@ -338,6 +338,49 @@ export function streamWorkspaceSearch(pattern: string, targetPath: string): Prom
 ---
 ## Production Deployment & Systemd Service Architecture
 
+### Container Orchestration with Docker Compose
+
+For containerized agent microservices and search worker pools running FastMCP 3.1, deploy using the Docker Compose setup below:
+
+```yaml
+version: "3.8"
+
+services:
+  ripgrep-fastmcp:
+    image: python:3.11-slim
+    container_name: ripgrep-fastmcp-worker
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run ripgrep_server.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - RIPGREP_MAX_FILESIZE=5M
+      - RIPGREP_THREADS=4
+    volumes:
+      - ./repo_storage:/var/repo_storage:ro
+      - ./ripgrep_server.py:/app/ripgrep_server.py:ro
+    working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "rg", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+```
+
+### Systemd Service Daemon Specification
+
 For enterprise Linux servers deploying high-throughput FastMCP 3.1 ripgrep search daemon workers, deploy the following hardened `systemd` service unit:
 
 ```ini

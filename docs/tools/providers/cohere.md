@@ -322,6 +322,48 @@ if __name__ == "__main__":
 
 ## Production Deployment & Systemd Service Architecture
 
+### Container Orchestration with Docker Compose
+
+For containerized microservices and automated Cohere FastMCP 3.1 tool gateways, deploy using the production Docker Compose setup below:
+
+```yaml
+version: "3.8"
+
+services:
+  cohere-fastmcp:
+    image: python:3.11-slim
+    container_name: cohere-fastmcp-gateway
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run cohere_server.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - FASTMCP_VERSION=3.1.0
+    volumes:
+      - ./cohere_server.py:/app/cohere_server.py:ro
+    working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import cohere"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+```
+
+### Systemd Service Daemon Specification
+
 To run Cohere FastMCP 3.1 gateway proxy agents as resilient background system services on enterprise Linux infrastructure, deploy the systemd unit template below:
 
 ```ini
