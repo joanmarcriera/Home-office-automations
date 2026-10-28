@@ -291,6 +291,21 @@ def calculate_retention_expiry(category: str, document_year: int) -> str:
     )
     return result.model_dump_json(indent=2)
 
+class StoragePathEvaluationRule(BaseModel):
+    category_tag: str
+    correspondent: str
+    year: int
+    target_path_template: str = Field("{category}/{year}/{correspondent}/")
+
+@mcp.tool()
+def evaluate_document_storage_path(category_tag: str, correspondent: str, year: int) -> str:
+    """
+    FastMCP 3.1 tool for dynamically calculating Paperless document storage directory paths based on taxonomy.
+    """
+    rule = StoragePathEvaluationRule(category_tag=category_tag, correspondent=correspondent, year=year)
+    path = rule.target_path_template.format(category=category_tag.replace("/", "_"), year=year, correspondent=correspondent)
+    return f"Calculated path: /archive/{path}"
+
 if __name__ == "__main__":
     sample_config = {
         "api_url": "http://localhost:8000/api",
@@ -353,5 +368,5 @@ WantedBy=multi-user.target
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high

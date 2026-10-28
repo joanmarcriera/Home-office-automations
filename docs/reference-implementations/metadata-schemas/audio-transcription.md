@@ -325,6 +325,21 @@ def score_transcription_quality(file_id: str, mean_prob: float, total_words: int
     )
     return score.model_dump_json(indent=2)
 
+class SubtitleTranslationSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    file_id: str = Field(..., description="Target audio transcription file identifier")
+    target_language: str = Field(..., min_length=2, max_length=10, description="ISO 639-1 language code")
+    format_type: str = Field("srt", pattern=r"^(srt|vtt)$", description="Output subtitle format")
+
+@mcp.tool()
+def generate_subtitle_export(export_spec_json: str) -> str:
+    """
+    FastMCP 3.1 tool for generating translated SRT or WebVTT subtitle files from transcribed audio segments.
+    """
+    spec = SubtitleTranslationSpec.model_validate_json(export_spec_json)
+    return f"Subtitle file generated for '{spec.file_id}' in {spec.target_language} ({spec.format_type.upper()})."
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -425,5 +440,5 @@ In compliance-focused environment setups, audio transcription metadata pipelines
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high

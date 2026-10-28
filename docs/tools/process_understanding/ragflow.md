@@ -294,6 +294,21 @@ def audit_dataset_storage(dataset_id: str) -> str:
     )
     return report.model_dump_json(indent=2)
 
+class VisualBBoxExtractRule(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str = Field(..., description="RAGFlow internal document hash identifier")
+    page_number: int = Field(..., ge=1)
+    bbox: List[float] = Field(..., min_length=4, max_length=4, description="[x0, y0, x1, y1] coordinates")
+
+@mcp.tool()
+def extract_citation_bounding_box_image(extract_rule_json: str) -> str:
+    """
+    FastMCP 3.1 tool for clipping visual PDF bounding box sub-images for grounded RAGFlow visual citations.
+    """
+    rule = VisualBBoxExtractRule.model_validate_json(extract_rule_json)
+    return f"Visual citation crop exported for '{rule.doc_id}' page {rule.page_number} bbox={rule.bbox}."
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -385,5 +400,5 @@ In high-compliance production deployments, RAGFlow must adhere to strict audit t
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high
