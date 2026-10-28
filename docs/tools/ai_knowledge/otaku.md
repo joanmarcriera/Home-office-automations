@@ -122,6 +122,94 @@ docker run -d \
   otaku/otaku-ui:latest
 ```
 
+### Production Docker Compose Orchestration
+The following `docker-compose.yml` deploys Otaku UI alongside a local Ollama inference service and Caddy reverse proxy with automatic health checks:
+
+```yaml
+version: '3.8'
+
+services:
+  otaku:
+    image: otaku/otaku-ui:latest
+    container_name: otaku-ui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - VLLM_BASE_URL=http://vllm:8000/v1
+      - DEFAULT_MODEL=llama3.3
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ai-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: otaku-ollama-backend
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_ORIGINS=http://localhost:3000,http://otaku:3000
+    volumes:
+      - ollama_storage:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ai-network
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  ollama_storage:
+```
+
+### Systemd Service Setup (`otaku-ui.service`)
+To manage Otaku as a persistent system daemon on Linux homelab servers:
+
+```ini
+[Unit]
+Description=Otaku LLM Frontend & Workspace Gateway
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=otaku
+Group=otaku
+WorkingDirectory=/opt/otaku
+ExecStart=/usr/bin/node /opt/otaku/server.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=OLLAMA_BASE_URL=http://127.0.0.1:11434
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=otaku-ui
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ### 1. Pre-Flight Connectivity Check for Local Backends
@@ -143,6 +231,15 @@ HOST=0.0.0.0 PORT=3000 NEXT_PUBLIC_API_URL=http://192.168.1.100:11434 node serve
 ```
 
 ## Operational Best Practices & Troubleshooting
+
+### Diagnostic Troubleshooting Matrix
+
+| Issue Category | Symptom / Error Message | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| **CORS Access Failure** | `Access-Control-Allow-Origin header missing` in browser console | Remote inference runner (Ollama/vLLM) rejecting frontend origin | Set `OLLAMA_ORIGINS="*"` or explicitly match the Otaku hostname URL in service configuration. |
+| **Storage Quota Exceeded** | `QuotaExceededError: DOMException` on message send | Client browser `LocalStorage` limit (5-10MB) reached by session history | Use Otaku Settings -> Clear Legacy Cache or export chat sessions to JSON file store. |
+| **SSE Stream Failure** | Tokens stop rendering mid-generation with proxy status `504` | Reverse proxy (NGINX/Caddy) buffering Server-Sent Event stream | Configure `proxy_buffering off;` and increase `proxy_read_timeout 600s;` in reverse proxy config. |
+| **Backend Unreachable** | `Failed to fetch model tags from http://localhost:11434` | Otaku container unable to resolve host network interface | Use `http://host.docker.internal:11434` or explicit LAN IP (`http://192.168.x.x:11434`). |
 
 ### CORS Configuration for Remote Runtimes
 When Otaku runs on a host IP (e.g. `192.168.1.50:3000`) and connects to an Ollama instance on another server (`192.168.1.100:11434`), browser security policy blocks API calls unless CORS is configured on Ollama:

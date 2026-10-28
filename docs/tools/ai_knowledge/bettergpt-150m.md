@@ -103,6 +103,85 @@ print(generator('System status check:', max_new_tokens=25))
 optimum-cli export onnx --model thinkingmachines/BetterGPT-150M onnx_output/
 ```
 
+### Production Docker Compose Orchestration (`docker-compose.yml`)
+Deploy BetterGPT-150M as an isolated REST micro-service with ONNX runtime acceleration and CPU resource constraints:
+
+```yaml
+version: '3.8'
+
+services:
+  bettergpt-service:
+    image: python:3.11-slim
+    container_name: bettergpt-150m-server
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+      - MODEL_NAME=thinkingmachines/BetterGPT-150M
+      - NUM_THREADS=4
+      - LOG_LEVEL=info
+    volumes:
+      - model_cache:/root/.cache/huggingface
+    command: >
+      bash -c "pip install --no-cache-dir transformers torch fastmcp pydantic uvicorn &&
+               python -m uvicorn server:app --host 0.0.0.0 --port 8085"
+    resources:
+      limits:
+        cpus: '2.0'
+        memory: 1024M
+      reservations:
+        cpus: '0.5'
+        memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - edge-ai-net
+
+networks:
+  edge-ai-net:
+    driver: bridge
+
+volumes:
+  model_cache:
+```
+
+### Systemd Service Daemon (`bettergpt-150m.service`)
+Configure a standalone Linux daemon to manage the BetterGPT-150M inference runtime on edge gateway devices:
+
+```ini
+[Unit]
+Description=BetterGPT-150M Edge Language Model Service
+After=network.target
+
+[Service]
+Type=simple
+User=edge-ai
+Group=edge-ai
+WorkingDirectory=/opt/bettergpt-150m
+ExecStart=/opt/bettergpt-150m/venv/bin/python3 /opt/bettergpt-150m/mcp_server.py
+Restart=always
+RestartSec=3s
+Environment=PATH=/opt/bettergpt-150m/venv/bin:/usr/bin
+Environment=OMP_NUM_THREADS=4
+Environment=MKL_NUM_THREADS=4
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bettergpt-150m
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/bettergpt-150m /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 
 ## FastMCP 3.1 Server & Edge Router Tools
 
