@@ -208,6 +208,79 @@ if __name__ == "__main__":
     print(f"Status: {'Approved' if approved else 'Rejected'}\nReason: {msg}")
 ```
 
+## Containerized Deployment & Docker Compose Setup
+
+Deploying the Family Values Governance Middleware in containerized environments ensures that outbound tool invocations and AI reasoning steps pass through an isolated policy proxy before contacting external infrastructure or models. The `docker-compose.yml` snippet below illustrates running the governance sidecar:
+
+```yaml
+version: "3.8"
+
+services:
+  family-values-governance:
+    image: ghcr.io/openclaw/family-values-governance:v2.1.0
+    container_name: family-values-governance
+    restart: unless-stopped
+    environment:
+      - PRIVACY_LEVEL=LOCAL_ONLY
+      - MAX_ALLOWABLE_RISK=0.10
+      - LOG_LEVEL=INFO
+      - ENCRYPT_AUDIT_LOGS=true
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/homelab/governance/policies:/etc/governance/policies:ro
+      - /opt/homelab/governance/logs:/var/log/governance:rw
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    networks:
+      - ai-agent-network
+
+networks:
+  ai-agent-network:
+    external: true
+```
+
+## Systemd Service Unit Specification
+
+For host-level Linux deployments, the systemd unit (`family-values-governance.service`) keeps the gatekeeper daemon alive, enforcing real-time privacy verification on all local agent sockets:
+
+```ini
+[Unit]
+Description=Family Values Governance & Privacy Gatekeeper Daemon
+After=network.target home-assistant.service
+Documentation=https://github.com/OpenClaw/OpenClaw/docs/architecture/ethics.md
+
+[Service]
+Type=simple
+User=ralph-governance
+Group=ralph-governance
+WorkingDirectory=/opt/homelab/family-values-governance
+ExecStart=/usr/bin/python3 -m governance.middleware --port 8080 --policy /etc/governance/policies/family.yaml
+Restart=always
+RestartSec=3s
+Environment=PRIVACY_LEVEL=LOCAL_ONLY
+Environment=MAX_ALLOWABLE_RISK=0.10
+LimitNOFILE=65536
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/governance
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `BLOCKED: Non-local PII transfer` | Agent attempted to transmit personal data to an unauthorized cloud API. | Check agent prompt and target endpoint. If cloud transfer is required, acquire Value-Based Consent or update `forbidden_destinations`. |
+| `Risk Score Exceeded (Score > 0.10)` | Action privacy impact rating exceeds maximum policy threshold. | Inspect `privacy_impact_score` in Pydantic payload. Anonymize sensitive fields before invoking tool. |
+| `Governance Gatekeeper Socket Timeout` | Governance daemon offline or CPU bound. | Verify service status (`systemctl status family-values-governance`). Ensure port 8080 is accessible on the `ai-agent-network`. |
+| `Audit Log Write Error: Permission Denied` | Container or systemd service lacks write access to log volume. | Fix directory permissions (`chmod -R 775 /var/log/governance`) or check systemd `ReadWritePaths`. |
+
 ## Operational Best Practices & Red-Teaming Guidelines
 
 1. **Automated Red-Teaming Probes**: Run periodic synthetic test scenarios against local LLM agents to ensure system prompts resist adversarial jailbreaks attempting to extract sensitive household data.

@@ -256,6 +256,91 @@ if __name__ == "__main__":
     print(validate_jup_mcp_config(test_payload))
 ```
 
+## Containerized Deployment & Docker Compose Setup
+
+In production environments, isolated containerization protects host secrets and enforces hardware quotas (RAM, GPU, VRAM) on persistent Jupyter kernels. The following `docker-compose.yml` deploys a secure Jupyter Kernel MCP instance with gVisor/Docker sandboxing:
+
+```yaml
+version: "3.8"
+
+services:
+  jupyter-kernel-mcp:
+    image: ghcr.io/democratize-technology/jupyter-kernel-mcp:v2.0.0
+    container_name: jupyter-kernel-mcp
+    restart: unless-stopped
+    environment:
+      - JUPYTER_SERVER_URL=http://jupyter-core:8888
+      - JUPYTER_TOKEN=secure_token_hash_2027_mcp_31
+      - MCP_PORT=8080
+      - MCP_LOG_LEVEL=INFO
+      - MAX_KERNEL_MEMORY_MB=16384
+      - DEFAULT_TIMEOUT_SECONDS=1800
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/homelab/jupyter/notebooks:/workspace/notebooks:rw
+      - /opt/homelab/jupyter/data:/workspace/data:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 16384M
+        reservations:
+          cpus: "1.0"
+          memory: 2048M
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    networks:
+      - ai-agent-network
+
+networks:
+  ai-agent-network:
+    external: true
+```
+
+## Systemd Service Unit Specification
+
+For bare-metal or virtual machine deployments operating directly within Linux system infrastructure, the following systemd service unit (`jupyter-kernel-mcp.service`) manages daemon lifecycle, environment variables, and auto-restart policies:
+
+```ini
+[Unit]
+Description=Jupyter Kernel MCP Server Daemon (FastMCP 3.1 Task Protocol)
+After=network.target jupyter.service
+Wants=jupyter.service
+Documentation=https://github.com/democratize-technology/jupyter-kernel-mcp
+
+[Service]
+Type=simple
+User=jupyter-mcp
+Group=jupyter-mcp
+WorkingDirectory=/opt/homelab/jupyter-kernel-mcp
+ExecStart=/usr/local/bin/uvx mcp-server-jupyter --host 0.0.0.0 --port 8080 --jupyter-url http://127.0.0.1:8888
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=JUPYTER_TOKEN=secure_token_hash_2027_mcp_31
+Environment=MAX_KERNEL_MEMORY_MB=16384
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/homelab/jupyter/notebooks
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `KernelConnRefused: ZMQ socket error` | Jupyter Notebook server is offline or firewall blocking ZMQ ports (5555-5559). | Verify status (`systemctl status jupyter`). Ensure localhost or internal Docker network permits ZMQ traffic on ports 5555–5559. |
+| `MemoryError: Out of memory during execution` | Kernel memory allocation exceeded `MAX_KERNEL_MEMORY_MB` threshold. | Execute `import gc; gc.collect()` inside kernel. Restart kernel session or increase container RAM limit in `docker-compose.yml`. |
+| `MCP Task Protocol Timeout (HTTP 504)` | Long-running task (e.g. PyTorch training) exceeded `timeout_seconds`. | Increase `timeout_seconds` in `KernelSessionConfig` schema payload or enable FastMCP 3.1 streaming event progress. |
+| `PermissionDenied: Write access restricted` | Sandboxed kernel process attempting to write outside allowed volume mount `/workspace/notebooks`. | Adjust systemd `ReadWritePaths` or verify container volume mount write permissions (`chmod -R 775 /opt/homelab/jupyter/notebooks`). |
+
 ## Production Operational Best Practices
 
 ### 1. Kernel Isolation & Sandboxing

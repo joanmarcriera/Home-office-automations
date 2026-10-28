@@ -250,6 +250,119 @@ except Exception as err:
     print(f"Validation error: {err}")
 ```
 
+## Containerized Deployment & Docker Compose Setup
+
+Production deployments of Comet Opik combine ClickHouse for trace span metrics, PostgreSQL for project relational metadata, and Redis for trace ingestion queues. The `docker-compose.yml` manifest below launches the complete self-hosted Opik stack:
+
+```yaml
+version: "3.8"
+
+services:
+  opik-backend:
+    image: ghcr.io/comet-ml/opik-backend:v1.2.0
+    container_name: opik-backend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - CLICKHOUSE_URL=clickhouse:8123
+      - CLICKHOUSE_USERNAME=default
+      - CLICKHOUSE_PASSWORD=clickhouse_secure_pass_2027
+      - POSTGRES_URL=jdbc:postgresql://opik-postgres:5432/opik
+      - POSTGRES_USER=opik
+      - POSTGRES_PASSWORD=opik_db_password
+      - REDIS_URL=redis://opik-redis:6379
+      - OPIK_LOG_LEVEL=INFO
+    depends_on:
+      - clickhouse
+      - opik-postgres
+      - opik-redis
+    networks:
+      - opik-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: opik-clickhouse
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      - CLICKHOUSE_DB=opik
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_PASSWORD=clickhouse_secure_pass_2027
+    volumes:
+      - /opt/homelab/opik/clickhouse_data:/var/lib/clickhouse
+    networks:
+      - opik-network
+
+  opik-postgres:
+    image: postgres:16-alpine
+    container_name: opik-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=opik
+      - POSTGRES_USER=opik
+      - POSTGRES_PASSWORD=opik_db_password
+    volumes:
+      - /opt/homelab/opik/postgres_data:/var/lib/postgresql/data
+    networks:
+      - opik-network
+
+  opik-redis:
+    image: redis:7-alpine
+    container_name: opik-redis
+    restart: unless-stopped
+    networks:
+      - opik-network
+
+networks:
+  opik-network:
+    driver: bridge
+```
+
+## Systemd Service Unit Specification
+
+When managing a standalone Opik backend service on host Linux nodes, the following systemd unit (`comet-opik.service`) manages startup sequencing and recovery:
+
+```ini
+[Unit]
+Description=Comet Opik LLM Observability Backend Daemon
+After=network.target clickhouse.service postgresql.service redis.service
+Wants=clickhouse.service postgresql.service redis.service
+Documentation=https://www.comet.com/docs/opik/
+
+[Service]
+Type=simple
+User=opik
+Group=opik
+WorkingDirectory=/opt/homelab/opik
+ExecStart=/usr/local/bin/opik-server --config /etc/opik/config.yaml
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CLICKHOUSE_URL=http://127.0.0.1:8123
+Environment=POSTGRES_URL=postgresql://opik:opik_db_password@127.0.0.1:5432/opik
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/log/opik
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `ClickHouseConnectionError: DB::Exception` | ClickHouse server offline or password mismatch. | Verify ClickHouse container status (`docker logs opik-clickhouse`) and test connection (`curl http://localhost:8123/ping`). |
+| `OpikTraceIngestTimeout (504 Gateway Timeout)` | Redis ingestion queue saturated under high FastMCP span volume. | Increase Redis memory limit or scale Opik backend workers in `docker-compose.yml`. |
+| `MissingSpanMetrics: Hallucination Score Null` | LLM-as-a-judge evaluator API key missing or rate-limited. | Verify evaluator provider credentials in `/etc/opik/config.yaml` or enable local Ollama evaluator models. |
+| `Database Migration Failed on Startup` | PostgreSQL schema version mismatch after version upgrade. | Execute manual migration (`opik-server migrate --config /etc/opik/config.yaml`) and check DB permissions. |
+
 ## Related tools / concepts
 - **[Arize AI](arize-ai.md)**: Enterprise model performance management and Arize Phoenix.
 - **[Langfuse](langfuse.md)**: Open-source LLM observability and analytics platform.
