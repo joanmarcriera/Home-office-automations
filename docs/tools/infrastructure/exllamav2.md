@@ -107,6 +107,78 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
+### Production Docker Compose Setup (`docker-compose.yml`)
+Deploy ExLlamaV2 as a TabbyAPI server endpoint with NVIDIA Container Toolkit integration:
+
+```yaml
+version: '3.8'
+
+services:
+  exllamav2-server:
+    image: ghcr.io/theroyalgollum/tabbyapi:latest
+    container_name: exllamav2-tabbyapi
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - TABBY_MODEL_DIR=/models
+      - TABBY_PORT=5000
+      - TABBY_HOST=0.0.0.0
+      - CUDA_VISIBLE_DEVICES=0,1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - /mnt/models:/models
+      - ./config.yml:/app/config.yml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - llm-net
+
+networks:
+  llm-net:
+    driver: bridge
+```
+
+### Systemd Service Daemon (`exllamav2-server.service`)
+Configure a dedicated background service unit for systemd-managed NVIDIA GPU inference hosts:
+
+```ini
+[Unit]
+Description=ExLlamaV2 Local LLM Inference Daemon
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=exllama
+Group=exllama
+WorkingDirectory=/opt/exllamav2
+ExecStart=/opt/exllamav2/venv/bin/python3 -m tabbyapi --config /etc/tabbyapi/config.yml
+Restart=always
+RestartSec=5s
+Environment=CUDA_VISIBLE_DEVICES=0,1
+Environment=PYTHONUNBUFFERED=1
+LimitMEMLOCK=infinity
+LimitNOFILE=65535
+
+# Hardening & Security
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ### Quantizing a Model (EXL2)
@@ -252,6 +324,15 @@ Comparison of inference throughput across NVIDIA GPU hardware tiers using ExLlam
 | **NVIDIA A100** | 80 GB | Llama-4 70B | 5.0 bpw | 130 TPS | 22 ms |
 
 ## Troubleshooting & Common Configuration Fixes
+
+### Comprehensive Diagnostic Matrix
+
+| Symptom / Error Message | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`CUDA out of memory` during prefill** | Activation space exceeding remaining GPU VRAM during 16k+ prefill | Decrease `max_seq_len`, enable `kv_cache_mode=2` (4-bit KV), or adjust `-gs` VRAM allocation limits. |
+| **`ImportError: cannot import name 'ext_c'`** | CUDA C++ extensions not compiled or PyTorch CUDA version mismatch | Run `python setup.py install` manually inside the ExLlamaV2 repository with matching CUDA toolkit headers. |
+| **`Repetitive / Degraded Output`** | Insufficient bits per weight for complex layer representations | Re-quantize the model with a higher target bitrate (e.g. increase from 3.0 bpw to 4.25 bpw) or increase repetition penalty. |
+| **`Multi-GPU Load Imbalance`** | Unbalanced VRAM allocation leading to primary GPU bottleneck | Specify explicit VRAM limits per GPU (e.g. `-gs 18,24`) to allow headroom for prefill activations on GPU 0. |
 
 ### Issue 1: CUDA Out of Memory (OOM) During Context Prefill
 - **Symptom**: Process crashes during prefill phase when feeding large prompts (> 16k tokens).

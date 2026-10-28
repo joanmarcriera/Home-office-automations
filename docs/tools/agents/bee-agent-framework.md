@@ -99,6 +99,87 @@ beeai dev --port 18788 --verbose
 beeai mcp verify http://localhost:18790 --protocol task-v3.1
 ```
 
+### Production Docker Compose Orchestration (`docker-compose.yml`)
+Deploy the Bee Agent Framework Node.js/Python server alongside an OpenTelemetry Jaeger trace collector and FastMCP 3.1 tool gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  bee-agent-server:
+    image: beeai/framework:v1.6
+    container_name: bee-agent-service
+    restart: unless-stopped
+    ports:
+      - "18788:18788"
+    environment:
+      - NODE_ENV=production
+      - PORT=18788
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=bee-agent-core
+      - FASTMCP_SERVER_URL=http://fastmcp-gateway:8090
+      - LOG_LEVEL=info
+    volumes:
+      - ./config:/opt/bee/config
+      - ./agent_storage:/opt/bee/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18788/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - agent-net
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: bee-jaeger-otel
+    restart: unless-stopped
+    ports:
+      - "16686:16686" # Web UI
+      - "4318:4318"   # OTLP HTTP receiver
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge
+```
+
+### Systemd Service Setup (`bee-agent-framework.service`)
+Configure a production daemon to run the Bee Agent Framework as a persistent Linux background service:
+
+```ini
+[Unit]
+Description=Bee Agent Framework Orchestration & Governance Engine
+After=network.target jaeger.service
+Wants=jaeger.service
+
+[Service]
+Type=simple
+User=beeagent
+Group=beeagent
+WorkingDirectory=/opt/bee-agent
+ExecStart=/usr/bin/node /opt/bee-agent/dist/server.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=18788
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318
+Environment=PYTHONPATH=/opt/bee-agent/python
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bee-agent
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+ReadWritePaths=/opt/bee-agent/storage /tmp
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 === "TypeScript"
@@ -200,6 +281,17 @@ def execute_bee_agent_task(
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & Diagnostic Matrix
+
+### Comprehensive Troubleshooting Matrix
+
+| Issue Category | Symptom / Error Message | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| **Requirement Agent Interception** | `RequirementError: Policy restriction violated` | Model output or tool call parameter violated defined safety guardrail | Review requirement policy JSON schema; expand allowed input ranges or adjust model system prompt. |
+| **OpenTelemetry Export Failure** | `OTel Export Warning: Connection refused to 4318` | Jaeger/OTLP collector container or service down | Verify Jaeger container status and ensure `OTEL_EXPORTER_OTLP_ENDPOINT` URL points to active port `4318`. |
+| **Cross-Language State Desync** | `SerializationError: Incompatible memory store payload` | Version mismatch between Python schema and TypeScript runtime object | Standardize models using Pydantic v2 / TypeScript Zod definitions generated from shared JSON schemas. |
+| **FastMCP Tool Timeout** | `TaskProtocolTimeout: Tool response exceeded 30000ms` | Remote FastMCP tool server stalled or hung on external API | Set explicit timeout parameters on `FastMCPClient` and configure retry handlers with exponential backoff. |
 
 ## Type-Safe Observability & Trace Verification (Pydantic v2)
 

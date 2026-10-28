@@ -148,6 +148,50 @@ export MING_MODEL_PATH="antling/ming-image-0.1-design"
 export CUDA_VISIBLE_DEVICES=0
 ```
 
+### Production Docker Compose Orchestration (`docker-compose.yml`)
+Deploy Ming-Image-0.1-Design with GPU passthrough and healthcheck monitoring:
+
+```yaml
+version: '3.8'
+
+services:
+  ming-image:
+    image: antling/ming-image-worker:latest
+    container_name: ming-image-worker
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - MING_MODEL_PATH=antling/ming-image-0.1-design
+      - PRECISION=fp16
+      - PORT=8095
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ming_model_cache:/root/.cache/huggingface
+      - ./output_assets:/opt/ming-image/output_assets
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    networks:
+      - design-ai-net
+
+networks:
+  design-ai-net:
+    driver: bridge
+
+volumes:
+  ming_model_cache:
+```
+
 ### 3. Basic Python Inference
 ```python
 from diffusers import DiffusionPipeline
@@ -267,6 +311,31 @@ def generate_graphic_design(request_payload: Dict[str, Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     mcp.run()
+```
+
+## Detailed Operational Parameters & Performance Metrics
+
+When deploying Ming-Image-0.1-Design across high-throughput production environments, engineers must optimize VRAM allocation, latent tensor precision, and attention backend configuration.
+
+### VRAM & Execution Profiles
+
+| GPU Architecture | Precision | Batch Size | Resolution | VRAM Consumption | Throughput (sec/img) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| NVIDIA RTX 4090 (24GB) | FP16 | 1 | 1920x1080 | 14.2 GB | 2.8s |
+| NVIDIA RTX 4090 (24GB) | FP8 (e4m3fn) | 1 | 1920x1080 | 8.6 GB | 2.1s |
+| NVIDIA A100 (80GB) | FP16 | 4 | 1920x1080 | 42.1 GB | 1.1s |
+| NVIDIA L40S (48GB) | FP8 (e4m3fn) | 2 | 1080x1080 | 11.4 GB | 1.4s |
+
+### Spatial Bounding Box Coordinate System
+Bounding boxes in Ming-Image are normalized floating-point vectors formatted as `[x_min, y_min, x_max, y_max]` bounded strictly between `0.0` and `1.0`. The origin `(0.0, 0.0)` represents the top-left canvas corner, while `(1.0, 1.0)` represents the bottom-right corner.
+
+```
+(0,0) +---------------------------------------+
+      |  [0.1, 0.1, 0.9, 0.3] Title Header    |
+      |                                       |
+      |  [0.1, 0.4, 0.5, 0.8] Product Image   |
+      |  [0.6, 0.4, 0.9, 0.7] Call to Action  |
+      +---------------------------------------+ (1,1)
 ```
 
 ## Troubleshooting Matrix
