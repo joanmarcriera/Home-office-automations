@@ -52,10 +52,10 @@ Pipedream is a low-code integration platform for developers that allows you to c
         |    (HMAC Signed)         |--- 2. Ingest & Verify ---->|                             |                          |
         |                          |    OAuth Token Refresh     |                             |                          |
         |                          |                            |--- 3. Pydantic v2 Schema -->|                          |
-        |                          |                            |    Payload Validation       |                          |
+        |                          |    Payload Validation       |                             |                          |
         |                          |                            |                             |                          |
         |                          |                            |--- 4. FastMCP Task Exec --->|                          |
-        |                          |                            |    (JSON-RPC 2.0 / SSE)     |                          |
+        |                          |    (JSON-RPC 2.0 / SSE)     |                             |                          |
         |                          |                            |<-- 5. Return Task Outcome --|                          |
         |                          |                            |                             |                          |
         |                          |                            |--- 6. Sync Session State ---------------------------->|
@@ -198,13 +198,15 @@ In modern serverless integrations, validating dynamic state and external webhook
 
 ```python
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("PipedreamWorkflowServer", version="3.1.0")
 
 # Define the incoming event validation schema
 class WebhookTriggerEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     event_id: str = Field(..., description="Unique UUID of the triggering event")
     source: str = Field(..., description="Name of the source service (e.g., github, stripe)")
     payload: Dict[str, Any] = Field(..., description="Dynamic payload content dict")
@@ -220,6 +222,8 @@ class WebhookTriggerEvent(BaseModel):
 
 # Define state structure for Key-Value Data Store
 class StatefulWorkflowContext(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     run_count: int = Field(default=0, ge=0, description="Invocation counter")
     last_processed_id: Optional[str] = Field(None, description="Last event ID processed successfully")
 
@@ -252,6 +256,8 @@ def validate_and_process_event(raw_event: dict, state_store: dict) -> dict:
     }
 
 class WorkflowExecutionMetrics(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     workflow_id: str = Field(..., description="Unique Pipedream workflow ID")
     total_invocations: int = Field(..., ge=0)
     failed_steps_count: int = Field(default=0, ge=0)
@@ -358,5 +364,5 @@ WantedBy=multi-user.target
 ```
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high

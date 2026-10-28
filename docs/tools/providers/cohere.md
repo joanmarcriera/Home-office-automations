@@ -229,7 +229,7 @@ This production example demonstrates how to parse and strictly validate structur
 import os
 import json
 import cohere
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from typing import List
 from mcp.server.fastmcp import FastMCP
 
@@ -237,6 +237,7 @@ mcp = FastMCP("CohereRagServer", version="3.1.0")
 co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 class GroundedFact(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     statement: str = Field(..., description="The primary factual statement extracted")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score in the fact extraction")
     sources: List[str] = Field(default_factory=list, description="Associated source documents cited")
@@ -249,6 +250,7 @@ class GroundedFact(BaseModel):
         return v.strip()
 
 class FactExtractionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     topic: str
     facts: List[GroundedFact]
 
@@ -279,6 +281,7 @@ def extract_grounded_facts(topic_prompt: str) -> dict:
         return {"status": "error", "message": str(e)}
 
 class CohereEmbeddingBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     texts: List[str] = Field(..., min_length=1, max_length=96, description="List of texts to embed (max 96 per call)")
     input_type: str = Field(default="search_document", description="search_document or search_query")
 
@@ -353,5 +356,5 @@ WantedBy=multi-user.target
 ```
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high

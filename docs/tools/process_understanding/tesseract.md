@@ -255,6 +255,8 @@ def parse_and_verify_tesseract_output(raw_ocr_payload: dict) -> dict:
         }
 
 class OcrQualityReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     image_path: str
     total_words: int = Field(..., ge=0)
     low_confidence_word_count: int = Field(..., ge=0)
@@ -359,5 +361,5 @@ WantedBy=multi-user.target
 - [Tesseract v5.5 Release Specifications](https://github.com/tesseract-ocr/tesseract/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high

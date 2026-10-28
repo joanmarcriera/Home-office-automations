@@ -371,5 +371,5 @@ WantedBy=multi-user.target
 ```
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-12
+- Last reviewed: 2026-10-28
 - Confidence: high
