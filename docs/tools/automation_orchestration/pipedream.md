@@ -327,6 +327,48 @@ export default defineComponent({
 
 ## Production Deployment & Systemd Gateway Architecture
 
+### Container Orchestration with Docker Compose
+
+When containerizing self-hosted relay bridges or local FastMCP 3.1 gateway connectors interfacing with Pipedream webhooks, deploy using the Docker Compose setup below:
+
+```yaml
+version: "3.8"
+
+services:
+  pipedream-fastmcp-relay:
+    image: python:3.11-slim
+    container_name: pipedream-fastmcp-relay
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run pipedream_gateway.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PIPEDREAM_CLIENT_ID=pd_client_live_881902
+      - FASTMCP_VERSION=3.1.0
+    volumes:
+      - ./pipedream_gateway.py:/app/pipedream_gateway.py:ro
+    working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import pydantic"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+```
+
+### Systemd Service Daemon Specification
+
 When managing custom FastMCP 3.1 gateway connectors or self-hosted relay bridges that interface with Pipedream webhooks, deploy the following production `systemd` service configuration:
 
 ```ini

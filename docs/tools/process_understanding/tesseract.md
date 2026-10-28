@@ -302,6 +302,48 @@ if __name__ == "__main__":
 
 ## Production Deployment & Systemd Service Architecture
 
+### Container Orchestration with Docker Compose
+
+For containerized microservices and automated FastMCP 3.1 OCR tool runners, deploy using the production Docker Compose setup below:
+
+```yaml
+version: "3.8"
+
+services:
+  tesseract-fastmcp:
+    image: tesseractocr/tesseract:latest
+    container_name: tesseract-fastmcp-worker
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+      - OMP_THREAD_LIMIT=4
+    volumes:
+      - ./data/ocr_input:/app/input:ro
+      - ./data/ocr_output:/app/output:rw
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "tesseract", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+```
+
+### Systemd Service Daemon Specification
+
 To run Tesseract FastMCP 3.1 OCR server workers as resilient background daemons on enterprise Linux hosts, use the systemd unit template below:
 
 ```ini
