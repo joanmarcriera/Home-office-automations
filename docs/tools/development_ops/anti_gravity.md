@@ -3,6 +3,36 @@
 ## What it is
 Anti-Gravity is Google's premier agentic development and execution framework, engineered to build, orchestrate, and deploy autonomous AI agents capable of navigating, reasoning about, and modifying complex software ecosystems. It provides high-level, production-grade abstractions for "Missions" (long-horizon tasks) and "Surfaces" (the agent's operational and environmental context). Natively leveraging the **Gemini 4.0** series (Ultra, Flash, and Pro), Gemini Spark (for autonomous multi-agent orchestration), and Gemini Omni (for multimodal and generative media reasoning), Anti-Gravity offers native code execution, massive context windows (2M+ tokens), and native integration with the Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) to expose agent environments and tool calls seamlessly.
 
+## System Architecture & Mission Dynamics
+
+```
++-----------------------------------------------------------------------------------+
+|                        Google Anti-Gravity Mission Engine                         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+        +-----------------------------------------+  |
+|  |   Gemini 4.0 Pro / Spark  | <----> |  Mission Controller & Telemetry Loop    |  |
+|  +-------------+-------------+        +--------------------+--------------------+  |
+|                |                                           |                      |
+|                | MCP 3.1 Streaming                         | Checkpoint State     |
+|                v                                           v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  |  FastMCP 3.1 Surface Gate | <----> |  SHARP-Isolated Sandboxed Execution     |  |
+|  +---------------------------+        +-----------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+graph TD
+    A[User / CI Trigger] -->|Mission Config YAML| B[Anti-Gravity Mission Orchestrator]
+    B -->|Task Plan & Prompts| C[Gemini 4.0 Pro / Gemini Spark]
+    C -->|Tool Invocations| D[FastMCP 3.1 Surface Bridge]
+    D -->|Executes Code / Tests| E[SHARP VPC-Isolated Container Sandbox]
+    E -->|Telemetry & Terminal Output| B
+    B -->|Human Steering Feedback| C
+```
+
 ## What problem it solves
 Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering. Typical agent setups suffer from brittle tool-calling loops, high error-propagation rates on large-scale refactoring tasks, and sandbox isolation limits. It simplifies the creation of agents that can safely refactor multi-million line codebases, resolve complex cross-repository dependencies, and maintain execution state over long-running asynchronous tasks. Furthermore, it implements an ultra-secure, SHARP-compliant, and VPC-isolated execution sandbox, ensuring that autonomous agent actions are contained without exposing the host operating system to damage or unauthorized network exfiltration.
 
@@ -63,6 +93,30 @@ LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
+```
+
+## Docker Compose Sandbox Setup
+For hybrid deployments or local developer emulation environments, the Anti-Gravity surface daemon can be launched inside a SHARP-isolated container using Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  antigravity-surface:
+    image: us-docker.pkg.dev/google-antigravity/surfaces/runner:v4.1.0
+    container_name: antigravity-surface-runner
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - ANTIGRAVITY_SURFACE_PORT=8080
+      - ANTIGRAVITY_SANDBOX_PROFILE=restricted-developer
+    volumes:
+      - ./workspace:/opt/antigravity/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    security_opt:
+      - no-new-privileges:true
 ```
 
 ## Getting started
@@ -170,7 +224,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Optional
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("AntiGravitySurfaceServer")
+mcp = FastMCP("AntiGravitySurfaceServer", version="3.1.0")
 
 class SandboxProfile(BaseModel):
     profile_name: str = Field(..., min_length=3, max_length=50)

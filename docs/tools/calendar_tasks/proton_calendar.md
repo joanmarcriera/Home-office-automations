@@ -93,6 +93,72 @@ The system architecture consists of three distinct layers:
 - **No Direct CalDAV Server Endpoint**: Native server-side CalDAV is disabled to preserve zero-access guarantees; local Proton Bridge daemon required.
 - **Read-Only Link Limitations**: External iCal links provide read-only access and update on periodic cache refresh intervals (typically 15-30 minutes).
 
+## Systemd Service Configuration
+For managing local Proton Bridge decryption daemons and iCal synchronization proxies on background server hosts, systemd provides process control:
+
+```ini
+[Unit]
+Description=Proton Bridge Decryption Proxy Service
+After=network.target
+
+[Service]
+Type=simple
+User=protonbridge
+Group=protonbridge
+WorkingDirectory=/opt/proton-bridge
+Environment="PATH=/usr/local/bin:/usr/bin"
+Environment="PROTON_LOG_LEVEL=info"
+ExecStart=/usr/local/bin/proton-bridge --non-interactive --cli
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment
+Deploying local Proton Bridge sidecars alongside FastMCP 3.1 calendar servers using Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  proton-bridge:
+    image: proton/bridge:v3.10.0
+    container_name: proton-bridge
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # Local SMTP E2EE port
+      - "1143:1143" # Local IMAP / CalDAV proxy port
+    volumes:
+      - proton-data:/root/.config/protonmail
+
+  mcp-proton-calendar-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.calendar-mcp
+    container_name: mcp-proton-calendar-server
+    restart: unless-stopped
+    environment:
+      - PROTON_ICAL_FEED_URL=${PROTON_ICAL_FEED_URL}
+      - MCP_PORT=8080
+    depends_on:
+      - proton-bridge
+
+volumes:
+  proton-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 404 / 403` on iCal export URL | Expired or revoked secret feed URL token. | Regenerate secret share token in Proton Calendar settings under "Share Calendar". |
+| Stale events in external clients (e.g. Home Assistant) | Proton iCal export caching window (15-30 min). | Force local cache flush or adjust polling frequency in downstream agent feeds. |
+| Proton Bridge CLI authentication failure | Missing 2FA TOTP code or app-specific key. | Generate app-specific password in Proton Account security panel for Bridge CLI login. |
+| FastMCP iCal parsing exception (`ValueError`) | Malformed timezone definition or missing `DTEND` in `.ics`. | Wrap component parsing with `try...except` in Pydantic validator to fall back to `DURATION`. |
+
 ## When to use it
 - When privacy and zero-trust security are top priorities for your schedule.
 - When operating in environments with strict regulatory data protection rules.
@@ -149,13 +215,20 @@ mcp = FastMCP(
 )
 
 class CalendarEventModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
 
     event_id: str = Field(..., alias="uid", description="Unique event identifier")
     summary: str = Field(..., min_length=1, description="Event title or subject")
     description: Optional[str] = Field(None, description="Event description or notes")
     start_time: str = Field(..., alias="dtstart", description="ISO format start timestamp")
     end_time: str = Field(..., alias="dtend", description="ISO format end timestamp")
+
+    @field_validator("summary")
+    @classmethod
+    def validate_summary_non_empty(cls, val: str) -> str:
+        if not val.strip():
+            raise ValueError("Event summary title cannot be whitespace only")
+        return val.strip()
 
 class CalendarFeedResponse(BaseModel):
     success: bool

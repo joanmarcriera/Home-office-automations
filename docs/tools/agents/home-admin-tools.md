@@ -25,6 +25,21 @@ Home Admin Tools is a comprehensive, local-first Python and FastMCP 3.1 automati
 +---------------+  +---------------+             +---------------+  +---------------+
 ```
 
+```mermaid
+graph TD
+    A[User Voice / Web Assistant] -->|FastMCP 3.1 Invocation| B[Home Admin Tools Gateway Server]
+    B -->|Pydantic v2 Payload Validation| C{Action Type}
+    C -->|Smart Device Control| D[Home Assistant REST API]
+    C -->|Document OCR Query| E[Paperless-ngx Archive]
+    C -->|Chore & Maintenance| F[Vikunja Task Tracker]
+    C -->|Family Scheduling| G[CalDAV / Proton Calendar Feed]
+    D -->|Status Response| B
+    E -->|Status Response| B
+    F -->|Status Response| B
+    G -->|Status Response| B
+    B -->|Type-Safe Tool Result| A
+```
+
 ## What problem it solves
 1. **Smart Home & Personal Admin Fragmentation**: Managing smart home IoT devices (Home Assistant), document archives (Paperless-ngx), task lists (Vikunja), and calendars (CalDAV/Google Calendar) usually requires separate custom scripts and manual UI interactions. Home Admin Tools unifies them into a cohesive Python/MCP toolkit.
 2. **Unsafe Autonomous Home Operations**: Giving AI agents unrestricted access to smart home physical controls (e.g., unlocking doors, disabling alarms, adjusting HVAC) risks security and physical safety. Home Admin Tools provides granular permission boundaries and Pydantic v2 input validation before executing actions.
@@ -83,6 +98,83 @@ Interacts with CalDAV/Google Calendar endpoints to schedule family appointments,
 - **Requires Local Infrastructure**: Dependent on having active self-hosted instances of Home Assistant, Paperless-ngx, and Vikunja.
 - **Local Network Connectivity**: Requires local network access or secure Tailscale/Headscale mesh VPN routing.
 
+## Systemd Service Configuration
+For running Home Admin Tools as a local background FastMCP gateway service on a homelab server:
+
+```ini
+[Unit]
+Description=Home Admin Tools FastMCP 3.1 Gateway Daemon
+After=network.target homeassistant.service
+Wants=homeassistant.service
+
+[Service]
+Type=simple
+User=homeadmin
+Group=homeadmin
+WorkingDirectory=/opt/home-admin-tools
+Environment="PATH=/opt/home-admin-tools/venv/bin:/usr/local/bin:/usr/bin"
+Environment="HASSIO_URL=http://localhost:8123"
+Environment="PAPERLESS_URL=http://localhost:8000"
+Environment="VIKUNJA_URL=http://localhost:3456"
+ExecStart=/opt/home-admin-tools/venv/bin/python3 scripts/home_admin_agent.py --mcp-server --port 8090
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment
+Deploying Home Admin Tools alongside Home Assistant and Paperless-ngx:
+
+```yaml
+version: '3.8'
+
+services:
+  home-admin-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.home-admin
+    container_name: home-admin-gateway
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - HASSIO_URL=http://homeassistant:8123
+      - HASSIO_TOKEN=${HASSIO_TOKEN}
+      - PAPERLESS_URL=http://paperless:8000
+      - PAPERLESS_TOKEN=${PAPERLESS_TOKEN}
+      - VIKUNJA_URL=http://vikunja:3456
+      - VIKUNJA_TOKEN=${VIKUNJA_TOKEN}
+    depends_on:
+      - homeassistant
+      - paperless
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` on Home Assistant | Invalid or expired Long-Lived Access Token in `HASSIO_TOKEN`. | Generate a new Long-Lived Access Token in Home Assistant profile settings. |
+| Paperless-ngx OCR query returns 0 items | Document not yet OCR-processed or token missing `read` scope. | Verify Paperless celery worker queue status and check search string syntax. |
+| Vikunja task creation `404 Not Found` | Non-existent `project_id` in Vikunja task request. | List existing Vikunja projects via `/api/v1/projects` to confirm valid target ID. |
+| FastMCP Pydantic validation error | Unexpected entity ID format or missing required payload key. | Check schema constraints in `ToggleDeviceRequestModel` or `TaskCreateRequestModel`. |
+
 ## When to use it
 - When building personal AI assistants or home automation agents running on local hardware.
 - When unifying personal task, calendar, document, and smart home management into a single toolset.
@@ -96,7 +188,7 @@ Interacts with CalDAV/Google Calendar endpoints to schedule family appointments,
 ### Installation & Local Setup
 Clone the repository and install requirements:
 ```bash
-pip install pydantic requests mcp
+pip install pydantic>=2.0 requests mcp
 ```
 
 ### Environment Configuration
@@ -133,7 +225,7 @@ Provides unified personal assistant tools for Home Assistant, Paperless-ngx, and
 import os
 import requests
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("HomeAdminGateway", version="3.1.0")
@@ -143,6 +235,13 @@ mcp = FastMCP("HomeAdminGateway", version="3.1.0")
 class ToggleDeviceRequestModel(BaseModel):
     entity_id: str = Field(..., description="Home Assistant entity ID (e.g., light.kitchen, switch.patio)")
     action: str = Field(..., description="Action to perform: 'turn_on', 'turn_off', or 'toggle'")
+
+    @field_validator("entity_id")
+    @classmethod
+    def validate_entity_format(cls, val: str) -> str:
+        if "." not in val:
+            raise ValueError("entity_id must follow 'domain.name' format (e.g. light.kitchen)")
+        return val.strip()
 
 class DocumentSearchRequestModel(BaseModel):
     query: str = Field(..., description="OCR text or title query for Paperless-ngx documents")
