@@ -9,6 +9,62 @@ The sheer volume of daily AI announcements, releases, and research papers create
 ## Where it fits in the stack
 **Category**: Knowledge Base / Resource Directory. It acts as the **Information Intake Layer** of the KnowledgeOps framework, providing the raw, educational inputs that help developers design robust agent prompts, evaluate local models, and select state-of-the-art deployment tools.
 
+## Architecture & Automated Ingestion Pipeline
+
+```mermaid
+flowchart TD
+    A[External Signal Sources] --> B[Atom / RSS / API Feeds]
+    B --> C[n8n Automation Engine]
+
+    subgraph Ingestion & Validation Layer
+        C --> D[Pydantic v2 Payload Validator]
+        D --> E[FastMCP 3.1 Signal Ingestor Server]
+    end
+
+    subgraph Storage & Indexing Layer
+        E --> F[SQLite Vector Store / Embeddings]
+        E --> G[Markdown Index & Catalog Generator]
+    end
+
+    subgraph Consumer & Dispatch Layer
+        G --> H[Daily Digest / Notification Dispatch]
+        G --> I[Agent Memory Injection]
+    end
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as Engineer / Agent Framework
+    participant Feeds as RSS / Blog Feeds
+    participant Orchestrator as n8n / FastMCP Ingestor
+    participant Validator as Pydantic v2 Schema Guard
+    participant Vault as KnowledgeOps Index
+
+    Developer->>Orchestrator: Trigger Ingestion Loop
+    Orchestrator->>Feeds: Fetch Latest Feed XML / JSON
+    Feeds-->>Orchestrator: Return Feed Artifacts
+    Orchestrator->>Validator: Validate Schema (Title, URL, Category, Tags)
+    alt Valid Schema
+        Validator-->>Orchestrator: Schema Approved
+        Orchestrator->>Vault: Write Entry to Markdown Directory & Vector Store
+        Vault-->>Developer: Return Ingestion Confirmation & Signal Metrics
+    else Invalid / Malformed Payload
+        Validator-->>Orchestrator: Raise ValidationError
+        Orchestrator->>Developer: Alert Payload Degradation in Diagnostics
+    end
+```
+
+## Source Category & Signal Density Matrix
+
+| Category | Primary Focus | Update Frequency | Signal-to-Noise Ratio | Typical Format | Primary Verification Mechanism |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Personal Technical Blogs** | Deep Architectural Mechanics, Mechanistic Interpretability, MCP Tool Protocols | Weekly to Monthly | Extremely High (>90%) | Code-heavy Essays & Walkthroughs | Code Repro & Benchmark Tests |
+| **Specialized Newsletters** | Ecosystem Trends, Training Dynamics, Model Alignment & Safety | Daily / Bi-weekly | High (80-90%) | Curated Analyses & Commentary | Expert Cross-Referencing |
+| **Frontier Research Labs** | Architectural Breakthroughs, Alignment Standards, Capability Disclosures | Irregular / Major Releases | Absolute Frontier | Whitepapers, System Cards, Technical Reports | Peer Evaluation & Empirical Testing |
+| **Aggregators & Communities** | Quantization Benchmarks, Edge Inference Hacks, Real-Time Debates | Real-Time / Continuous | Variable (50-75%) | Forum Posts, Pull Requests, Benchmarking Bench | Community Reproducibility |
+| **Technical Podcasts** | Founder Interviews, Architectural Trade-Offs, Platform Paradigms | Weekly | High (80%) | Long-form Audio Transcripts | Transcript Indexing |
+
 ## Typical use cases
 - **Continuous Technical Enrichment**: Discovering deep-dive architectural tutorials (e.g., Lilian Weng for memory systems or Sebastian Raschka for fine-tuning) to address engineering gaps.
 - **Ecosystem Monitoring**: Tracking daily releases and open-source progress via high-signal newsletters and community hubs.
@@ -34,6 +90,79 @@ The sheer volume of daily AI announcements, releases, and research papers create
 ## When not to use it
 - If searching for commercial press releases, high-level non-technical summaries, or market-analysis charts.
 - If requiring a complete, academic search index of every paper published on arXiv (use specialized search engines like [Semantic Scholar](https://www.semanticscholar.org/) or [arXiv](https://arxiv.org/) instead).
+
+## Service & Daemon Management
+
+### systemd Service Configuration (`/etc/systemd/system/ai-signal-ingestor.service`)
+Deploy the following systemd unit file to run the continuous feed ingestion and validation daemon as a background service:
+
+```ini
+[Unit]
+Description=AI Signal Ingestor and KnowledgeOps Directory Sync Daemon
+Documentation=https://github.com/knowledgeops/ai-reading-list
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=knowledgeops
+Group=knowledgeops
+WorkingDirectory=/opt/ai-signal-ingestor
+ExecStart=/opt/ai-signal-ingestor/venv/bin/python3 ingestor_daemon.py --config /etc/ai-signal-ingestor/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_PORT=8088
+Environment=LOG_LEVEL=info
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/ai-signal-ingestor/data /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Configuration (`docker-compose.yml`)
+To run the feed ingestor alongside an RSS proxy and vector database stack, deploy the following multi-container environment:
+
+```yaml
+version: '3.8'
+
+services:
+  signal-ingestor:
+    image: python:3.11-slim
+    container_name: ai-signal-ingestor
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - feed_data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FASTMCP_PORT=8088
+    command: >
+      bash -c "pip install fastmcp pydantic feedparser requests &&
+               python3 ingestor_daemon.py"
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+
+  feed-cache:
+    image: redis:7-alpine
+    container_name: ai-feed-redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  feed_data:
+  redis_data:
+```
 
 ## Getting started
 1. **The Daily Aggregator**: Subscribe to [AI News](https://buttondown.com/ainews) or Hacker News to monitor immediate codebase releases and framework announcements.
@@ -61,22 +190,89 @@ curl -s https://lilianweng.github.io/posts/2024-11-28-reward-hacking/index.html 
 
 ## API examples
 
-### n8n RSS Ingestion Node Configuration (JSON)
-This node can be directly pasted into an n8n workflow canvas to automatically pull and parse structured technical updates from Simon Willison's blog:
+### FastMCP 3.1 RSS Feed & Signal Ingestor Server
+Below is a complete **FastMCP 3.1** server that enables agent workflows to query, filter, and register new reading list entries programmatically:
 
-```json
-{
-  "parameters": {
-    "url": "https://simonwillison.net/atom/entries/",
-    "options": {
-      "timeout": 5000
+```python
+import sys
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "ai-reading-list-server",
+    instructions="FastMCP 3.1 server for querying and ingesting AI reading list sources."
+)
+
+class SourceQueryFilter(BaseModel):
+    category: Optional[str] = Field(None, description="Category filter (e.g., blog, newsletter, research_lab, community, podcast)")
+    topic: Optional[str] = Field(None, description="Keyword topic filter (e.g., FastMCP 3.1, Claude 5.6, quantization)")
+    limit: int = Field(default=10, ge=1, le=50, description="Maximum number of sources to return")
+
+class NewSourcePayload(BaseModel):
+    title: str = Field(..., min_length=2, description="Readable title of the reference source")
+    url: HttpUrl = Field(..., description="Fully qualified URL link to the resource")
+    category: str = Field(..., pattern="^(blog|newsletter|research_lab|community|podcast)$")
+    recommended_topics: List[str] = Field(default_factory=list, description="Topics covered by this source")
+    author_or_org: Optional[str] = Field(None, description="Author or publishing entity")
+
+@mcp.tool()
+def query_reading_list(filter_params: SourceQueryFilter) -> Dict[str, Any]:
+    """
+    Queries the AI Reading List catalog based on category and topic filters.
+    """
+    # Sample catalog data matching early 2027 standards
+    catalog = [
+        {
+            "title": "Simon Willison Weblog",
+            "url": "https://simonwillison.net",
+            "category": "blog",
+            "recommended_topics": ["FastMCP 3.1", "Task Protocol", "local tool-calling", "security"]
+        },
+        {
+            "title": "Lil'Log (Lilian Weng)",
+            "url": "https://lilianweng.github.io/posts/",
+            "category": "blog",
+            "recommended_topics": ["agent architectures", "reward hacking", "mechanistic interpretability"]
+        },
+        {
+            "title": "Latent Space Newsletter",
+            "url": "https://latent.space",
+            "category": "newsletter",
+            "recommended_topics": ["AI engineer", "Claude 5.6", "GPT-5.6", "Gemma 4", "Qwen 3.6 VL"]
+        }
+    ]
+
+    filtered = catalog
+    if filter_params.category:
+        filtered = [item for item in filtered if item["category"] == filter_params.category.lower()]
+    if filter_params.topic:
+        filtered = [
+            item for item in filtered
+            if any(filter_params.topic.lower() in t.lower() for t in item["recommended_topics"])
+        ]
+
+    return {
+        "status": "success",
+        "returned_count": len(filtered[:filter_params.limit]),
+        "sources": filtered[:filter_params.limit]
     }
-  },
-  "name": "Simon Willison Weblog RSS",
-  "type": "n8n-nodes-base.rssFeedRead",
-  "typeVersion": 1,
-  "position": [240, 280]
-}
+
+@mcp.tool()
+def register_new_source(source_data: NewSourcePayload) -> Dict[str, Any]:
+    """
+    Validates and registers a new high-signal AI information source into the index.
+    """
+    return {
+        "status": "registered",
+        "title": source_data.title,
+        "url": str(source_data.url),
+        "category": source_data.category,
+        "topics_indexed": source_data.recommended_topics
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Resource Directory Ingestion Validator using Pydantic v2
@@ -137,6 +333,16 @@ if __name__ == "__main__":
     if validated_dir:
         print("Integration authorized.")
 ```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **RSS Feed HTTP 403 Forbidden** | Feed provider enforces Cloudflare / User-Agent bot blocking | Update `requests` header in ingestor daemon to pass browser `User-Agent` or use Cloudflare proxy worker. |
+| **Malformed Atom XML Schema** | Non-standard tags or CDATA blocks in external feed payload | Wrap feed parsing in `feedparser.parse()` with CDATA sanitization and fallback regex extraction. |
+| **Duplicate Source Ingestion** | Multiple feed entries referencing canonical cross-posted URLs | Implement URL canonicalization and SHA256 hashing on normalized target URLs prior to indexing. |
+| **ValidationError on HttpUrl** | Feed contains relative links or invalid protocol schemes | Pre-pend `https://` or resolve relative paths against feed domain before Pydantic validation. |
+| **FastMCP Tool Connection Timeout** | Long-running RSS fetch blocking FastMCP event loop | Wrap remote HTTP calls in `asyncio.to_thread()` or `httpx.AsyncClient` with a 5-second timeout. |
 
 ## Blogs & Personal Sites
 - **Simon Willison** ([simonwillison.net](https://simonwillison.net)) — Essential for real-time tracking of practical LLM tooling, local CLI tools, Model Context Protocol (FastMCP 3.1) integrations, security exploits, and prompt engineering.

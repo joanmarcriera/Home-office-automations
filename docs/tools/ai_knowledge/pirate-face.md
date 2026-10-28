@@ -72,6 +72,81 @@ sequenceDiagram
 | **Agentic FastMCP 3.1** | Native tool streaming | Native CID resolve tool | Direct URL fetch tool | Custom scraper / API |
 | **Metadata Parsing** | Pre-fetch torrent info dict | IPFS DAG header parse | Range request GGUF header | Platform API JSON |
 
+## Service & Daemon Management
+
+### systemd Service Configuration (`/etc/systemd/system/pirate-face-daemon.service`)
+To run the Pirate Face P2P swarm node and FastMCP 3.1 model server as a background service under systemd, deploy the unit file below:
+
+```ini
+[Unit]
+Description=Pirate Face P2P Model Swarm Node & FastMCP 3.1 Server
+Documentation=https://github.com/pirate-face/pirate-face
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pirateface
+Group=pirateface
+WorkingDirectory=/opt/pirate-face
+ExecStart=/usr/local/bin/pirate-face daemon --config /etc/pirate-face/config.yaml --mcp-port 8089
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_PORT=8089
+Environment=LOG_LEVEL=info
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/pirate-face/data /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Multi-Node Setup (`docker-compose.yml`)
+Deploy a localized Pirate Face P2P indexing node alongside an IPFS daemon and FastMCP 3.1 model router:
+
+```yaml
+version: '3.8'
+
+services:
+  pirate-face-node:
+    image: pirateface/node:v2.4
+    container_name: pirate-face-indexer
+    ports:
+      - "8089:8089" # FastMCP 3.1 Tool Port
+      - "6881:6881/tcp" # BitTorrent TCP Swarm Port
+      - "6881:6881/udp" # BitTorrent UDP DHT Port
+    volumes:
+      - ./config.yaml:/etc/pirate-face/config.yaml
+      - model_storage:/data/models
+    environment:
+      - FASTMCP_PORT=8089
+      - IPFS_GATEWAY=http://ipfs-node:8080
+    depends_on:
+      - ipfs-node
+    restart: unless-stopped
+
+  ipfs-node:
+    image: ipfs/kubo:latest
+    container_name: pirate-face-ipfs
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+    restart: unless-stopped
+
+volumes:
+  model_storage:
+  ipfs_data:
+```
+
 ## Typical use cases
 - **Decentralized Model Weight Sharing**: Mirroring and distributing community fine-tunes and specialized GGUF quantizations without depending on centralized hosting providers.
 - **Automated Local Agent Tooling**: Enabling FastMCP 3.1 agents to query, verify, and pull necessary LLM weight files when executing local offline workflows.
