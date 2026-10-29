@@ -145,6 +145,54 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Docker Compose Production Deployment
+
+Multi-container orchestration setup for local SWE-bench evaluation gateway and runner pool (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  swebench-harness:
+    image: python:3.11-slim
+    container_name: swebench-eval-harness
+    restart: unless-stopped
+    command: python -m swebench.harness.run_evaluation --dataset_name princeton-nlp/SWE-bench_Lite --predictions_path /app/predictions.jsonl --max_workers 4
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LOG_LEVEL=INFO
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./predictions.jsonl:/app/predictions.jsonl
+      - ./results:/app/results
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'
+          memory: 16G
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import swebench; print(swebench.__version__)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+  swebench-mcp-server:
+    image: python:3.11-slim
+    container_name: swebench-mcp-server
+    restart: unless-stopped
+    command: python -m swebench_mcp.server --port 8092
+    ports:
+      - "8092:8092"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./results:/app/results:ro
+    depends_on:
+      - swebench-harness
+```
+
 ## API examples
 
 ```python
@@ -171,6 +219,8 @@ mcp = FastMCP("swe-bench-evaluation-server", version="3.1.0")
 
 class TaskInstanceMetadata(BaseModel):
     """Pydantic v2 schema representing a SWE-bench task instance problem statement."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     instance_id: str = Field(..., description="Unique task instance identifier, e.g. django__django-11099.")
     repo: str = Field(..., description="Target repository name, e.g. django/django.")
     base_commit: str = Field(..., description="Base Git commit SHA string.")
@@ -179,6 +229,8 @@ class TaskInstanceMetadata(BaseModel):
 
 class PatchSubmissionPayload(BaseModel):
     """Pydantic v2 schema for validating incoming agent patch submissions."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     instance_id: str = Field(..., description="Target SWE-bench instance ID (e.g. django__django-11099).")
     model_name: str = Field(..., description="Identifier of the model generating the patch.")
     patch_diff: str = Field(..., min_length=10, description="Raw Unified Git Diff patch string.")
@@ -200,11 +252,13 @@ class PatchSubmissionPayload(BaseModel):
 
 class SWEBenchEvaluationResult(BaseModel):
     """Validated evaluation summary report for a single instance."""
-    instance_id: str
-    resolved: bool
-    tests_passed: List[str]
-    tests_failed: List[str]
-    patch_size_bytes: int
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    instance_id: str = Field(..., description="Target instance ID")
+    resolved: bool = Field(..., description="Whether task instance was successfully resolved")
+    tests_passed: List[str] = Field(default_factory=list, description="List of passing test identifiers")
+    tests_failed: List[str] = Field(default_factory=list, description="List of failing test identifiers")
+    patch_size_bytes: int = Field(..., ge=0, description="Size of generated diff in bytes")
 
 @mcp.tool()
 def fetch_task_instance(instance_id: str) -> str:
@@ -250,6 +304,27 @@ def evaluate_swebench_patch(submission_dict: Dict[str, Any]) -> Dict[str, Any]:
             "error": e.errors()
         }
 
+@mcp.tool()
+def get_harness_status() -> Dict[str, Any]:
+    """Returns active harness configuration and status metrics."""
+    return {
+        "status": "ready",
+        "protocol": "FastMCP 3.1",
+        "supported_datasets": ["SWE-bench_Lite", "SWE-bench_Verified", "SWE-bench_Multilingual"],
+        "active_workers": 4
+    }
+
+@mcp.tool()
+def format_patch_payload(instance_id: str, diff_text: str, model_id: str) -> str:
+    """Formats and validates raw diff payload into a standard PatchSubmissionPayload JSON string."""
+    payload = PatchSubmissionPayload(
+        instance_id=instance_id,
+        model_name=model_id,
+        patch_diff=diff_text,
+        execution_time_sec=12.4
+    )
+    return payload.model_dump_json(indent=2)
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -267,6 +342,15 @@ if __name__ == "__main__":
 3. **Multi-Language Runner Isolation**:
    - For SWE-bench Multilingual, use language-specific Docker base images (e.g. `rust:1.80-slim`, `golang:1.23-alpine`) pre-loaded with cached compiler artifacts to accelerate test execution.
 
+4. **Pydantic v2 Boundary Enforcement**:
+   - Apply `extra="forbid"` on all submission validation structures to prevent extra or unexpected parameters from passing unverified into harness scripts.
+
+5. **Resource Cleaning Automations**:
+   - Schedule periodic `docker container prune` and `docker volume prune` background jobs to clear residual task build layers between execution batches.
+
+6. **Deterministic Test Verification**:
+   - Run both pre-patch ("eval_on_fail") and post-patch ("eval_on_pass") verification passes to ensure patches fix targeted bugs without introducing regressions in untouched test suites.
+
 ## Systematic Troubleshooting Guide
 
 | Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
@@ -275,6 +359,9 @@ if __name__ == "__main__":
 | **Docker Container Timeout (>30m)** | Infinite loop in generated agent patch code or test suite hang | `docker ps -a --filter "status=running"` | Set explicit timeout threshold (`--timeout 600`) in SWE-bench harness |
 | **`ImportError` during test run** | Missing repository dependencies in Docker base image | `docker logs <container_id>` | Re-build SWE-bench base environment image using updated conda spec |
 | **0% Resolution Rate across All Tasks** | Base commit SHA mismatch or missing environment variables | `swebench-inspect --predictions_path predictions.jsonl` | Verify predictions JSONL keys match exact `instance_id` strings |
+| **Pydantic Validation Error** | Patch payload omitted required `model_name` string | Inspection of FastMCP submission dictionary | Ensure caller includes `model_name` and valid `patch_diff` headers |
+| **Container OOM Killed (Exit 137)** | Task instance exceeds memory limits during test run | `docker inspect --format='{{.State.ExitCode}}' <id>` | Increase container RAM limit via `--memory=16g` in compose config |
+| **Harness Network Blocking Failure** | External API call attempted during container test phase | `docker logs <eval_container_id>` | Mock external API dependencies or run pre-installed offline mocks |
 
 ## Related tools / concepts
 - [LiveCodeBench](livecodebench.md) — Benchmark for code execution and algorithmic capabilities.

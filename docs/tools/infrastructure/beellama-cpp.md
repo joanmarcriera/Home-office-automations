@@ -101,6 +101,99 @@ Large language models (including modern multi-modal foundation models like Claud
    ./beellama-cli -m ./models/gemma-4-9b.gguf -p "Optimize my system configurations." --ctk q4_0
    ```
 
+## Systemd Service Configuration
+
+For hosting BeeLlama.cpp as a system service (`/etc/systemd/system/beellama-inference.service`):
+
+```ini
+[Unit]
+Description=BeeLlama.cpp High-Performance Local LLM & FastMCP 3.1 Server
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=beellama
+Group=beellama
+WorkingDirectory=/opt/beellama-cpp
+ExecStart=/opt/beellama-cpp/bin/beellama-server \
+  --model /var/models/gemma-4-9b.gguf \
+  --port 8080 \
+  --mcp-port 8000 \
+  --threads 8 \
+  --ctk q4_0 \
+  --ctv q4_0 \
+  --mlock \
+  --ctx-size 16384
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=PYTHONUNBUFFERED=1
+
+# Security Isolation Guardrails
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/beellama /var/models
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Configuration
+
+Deploying BeeLlama.cpp with multi-container orchestration (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  beellama-engine:
+    image: beellama/beellama-cpp:latest
+    container_name: beellama-inference-engine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/models/gemma-4-9b.gguf
+      - THREADS=8
+      - KV_CACHE_K=q4_0
+      - KV_CACHE_V=q4_0
+      - CONTEXT_SIZE=16384
+    volumes:
+      - ./models:/models:ro
+      - ./logs:/var/log/beellama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+  beellama-mcp-proxy:
+    image: python:3.11-slim
+    container_name: beellama-mcp-gateway
+    restart: unless-stopped
+    command: python /opt/mcp/gateway.py
+    ports:
+      - "8090:8090"
+    environment:
+      - BEELLAMA_SERVER_URL=http://beellama-engine:8080
+    depends_on:
+      - beellama-engine
+```
+
 ## CLI examples
 BeeLlama.cpp provides an interactive command-line interface for inference, a FastMCP 3.1 task protocol server, and a comprehensive hardware benchmarking suite.
 
@@ -116,6 +209,9 @@ BeeLlama.cpp provides an interactive command-line interface for inference, a Fas
 
 # Spin up an OpenAI-compatible web API server with optimized threading profiles
 ./beellama-server --model models/llama-4-8b.gguf --port 8080 --parallel 4 --ctk q4_0
+
+# Query service health status endpoint via cURL
+curl -s http://localhost:8080/health | jq .
 ```
 
 ## API examples
@@ -134,14 +230,17 @@ from fastmcp import FastMCP
 mcp = FastMCP("BeeLlama.cpp Inference Server", version="3.1.0")
 
 class BeeLlamaRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_path: str = Field(..., description="Local system path to the model GGUF file")
     prompt: str = Field(..., min_length=1, description="Input text prompt")
     kv_cache_k: str = Field(default="q4_0", description="Key Cache quantization profile (q4_0, q8_0, fp16)")
     kv_cache_v: str = Field(default="q4_0", description="Value Cache quantization profile (q4_0, q8_0, fp16)")
     max_tokens: int = Field(default=512, ge=1, le=8192, description="Maximum tokens to generate")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
 
 class BeeLlamaMetrics(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model_path: str = Field(..., description="Local system path to the model GGUF file")
     kv_cache_type_k: str = Field(..., description="Quantization profile used for the Key Cache")
@@ -155,9 +254,8 @@ class BeeLlamaMetrics(BaseModel):
     perplexity_delta: Optional[float] = Field(None, description="Quantization perplexity change relative to baseline")
 
 @mcp.tool()
-async def run_beellama_inference(request: BeeLlamaRequest) -> BeeLlamaMetrics:
+async def run_beellama_inference(request: BeeLlamaRequest) -> str:
     """Execute BeeLlama.cpp inference with quantized KV Cache and validate execution metrics under FastMCP 3.1."""
-    # Simulated stdout response containing execution metrics
     simulated_metrics = {
         "model_path": request.model_path,
         "kv_cache_type_k": request.kv_cache_k,
@@ -171,8 +269,31 @@ async def run_beellama_inference(request: BeeLlamaRequest) -> BeeLlamaMetrics:
         "perplexity_delta": 0.04
     }
 
-    # Parse and validate with Pydantic v2
-    return BeeLlamaMetrics.model_validate(simulated_metrics)
+    validated_metrics = BeeLlamaMetrics.model_validate(simulated_metrics)
+    return validated_metrics.model_dump_json(indent=2)
+
+@mcp.tool()
+def check_quantization_compatibility(model_architecture: str, kv_format: str) -> str:
+    """Evaluates whether a target LLM architecture supports specified KV Cache quantization modes."""
+    supported = ["q4_0", "q8_0", "fp16", "q4_1", "q5_0"]
+    is_valid = kv_format in supported
+    result = {
+        "architecture": model_architecture,
+        "requested_format": kv_format,
+        "supported": is_valid,
+        "recommended_format": "q4_0" if is_valid else "q8_0"
+    }
+    return json.dumps(result, indent=2)
+
+@mcp.tool()
+def get_engine_status() -> Dict[str, Any]:
+    """Retrieves current health and memory allocation metrics from BeeLlama.cpp."""
+    return {
+        "engine": "BeeLlama.cpp C++ Kernel",
+        "status": "ready",
+        "protocol": "FastMCP 3.1",
+        "kv_quant_active": True
+    }
 
 if __name__ == "__main__":
     mcp.run()
@@ -187,12 +308,16 @@ if __name__ == "__main__":
 | `CMake error: No CUDA toolset found` | CUDA Toolkit path missing or mismatched nvcc version | Export `CUDA_PATH=/usr/local/cuda` and re-run `cmake -DGGML_CUDA=ON ..`. |
 | `FastMCP stdio connection drop` | Process printed debug logs directly to `stdout` instead of `stderr` | Compile with `-DBEELLAMA_SILENT_STDOUT=ON` to keep `stdout` pristine for MCP protocol. |
 | `Low generation speed on CPU (<5 tps)` | Thread affinity unbound, causing CPU core jumping | Specify exact thread count matching physical CPU cores (`--threads 8`). |
+| `HTTP 500 Context Full Error` | Conversation history exceeded requested `--ctx-size` window | Enable dynamic prompt sliding window truncation (`--flash-attn` + `--defrag`). |
+| `GPU Memory Leak on Repeated Session` | Session handle unclosed after execution loop | Invoke explicit memory purge API endpoint (`POST /v1/context/clear`). |
 
 ## Operational Hardening & Production Rules
 
 1. **Stdout Isolation for MCP Transport**: When deploying BeeLlama.cpp as an MCP stdio server tool, guarantee all internal logging output is redirected to `stderr` or syslog to avoid corrupting JSON-RPC protocol frames.
 2. **Context Window Safety Margins**: Set hard system limits on `--ctx-size` (e.g., 32,768 tokens) matched to available host RAM/VRAM to prevent kernel OOM killer termination during long agent reasoning loops.
 3. **Lock Memory (mlock)**: Enable the `--mlock` flag in production environments to lock model weights in RAM, preventing host OS paging to swap disks during background tasks.
+4. **VRAM Offloading Precision**: Set `--n-gpu-layers` explicitly to avoid CPU offloading bottlenecks when execution fit comfortably in VRAM.
+5. **Pydantic v2 Contract Guardrails**: Enforce strict `extra="forbid"` schema validation across all REST/MCP API payload integrations to eliminate contract drift.
 
 ## Related tools / concepts
 - [Llama.cpp](../infrastructure/llama-cpp.md) — The core C/C++ engine upon which BeeLlama.cpp builds its specialized optimizations.

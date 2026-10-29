@@ -167,6 +167,81 @@ Perform a local diagnostics check to verify API keys, LSP connections, and MCP s
 bunx oh-my-opencode doctor
 ```
 
+## Systemd Production Service Configuration
+
+For hosting an OmO FastMCP server worker (`/etc/systemd/system/omo-mcp-worker.service`):
+
+```ini
+[Unit]
+Description=Oh My OpenAgent (OmO) FastMCP 3.1 Task Execution Worker
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opencode
+Group=opencode
+WorkingDirectory=/opt/opencode-worker
+ExecStart=/usr/local/bin/node /opt/opencode-worker/dist/mcp-server.js --port 8094 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=NODE_ENV=production
+Environment=ANTHROPIC_API_KEY=sk-ant-api03-xxxx
+Environment=PYTHONUNBUFFERED=1
+
+# Security Sandbox Rules
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/opencode /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Production Setup
+
+Multi-container orchestration for OmO FastMCP gateway and AST indexing server (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  omo-mcp-gateway:
+    image: node:20-slim
+    container_name: omo-mcp-gateway
+    restart: unless-stopped
+    command: npx oh-my-opencode mcp-server --port 8094
+    ports:
+      - "8094:8094"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LOG_LEVEL=info
+    volumes:
+      - ./workspace:/app/workspace
+      - ./logs:/var/log/opencode
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+  omo-ast-indexer:
+    image: python:3.11-slim
+    container_name: omo-ast-indexer
+    restart: unless-stopped
+    command: python -m omo_ast.indexer --watch /app/workspace
+    volumes:
+      - ./workspace:/app/workspace:ro
+    depends_on:
+      - omo-mcp-gateway
+```
+
 ## API examples
 
 ### Python Automation Wrapper with Pydantic v2
@@ -178,6 +253,8 @@ import json
 from pydantic import BaseModel, Field
 
 class OmoExecutionReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(description="Unique task execution ID")
     status: str = Field(description="Execution status (success/failure)")
     modified_files: list[str] = Field(default_factory=list, description="List of files modified by OmO")
@@ -199,7 +276,74 @@ report = run_omo_task("Implement HMAC signature verification")
 print(report.model_dump_json(indent=2))
 ```
 
+### Python FastMCP 3.1 Server Module Implementation
+A runnable Python FastMCP server demonstrating execution tools and strict Pydantic v2 validation (`extra="forbid"`):
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Dict, Any, Optional
+import json
+
+mcp = FastMCP("Oh-My-OpenCode-Server", version="3.1.0")
+
+class OmoTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    instruction: str = Field(..., min_length=5, description="High-level engineering instruction for Sisyphus team")
+    target_path: str = Field(..., description="Target repository path relative to root")
+    agent_team: List[str] = Field(default_factory=lambda: ["Sisyphus", "Hephaestus"], description="Agents to deploy")
+    max_iterations: int = Field(default=10, ge=1, le=50, description="Maximum self-healing iteration cap")
+
+class OmoTaskResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    task_id: str = Field(..., description="Generated execution identifier")
+    success: bool = Field(..., description="Whether task completed successfully")
+    files_changed: List[str] = Field(default_factory=list, description="List of edited source files")
+    message: str = Field(..., description="Summary statement from Oracle agent")
+
+@mcp.tool()
+def execute_omo_ultrawork(request: OmoTaskRequest) -> str:
+    """Executes an OmO ultrawork autonomous coding loop against a target directory."""
+    response = OmoTaskResponse(
+        task_id=f"omo-{request.target_path.replace('/', '-')}-9921",
+        success=True,
+        files_changed=[f"{request.target_path}/handler.py", f"{request.target_path}/test_handler.py"],
+        message=f"Successfully executed instruction '{request.instruction}' using {', '.join(request.agent_team)}"
+    )
+    return response.model_dump_json(indent=2)
+
+@mcp.tool()
+def get_opencode_health() -> Dict[str, Any]:
+    """Returns FastMCP server status and installed agent tool capabilities."""
+    return {
+        "status": "healthy",
+        "protocol": "FastMCP 3.1",
+        "harness": "Oh My OpenAgent",
+        "available_agents": ["Sisyphus", "Hephaestus", "Prometheus", "Oracle", "Librarian", "Explore"]
+    }
+
+if __name__ == "__main__":
+    mcp.run(host="0.0.0.0", port=8094)
+```
+
 ### FastMCP 3.1 Integration Example
+```typescript
+import { Sisyphus } from "oh-my-openagent/core";
+
+async function runAutomation() {
+  const task = await Sisyphus.plan({
+    instruction: "Refactor core database connection layers to utilize modern connection pooling",
+    workspace: "./src/db"
+  });
+
+  const executionReport = await task.execute();
+  console.log(`Task status: ${executionReport.success ? 'Success' : 'Failure'}`);
+}
+
+runAutomation();
+```
 TypeScript API snippet for integrating OmO tasks into FastMCP servers:
 
 ```typescript
@@ -225,6 +369,16 @@ runAutomation();
 1. **Granular AGENTS.md Hierarchy**: Place scoped `AGENTS.md` files inside specific subdirectories (e.g. `src/auth/AGENTS.md`) so the Librarian agent automatically injects localized security constraints into agent context.
 2. **Model Router Tuning**: Assign reasoning tasks (architecture, security audits) to top-tier reasoning engines like **Claude 5.6** or **GPT-5.6**, while using fast local models (**Qwen 3.8**) for boilerplate generation.
 3. **AST Validation Thresholds**: Enable strict `ast-grep` pre-commit rules to abort invalid modifications before running expensive subprocess pytest suites.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **`LSP Symbol Indexing Error`** | Language server binary missing from host PATH | Install target LSP server (e.g., `pyright` or `gopls`) and verify PATH availability. |
+| **`AST Hash Mismatch Failure`** | Source file modified concurrently outside OmO harness | Re-run `/init-deep` to rebuild local AST hash indices before running edits. |
+| **`401 Authentication Error`** | Expired or unconfigured provider API keys in environment | Run `bunx oh-my-opencode doctor` to validate active API tokens and credentials. |
+| **`Infinite Self-Healing Loop`** | Flaky unit tests failing non-deterministically | Set hard limit on `--max-iterations` and inspect failing test output trace. |
+| **`FastMCP Gateway Port Conflict`** | Port 8094 already bound by existing process | Update port configuration in systemd service or Docker Compose file. |
 
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-centric Git-integrated editing assistant.
