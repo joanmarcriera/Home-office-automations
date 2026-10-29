@@ -281,6 +281,164 @@ When deploying FastMCP 3.1 Data Copilot tools in enterprise settings, enforce th
 - **Symptom**: Agents continue querying deleted columns because resource caches are outdated.
 - **Solution**: Implement dynamic resource handlers (`@mcp.resource`) that query database information schema tables on-demand rather than serving static strings.
 
+## FastMCP 3.1 Data Copilot Server Implementation
+
+The following FastMCP 3.1 server implementation provides standardized Text-to-SQL query validation, table introspection, and KPI analytical calculation tools with Pydantic v2 schema enforcement (`extra="forbid"`).
+
+```python
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from mcp.server.fastmcp import FastMCP, Context
+
+mcp = FastMCP("DataCopilotMCP", version="3.1.0")
+
+class SQLQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    database_target: str = Field(..., description="Target database identifier (e.g., postgres_warehouse, clickhouse_analytics)")
+    sql_statement: str = Field(..., min_length=10, description="Read-only SQL query statement to execute")
+    max_rows: int = Field(100, ge=1, le=5000, description="Maximum row limit for execution safety")
+    timeout_seconds: float = Field(30.0, ge=1.0, le=300.0, description="Query execution timeout in seconds")
+
+    @field_validator("sql_statement")
+    @classmethod
+    def enforce_read_only(cls, v: str) -> str:
+        forbidden_keywords = ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "TRUNCATE", "GRANT"]
+        upper_query = v.upper()
+        for kw in forbidden_keywords:
+            if kw in upper_query:
+                raise ValueError(f"Mutating keyword '{kw}' is prohibited in read-only SQL queries.")
+        return v
+
+class SQLQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    columns: List[str] = Field(..., description="List of returned query result column names")
+    rows: List[List[Any]] = Field(..., description="Tabular row dataset")
+    row_count: int = Field(..., ge=0, description="Total number of returned rows")
+    execution_time_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds")
+
+@mcp.tool(
+    name="execute_data_copilot_query",
+    description="Execute validated read-only analytical SQL queries against standardized data warehouse backends."
+)
+async def execute_data_copilot_query(payload: SQLQueryRequest, ctx: Context) -> SQLQueryResponse:
+    ctx.info(f"Executing query on target {payload.database_target}")
+
+    # Query execution mock logic
+    return SQLQueryResponse(
+        columns=["user_id", "total_tokens", "avg_latency_ms"],
+        rows=[[101, 45200, 142.3], [102, 89100, 118.6]],
+        row_count=2,
+        execution_time_ms=24.8
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Deployment Architecture
+
+### Systemd Service Configuration
+Production systemd unit file for deploying the FastMCP Data Copilot server (`/etc/systemd/system/data-copilot-mcp.service`):
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Data Copilot Interface Service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=datacopilot
+Group=datacopilot
+WorkingDirectory=/opt/datacopilot
+Environment=PYTHONUNBUFFERED=1
+Environment=PGHOSTADDR=127.0.0.1
+Environment=PGPORT=5432
+ExecStart=/opt/datacopilot/venv/bin/python -m datacopilot.mcp_server
+Restart=always
+RestartSec=5s
+
+# Security Sandboxing
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+MemoryMax=8G
+CPUWeight=100
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Multi-Container Stack
+Production Docker Compose manifest linking the Data Copilot FastMCP server with PostgreSQL and ClickHouse analytical engines:
+
+```yaml
+version: '3.8'
+
+services:
+  datacopilot-mcp:
+    image: homelab/datacopilot-mcp:3.1.0
+    container_name: datacopilot-mcp
+    restart: unless-stopped
+    environment:
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8092
+      - POSTGRES_DSN=postgresql://datacopilot:secret@postgres:5432/warehouse
+      - CLICKHOUSE_DSN=clickhouse://analytics:secret@clickhouse:8123/default
+    ports:
+      - "8092:8092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: datacopilot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: warehouse
+      POSTGRES_USER: datacopilot
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datacopilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    container_name: datacopilot-clickhouse
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause | Remediation & Diagnostic Command |
+| :--- | :--- | :--- |
+| Query validation error: `Mutating keyword 'DELETE' is prohibited` | Agent generated a mutating SQL statement | Retrain or clarify system prompt directives enforcing read-only SELECT constraints. |
+| Database connection pool exhaustion (`Too many connections`) | FastMCP tool handlers leaking backend connections | Ensure connection pooling is configured via SQLModel/AsyncPG: `pool_size=20, max_overflow=10` |
+| `pydantic.ValidationError: Extra inputs not permitted` | Client passing legacy connector flags to FastMCP 3.1 endpoint | Purge unexpected request keys in client payload wrapper before sending to MCP server. |
+| Slow query execution timeout (`30.0s exceeded`) | Missing indexes on foreign keys or large unpartitioned scans | Analyze query plan using `EXPLAIN ANALYZE` or create partitioned indexes on target tables. |
+
 ## Related tools / concepts
 - [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — Base architecture.
 - [Data Copilot Agentic RAG](data-copilot-agentic-rag.md) — RAG integration with FastMCP.

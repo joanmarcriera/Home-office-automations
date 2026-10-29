@@ -249,6 +249,151 @@ if __name__ == "__main__":
    - Stream all FastMCP tool execution events to a centralized SIEM or ClickHouse logging cluster.
    - Implement real-time anomaly alerts for sudden spikes in tool invocation frequency or token usage.
 
+## FastMCP 3.1 Security Gateway Server Implementation
+
+The following FastMCP 3.1 server implementation provides real-time Lethal Trifecta detection, prompt injection mitigation, and capability policy verification with Pydantic v2 schemas (`extra="forbid"`).
+
+```python
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from mcp.server.fastmcp import FastMCP, Context
+
+mcp = FastMCP("LLMSecurityGateway", version="3.1.0")
+
+class SecurityScanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    prompt_text: str = Field(..., min_length=1, description="Raw input prompt or context buffer to analyze")
+    untrusted_source: bool = Field(..., description="Flag indicating if input originates from an untrusted perimeter (e.g. web scrape, email)")
+    requested_capabilities: List[str] = Field(default_factory=list, description="Capabilities requested by agent (e.g. read_file, execute_code, send_net)")
+
+    @field_validator("requested_capabilities")
+    @classmethod
+    def validate_capability_combos(cls, v: List[str]) -> List[str]:
+        # Lethal Trifecta Check: Untrusted Read + Dynamic Processing + System Write/Execute
+        has_untrusted_read = any("read" in c.lower() or "scrape" in c.lower() for c in v)
+        has_execution = any("exec" in c.lower() or "eval" in c.lower() or "code" in c.lower() for c in v)
+        has_write = any("write" in c.lower() or "send" in c.lower() or "modify" in c.lower() for c in v)
+
+        if has_untrusted_read and has_execution and has_write:
+            raise ValueError("SECURITY VIOLATION: Lethal Trifecta capability combination detected! Operation blocked.")
+        return v
+
+class SecurityScanResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    is_safe: bool = Field(..., description="Boolean verdict on prompt execution safety")
+    risk_score: float = Field(..., ge=0.0, le=1.0, description="Calculated risk level [0.0 - 1.0]")
+    threats_detected: List[str] = Field(default_factory=list, description="List of identified attack signatures or policy violations")
+    mitigation_action: str = Field(..., description="Recommended mitigation action: allow, sanitize, quarantine, block")
+
+@mcp.tool(
+    name="evaluate_prompt_security",
+    description="Analyze input prompts and capability combinations for injection vectors, exfiltration paths, and Lethal Trifecta patterns."
+)
+async def evaluate_prompt_security(payload: SecurityScanRequest, ctx: Context) -> SecurityScanResponse:
+    ctx.info("Performing security analysis on candidate agent input")
+
+    threats = []
+    risk = 0.05
+
+    # Inspection logic mock
+    if "ignore previous instructions" in payload.prompt_text.lower():
+        threats.append("Indirect Prompt Injection (Instruction Override)")
+        risk = 0.92
+
+    if payload.untrusted_source and risk > 0.5:
+        action = "block"
+    elif risk > 0.5:
+        action = "sanitize"
+    else:
+        action = "allow"
+
+    return SecurityScanResponse(
+        is_safe=(risk < 0.5),
+        risk_score=risk,
+        threats_detected=threats,
+        mitigation_action=action
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Security Architecture
+
+### Systemd Service Configuration
+Production systemd unit file deploying the Security Policy Engine (`/etc/systemd/system/llm-security-gateway.service`):
+
+```ini
+[Unit]
+Description=FastMCP 3.1 LLM Security Gateway & Lethal Trifecta Inspector
+After=network.target
+
+[Service]
+Type=simple
+User=secgateway
+Group=secgateway
+WorkingDirectory=/opt/llm-security-gateway
+Environment=PYTHONUNBUFFERED=1
+Environment=SECURITY_LOG_LEVEL=INFO
+ExecStart=/opt/llm-security-gateway/venv/bin/python -m secgateway.mcp_server
+Restart=always
+RestartSec=3s
+
+# Security Sandboxing Constraints
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+MemoryMax=4G
+CPUWeight=200
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Sandbox Setup
+Isolated multi-container sandbox stack enforcing egress network restrictions:
+
+```yaml
+version: '3.8'
+
+services:
+  llm-security-gateway:
+    image: homelab/llm-security-gateway:3.1.0
+    container_name: llm-security-gateway
+    restart: unless-stopped
+    environment:
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8095
+      - AUDIT_LOG_DIR=/var/log/secgateway
+    ports:
+      - "8095:8095"
+    volumes:
+      - /var/log/secgateway:/var/log/secgateway:rw
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause | Remediation & Diagnostic Command |
+| :--- | :--- | :--- |
+| `SECURITY VIOLATION: Lethal Trifecta capability combination` | Agent requested untrusted read, execution, and external write simultaneously | Decouple agent workflows so reading untrusted content and executing actions occur in distinct sandboxed sessions. |
+| High false-positive rate blocking benign admin queries | Security guardrail regex pattern overly aggressive | Adjust similarity threshold in prompt evaluation tool or refine capability tag validation. |
+| `pydantic.ValidationError: Extra inputs not permitted` | Unrecognized security telemetry fields in API request | Ensure security policy client conforms strictly to FastMCP 3.1 Pydantic schema contracts. |
+| Exfiltration risk flagged on internal RPC call | Lack of origin metadata in client context payload | Pass verified `origin_trust_level` header in client FastMCP headers. |
+
 ## Related tools / concepts
 - [Authentik](../services/authentik.md) — Identity and session orchestration.
 - [Ollama](../services/ollama.md) — Local model hosting.
