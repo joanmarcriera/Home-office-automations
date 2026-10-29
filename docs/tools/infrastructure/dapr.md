@@ -141,6 +141,125 @@ sequenceDiagram
 3. **Placement Service**: Manages virtual actor placement and health status across cluster nodes.
 4. **Sentry Service**: Acts as the Certificate Authority (CA) delivering mTLS identities and TLS certificates to all running Dapr sidecars.
 
+## Production Infrastructure Deployment
+
+### Docker Compose Stack with Redis State & Pub/Sub
+To deploy a Dapr-enabled agent microservice with Redis state store and Zipkin tracing in Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: dapr-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: dapr-zipkin
+    ports:
+      - "9411:9411"
+
+  agent-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent-service
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - DAPR_HTTP_PORT=3500
+      - DAPR_GRPC_PORT=50001
+    depends_on:
+      - redis
+
+  agent-service-dapr:
+    image: daprio/daprd:1.14.0
+    container_name: agent-service-dapr
+    command: [
+      "./daprd",
+      "--app-id", "agent-service",
+      "--app-port", "5001",
+      "--dapr-http-port", "3500",
+      "--dapr-grpc-port", "50001",
+      "--components-path", "/components",
+      "--config", "/config/dapr_config.yaml"
+    ]
+    volumes:
+      - ./dapr/components:/components
+      - ./dapr/config:/config
+    network_mode: "service:agent-service"
+    depends_on:
+      - agent-service
+      - redis
+```
+
+### Production Systemd Service Unit (`daprd.service`)
+For standalone host deployments running Dapr as a system service:
+
+```ini
+[Unit]
+Description=Dapr Sidecar Daemon (`daprd`)
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=dapr
+Group=dapr
+WorkingDirectory=/var/run/dapr
+ExecStart=/usr/local/bin/daprd \
+  --app-id fastmcp-agent-gateway \
+  --app-port 8080 \
+  --dapr-http-port 3500 \
+  --dapr-grpc-port 50001 \
+  --components-path /etc/dapr/components \
+  --config /etc/dapr/config/config.yaml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+MemoryMax=4G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Resiliency Policies & Declarative Retries
+
+Dapr provides declarative resiliency policies to automatically manage retries, circuit breaking, and rate limiting across microservice invocations and state storage operations:
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: agent-resiliency
+spec:
+  policies:
+    timeouts:
+      fastmcp-timeout: 5s
+    retries:
+      exponential-retry:
+        policy: exponential
+        maxInterval: 15s
+        maxRetries: 5
+    circuitBreakers:
+      pubsub-cb:
+        maxRequests: 3
+        interval: 10s
+        timeout: 30s
+        trip: 'consecutiveFailures > 5'
+  targets:
+    apps:
+      fastmcp-agent-gateway:
+        timeout: fastmcp-timeout
+        retry: exponential-retry
+        circuitBreaker: pubsub-cb
+```
+
 ## CLI examples
 Running applications with Dapr sidecars, publishing events, and managing state directly from CLI:
 
@@ -175,20 +294,28 @@ dapr publish --pubsub pubsub --topic task-notifications --data '{"task_id": "TAS
 
 ## API examples
 
-The following Python script demonstrates integrating Dapr state management, pub/sub event publishing, and secrets retrieval within a FastMCP 3.1 agentic microservice using Pydantic V2 data validation models and the `dapr-sdk`:
+The following Python script demonstrates integrating Dapr state management, pub/sub event publishing, and secrets retrieval within a FastMCP 3.1 agentic microservice using Pydantic V2 data validation models (`extra="forbid"`) and the `dapr-sdk`:
 
 ```python
 import os
 import json
 from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from dapr.clients import DaprClient
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "dapr-agent-gateway",
+    instructions="FastMCP 3.1 server integrating with Dapr sidecar APIs."
+)
 
 STATE_STORE = "agent-statestore"
 PUB_SUB = "agent-pubsub"
 TOPIC_NAME = "agent-execution-events"
 
 class AgentSessionState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     session_id: str = Field(description="Unique agent execution session ID")
     agent_name: str = Field(default="FastMCP-Dapr-Agent")
     current_step: int = Field(ge=0)
@@ -196,68 +323,77 @@ class AgentSessionState(BaseModel):
     is_completed: bool = False
 
 class AgentExecutionEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     event_type: str = Field(description="EVENT_STARTED, STEP_COMPLETED, EVENT_FINISHED")
     session_id: str
     payload: Dict[str, Any]
 
-def execute_dapr_agent_workflow(session_id: str):
-    """Demonstrates Dapr Sidecar APIs for State, Pub/Sub, and Secrets."""
-    print("Connecting to local Dapr sidecar...")
-    with DaprClient() as client:
-        # 1. Fetch API secret via Dapr Secrets API
-        try:
-            secret_resp = client.get_secret(
-                store_name="localsecretstore",
-                key="openai-api-key"
+@mcp.tool()
+def execute_dapr_agent_workflow(session_id: str) -> str:
+    """Demonstrates Dapr Sidecar APIs for State, Pub/Sub, and Secrets with FastMCP 3.1."""
+    try:
+        with DaprClient() as client:
+            # 1. Fetch API secret via Dapr Secrets API
+            try:
+                secret_resp = client.get_secret(
+                    store_name="localsecretstore",
+                    key="openai-api-key"
+                )
+                api_key = secret_resp.secret.get("openai-api-key", "default_key")
+            except Exception as e:
+                api_key = "standalone-fallback-key"
+
+            # 2. Save Agent Session State
+            initial_state = AgentSessionState(
+                session_id=session_id,
+                current_step=1,
+                memory_context={"user_query": "Analyze Dapr architecture with FastMCP"},
+                is_completed=False
             )
-            api_key = secret_resp.secret.get("openai-api-key", "default_key")
-            print(f"Successfully retrieved secret via Dapr Secret API (Length: {len(api_key)})")
-        except Exception as e:
-            print(f"Secret fetch fallback (standalone mode): {e}")
 
-        # 2. Save Agent Session State
-        initial_state = AgentSessionState(
-            session_id=session_id,
-            current_step=1,
-            memory_context={"user_query": "Analyze Dapr architecture with FastMCP"},
-            is_completed=False
-        )
+            client.save_state(
+                store_name=STATE_STORE,
+                key=session_id,
+                value=initial_state.model_dump_json()
+            )
 
-        client.save_state(
-            store_name=STATE_STORE,
-            key=session_id,
-            value=initial_state.model_dump_json()
-        )
-        print(f"Saved initial session state for '{session_id}' via Dapr State API.")
+            # 3. Publish Execution Event via Dapr Pub/Sub API
+            event = AgentExecutionEvent(
+                event_type="STEP_COMPLETED",
+                session_id=session_id,
+                payload={"step": 1, "output": "Parsed user query and fetched secret."}
+            )
 
-        # 3. Publish Execution Event via Dapr Pub/Sub API
-        event = AgentExecutionEvent(
-            event_type="STEP_COMPLETED",
-            session_id=session_id,
-            payload={"step": 1, "output": "Parsed user query and fetched secret."}
-        )
+            client.publish_event(
+                pubsub_name=PUB_SUB,
+                topic_name=TOPIC_NAME,
+                data=event.model_dump_json(),
+                data_content_type="application/json"
+            )
 
-        client.publish_event(
-            pubsub_name=PUB_SUB,
-            topic_name=TOPIC_NAME,
-            data=event.model_dump_json(),
-            data_content_type="application/json"
-        )
-        print(f"Published event '{event.event_type}' to topic '{TOPIC_NAME}'.")
+            return json.dumps({
+                "status": "success",
+                "session_id": session_id,
+                "step": initial_state.current_step,
+                "event_published": event.event_type
+            }, indent=2)
 
-        # 4. Read back and validate state using Pydantic V2
-        state_response = client.get_state(store_name=STATE_STORE, key=session_id)
-        if state_response.data:
-            raw_state = json.loads(state_response.data.decode("utf-8"))
-            validated_state = AgentSessionState.model_validate(raw_state)
-            print("\n=== Verified Persisted State ===")
-            print(f"Session ID: {validated_state.session_id}")
-            print(f"Current Step: {validated_state.current_step}")
-            print(f"Context: {validated_state.memory_context}")
+    except (ValidationError, Exception) as err:
+        return json.dumps({"status": "error", "message": str(err)})
 
 if __name__ == "__main__":
-    execute_dapr_agent_workflow("SESSION-2027-X89")
+    mcp.run()
 ```
+
+## Diagnostics & Troubleshooting Matrix
+
+| Symptoms / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`Connection Refused` on port 3500** | Dapr sidecar (`daprd`) is not running or crashed on startup | `dapr status` or `docker logs <app>-dapr` | Ensure `dapr run` or the `daprd` container is active and listening on HTTP 3500 / gRPC 50001 |
+| **`ERR_STATE_STORE_NOT_FOUND`** | Component YAML metadata name mismatch or missing component path | `dapr components -k` | Verify component YAML `metadata.name` matches the `store_name` string in application code |
+| **`mTLS Handshake Failed`** | Sentry CA certificate expired or clock skew between K3s nodes | `dapr mtls expiry` | Force certificate renewal via `dapr mtls renew` or sync system clocks via NTP |
+| **Pub/Sub Messages Not Delivered** | App subscription endpoint returning non-2xx status code | `curl http://localhost:3500/v1.0/subscribe` | Ensure target app route returns HTTP 200/204 to ACK incoming pub/sub payloads |
 
 ## Related tools / concepts
 - [Diagrid Catalyst](diagrid-catalyst.md)
@@ -273,6 +409,7 @@ if __name__ == "__main__":
 - [Dapr GitHub Repository](https://github.com/dapr/dapr)
 - [Dapr Component Specifications](https://docs.dapr.io/reference/components-reference/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

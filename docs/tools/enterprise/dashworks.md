@@ -56,6 +56,26 @@ Modern enterprise teams face severe operational friction due to information frag
 - **MCP Integration Layer**: Interfaced via FastMCP 3.1 servers, allowing agent orchestration frameworks like [Ag2](../frameworks/ag2.md), [Smolagents](../frameworks/smolagents.md), [LangGraph](../frameworks/langgraph.md), or [Agno](../agents/agno.md) to perform search queries during multi-step reasoning loops.
 - **Identity & Access**: Integrates with enterprise Single Sign-On (SSO) systems ([Okta](okta.md), Azure AD, Google Workspace) for identity pass-through.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Employee / Autonomous Agent
+    participant MCP as FastMCP 3.1 Dashworks Gateway
+    participant DW as Dashworks Engine
+    participant ACL as Identity & ACL Evaluator
+    participant SaaS as Source Apps (Slack/Jira/GDrive)
+
+    User->>MCP: Query ("What is our Q1 product roadmap?")
+    MCP->>DW: REST Search Payload with User JWT Context
+    DW->>ACL: Evaluate Active User Permissions & Group Roles
+    ACL-->>DW: Return Authorized Source Filter Masks
+    DW->>SaaS: Fetch Real-Time Document Highlights & Vector Matches
+    SaaS-->>DW: Return Document Text & Metadata
+    DW->>DW: Synthesize Answer & Generate Citation Deep Links
+    DW-->>MCP: Grounded Answer + Validated Citation Payloads
+    MCP-->>User: Pydantic v2 Verified Response String
+```
+
 ## Typical use cases
 - **Universal Enterprise Search**: Employees asking "What is our Q1 product roadmap for the Gemma 4 integration?" and receiving a synthesized response backed by Slack threads, Jira tickets, and Google Slides.
 - **Autonomous Agentic RAG Injection**: Supplying real-time, grounded facts to software development agents attempting to resolve customer support tickets or fix GitHub issues.
@@ -73,6 +93,16 @@ Modern enterprise teams face severe operational friction due to information frag
 - **Indexing Latency**: Minor delays (1–5 minutes) between document creation in source apps and full index availability.
 - **User-Based Subscription Pricing**: Per-seat SaaS pricing models require budgeting considerations as organization scale increases.
 
+## Comparison Matrix: Enterprise Knowledge & Search Engines
+
+| Feature / Metric | Dashworks (2027) | Glean | Hebbia | Custom Weaviate RAG |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Cloud SaaS + FastMCP | Cloud SaaS / Hybrid | Cloud SaaS | Self-Hosted / On-Prem |
+| **ACL Synchronization** | Real-Time SaaS Sync | Real-Time SaaS Sync | Batch ACL Sync | Manual Access Filtering |
+| **FastMCP 3.1 Native Tools** | Yes (`extra="forbid"`) | Proprietary REST APIs | Custom Python SDK | Custom Tool Wrappers |
+| **Citation Verification** | Automatic Deep-Linking | Deep-Linking | Document Highlights | Raw Vector Score |
+| **Setup Overhead** | Turnkey OAuth (<1 Hr) | Enterprise Setup | Managed Onboarding | High Engineering Cost |
+
 ## When to use it
 - When team productivity is hampered by information scattered across dozens of disconnected SaaS tools.
 - When you need a plug-and-play enterprise RAG solution without maintaining custom chunking, embedding, and vector database pipelines.
@@ -86,6 +116,63 @@ Modern enterprise teams face severe operational friction due to information frag
 1. Register your enterprise account on the Dashworks SaaS platform and configure Single Sign-On (SSO).
 2. Authorize connectors for core SaaS apps (Slack, Google Workspace, GitHub, Jira) via OAuth or API tokens.
 3. Deploy the FastMCP 3.1 tool server for local or cluster-based agent integration.
+
+## Production Infrastructure Deployment
+
+### Docker Compose Stack for Local Agent Proxy
+To deploy a local Dashworks FastMCP 3.1 agent gateway container alongside a Redis cache for query deduplication:
+
+```yaml
+version: '3.8'
+
+services:
+  dashworks-redis-cache:
+    image: redis:7-alpine
+    container_name: dashworks-redis-cache
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+
+  dashworks-mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashworks-mcp
+    container_name: dashworks-mcp-gateway
+    environment:
+      - DASHWORKS_API_KEY=${DASHWORKS_API_KEY}
+      - REDIS_URL=redis://dashworks-redis-cache:6379/0
+      - MCP_PORT=8092
+    ports:
+      - "8092:8092"
+    depends_on:
+      - dashworks-redis-cache
+    restart: unless-stopped
+```
+
+### Systemd Service Daemon Setup (`dashworks-mcp.service`)
+To run the Dashworks FastMCP 3.1 integration server as a background service on Linux hosts:
+
+```ini
+[Unit]
+Description=Dashworks Enterprise Search FastMCP 3.1 Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=dashworks-agent
+Group=dashworks-agent
+WorkingDirectory=/opt/dashworks-mcp
+Environment="PATH=/opt/venv/bin:/usr/local/bin:/usr/bin"
+Environment="DASHWORKS_API_KEY=dw_live_secret_key_2027_production"
+ExecStart=/opt/venv/bin/python3 /opt/dashworks-mcp/server.py
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+MemoryMax=4G
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## CLI examples
 
@@ -105,14 +192,14 @@ curl -X POST https://api.dashworks.ai/v1/search \
 ## API examples
 
 ### Python FastMCP 3.1 Server for Dashworks Enterprise Search
-The following script exposes Dashworks enterprise search to AI agents as a FastMCP 3.1 tool server with strict Pydantic v2 request/response validation.
+The following script exposes Dashworks enterprise search to AI agents as a FastMCP 3.1 tool server with strict Pydantic v2 request/response validation (`extra="forbid"`).
 
 ```python
 import os
 import requests
 import logging
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field, ValidationError, model_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Configure logging
@@ -128,17 +215,23 @@ mcp = FastMCP(
 
 # Pydantic v2 Schemas
 class CitationSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     title: str = Field(..., description="Source document or message title.")
     url: str = Field(..., description="Direct link to source document.")
     source_app: str = Field(..., alias="sourceApp", description="Origin SaaS application (e.g., slack, jira, gdrive).")
 
 class DashworksSearchResponseSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(..., description="Original search query.")
     answer: str = Field(..., description="Synthesized natural language answer.")
     citations: List[CitationSchema] = Field(default_factory=list, description="List of ground-truth citations.")
     confidence_score: float = Field(..., alias="confidenceScore", ge=0.0, le=1.0)
 
 class SearchQueryRequestSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(..., min_length=3, max_length=1000, description="Natural language search question.")
     allowed_sources: Optional[List[str]] = Field(
         default_factory=lambda: ["slack", "google-drive", "github", "jira", "confluence"],
@@ -225,27 +318,18 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
-### Python Test Harness
-```python
-def test_dashworks_query():
-    sample_request = {
-        "query": "What are our data retention rules for customer logs in 2027?",
-        "sources": ["confluence", "google-drive"],
-        "max_results": 3
-    }
-    print("--- Simulating Dashworks Pydantic Validation ---")
-    req = SearchQueryRequestSchema.model_validate(sample_request)
-    print(f"Validated Query: '{req.query}'")
-    print(f"Target Sources: {req.allowed_sources}")
+## Troubleshooting & Diagnostic Matrix
 
-if __name__ == "__main__":
-    test_dashworks_query()
-```
+| Symptoms / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`HTTP 401 Unauthorized`** | Expired or invalid `DASHWORKS_API_KEY` token | `curl -H "Authorization: Bearer $DASHWORKS_API_KEY" https://api.dashworks.ai/v1/auth/verify` | Regenerate API key in Dashworks admin console and update environment secret |
+| **`HTTP 403 Forbidden` on Search Results** | User or agent identity lacks ACL permissions for source document | Check identity pass-through header `X-User-Email` | Ensure Okta/Google Workspace SSO identity synchronization is active in Dashworks Admin |
+| **Empty Search Results / Missing Docs** | Source connector Webhook sync paused or OAuth grant revoked | Check connector status at `https://app.dashworks.ai/settings/connectors` | Re-authorize OAuth connection for target SaaS source (e.g., Google Drive or Slack) |
+| **Pydantic Response Parsing Failure** | Unexpected API schema payload returned from Dashworks endpoint | Run Python script with `LOG_LEVEL=DEBUG` | Verify `DashworksSearchResponseSchema` against latest Dashworks v1 API spec |
 
 ## Related tools / concepts
 - [Glean](glean.md) — Enterprise knowledge search and AI platform competitor.
 - [Hebbia](../enterprise/hebbia.md) — Neural document search engine for financial and complex legal documents.
-- [Genuia / Dashworks Architecture](../enterprise/dashworks.md) — Enterprise RAG integration frameworks.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standardized agent tool connection bus.
 - [Dolt](../intake_storage/dolt.md) — Version-controlled database for tracking RAG query evaluation logs.
 - [Agno](../agents/agno.md) — High-performance agent framework leveraging Dashworks tool servers.
@@ -255,6 +339,7 @@ if __name__ == "__main__":
 - [Dashworks Developer Documentation & API Guides](https://docs.dashworks.ai/)
 - [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.org/docs/task-protocol)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

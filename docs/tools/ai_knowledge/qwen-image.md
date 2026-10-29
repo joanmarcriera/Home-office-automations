@@ -152,6 +152,90 @@ qwen-image-cli batch-generate \
   --device cuda
 ```
 
+## Production Infrastructure Deployment
+
+### Docker Compose Container Stack
+
+Deploying Qwen Image 2.1 with GPU acceleration and FastMCP 3.1 sidecar integration requires NVIDIA Container Toolkit:
+
+```yaml
+version: '3.8'
+
+services:
+  qwen-image-engine:
+    image: nvidia/cuda:12.4.1-runtime-ubuntu22.04
+    container_name: qwen-image-engine
+    environment:
+      - QWEN_IMAGE_MODEL=Qwen/Qwen-Image-2.1-FP8
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_CUDA_ARCH_LIST=8.9;9.0
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./model_cache:/root/.cache/huggingface
+      - ./output_assets:/app/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      python3 -m uvicorn server:app --host 0.0.0.0 --port 8088 --workers 1
+
+  qwen-image-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: qwen-image-mcp
+    environment:
+      - QWEN_ENGINE_URL=http://qwen-image-engine:8088
+      - MCP_PORT=8089
+    ports:
+      - "8089:8089"
+    depends_on:
+      - qwen-image-engine
+    restart: unless-stopped
+```
+
+### Systemd Service Daemon Setup
+
+For production Linux deployments, manage the FastMCP 3.1 service using a systemd unit:
+
+```ini
+[Unit]
+Description=Qwen Image 2.1 FastMCP Service Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=ai-service
+Group=ai-service
+WorkingDirectory=/opt/qwen-image-mcp
+Environment="PATH=/opt/venv/bin:/usr/local/bin:/usr/bin"
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="QWEN_IMAGE_MODEL=Qwen/Qwen-Image-2.1-FP8"
+ExecStart=/opt/venv/bin/python3 /opt/qwen-image-mcp/mcp_qwen_image_pipeline.py
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+MemoryMax=16G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the systemd unit:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable qwen-image-mcp.service
+sudo systemctl start qwen-image-mcp.service
+sudo systemctl status qwen-image-mcp.service
+```
+
 ## API examples
 
 ### Production FastMCP 3.1 Server Implementation
@@ -161,7 +245,7 @@ The following complete Python script establishes a **FastMCP 3.1** server (`mcp_
 ```python
 import os
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from fastmcp import FastMCP
 import json
 import logging
@@ -175,6 +259,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("mcp_qwen_image")
 
 class ImageGenerationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt: str = Field(..., description="Detailed text prompt describing the desired image")
     negative_prompt: Optional[str] = Field(default="blurry, distorted, low quality", description="Unwanted visual elements")
     width: int = Field(default=1024, ge=512, le=2048, description="Image width in pixels")
@@ -184,11 +270,13 @@ class ImageGenerationRequest(BaseModel):
     seed: Optional[int] = Field(default=None, description="Optional seed for deterministic generation")
 
 class ImageGenerationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     status: str = Field("completed", description="Task execution status")
     image_url: str = Field(..., description="Access URL for generated asset")
-    width: int
-    height: int
-    num_steps: int
+    width: int = Field(..., description="Image width")
+    height: int = Field(..., description="Image height")
+    num_steps: int = Field(..., description="Number of denoising steps")
     fp8_accelerated: bool = Field(True, description="Whether Fast FP8 kernel execution was utilized")
 
 @mcp.tool()
@@ -234,10 +322,12 @@ Validation schemas for image rendering specifications and multi-modal pipeline o
 
 ```python
 from typing import Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 import json
 
 class ImageGenerationSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_id: str = Field(..., description="Unique job tracking ID")
     prompt_text: str = Field(..., min_length=5, description="Input text prompt")
     negative_prompt: Optional[str] = Field(default="blurry, distorted, low quality")
@@ -262,6 +352,15 @@ if __name__ == "__main__":
     spec = validate_image_spec(data)
     print(f"Validated Spec ID: {spec.job_id} ({spec.width}x{spec.height})")
 ```
+
+## Advanced Prompt Engineering & Multi-Lingual Design Patterns
+
+To achieve optimal visual synthesis and precise text embedding using Qwen Image 2.1, follow these prompt structure standards:
+
+1. **Explicit Typography Enclosure**: Enclose target typography or signage text in single or double quotes, specifying script type (e.g., `'HOME AUTOMATION'` in bold neon blue lettering).
+2. **Spatial Coordinate Descriptors**: Use explicit relative positioning terms such as `foreground left`, `centered in upper third`, or `background overlay` to direct the DiT spatial cross-attention layers.
+3. **Lighting & Texture Specification**: Explicitly define key light sources, volumetric fog, rim lighting, or physical material shaders (e.g., `brushed aluminum`, `glossy acrylic`, `cinematic warm rim lighting`).
+4. **Multi-Subject Formatting**: Separate multiple subjects using distinct sentence clauses rather than run-on comma lists to maintain distinct semantic token embeddings in the Qwen text encoder.
 
 ## Operational Hardening & GPU Memory Optimization Guidelines
 

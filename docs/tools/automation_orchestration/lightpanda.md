@@ -48,29 +48,24 @@ Lightpanda solves these challenges by enabling high-density browser execution—
 ## Where it fits in the stack
 Lightpanda resides in the **Automation & Tool Execution layer** of the agentic software stack.
 
-```
-+-----------------------------------------------------------------------+
-|                       AGENTIC ORCHESTRATION                           |
-|               (Browser Use / Skyvern / Claude Code)                   |
-+-----------------------------------------------------------------------+
-                                    |
-                                    v
-+-----------------------------------------------------------------------+
-|                    FAST MCP 3.1 PROTOCOL GATEWAY                      |
-|                  (Exposing Browser Navigation Tools)                  |
-+-----------------------------------------------------------------------+
-                                    |
-                                    v
-+-----------------------------------------------------------------------+
-|                      LIGHTPANDA EXECUTION ENGINE                      |
-|                       (Zig Headless Engine + CDP)                     |
-+-----------------------------------------------------------------------+
-                                    |
-                                    v
-+-----------------------------------------------------------------------+
-|                           TARGET WEB SITES                            |
-|                  (SPAs, Dynamic Web Apps, Static Pages)               |
-+-----------------------------------------------------------------------+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Autonomous AI Agent
+    participant MCP as FastMCP 3.1 Gateway
+    participant LP as Lightpanda Engine (Zig)
+    participant V8 as V8 Execution Context
+    participant Target as Target Web Server (SPA)
+
+    Agent->>MCP: Request Scrape & Markdown Extraction
+    MCP->>LP: Connect via CDP WebSocket (:9222)
+    LP->>Target: HTTP GET Request
+    Target-->>LP: Return HTML / JS Application Assets
+    LP->>V8: Execute Client-Side React/Next.js Code
+    V8-->>LP: Dynamic Rendered DOM AST
+    LP->>LP: Strip Styling & Synthesize Markdown
+    LP-->>MCP: Validated Pydantic v2 JSON Payload
+    MCP-->>Agent: LLM-Ready Clean Context String
 ```
 
 ---
@@ -101,6 +96,18 @@ Lightpanda resides in the **Automation & Tool Execution layer** of the agentic s
 
 ---
 
+## Comparison Matrix: Headless Browser Engines
+
+| Feature / Metric | Lightpanda (Zig) | Headless Chrome / Chromium | Playwright WebKit | Selenium Firefox |
+| :--- | :--- | :--- | :--- | :--- |
+| **RAM Footprint (per Page)** | **~30 MB - 50 MB** | ~300 MB - 500 MB | ~250 MB - 400 MB | ~350 MB - 600 MB |
+| **Cold Startup Latency** | **< 100 ms** | 1,500 ms - 3,000 ms | 1,200 ms - 2,500 ms | 2,000 ms - 4,000 ms |
+| **Native LLM Markdown Extractor** | Yes (`--dump markdown`) | No (Requires BeautifulSoup/Turndown) | No | No |
+| **CDP Protocol Interface** | Native WebSocket (:9222) | Native (:9222) | Internal Adapter | Limited CDP Adapter |
+| **Language Runtime** | Compiled Native Zig + V8 | C++ Blink + V8 | C++ WebKit | C++ Gecko |
+
+---
+
 ## When to use it
 - When running multiple concurrent browser automation threads for AI agents where server RAM is the primary bottleneck.
 - For RAG pipelines that must rapidly fetch and convert dynamic web pages to clean Markdown.
@@ -116,15 +123,53 @@ Lightpanda resides in the **Automation & Tool Execution layer** of the agentic s
 
 ---
 
-## FastMCP 3.1 Integration & Pydantic v2 Schema Patterns
+## Getting started
 
-Below is a production FastMCP 3.1 server implementation in Python that connects to a Lightpanda headless browser instance over CDP and validates scraped output using strict **Pydantic v2** schemas.
+### Local Binary Installation
+```bash
+# One-line binary installer for Linux / macOS
+curl -fsSL https://pkg.lightpanda.io/install.sh | bash
+```
+
+### Deploying via Docker Container
+Lightpanda is commonly deployed as a lightweight container exposing the standard CDP WebSocket port (9222):
+
+```bash
+docker run -d \
+  --name lightpanda-browser \
+  -p 127.0.0.1:9222:9222 \
+  lightpanda/browser:latest
+```
+
+---
+
+## CLI examples
+
+### CLI Navigation and Dumping
+```bash
+# Fetch HTML content with 3-second wait for SPA client execution
+lightpanda fetch --wait 3000 --dump html https://example.com
+
+# Fetch dynamic page and output directly as LLM-ready Markdown
+lightpanda fetch --dump markdown https://news.ycombinator.com
+
+# Execute inline JavaScript on DOM load and print result
+lightpanda fetch --script "Array.from(document.querySelectorAll('h2')).map(e => e.innerText)" https://lightpanda.io
+```
+
+---
+
+## API examples
+
+### FastMCP 3.1 Integration & Pydantic v2 Schema Patterns
+
+Below is a production FastMCP 3.1 server implementation in Python that connects to a Lightpanda headless browser instance over CDP and validates scraped output using strict **Pydantic v2** schemas (`extra="forbid"`).
 
 ```python
 import asyncio
-from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator
-from mcp.server.fastmcp import FastMCP
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastmcp import FastMCP
 from playwright.async_api import async_playwright
 
 # Initialize FastMCP 3.1 Server
@@ -134,12 +179,14 @@ mcp = FastMCP("Lightpanda-Browser-Provider", version="3.1.0")
 # 1. Pydantic v2 Validation Schemas
 # ------------------------------------------------------------------
 class ScrapedPagePayload(BaseModel):
-    url: str
-    title: str = Field(..., min_length=1)
-    meta_description: Optional[str] = None
+    model_config = ConfigDict(extra="forbid")
+
+    url: str = Field(..., description="Target URL navigated")
+    title: str = Field(..., min_length=1, description="Page title")
+    meta_description: Optional[str] = Field(default=None, description="HTML meta description text")
     markdown_content: str = Field(..., description="LLM-ready extracted text content")
-    word_count: int = Field(..., ge=0)
-    links_found: List[str] = Field(default_factory=list)
+    word_count: int = Field(..., ge=0, description="Word count of extracted body text")
+    links_found: List[str] = Field(default_factory=list, description="List of internal and external URLs found")
 
     @field_validator("url")
     @classmethod
@@ -210,22 +257,58 @@ if __name__ == "__main__":
 
 ---
 
-## Getting started
+## Production Infrastructure Deployment
 
-### Local Binary Installation
-```bash
-# One-line binary installer for Linux / macOS
-curl -fsSL https://pkg.lightpanda.io/install.sh | bash
+### Docker Compose Stack
+To deploy a Lightpanda CDP daemon alongside a FastMCP 3.1 Python integration container in Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  lightpanda-engine:
+    image: lightpanda/browser:latest
+    container_name: lightpanda-engine
+    ports:
+      - "9222:9222"
+    restart: unless-stopped
+
+  lightpanda-mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.lightpanda-mcp
+    container_name: lightpanda-mcp-gateway
+    environment:
+      - CDP_ENDPOINT=http://lightpanda-engine:9222
+      - MCP_PORT=8093
+    ports:
+      - "8093:8093"
+    depends_on:
+      - lightpanda-engine
+    restart: unless-stopped
 ```
 
-### Deploying via Docker Container
-Lightpanda is commonly deployed as a lightweight container exposing the standard CDP WebSocket port (9222):
+### Systemd Service Daemon Setup (`lightpanda.service`)
+For host-level Linux deployments, manage the Lightpanda daemon using systemd:
 
-```bash
-docker run -d \
-  --name lightpanda-browser \
-  -p 127.0.0.1:9222:9222 \
-  lightpanda/browser:latest
+```ini
+[Unit]
+Description=Lightpanda High-Performance Headless Browser Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=lightpanda
+Group=lightpanda
+WorkingDirectory=/opt/lightpanda
+ExecStart=/usr/local/bin/lightpanda --host 0.0.0.0 --port 9222
+Restart=always
+RestartSec=3
+LimitNOFILE=65536
+MemoryMax=8G
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ---
@@ -234,47 +317,34 @@ docker run -d \
 
 Lightpanda achieves its high performance through several core engineering choices in Zig:
 
-1. **Custom Memory Allocation**: Instead of standard browser garbage collection overhead across massive C++ object models, Lightpanda utilizes Zig custom arena allocators for instantaneous web page session cleanup.
-2. **Decoupled DOM Synthesis**: Converts HTML nodes into a lightweight semantic tree that renders directly to text or Markdown AST without executing full visual layout layout computations unless requested.
+1. **Custom Arena Allocators**: Instead of standard browser garbage collection overhead across massive C++ object models, Lightpanda utilizes Zig custom arena allocators for instantaneous web page session cleanup upon page teardown.
+2. **Decoupled DOM Synthesis**: Converts HTML nodes into a lightweight semantic tree that renders directly to text or Markdown AST without executing full visual layout computations unless explicitly requested.
 3. **V8 Isolated Execution**: Integrates Google V8 directly into the Zig runtime to execute client-side JavaScript for dynamic single page applications without carrying Chrome's process overhead.
+4. **Zero-Copy CDP Parser**: Parses incoming Chrome DevTools Protocol WebSocket payloads directly in memory buffers without unnecessary allocations.
 
 ---
 
-## CLI examples
+## Operational Hardening & Browser Scaling Guidelines
 
-### CLI Navigation and Dumping
-```bash
-# Fetch HTML content with 3-second wait for SPA client execution
-lightpanda fetch --wait 3000 --dump html https://example.com
+When operating Lightpanda at scale across agent swarms in production environments:
 
-# Fetch dynamic page and output directly as LLM-ready Markdown
-lightpanda fetch --dump markdown https://news.ycombinator.com
-
-# Execute inline JavaScript on DOM load and print result
-lightpanda fetch --script "Array.from(document.querySelectorAll('h2')).map(e => e.innerText)" https://lightpanda.io
-```
+1. **WebSocket Pool Reuse**: Maintain persistent CDP WebSocket connection pools rather than opening new sockets for every web page fetch.
+2. **Process Memory Constraints**: Set `MemoryMax=8G` in systemd units to prevent runaway V8 heap expansion during complex SPA rendering sessions.
+3. **Sub-Domain Wildcard Isolation**: Enforce distinct V8 execution context sandboxes when scraping untrusted multi-tenant web applications to prevent cross-site data leakage.
+4. **Automated Health Check Probes**: Configure HTTP Liveness probes querying `http://localhost:9222/json/version` to detect stalled CDP daemons.
+5. **Rate Limiting & Queue Backpressure**: Implement token bucket rate limiting on the FastMCP 3.1 gateway to cap concurrent page fetches at 100 sessions per worker instance.
+6. **Graceful Timeout Fallbacks**: Set tight script timeouts (`wait_time_ms <= 5000`) to prevent unhandled asynchronous web sockets from blocking agent tool execution loops.
 
 ---
 
-## API examples
+## Troubleshooting & Diagnostics Matrix
 
-### Python Playwright Integration over CDP
-```python
-from playwright.sync_api import sync_playwright
-
-def run_lightpanda_script():
-    with sync_playwright() as p:
-        # Connect to Lightpanda CDP port
-        browser = p.chromium.connect_over_cdp("http://localhost:9222")
-        page = browser.new_page()
-        page.goto("https://lightpanda.io")
-
-        print("Page Title:", page.title())
-        browser.close()
-
-if __name__ == "__main__":
-    run_lightpanda_script()
-```
+| Symptoms / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`CDP Connection Refused` on port 9222** | Lightpanda binary or Docker container is not active | `curl http://127.0.0.1:9222/json/version` | Start Lightpanda service or check container logs via `docker logs lightpanda-browser` |
+| **SPA Content Incomplete / Blank Body** | Client-side JavaScript execution requires additional wait time | `lightpanda fetch --wait 5000 https://target-spa.com` | Increase `wait_time_ms` parameter in FastMCP tool invocation |
+| **Memory Leak under High Concurrency** | V8 context instances not garbage collected cleanly | Check memory usage via `top` or `docker stats` | Explicitly invoke `browser.close()` in Playwright or restart systemd daemon periodically |
+| **Anti-Bot `403 Forbidden` / Cloudflare Block** | Missing standard browser User-Agent headers | N/A | Pass explicit custom `User-Agent` and viewport parameters via Playwright context initialization |
 
 ---
 

@@ -17,6 +17,23 @@
 - Sits in the **Low-Level GPU Programming & Kernel Compiler** layer.
 - Powers PyTorch, Unsloth fine-tuning kernels, FlashAttention-3, and custom quantization operators.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as PyTorch / FastMCP 3.1 Developer
+    participant JIT as Triton Python JIT (@triton.jit)
+    participant IR as Triton IR / LLVM Compiler
+    participant SASS as PTX / AMD HSA Code Generator
+    participant GPU as NVIDIA / AMD GPU Tensor Cores
+
+    Dev->>JIT: Decorate Python Kernel (`@triton.jit`)
+    JIT->>IR: Parse Python AST & Generate Block-Level Triton IR
+    IR->>IR: Run Shared Memory Tiling & Coalescing Passes
+    IR->>SASS: Compile down to PTX (CUDA) or HSA (ROCm) Assembly
+    SASS->>GPU: Load Binary Assembly into GPU Memory
+    GPU-->>Dev: Sub-millisecond Fused Tensor Execution
+```
+
 ## Typical use cases
 
 - **Custom Attention Mechanism Authoring**: Writing specialized attention operators (e.g., RingAttention, Sliding Window Attention, Sparse Attention) tailored for long-context models.
@@ -132,6 +149,122 @@ if __name__ == "__main__":
         print("CUDA device not available; Triton kernel verified syntactically.")
 ```
 
+## Production Infrastructure Deployment
+
+### Docker Compose Stack for GPU Worker Container
+Deploying Triton kernel worker environments with NVIDIA GPU passthrough in Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  triton-kernel-server:
+    image: nvidia/cuda:12.4.1-devel-ubuntu22.04
+    container_name: triton-kernel-server
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - TRITON_CACHE_DIR=/tmp/triton_cache
+      - MCP_PORT=8094
+    ports:
+      - "8094:8094"
+    volumes:
+      - ./cache:/tmp/triton_cache
+      - ./src:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      python3 /app/server.py
+```
+
+### Systemd Service Unit (`triton-mcp.service`)
+To manage a persistent FastMCP 3.1 Triton kernel compilation daemon:
+
+```ini
+[Unit]
+Description=Triton GPU Kernel Execution FastMCP 3.1 Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=triton-worker
+Group=triton-worker
+WorkingDirectory=/opt/triton-mcp
+Environment="PATH=/opt/venv/bin:/usr/local/bin:/usr/bin"
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="TRITON_CACHE_DIR=/var/cache/triton"
+ExecStart=/opt/venv/bin/python3 /opt/triton-mcp/mcp_server.py
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+MemoryMax=16G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Advanced Kernel Autotuning & Matrix Multiplication Design Patterns
+
+Triton provides built-in `@triton.autotune` decorators to evaluate optimal tile sizes, warp counts, and pipeline stages dynamically across different GPU architectures:
+
+```python
+import triton
+import triton.language as tl
+
+@triton.autotune(
+    configs=[
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=3, num_warps=8),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4, num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4, num_warps=4),
+    ],
+    key=['M', 'N', 'K'],
+)
+@triton.jit
+def matmul_kernel_autotuned(
+    a_ptr, b_ptr, c_ptr,
+    M, N, K,
+    stride_am, stride_ak,
+    stride_bk, stride_bn,
+    stride_cm, stride_cn,
+    BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr,
+    GROUP_SIZE_M: tl.constexpr
+):
+    pid = tl.program_id(axis=0)
+    num_pid_m = tl.cdiv(M, BLOCK_SIZE_M)
+    num_pid_n = tl.cdiv(N, BLOCK_SIZE_N)
+    num_pid_in_group = GROUP_SIZE_M * num_pid_n
+    group_id = pid // num_pid_in_group
+    first_pid_m = group_id * GROUP_SIZE_M
+    group_size_m = min(num_pid_m - first_pid_m, GROUP_SIZE_M)
+    pid_m = first_pid_m + (pid % group_size_m)
+    pid_n = (pid % num_pid_in_group) // group_size_m
+
+    offs_am = (pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)) % M
+    offs_bn = (pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)) % N
+    offs_k = tl.arange(0, BLOCK_SIZE_K)
+    a_ptrs = a_ptr + (offs_am[:, None] * stride_am + offs_k[None, :] * stride_ak)
+    b_ptrs = b_ptr + (offs_k[:, None] * stride_bk + offs_bn[None, :] * stride_bn)
+
+    accumulator = tl.zeros((BLOCK_SIZE_M, BLOCK_SIZE_N), dtype=tl.float32)
+    for k in range(0, tl.cdiv(K, BLOCK_SIZE_K)):
+        a = tl.load(a_ptrs, mask=offs_k[None, :] < K - k * BLOCK_SIZE_K, other=0.0)
+        b = tl.load(b_ptrs, mask=offs_k[:, None] < K - k * BLOCK_SIZE_K, other=0.0)
+        accumulator += tl.dot(a, b)
+        a_ptrs += BLOCK_SIZE_K * stride_ak
+        b_ptrs += BLOCK_SIZE_K * stride_bk
+
+    c = accumulator.to(tl.float16)
+    offs_cm = pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)
+    offs_cn = pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)
+    c_ptrs = c_ptr + stride_cm * offs_cm[:, None] + stride_cn * offs_cn[None, :]
+    c_mask = (offs_cm[:, None] < M) & (offs_cn[None, :] < N)
+    tl.store(c_ptrs, c, mask=c_mask)
+```
 
 ## CLI examples
 
@@ -150,18 +283,20 @@ TRITON_PRINT_AUTOTUNING=1 python3 -c "import triton; print('Triton autotuning de
 ## API examples
 
 ### FastMCP 3.1 Triton Kernel Tuning & Launch Server
-Expose Triton GPU kernel autotuning and execution controls over FastMCP 3.1 Task Protocols with strict Pydantic v2 validation.
+Expose Triton GPU kernel autotuning and execution controls over FastMCP 3.1 Task Protocols with strict Pydantic v2 validation (`extra="forbid"`).
 
 ```python
 import json
 import asyncio
 from typing import Dict, Any, Optional
-from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 mcp = FastMCP("Triton Kernel Orchestrator", version="3.1")
 
 class KernelLaunchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     vector_size: int = Field(..., ge=1, description="Total number of elements in vector")
     block_size: int = Field(default=1024, ge=32, le=4096, description="Threads per block (power of 2)")
     num_warps: int = Field(default=4, ge=1, le=32, description="Number of warps per block")
@@ -175,6 +310,8 @@ class KernelLaunchRequest(BaseModel):
         return v
 
 class KernelLaunchReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     elements_processed: int
     grid_size: int
@@ -206,7 +343,7 @@ if __name__ == "__main__":
 ```python
 import torch
 from typing import Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Try importing triton; provide fallback stub if executing outside GPU environment
 try:
@@ -220,6 +357,8 @@ except ImportError:
 # Pydantic v2 Kernel Launch Config Schema
 # ---------------------------------------------------------------------------
 class TritonKernelLaunchConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     vector_size: int = Field(..., ge=1, description="Total number of elements in vector")
     block_size: int = Field(default=1024, ge=32, le=4096, description="Threads per block (power of 2)")
     num_warps: int = Field(default=4, ge=1, le=32, description="Number of warps per block")
