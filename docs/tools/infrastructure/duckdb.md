@@ -40,6 +40,22 @@ DuckDB operates directly inside the host process memory space, exposing C/C++, P
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Host App / FastMCP 3.1 Server
+    participant Engine as DuckDB Core (C++ Vector Engine)
+    participant Arrow as PyArrow Zero-Copy IPC Buffer
+    participant Storage as Storage Layer (Parquet / Iceberg)
+
+    App->>Engine: Send SQL Query (relational + VSS vector search)
+    Engine->>Storage: Zero-copy memory map Parquet morsels / VSS HNSW index
+    Storage-->>Engine: Stream columnar vector chunks (1024 values/chunk)
+    Engine->>Engine: Vectorized SIMD filter & cosine similarity score
+    Engine->>Arrow: Output Arrow RecordBatch in shared memory
+    Arrow-->>App: Direct zero-copy result streaming
+```
+
 Query execution follows strict columnar vectorization:
 1. **Zero-Copy Binding**: Input Parquet or Arrow RecordBatches are mapped into DuckDB virtual memory without deserialization copies.
 2. **Vector Morsel Execution**: Queries execute in SIMD vector chunks (morsels) using localized L1/L2 CPU cache lines.
@@ -70,7 +86,7 @@ Query execution follows strict columnar vectorization:
 - **Vertical Scaling Only**: As an in-process database, it scales with the host machine's resources rather than horizontally across a cluster.
 - **Single Writer Constraint**: Limited support for concurrent writes across different processes; only one process can write to a database file at a time.
 
-## Comparison Matrix
+## Feature & Performance Comparison Matrix
 
 | Feature / Metric | DuckDB 1.2+ (VSS Extension) | SQLite 3.48 (sqlite-vec) | Polars 1.22 | ClickHouse Local |
 | :--- | :--- | :--- | :--- | :--- |
@@ -92,6 +108,55 @@ Query execution follows strict columnar vectorization:
 
 - When you need a highly concurrent, transactional database (OLTP) with thousands of concurrent write transactions.
 - When your data requires a distributed, multi-node cluster for processing (e.g., Snowflake, ClickHouse cluster).
+
+## Deployment & Production Configurations
+
+### Docker Compose Multi-Service Setup
+
+```yaml
+version: "3.8"
+
+services:
+  duckdb-fastmcp:
+    image: python:3.11-slim
+    container_name: duckdb_fastmcp_server
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data:ro
+      - ./server.py:/app/server.py:ro
+    working_dir: /app
+    command: ["python3", "server.py"]
+    environment:
+      DUCKDB_MEMORY_LIMIT: "4GB"
+      DUCKDB_THREADS: "4"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import duckdb; con=duckdb.connect(); print(con.sql(\"SELECT 1\"))'"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+### Systemd Service Unit (`duckdb-mcp.service`)
+
+```ini
+[Unit]
+Description=DuckDB FastMCP 3.1 Analytics Server
+After=network.target
+
+[Service]
+Type=simple
+User=duckdb
+Group=duckdb
+WorkingDirectory=/opt/duckdb-server
+ExecStart=/usr/bin/python3 /opt/duckdb-server/server.py
+Restart=always
+RestartSec=5s
+Environment=DUCKDB_MEMORY_LIMIT=8GB
+Environment=DUCKDB_THREADS=8
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -128,7 +193,7 @@ duckdb -c "SUMMARIZE SELECT * FROM 'large_dataset.parquet';"
 ## API examples
 
 ### 1. Programmatic Python Query Parsing & Validation (Pydantic v2)
-Query analysis, schema metadata extraction, and safety validation are essential before running synthesized SQL on local files. This Python example utilizes **Pydantic v2** to parse and validate query execution metadata.
+Query analysis, schema metadata extraction, and safety validation are essential before running synthesized SQL on local files. This Python example utilizes **Pydantic v2** with `extra="forbid"` to parse and validate query execution metadata.
 
 ```python
 import duckdb
@@ -153,6 +218,8 @@ class QueryAnalysisResult(BaseModel):
         return value.upper()
 
 class DuckDBTableSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     table_name: str = Field(description="Name of the initialized table or view")
     columns: Dict[str, str] = Field(description="Dictionary mapping column names to SQL data types")
     row_count: int = Field(ge=0, description="Total active row count")
@@ -200,13 +267,15 @@ Integrating DuckDB with a tool-use agent via FastMCP 3.1 allows frontier models 
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import duckdb
 import pyarrow as pa
 
 mcp = FastMCP("DuckDB FastMCP Server", version="3.1")
 
 class QueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     sql_query: str = Field(..., description="SQL query string to execute against DuckDB memory")
     max_rows: int = Field(default=100, ge=1, le=10000, description="Maximum result rows returned")
 
@@ -238,11 +307,14 @@ if __name__ == "__main__":
 3. **VSS Extension Optimization**:
    - Build HNSW vector indexes (`CREATE INDEX my_hnsw_idx ON vectors USING HNSW (embedding);`) after completing bulk insert operations to avoid index maintenance overhead on individual row insertions.
 
-## Troubleshooting & Common Pitfalls
+## Troubleshooting & Diagnostic Matrix
 
-- **Database Locked Error**: Occurs when multiple Python processes attempt to open a persistent `.duckdb` file in write mode. Use `:memory:` or `read_only=True` for secondary workers.
-- **Out of Memory on Group By**: Enable disk spilling for massive aggregations: `SET preserve_insertion_order = false; SET temp_directory = '/tmp/duckdb_spill';`.
-- **Parquet S3 SSL Failure**: Ensure `INSTALL httpfs; LOAD httpfs;` is executed before attempting to query `s3://` URLs.
+| Issue / Symptom | Root Cause | Diagnostic Command / Log Check | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **Database Locked Error** | Multiple Python processes opening persistent `.duckdb` in write mode | `lsof /tmp/analytics.duckdb` | Use `:memory:` or open secondary connections with `read_only=True`. |
+| **Out of Memory on Aggregation** | Giant `GROUP BY` execution exceeding host RAM limit | Monitor process RSS RAM via `top` / `htop` | Enable disk spilling: `SET preserve_insertion_order = false; SET temp_directory = '/tmp/spill';`. |
+| **S3 SSL Handshake Failure** | Missing `httpfs` extension when querying remote `s3://` files | `duckdb -c "SELECT * FROM read_parquet('s3://...')"` | Run `INSTALL httpfs; LOAD httpfs;` before executing remote S3 queries. |
+| **VSS Vector Search Latency** | Query scanning flat unindexed vector embeddings | `EXPLAIN SELECT ... FROM vectors ORDER BY array_distance(...)` | Create HNSW vector index: `CREATE INDEX idx ON vectors USING HNSW (embedding);`. |
 
 ## Related tools / concepts
 

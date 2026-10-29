@@ -6,8 +6,7 @@ The Agentic Automation Canvas (AAC) is a structured framework and open-source to
 ## What problem it solves
 It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where users expect high productivity gains from AI (e.g., 24% speedup) but often experience a decrease (e.g., 19% slowdown) due to unmeasured verification burdens, workflow friction, and human oversight costs. AAC requires explicit quantification of these factors during the planning phase to ensure ROI for autonomous engineering projects. It also standardizes the visual representation of [Model Context Protocol (MCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) tool graphs and multi-model agent contracts.
 
-## Where it fits in the stack
-[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — specifically as a **Planning & Design Framework** that precedes and guides implementation. It acts as the blueprint for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
+## System Architecture & Multi-Agent Design Flow
 
 ```
  ┌──────────────────────────────────────────────────────────────────────────┐
@@ -32,6 +31,26 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
  │ (AI Assistant Directives)│              │  (W3C Interoperability)  │
  └──────────────────────────┘              └──────────────────────────┘
 ```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UI as AAC Browser UI / Frontend
+    participant Core as Canvas State Engine
+    participant FastMCP as FastMCP 3.1 Governance Tool
+    participant ROCrate as W3C RO-Crate Exporter
+    participant Disk as Repository Root (AGENTS.md)
+
+    UI->>Core: Define workflow scope, models, & ROI metrics
+    Core->>FastMCP: Validate project contract JSON via FastMCP 3.1 endpoint
+    FastMCP-->>Core: Return prospective ROI audit & risk verification score
+    Core->>ROCrate: Compile FAIR-compliant JSON-LD metadata package
+    ROCrate->>Disk: Export root AGENTS.md & ro-crate-metadata.json
+    Disk-->>UI: Confirm project contract saved locally
+```
+
+## Where it fits in the stack
+[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — specifically as a **Planning & Design Framework** that precedes and guides implementation. It acts as the blueprint for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
 ## Feature Comparison Matrix
 
@@ -70,6 +89,53 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 - For trivial, single-prompt AI tasks that do not require tool-calling or multi-step reasoning.
 - When a project's goals and constraints are already fully documented in a compatible machine-readable format.
 
+## Deployment & Production Configurations
+
+### Docker Compose Container Setup
+
+```yaml
+version: "3.8"
+
+services:
+  aac-web:
+    image: slolab/agentic-automation-canvas:v1.3.1
+    container_name: aac_design_studio
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      AAC_PORT: 3000
+      AAC_ENABLE_RO_CRATE: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+### Systemd Service Unit (`aac-studio.service`)
+
+```ini
+[Unit]
+Description=Agentic Automation Canvas (AAC) Local Design Studio
+After=network.target
+
+[Service]
+Type=simple
+User=aacservice
+Group=aacservice
+WorkingDirectory=/opt/aac-studio
+ExecStart=/usr/bin/npm start -- --port 3000
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=AAC_STRICT_SCHEMA=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 ### Online Access
 Access the live version of the canvas at [aac.slolab.ai](https://aac.slolab.ai/). No installation is required as it is a client-side web application.
@@ -95,17 +161,19 @@ npm install && npm run dev
 ## API examples
 
 ### FastMCP 3.1 AAC Canvas Project Audit Server
-The following Python script defines a **FastMCP 3.1** tool server that accepts an AAC canvas project payload, validates its parameters using **Pydantic v2**, and computes the prospective ROI audit score:
+The following Python script defines a **FastMCP 3.1** tool server that accepts an AAC canvas project payload, validates its parameters using **Pydantic v2** with `extra="forbid"`, and computes the prospective ROI audit score:
 
 ```python
 import json
 from typing import List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-mcp = FastMCP("AAC Canvas Governance Server")
+mcp = FastMCP("AAC Canvas Governance Server", version="3.1")
 
 class AACCanvasPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     project_id: str = Field(description="Unique canvas identifier")
     title: str = Field(description="Name of the agentic workflow")
     target_models: List[str] = Field(description="Models planned for execution, e.g., Claude 5.6")
@@ -121,6 +189,8 @@ class AACCanvasPayload(BaseModel):
         return v
 
 class AACAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     project_id: str
     net_roi_score: float
     status: str
@@ -182,15 +252,17 @@ The visual nodes and core schema exported by the Agentic Automation Canvas are v
 }
 ```
 
-### Scripted RO-Crate Metadata Validator (Python & Pydantic v2)
+### Scripted RO-Crate Metadata Validator (Python & Strict Pydantic v2)
 To automate compliance audits for agent projects, developers use Pydantic v2 to validate exported project contracts before executing deployment routines on Kubernetes or local engines:
 
 ```python
 from typing import List, Dict, Any, Literal
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 class ROContext(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     id: str = Field(..., alias="@id")
     type: str = Field(..., alias="@type")
     name: str
@@ -199,6 +271,8 @@ class ROContext(BaseModel):
     conformsTo: Dict[str, str]
 
 class AACProjectContract(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     schema_version: Literal["1.2.4", "1.3.0", "1.3.1"] = Field("1.3.1")
     canvas_title: str = Field(..., min_length=3)
     target_models: List[str] = Field(..., description="E.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra")
@@ -230,6 +304,15 @@ print(f"Net expected gain: {contract.expected_speedup - contract.verification_ov
 - **Version-Controlled AGENTS.md**: Keep the generated `AGENTS.md` in the root of your repository and re-export it whenever the AAC canvas architecture changes to ensure AI coding agents maintain an up-to-date project context.
 - **Continuous ROI Auditing**: Record actual human verification hours spent during production rollouts and feed them back into the AAC project contract to refine future feasibility estimates.
 - **Modular Sub-Canvases**: For complex enterprise workflows involving multiple agent swarms, break down the canvas into nested sub-canvases linked via RO-Crate metadata references.
+
+## Troubleshooting & Diagnostic Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Command / Log Check | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **RO-Crate Validation Error** | Schema version mismatch or missing mandatory `@type` property | `rocrate validate ./exported-crate/` | Re-export contract using AAC v1.3.1+ exporter module. |
+| **AGENTS.md Context Drift** | Manual edits made to AGENTS.md without updating visual Canvas | Compare `git diff AGENTS.md` against canvas export | Always modify architecture in AAC UI first, then re-export AGENTS.md. |
+| **FastMCP Tool Connection Timeout**| Tool server URL unreachable from browser client | Browser DevTools Network tab -> filter `mcp` | Check local CORS settings and verify FastMCP server port is listening. |
+| **High Verification Drag** | Human audit overhead (>25%) negating agent speedup gains | Run FastMCP `audit_canvas_contract` tool | Introduce automated test suites or LLM judge verification steps. |
 
 ## Related tools / concepts
 - [AGENTS.md Pattern](../../knowledge_base/patterns/index.md)

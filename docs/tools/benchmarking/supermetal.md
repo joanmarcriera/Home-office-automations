@@ -95,6 +95,79 @@ It addresses the latency and complexity bottlenecks in Change Data Capture (CDC)
 - If you require complex in-flight data transformations (consider Fivetran or dbt for heavy T in ELT).
 - For unsupported source or target systems where traditional connectors remain the only option.
 
+## Deployment & Production Configurations
+
+### Docker Compose Multi-Container Stack
+
+```yaml
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: supermetal_postgres
+    environment:
+      POSTGRES_DB: production
+      POSTGRES_USER: supermetal_admin
+      POSTGRES_PASSWORD: secure_cdc_password
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_replication_slots=10"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supermetal_admin -d production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supermetal-cdc:
+    image: supermetal/service:v1.4.0
+    container_name: supermetal_cdc_engine
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SUPERMETAL_LOG_LEVEL: info
+      SUPERMETAL_BUFFER_MB: 2048
+      SUPERMETAL_ICEBERG_CATALOG: http://iceberg-catalog:8181
+      SUPERMETAL_METRICS_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:
+```
+
+### Systemd Service Unit (`supermetal-cdc.service`)
+
+```ini
+[Unit]
+Description=Supermetal CDC Ingestion Daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=supermetal
+Group=supermetal
+ExecStart=/usr/local/bin/supermetal-cdc-daemon --config /etc/supermetal/config.toml
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=SUPERMETAL_LOG_LEVEL=info
+Environment=SUPERMETAL_ARROW_ALLOCATOR_MB=4096
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 Supermetal operates via an API-driven connector model. To get started, deploy the Supermetal service (often via Docker) and use the REST API to configure your source and sink connectors.
 
@@ -125,19 +198,21 @@ curl "https://your-supermetal-instance/api/v1/metrics/throughput"
 
 ## API examples
 
-### FastMCP 3.1 Task Server and Pydantic v2 Connector Schema
-Below is a complete FastMCP 3.1 server pattern that validates Supermetal connector payloads using Pydantic v2 and exposes a synchronization management interface:
+### FastMCP 3.1 Task Server and Strict Pydantic v2 Connector Schema
+Below is a complete FastMCP 3.1 server pattern that validates Supermetal connector payloads using Pydantic v2 with `extra="forbid"` and exposes a synchronization management interface:
 
 ```python
 import json
 from typing import Literal, Optional, List, Dict
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for Supermetal Data Synchronization
 mcp = FastMCP("Supermetal-Sync-Server", version="3.1")
 
 class PostgresConnection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     host: str = Field(..., description="PostgreSQL host IP or domain")
     port: int = Field(5432, ge=1, le=65535, description="PostgreSQL port")
     user: str = Field(..., description="Database synchronization user")
@@ -145,6 +220,8 @@ class PostgresConnection(BaseModel):
     database: str = Field(..., description="Source database name")
 
 class PostgresSource(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     connection: PostgresConnection
     replication_type: Literal["logical_replication", "standard_polling"] = Field(
         "logical_replication",
@@ -153,16 +230,22 @@ class PostgresSource(BaseModel):
     )
 
 class IcebergSink(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     catalog_type: Literal["glue", "hive", "rest"] = Field(..., alias="catalogType")
     database: str = Field(..., description="Target database/schema name in Apache Iceberg")
     warehouse_path: str = Field(..., alias="warehousePath", description="S3 or cloud object warehouse path URI")
 
 class BenchmarkTelemetry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     rows_processed_per_sec: float = Field(..., description="Throughput in rows/sec")
     bytes_transferred_mb: float = Field(..., description="Total megabytes transferred")
     commit_latency_ms: float = Field(..., description="Apache Iceberg commit latency in ms")
 
 class SupermetalConnectorConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     connector_id: str = Field(..., alias="id", description="Unique identifier for this task")
     source: PostgresSource = Field(..., description="PostgreSQL database source configuration")
     sink: IcebergSink = Field(..., description="Apache Iceberg analytical sink configuration")
@@ -219,11 +302,14 @@ if __name__ == "__main__":
 3. **Apache Iceberg Commit Strategy**:
    - Set Iceberg commit intervals between 30 and 60 seconds during steady-state logical replication streaming to balance real-time query freshness against small-file metadata accumulation.
 
-## Troubleshooting & Common Pitfalls
+## Troubleshooting & Diagnostic Matrix
 
-- **WAL Replication Slot Blocked**: If a replication slot drops connection, run `SELECT pg_drop_replication_slot('supermetal_slot');` and re-initialize the connector.
-- **Schema Evolution Mismatch**: When adding columns to source Postgres tables, verify that Supermetal target Iceberg catalog policies permit automatic schema expansion.
-- **S3 Commit Latency**: If Iceberg commits stall, check AWS Glue / REST catalog authorization timeouts and verify S3 multi-part upload buffer permissions.
+| Issue / Symptom | Root Cause | Diagnostic Command / Log Check | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **WAL Replication Slot Blocked** | Slot connection dropped or target commit stalled | `SELECT * FROM pg_replication_slots WHERE slot_name='supermetal_slot';` | Drop unneeded slot via `SELECT pg_drop_replication_slot('supermetal_slot');` and re-initialize connector. |
+| **Schema Evolution Mismatch** | Column added to source Postgres table without target catalog permission | `curl http://localhost:8080/api/v1/connectors/my-pg-to-iceberg/errors` | Update Iceberg catalog auto-evolution policy in Supermetal config. |
+| **S3 Commit Latency Spike** | AWS Glue / REST catalog authorization timeout or S3 throttling | Inspect `/var/log/supermetal/cdc.log` for HTTP 503 / 403 errors | Verify S3 multi-part upload buffer permissions and increase connection pool size. |
+| **Arrow Memory Exhaustion** | Batch allocation exceeded host RAM during large bulk backfill | `curl http://localhost:8080/api/v1/metrics/throughput` | Lower `SUPERMETAL_BUFFER_MB` limit or increase system swap allocation. |
 
 ## Related tools / concepts
 - [Data Stack Consolidation](../../knowledge_base/landscape-overview.md) — The movement towards simpler, faster data architectures.

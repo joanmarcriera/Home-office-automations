@@ -22,6 +22,21 @@ Obsidian is a personal knowledge management (PKM) application built on top of a 
 └──────────────┘               └──────────────┘               └──────────────┘
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as AI Agent (Claude 5.1 / FastMCP 3.1)
+    participant Bridge as FastMCP 3.1 Obsidian Server Bridge
+    participant Vault as Local Markdown Vault (.md)
+    participant Index as Chroma Local Vector Store
+
+    Agent->>Bridge: Search obsidian notes or read section
+    Bridge->>Vault: Parse YAML frontmatter & markdown blocks
+    Bridge->>Index: Perform local dense vector similarity search
+    Index-->>Bridge: Return top matching text chunks & note paths
+    Bridge-->>Agent: Return structured VaultSearchResponse
+```
+
 ## What problem it solves
 It solves the risk of vendor lock-in, proprietary file formats, and data privacy exposure common in cloud note-taking services. By storing notes as plain Markdown files on local storage, Obsidian ensures notes remain accessible to standard text editors, version control systems, and local scripts. This architecture provides a private knowledge base for Retrieval-Augmented Generation (RAG) pipelines without transmitting sensitive data to external servers.
 
@@ -83,6 +98,55 @@ Furthermore, Obsidian eliminates cloud synchronization bottlenecks by permitting
 | **Graph View** | Interactive 2D/3D | Dynamic Graph | Visual Object Graph | Link Visualizer |
 | **License** | Closed Core / Open Format | Open Source (AGPL) | Open Source (AGPL) | Open Source (MIT) |
 
+## Deployment & Production Configurations
+
+### Docker Compose Container Setup
+
+```yaml
+version: "3.8"
+
+services:
+  obsidian-fastmcp:
+    image: python:3.11-slim
+    container_name: obsidian_fastmcp_bridge
+    restart: unless-stopped
+    volumes:
+      - /home/jules/ObsidianVault:/vault:ro
+      - ./server.py:/app/server.py:ro
+    working_dir: /app
+    environment:
+      VAULT_ROOT: "/vault"
+      FASTMCP_PORT: "3000"
+    command: ["python3", "server.py"]
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:3000/health\")'"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+### Systemd Service Unit (`obsidian-mcp.service`)
+
+```ini
+[Unit]
+Description=Obsidian Vault FastMCP 3.1 Bridge Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/opt/obsidian-mcp
+ExecStart=/usr/bin/python3 /opt/obsidian-mcp/server.py
+Restart=always
+RestartSec=5s
+Environment=VAULT_ROOT=/home/jules/Documents/ObsidianVault
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Installation
@@ -131,29 +195,35 @@ dv.list(dv.pages('"Projects"').where(p => p.file.mday.toISODate() == dv.date('to
 ```
 
 ### Python: FastMCP 3.1 Local Obsidian Server Bridge
-The following Python script demonstrates building a custom FastMCP 3.1 server to allow AI agents to query and write Markdown notes in an Obsidian vault:
+The following Python script demonstrates building a custom FastMCP 3.1 server to allow AI agents to query and write Markdown notes in an Obsidian vault, strictly enforced with Pydantic v2 (`extra="forbid"`):
 
 ```python
 import os
 import pathlib
 import frontmatter
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Obsidian-Vault-Server")
+mcp = FastMCP("Obsidian-Vault-Server", version="3.1")
 
 class VaultSearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str = Field(..., description="Keyword or phrase to search within vault Markdown files")
     vault_path: str = Field(default="~/Documents/ObsidianVault", description="Path to local vault root")
     max_results: int = Field(default=5, ge=1, le=50)
 
 class NoteSearchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     file_name: str
     relative_path: str
     matching_snippet: str
 
 class VaultSearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     results: List[NoteSearchResult]
     total_matches: int
     status: str = Field(default="success")
@@ -196,9 +266,11 @@ import pathlib
 import frontmatter
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class NoteMetadataSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     title: str = Field(..., description="Note title from frontmatter or filename")
     last_reviewed: datetime = Field(..., description="ISO review timestamp")
     confidence: str = Field(default="high")
@@ -251,28 +323,14 @@ An agent running **Claude 5.1** or **GPT-5.5** uses this FastMCP 3.1 payload to 
 | **Medium Vault** | 1,500 notes | 3.1 seconds | 22.5 seconds | 28 ms |
 | **Large Enterprise Vault** | 10,000 notes | 18.2 seconds | 145.0 seconds | 85 ms |
 
-## Troubleshooting & Diagnostics
+## Operational & Troubleshooting Matrix
 
-### 1. Broken Internal Links / Orphaned Attachments
-- **Symptom**: Unresolved `[[Link]]` warnings or unreferenced image assets cluttering vault storage.
-- **Cause**: Renaming Markdown files outside of Obsidian interface without atomic link updates.
-- **Resolution**:
-  - Use Obsidian's built-in "Automatically update internal links" setting.
-  - Run `scripts/fix_internal_links.py` across the vault directory.
-
-### 2. FastMCP Plugin Connection Refused
-- **Symptom**: Claude Desktop or agent framework fails to communicate with local Obsidian FastMCP bridge.
-- **Cause**: Local socket port collision or missing CORS authorization in Obsidian MCP plugin settings.
-- **Resolution**:
-  - Verify server port (default 3000 or stdio pipe) in `mcp_config.json`.
-  - Ensure Obsidian application is actively running with the FastMCP plugin toggled ON.
-
-### 3. Frontmatter YAML Parsing Errors
-- **Symptom**: Dataview queries or Python frontmatter parsers fail with syntax exceptions.
-- **Cause**: Unquoted special characters or unindented YAML list items.
-- **Resolution**:
-  - Wrap string values containing colons or quotes in double quotes.
-  - Run `scripts/audit_docs_quality.py` or frontmatter linting tools.
+| Issue / Symptom | Root Cause | Diagnostic Command / Log Check | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **Broken Internal Links** | Markdown files renamed outside Obsidian without updating links | Run `python3 scripts/fix_internal_links.py` | Enable 'Automatically update internal links' in Obsidian settings or run fix script. |
+| **FastMCP Connection Refused** | Port collision or missing CORS authorization in plugin settings | Inspect stdout logs of `/opt/obsidian-mcp/server.py` | Verify port 3000 is open and plugin is active in Obsidian UI. |
+| **Frontmatter YAML Syntax Error** | Unquoted colons or improper list indentation in frontmatter | Run `python3 scripts/audit_docs_quality.py` | Wrap string values in double quotes and ensure 2-space indentation. |
+| **Chroma Vector Store OOM** | Embedding large binary files or non-markdown assets | Monitor RAM during `obsidian_incremental_indexing.py` execution | Exclude `.pdf`, `.png`, and `.canvas` files from vector index scanner. |
 
 ## Related tools / concepts
 - [Logseq](logseq.md) - Outliner-based local Markdown PKM alternative.
