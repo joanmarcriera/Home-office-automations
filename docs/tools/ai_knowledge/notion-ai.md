@@ -1,10 +1,11 @@
 # Notion AI
 
 ## What it is
-Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By early January 2027, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning, multi-step automation, and native integration with the **FastMCP 3.1** protocol and frontier reasoning models like **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
+Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, synthesizing, and querying workspace knowledge directly where they collaborate. By early 2027, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning, multi-step automation, and native integration with the Model Context Protocol (FastMCP 3.1) and frontier reasoning models like **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
-### Architectural Layout & RAG Engine
-Notion AI relies on a hybrid vector-search and graph database architecture. Document blocks, page properties, and relational databases are chunked and embedded in real-time into a high-throughput vector index, enabling multi-hop retrieval-augmented generation (RAG) across millions of workspace blocks.
+## System Architecture
+
+Notion AI relies on a hybrid vector-search, keyword BM25, and relational graph database architecture. Document blocks, page properties, and relational databases are chunked and embedded into high-throughput vector indexes, enabling multi-hop retrieval-augmented generation (RAG) across workspace blocks:
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -34,248 +35,336 @@ Notion AI relies on a hybrid vector-search and graph database architecture. Docu
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as Workspace User / Agent
+    participant Gateway as FastMCP 3.1 Notion Gateway
+    participant API as Notion REST / Q&A API
+    participant RAG as Hybrid Vector/Graph RAG
+    participant LLM as Frontier Model Router (Claude 5.6)
+
+    User->>Gateway: Submit Workspace Query / Task Request
+    Gateway->>API: Authenticate & Submit Q&A Query Spec (Pydantic v2)
+    API->>RAG: Perform BM25 & Dense Vector Retrieval with ACL Filters
+    RAG-->>API: Stream Top-K Document Blocks & Relation Nodes
+    API->>LLM: Pass Context Payload & Prompt Instructions
+    LLM-->>API: Generate Synthesized Summary & Action Items
+    API-->>Gateway: Return Machine-Readable JSON Response
+    Gateway-->>User: Present Final Answer / Update Target Page
+```
+
 ## What problem it solves
-Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment. It eliminates the friction of switching between a chat interface and a system of record, leveraging frontier models like **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra** to perform multi-hop reasoning.
+It bridges the gap between passive document repositories and active AI assistance. By embedding AI capabilities directly into the workspace system of record, Notion AI eliminates context switching between chat interfaces and project documentation. Key problems resolved include:
+- **Context Loss Across Knowledge Silos**: Consolidating information across disparate databases, meeting notes, and wiki pages using multi-hop RAG queries.
+- **Manual Document Summarization & Enrichment**: Automating property extraction, meeting action items, and task generation across workspace databases.
+- **Agent Memory Integration**: Serving as a structured, human-readable and machine-accessible persistent memory store for external AI coding agents via FastMCP 3.1 interfaces.
 
 ## Where it fits in the stack
-[AI & Knowledge](./index.md) — integrated productivity and workspace assistant.
+**Category**: AI & Knowledge / Workspace Collaboration Layer. Notion AI operates at the **Knowledge Capture & Workspace Intelligence Layer**, sitting above storage primitives and providing structured knowledge interfaces for both human teams and autonomous agent frameworks.
 
 ## Typical use cases
-- **Summarizing meeting notes and project documents**: Meeting Notes act as a high-signal data capture point for the whole workspace.
-- **Drafting content, emails, and brainstorm lists**: High-velocity drafting within the context of a team's shared knowledge.
-- **Extracting action items from unstructured text**: Automating task creation and follow-ups.
-- **Custom Agents**: Building specialized agents that triage email, enrich applicants with web search, and write structured data to databases.
-- **Q&A and Agentic Search**: Natural language search over the entire workspace knowledge base, optimized for agent retrieval (Top-K over CTR).
-- **Multi-Step Orchestration**: Using Notion AI to coordinate tasks across other integrated apps via the **FastMCP 3.1** standard.
+- **Automated Workspace Q&A**: Performing natural language semantic search across enterprise wikis and relational project trackers.
+- **Database Property Enrichment**: Automatically populating summary, status, and tag fields in databases using AI prompts.
+- **Meeting Notes Action Item Extraction**: Processing raw transcripts and generating follow-up task records in project databases.
+- **FastMCP 3.1 Knowledge Gateway**: Exposing workspace pages and databases as context tools for external agents powered by **Claude 5.6**, **GPT-5.6**, or **Jules**.
+
+## Detailed Comparison Matrix
+
+| Feature / Capability | Notion AI | Obsidian + Copilot | Logseq + Local AI | Coda AI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Workspace Integration** | Native Document Blocks | Plugin / Local Files | Plugin / Markdown | Native Tables & Docs |
+| **Q&A RAG Engine** | Cloud Hybrid Vector/Graph | Local Vector DB (Ollama) | Local Vector DB | Cloud Workspace Index |
+| **FastMCP 3.1 Gateway**| Native Connector API | Extension Plugin | Community Plugin | Custom Gateway |
+| **Data Privacy** | Cloud / Enterprise SOC2 | 100% Local / Zero Cloud | 100% Local / Zero Cloud | Cloud / Enterprise Terms |
+| **Multi-Model Support**| GPT-5.6 / Claude 5.6 | Ollama / Custom API | Ollama / Custom API | GPT-5.6 / Claude 5.6 |
+| **Pricing Model** | ~$10 / user / mo | Free / BYO API Key | Free / BYO API Key | ~$12 / user / mo |
 
 ## Strengths
-- **Seamless Integration**: AI lives where collaboration data (pages, databases) already exists.
-- **Agent-Native System of Record**: Pages and databases serve as "memory" for agents, accessible by both humans and LLMs.
-- **Usage-Based Credits**: A pricing model (Notion Credits) that allows customers to pay for what they use across different model tiers and tool capabilities.
-- **Context-Awareness**: Agents can reference other pages and data within Notion for high-fidelity multi-hop reasoning.
-- **Frontier Model Support**: Leverages **Gemma 3**, **GPT-5.6**, **Claude 5.6**, and **DeepSeek-V4** for advanced reasoning tasks.
+- **Native Block Integration**: Operates directly inside existing workspace documents and databases with zero import/export friction.
+- **Context-Aware Multi-Hop Reasoning**: Leverages page link relations and database schemas for deep contextual comprehension.
+- **Agent Memory System of Record**: Pages serve as dual-use human readable docs and machine-queryable agent memory targets.
+- **Frontier LLM Selection**: Dynamically routes queries across top-tier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
 
 ## Limitations
-- **Cost Accumulation**: Requires a paid add-on to standard Notion tiers ($10/user/month or credit-based add-ons).
-- **Ecosystem Lock-in**: Deepest automation capabilities depend on storing data inside Notion database structures.
-- **Latency for Multi-Database Scans**: Complex multi-hop Q&A queries scanning hundreds of databases can introduce 5-10 second response latency.
+- **Subscription Cost**: Requires per-user monthly add-on pricing ($10/user/month or credit-based models).
+- **Cloud Dependency**: Incompatible with strict air-gapped or zero-cloud data sovereignty mandates (see [Obsidian](./obsidian.md)).
+- **API Rate Limits**: Standard API endpoints enforce rate throttling (3 requests per second baseline per integration token).
 
 ## When to use it
-- If your organization already uses Notion as its primary knowledge base and workspace.
-- For quickly cleaning up notes, summarizing long docs, or generating initial drafts within a project.
-- When you need a "RAG-in-a-box" solution for internal documentation.
+- When your organization uses Notion as its primary knowledge base and project management system.
+- For summarizing meeting notes, extracting action items, and populating database properties.
+- When exposing workspace documentation to AI agents via FastMCP 3.1 tools.
 
 ## When not to use it
-- For heavy-duty coding tasks or advanced creative media generation.
-- If you prefer a standalone AI assistant that isn't tied to a specific workspace platform.
-- When local-only data privacy is a strict requirement (consider [Obsidian](./obsidian.md) or [AnyType](../intake_storage/anytype.md)).
+- For air-gapped or zero-cloud local data privacy requirements (consider Obsidian instead).
+- For heavy coding or raw text manipulation tasks.
 
 ## Getting started
 
-> [!NOTE]
-> Notion AI is built directly into the Notion desktop, web, and mobile clients. No standalone package installation is required for general UI usage.
+Notion AI is available natively within Notion web and desktop applications. For automated integrations, use the official SDK or REST APIs.
 
-### Installation / Integration Setup
-To interact with Notion AI and workspace data programmatically, install the official Notion SDK or cURL helper:
+### Installation
+Install the official Notion client for Node.js or Python:
+
 ```bash
+# Node.js
 npm install @notionhq/client
-```
 
-### Hello-World Example
-Query a Notion page or workspace database using the official JavaScript/Node SDK:
-```javascript
-import { Client } from "@notionhq/client";
-
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-
-async function main() {
-  const response = await notion.search({ query: "Hello Notion AI" });
-  console.log("Workspace Search Results:", response.results.length);
-}
-
-main();
+# Python API SDK & FastMCP
+pip install notion-client fastmcp pydantic requests
 ```
 
 ## CLI examples
-> [!NOTE]
-> Notion does not maintain an official standalone CLI for Notion AI features. API interactions are conducted via HTTP cURL commands or client SDKs.
 
-### 1. Search Workspace via REST API
-Query Notion pages and databases using cURL:
 ```bash
-curl -s -X POST "https://api.notion.com/v1/search" \
-  -H "Authorization: Bearer ${NOTION_API_KEY}" \
-  -H "Notion-Version: 2022-06-28" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Architecture", "page_size": 5}'
-```
-
-### 2. Fetch User Profile Context
-Retrieve current user account details and API integration identity:
-```bash
-curl -s "https://api.notion.com/v1/users/me" \
-  -H "Authorization: Bearer ${NOTION_API_KEY}" \
-  -H "Notion-Version: 2022-06-28"
-```
-
-### 3. List Accessible Workspace Users
-Retrieve members and bot integration permissions across the active workspace:
-```bash
-curl -s "https://api.notion.com/v1/users" \
-  -H "Authorization: Bearer ${NOTION_API_KEY}" \
-  -H "Notion-Version: 2022-06-28"
+# Query workspace pages via REST API
+curl -s -X POST https://api.notion.com/v1/search -H "Authorization: Bearer $NOTION_API_KEY" -H "Notion-Version: 2022-06-28" -d '{"query": "Architecture"}'
 ```
 
 ## API examples
 
-### FastMCP 3.1 Notion Knowledge Gateway
-The following Python script implements a **FastMCP 3.1** server that bridges Notion pages, databases, and AI Q&A capabilities to external agent frameworks.
+### FastMCP 3.1 Notion Knowledge Gateway & Pydantic v2 Schema
+
+Below is a complete FastMCP 3.1 Python server exposing Notion workspace Q&A, page search, and page block enrichment capabilities with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import os
+import json
 import requests
-from typing import Optional, List, Dict, Any
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from typing import Optional, List, Dict
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Notion AI Gateway", dependencies=["requests", "pydantic"])
+mcp = FastMCP("Notion-AI-FastMCP-Gateway", version="3.1.0")
 
-NOTION_TOKEN = os.getenv("NOTION_TOKEN", "mock_key")
+NOTION_TOKEN = os.getenv("NOTION_TOKEN", "secret_mock_token")
 NOTION_VERSION = "2022-06-28"
 
-class QueryNotionInput(BaseModel):
-    query_text: str = Field(..., min_length=2, description="Search term or question for workspace Q&A")
-    page_size: int = Field(5, ge=1, le=20, description="Maximum number of search results")
-    filter_type: Optional[str] = Field("page", pattern=r"^(page|database)$")
+class WorkspaceQuerySpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query_text: str = Field(..., min_length=2, description="Search query or topic keyword")
+    page_size: int = Field(default=5, ge=1, le=20, description="Max result count")
+    filter_object: Optional[str] = Field(default="page", description="Target object type: page or database")
 
     @field_validator("query_text")
-    def validate_query(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Query string cannot be empty or whitespace.")
-        return v.strip()
+    @classmethod
+    def validate_query(cls, val: str) -> str:
+        if not val.strip():
+            raise ValueError("Query text cannot be empty or whitespace.")
+        return val.strip()
 
-@mcp.tool()
-def search_notion_workspace(params: QueryNotionInput) -> dict:
-    """Execute a semantic search across Notion workspace pages using FastMCP 3.1."""
-    headers = {
-        "Authorization": f"Bearer {NOTION_TOKEN}",
-        "Notion-Version": NOTION_VERSION,
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "query": params.query_text,
-        "page_size": params.page_size,
-        "filter": {"value": params.filter_type, "property": "object"}
-    }
+class NotionPageSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    page_id: str
+    url: str
+    title: str
+    object_type: str
 
-    resp = requests.post("https://api.notion.com/v1/search", json=payload, headers=headers)
-    if resp.status_code == 200:
-        results = resp.json().get("results", [])
-        return {
-            "status": "success",
-            "count": len(results),
-            "items": [{"id": item["id"], "url": item.get("url")} for item in results]
+class QueryResponsePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    status: str
+    count: int
+    results: List[NotionPageSummary]
+
+class AppendBlockSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    page_id: str = Field(..., description="Target Notion Page UUID")
+    heading_text: str = Field(..., description="Heading text for new content section")
+    paragraph_text: str = Field(..., description="Paragraph text content")
+
+@mcp.tool(name="search_notion_knowledge", description="Executes semantic query search across Notion workspace pages via FastMCP 3.1.")
+def search_notion_knowledge(spec_json: str) -> str:
+    """Parses query specification, calls Notion API, and returns validated JSON result."""
+    try:
+        raw_data = json.loads(spec_json)
+        spec = WorkspaceQuerySpec.model_validate(raw_data)
+
+        headers = {
+            "Authorization": f"Bearer {NOTION_TOKEN}",
+            "Notion-Version": NOTION_VERSION,
+            "Content-Type": "application/json"
         }
-    return {"status": "error", "code": resp.status_code, "detail": resp.text}
+        payload = {
+            "query": spec.query_text,
+            "page_size": spec.page_size,
+            "filter": {"value": spec.filter_object, "property": "object"}
+        }
+
+        resp = requests.post("https://api.notion.com/v1/search", json=payload, headers=headers, timeout=10)
+
+        if resp.status_code == 200:
+            raw_results = resp.json().get("results", [])
+            items = []
+            for item in raw_results:
+                title = "Untitled"
+                if "properties" in item and "title" in item["properties"]:
+                    title_objs = item["properties"]["title"].get("title", [])
+                    if title_objs:
+                        title = title_objs[0].get("plain_text", "Untitled")
+
+                items.append(NotionPageSummary(
+                    page_id=item.get("id", ""),
+                    url=item.get("url", ""),
+                    title=title,
+                    object_type=item.get("object", "page")
+                ))
+
+            res = QueryResponsePayload(status="SUCCESS", count=len(items), results=items)
+            return json.dumps(res.model_dump(), indent=2)
+        else:
+            return json.dumps({"status": "API_ERROR", "code": resp.status_code, "detail": resp.text})
+
+    except json.JSONDecodeError as err:
+        return json.dumps({"status": "ERROR", "message": f"Invalid JSON payload: {str(err)}"})
+    except ValidationError as err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": err.errors()})
+    except Exception as err:
+        return json.dumps({"status": "EXCEPTIONAL_FAILURE", "message": str(err)})
+
+@mcp.tool(name="append_notion_page_content", description="Appends structured block content to a target Notion page.")
+def append_notion_page_content(spec_json: str) -> str:
+    """Validates block payload and appends heading/paragraph blocks to a Notion page."""
+    try:
+        raw_data = json.loads(spec_json)
+        spec = AppendBlockSpec.model_validate(raw_data)
+
+        headers = {
+            "Authorization": f"Bearer {NOTION_TOKEN}",
+            "Notion-Version": NOTION_VERSION,
+            "Content-Type": "application/json"
+        }
+        children_payload = {
+            "children": [
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"type": "text", "text": {"content": spec.heading_text}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"type": "text", "text": {"content": spec.paragraph_text}}]
+                    }
+                }
+            ]
+        }
+
+        url = f"https://api.notion.com/v1/blocks/{spec.page_id}/children"
+        resp = requests.patch(url, json=children_payload, headers=headers, timeout=10)
+
+        if resp.status_code == 200:
+            return json.dumps({"status": "SUCCESS", "appended_page_id": spec.page_id}, indent=2)
+        else:
+            return json.dumps({"status": "API_ERROR", "code": resp.status_code, "detail": resp.text})
+
+    except ValidationError as err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": err.errors()})
+    except Exception as err:
+        return json.dumps({"status": "ERROR", "message": str(err)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Strict Notion Page & AI Enrichment Validation (Pydantic v2)
-To guarantee valid data payloads when updating or reading Notion pages programmatically, developers utilize **Pydantic v2**:
+## Production Deployment & Systemd Service Architecture
 
-```python
-from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+### Container Orchestration with Docker Compose
 
-class PagePropertySchema(BaseModel):
-    title: str = Field(..., min_length=1)
-    status: str = Field("In Progress", pattern=r"^(Backlog|In Progress|Completed|Archived)$")
-    tags: List[str] = Field(default_factory=list)
-    confidence_score: float = Field(0.95, ge=0.0, le=1.0)
+Deploy the Notion AI FastMCP gateway microservice in self-hosted environments using Docker Compose:
 
-class NotionAIEnrichmentResponse(BaseModel):
-    page_id: str = Field(..., description="UUID of the Notion Page")
-    summary: str = Field(..., min_length=10, description="AI Generated document summary")
-    properties: PagePropertySchema
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+```yaml
+version: "3.8"
 
-    @model_validator(mode="after")
-    def validate_summary_length(self) -> "NotionAIEnrichmentResponse":
-        if self.properties.status == "Completed" and len(self.summary) < 20:
-            raise ValueError("Completed status requires a comprehensive summary (>20 chars).")
-        return self
-
-# Example execution check
-sample_payload = {
-    "page_id": "83c79a29-d5b4-49b2-943e-8c9735d4fa12",
-    "summary": "This document outlines the Q1 system rollout timeline and security gates.",
-    "properties": {
-        "title": "Q1 Architecture Rollout",
-        "status": "Completed",
-        "tags": ["Architecture", "FastMCP"],
-        "confidence_score": 0.98
-    }
-}
-
-validated_data = NotionAIEnrichmentResponse.model_validate(sample_payload)
-print("Validated Notion AI Payload:", validated_data.model_dump_json(indent=2))
+services:
+  notion-fastmcp-gateway:
+    image: python:3.11-slim
+    container_name: notion-fastmcp-gateway
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run notion_mcp_server.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NOTION_TOKEN=${NOTION_TOKEN}
+    volumes:
+      - ./notion_mcp_server.py:/app/notion_mcp_server.py:ro
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; print('OK')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
 ```
 
-## Feature & Knowledge Comparison Matrix
+### Systemd Service Unit Specification
 
-| Capability | Notion AI | Obsidian + Copilot | Logseq + Local AI | Coda AI |
-| :--- | :--- | :--- | :--- | :--- |
-| **Workspace Integration** | Native Native Blocks | Plugin / Local Files | Plugin / Markdown | Native Tables & Docs |
-| **Q&A RAG Engine** | Auto Workspace Index | Local Vector DB (Ollama) | Local Vector DB | Auto Workspace Index |
-| **FastMCP 3.1 Gateway**| Native Connector | Extension Plugin | Community Plugin | Community Bridge |
-| **Data Privacy** | Cloud / Enterprise Terms | 100% Local / Zero Cloud | 100% Local / Zero Cloud | Cloud / Enterprise Terms |
-| **Multi-Model Support**| GPT-5.6 / Claude 5.6 | Ollama / Custom API | Ollama / Custom API | GPT-5.6 / Claude 5.6 |
-| **Pricing Tier** | ~$10 / user / mo | Free / BYO Key | Free / BYO Key | ~$12 / user / mo |
+For host-level Linux deployments, install the following systemd service unit:
 
-## Operational & Troubleshooting Guide
+```ini
+[Unit]
+Description=Notion AI FastMCP Gateway Daemon
+After=network.target
 
-### 1. Workspace Q&A Incomplete Retrieval
-- **Symptom**: Notion Q&A returns missing or outdated answers for recently edited pages.
-- **Cause**: Ingestion vector pipeline indexing latency (can take 2-5 minutes for major block edits).
-- **Resolution**:
-  For immediate agent context availability, fetch page blocks directly via the REST API or FastMCP connector rather than relying solely on asynchronous Q&A indexing.
+[Service]
+Type=simple
+User=notion-agent
+Group=notion-agent
+WorkingDirectory=/opt/notion-gateway
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run notion_mcp_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/etc/notion-gateway/env
 
-### 2. FastMCP 3.1 Unauthorized (401) Error
-- **Symptom**: FastMCP server queries return `401 Unauthorized` response.
-- **Cause**: Integration token lacks access permissions to target parent pages or databases.
-- **Resolution**:
-  In Notion, navigate to the target top-level page -> **... (Menu)** -> **Add connections** -> Select your Integration name to grant read/write scope.
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadOnlyPaths=/opt/notion-gateway
 
-### 3. API Rate Limit Exceeded (HTTP 429)
-- **Symptom**: Automated agent scripts crash with HTTP 429 status code.
-- **Cause**: Exceeded Notion API baseline limit of 3 requests per second per integration.
-- **Resolution**: Implement exponential backoff in python requests:
-  ```python
-  from urllib3.util import Retry
-  from requests.adapters import HTTPAdapter
+[Install]
+WantedBy=multi-user.target
+```
 
-  session = requests.Session()
-  retries = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503])
-  session.mount('https://', HTTPAdapter(max_retries=retries))
-  ```
+## Operational Best Practices
+
+1. **Integration Connection Sharing**: Remember to explicitly share top-level parent pages with the integration bot in the Notion UI (**... -> Add Connections**), or child pages will return empty result sets.
+2. **API Rate Limit Resilience**: Enforce retries with exponential backoff on HTTP 429 rate limit errors (Notion enforces a baseline limit of 3 requests per second per token).
+3. **Sensitive Key Storage**: Never commit `NOTION_TOKEN` secrets into source code or repository files; load via system environment or encrypted secret vaults.
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Error | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **HTTP 401 Unauthorized** | Invalid or expired `NOTION_TOKEN` bearer secret | `curl -H "Authorization: Bearer $NOTION_TOKEN" https://api.notion.com/v1/users/me` | Regenerate internal integration token in Notion developer portal. |
+| **Empty Search Results (0 items)** | Target parent pages not shared with integration bot | `curl -X POST https://api.notion.com/v1/search -H "Authorization: Bearer $NOTION_TOKEN"` | In Notion UI, navigate to target page menu and add connection to integration. |
+| **HTTP 429 Rate Limit Exceeded** | Query rate exceeded 3 requests/second threshold | `python3 notion_mcp_server.py --test-rate` | Add exponential backoff retry wrapper to API requests. |
 
 ## Related tools / concepts
 - [Obsidian](./obsidian.md) — Local-first markdown knowledge base alternative.
-- [Logseq](./logseq.md) — Graph-based local alternative.
-- [ChatGPT](./chatgpt.md) — Standalone chat assistant.
-- [n8n](../../services/n8n.md) — Workflow automation system.
-- [AnyType](../intake_storage/anytype.md) — Privacy-first decentralized workspace.
-- [SilverBullet](../intake_storage/silverbullet.md) — Extensible markdown workspace.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for agent tool connectivity.
+- [Logseq](./logseq.md) — Privacy-focused graph knowledge tool.
+- [n8n](../../services/n8n.md) — Workflow automation integration.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Agent connection protocol.
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/ai)
 - [Notion Developers API](https://developers.notion.com/)
 - [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
-- [FastMCP 3.1 Gateway Repository](https://github.com/jina-ai/fastmcp)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

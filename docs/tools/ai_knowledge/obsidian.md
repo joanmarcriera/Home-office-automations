@@ -1,7 +1,11 @@
 # Obsidian
 
 ## What it is
-Obsidian is a personal knowledge management (PKM) application built on top of a local vault of plain-text Markdown files. Highly extensible through community plugins and core modules, Obsidian supports native Model Context Protocol (**FastMCP 3.1**) integration as of early January 2027. Obsidian prioritizes total data ownership, local-first operation, and long-term file longevity.
+Obsidian is an extensible personal knowledge management (PKM) and local-first notes application built on top of a plain-text vault of Markdown files. Featuring native Model Context Protocol (FastMCP 3.1) server tools as of early 2027, Obsidian serves as a primary local knowledge base for AI coding agents (**Claude Code**, **Jules**, **Cursor**), providing local-first data ownership, graph visualization, and high-performance vector retrieval across private vaults.
+
+## System Architecture
+
+Obsidian operates as a local-first application where all note content, YAML metadata, and canvas files remain stored in standard filesystem folders. FastMCP 3.1 servers bridge the local Markdown vault to external AI agents and RAG pipelines:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -22,15 +26,28 @@ Obsidian is a personal knowledge management (PKM) application built on top of a 
 └──────────────┘               └──────────────┘               └──────────────┘
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as AI Agent (Claude Code / Jules)
+    participant FastMCP as FastMCP 3.1 Obsidian Server
+    participant Vault as Local Obsidian Markdown Vault
+    participant VectorDB as Local Chroma Vector Store
+
+    Agent->>FastMCP: Request Vault Search / Context Retrieval (Pydantic v2 Spec)
+    FastMCP->>Vault: Read Frontmatter Metadata & Plaintext Blocks
+    FastMCP->>VectorDB: Compute HNSW Vector Embeddings for Vault Snippets
+    VectorDB-->>FastMCP: Return Top-K Ranked Semantic Matches
+    FastMCP-->>Agent: Output Structured JSON / Markdown Note Context
+    Agent->>FastMCP: Append Daily Log / Create Bidirectional Link
+    FastMCP->>Vault: Write Atomic Markdown Note File
+```
+
 ## What problem it solves
-It solves the risk of vendor lock-in, proprietary file formats, and data privacy exposure common in cloud note-taking services. By storing notes as plain Markdown files on local storage, Obsidian ensures notes remain accessible to standard text editors, version control systems, and local scripts. This architecture provides a private knowledge base for Retrieval-Augmented Generation (RAG) pipelines without transmitting sensitive data to external servers.
-
-In modern agentic KnowledgeOps, AI agents require safe, structured interfaces to inspect personal knowledge vaults, extract references, and generate daily log entries. Obsidian's plain-text architecture makes it exceptionally compatible with local indexing utilities and FastMCP 3.1 protocol servers.
-
-Furthermore, Obsidian eliminates cloud synchronization bottlenecks by permitting peer-to-peer folder synchronization using open tools like Syncthing or Git.
+It eliminates vendor lock-in, proprietary cloud databases, and privacy leaks inherent in cloud note applications (like Notion or Evernote). Storing notes as plain Markdown files on local disk ensures long-term file longevity, instant offline accessibility, and zero-latency text manipulation using standard tools (`grep`, `rg`, `git`, Python). In agentic workflows, it solves the "agent persistent long-term memory" problem by serving as a human-readable, machine-queryable, and local-first memory store for **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
 ## Where it fits in the stack
-**AI & Knowledge** — serves as a primary personal knowledge base storing plain Markdown notes. It functions as a privacy-focused knowledge repository within the home-office ecosystem, providing local RAG context for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4**.
+**Category**: AI & Knowledge / Personal Knowledge Management. Obsidian resides at the **Knowledge Capture & Local RAG Memory Layer**, providing plain-text context for local RAG pipelines, agentic task orchestration, and personal KnowledgeOps.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -45,243 +62,259 @@ Furthermore, Obsidian eliminates cloud synchronization bottlenecks by permitting
 ```
 
 ## Typical use cases
-- Building a personal knowledge graph using bidirectional links, block references, and dynamic graph views.
-- Authoring documentation, research notes, technical playbooks, and daily logs.
-- Integrating agentic workflows where **Claude 5.1** or **GPT-5.5** securely queries local notes via **FastMCP 3.1**.
-- Executing local-first RAG pipelines over private vaults without cloud vector databases.
-- Mapping complex multi-topic concepts using the built-in Canvas and Graph interfaces.
+- **Personal Knowledge Graphs**: Connecting ideas through bidirectional links (`[[Link]]`), block references, and interactive 2D/3D graph views.
+- **Agent Long-Term Memory Storage**: Storing daily execution logs, technical decision records, and system playbooks accessible by AI tools via FastMCP 3.1.
+- **Local RAG Pipeline Ingestion**: Supplying contextual embeddings directly to local LLMs (Ollama, vLLM) without transmitting proprietary notes to third-party clouds.
+- **Canvas Workflow Modeling**: Designing visual architecture diagrams and workflow trees using Obsidian Canvas JSON files.
+
+## Detailed Comparison Matrix
+
+| Feature / Metric | Obsidian | Logseq | Anytype | SilverBullet |
+| :--- | :--- | :--- | :--- | :--- |
+| **Storage Format** | Plain Markdown Files | Markdown / Org-mode | Local Object Store | Plain Markdown Files |
+| **FastMCP 3.1 Support** | SOTA Community Plugins | Community MCP Plugin | Custom REST Gateway | Native Webhooks/MCP |
+| **Bidirectional Links** | Native (`[[Link]]`) | Native (`[[Link]]`) | Object Relations | Native (`[[Link]]`) |
+| **Graph View** | Interactive 2D/3D Graph | Dynamic Canvas Graph | Visual Object Graph | Link Visualizer |
+| **License Model** | Closed Core / Open Data | Open Source (AGPL) | Open Source (AGPL) | Open Source (MIT) |
+| **Sync Options** | Obsidian Sync / Git / Syncthing | Git / Sync Service | P2P Anysync Network | Self-hosted Server |
 
 ## Strengths
-- **100% Data Ownership**: Notes are plain Markdown files stored locally, ensuring zero vendor lock-in.
-- **Agentic Integration**: Native **FastMCP 3.1** server plugins allow AI agents to search, read, create, and link notes via standard tool protocols.
-- **Extensible Ecosystem**: Thousands of community plugins available for Kanban boards, Dataview queries, and local AI assistance.
-- **Local-First Architecture**: Operates completely offline, offering low latency and maximum privacy.
-- **Deep Interlinking**: Fine-grained block references and backlink analysis foster semantic connections between ideas.
+- **100% Data Sovereignty**: Notes exist as standard `.md` files on local storage, guaranteeing total data ownership and zero vendor lock-in.
+- **FastMCP 3.1 Protocol Integration**: Native FastMCP servers allow agents to search notes, create backlinks, and update frontmatter via standardized tools.
+- **Rich Plugin Ecosystem**: Thousands of community plugins for Dataview queries, Kanban boards, and local AI completion.
+- **Zero-Latency Offline Execution**: Runs completely offline with instant search performance.
 
 ## Limitations
-- **Proprietary Application**: The desktop and mobile applications are closed-source, though the underlying data format (Markdown) is open.
-- **Sync Setup**: Cross-device synchronization requires Obsidian Sync or manual configuration using Git, Tailscale, or Syncthing.
-- **Extension Overhead**: Large plugin suites require ongoing maintenance and configuration management.
+- **Closed Core Application**: The application UI code is proprietary, although the underlying data format (Markdown) is open and standardized.
+- **Sync Setup Overhead**: Cross-device synchronization requires Obsidian Sync or self-hosted tools (Syncthing, Git).
 
 ## When to use it
-- When building a highly customizable, local-first knowledge base with an active community plugin ecosystem.
-- When long-term data preservation in plain Markdown is essential.
-- When providing frontier AI models with private contextual access to notes via local FastMCP 3.1 servers.
+- When building a local-first, highly customizable personal knowledge base in plain Markdown.
+- When providing local AI coding agents with private context via FastMCP 3.1 servers.
+- When long-term data ownership and zero vendor lock-in are essential.
 
 ## When not to use it
-- When requiring an entirely open-source core application (consider [Logseq](logseq.md) instead).
-- When real-time, concurrent multi-user document editing is required.
-- When preferring an outliner-only interface over document-focused Markdown.
-
-## Feature Capability Matrix
-
-| Feature | Obsidian | Logseq | Anytype | SilverBullet |
-| :--- | :--- | :--- | :--- | :--- |
-| **Data Format** | Plain Markdown | Markdown / Org-mode | Local Object Store | Plain Markdown |
-| **FastMCP 3.1 Support** | SOTA Community Plugins | Community MCP | Custom API | Native Webhooks/MCP |
-| **Bidirectional Links** | Native (`[[Link]]`) | Native (`[[Link]]`) | Object Relations | Native (`[[Link]]`) |
-| **Graph View** | Interactive 2D/3D | Dynamic Graph | Visual Object Graph | Link Visualizer |
-| **License** | Closed Core / Open Format | Open Source (AGPL) | Open Source (AGPL) | Open Source (MIT) |
+- When real-time concurrent multi-user editing is required.
+- If you prefer an entirely open-source application core (consider Logseq instead).
 
 ## Getting started
 
-### Installation
-Obsidian is available for macOS, Windows, Linux, iOS, and Android.
-Download the installer from the [official website](https://obsidian.md/download).
+Download the installer from [obsidian.md](https://obsidian.md/) and point it at a local directory.
 
-### Recommended Initial Setup
-1. **Create Vault**: Select a local directory to host your Markdown notes.
-2. **Community Plugins**: Navigate to `Settings` -> `Community plugins` and enable third-party plugins.
-3. **Core Modules**: Enable `Daily notes`, `Graph view`, `Canvas`, and `Backlinks`.
-4. **FastMCP Server**: Install the 'MCP Obsidian' plugin to enable agentic tool integration.
+### Quick Setup Steps
+1. **Initialize Vault**: Select or create a local folder for storing your Markdown notes.
+2. **Enable FastMCP Server**: Install the 'MCP Obsidian' plugin to expose FastMCP 3.1 tool interfaces to AI clients like Claude Code.
 
 ## CLI examples
 
-### 1. Triggering Note Actions via URI
-Obsidian supports custom URI calls for terminal-based automation:
 ```bash
-# Open a specific vault note
-open "obsidian://open?vault=my-vault&file=my-note"
-
-# Create a new note with content
-open "obsidian://new?vault=my-vault&name=meeting-notes&content=Discuss%20Claude%205-1%20integration"
-```
-
-### 2. Searching Notes via Grep
-Query notes directly using standard command-line utilities:
-```bash
-# Search for specific terms across vault files
-grep -r "FastMCP 3.1" ~/Documents/ObsidianVault/
-```
-
-### 3. Local Vault Indexing
-Index vault Markdown files for vector search using local embedding utilities:
-```bash
-python3 scripts/obsidian_incremental_indexing.py --vault ~/ObsidianVault --db ./data/chroma_db
+# Search vault notes using ripgrep
+rg -i "FastMCP 3.1" ~/Documents/ObsidianVault/
 ```
 
 ## API examples
 
-### Dataview Inline Query
-Using the Dataview plugin JS API to list recently updated notes:
+### FastMCP 3.1 Obsidian Vault Server & Pydantic v2 Validation Schema
 
-```javascript
-// List notes modified today in the Projects directory
-dv.list(dv.pages('"Projects"').where(p => p.file.mday.toISODate() == dv.date('today').toISODate()).file.link);
-```
-
-### Python: FastMCP 3.1 Local Obsidian Server Bridge
-The following Python script demonstrates building a custom FastMCP 3.1 server to allow AI agents to query and write Markdown notes in an Obsidian vault:
+The Python script below builds a production FastMCP 3.1 server enabling AI agents to search notes, query frontmatter, and append logs to an Obsidian vault with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import os
+import json
 import pathlib
 import frontmatter
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Obsidian-Vault-Server")
+mcp = FastMCP("Obsidian-Vault-FastMCP-Server", version="3.1.0")
 
-class VaultSearchRequest(BaseModel):
-    query: str = Field(..., description="Keyword or phrase to search within vault Markdown files")
-    vault_path: str = Field(default="~/Documents/ObsidianVault", description="Path to local vault root")
-    max_results: int = Field(default=5, ge=1, le=50)
+class VaultSearchSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-class NoteSearchResult(BaseModel):
+    query: str = Field(..., min_length=2, description="Search term or regex pattern")
+    vault_path: str = Field(default="~/Documents/ObsidianVault", description="Root vault directory path")
+    max_results: int = Field(default=5, ge=1, le=50, description="Max matching notes to return")
+
+    @field_validator("query")
+    @classmethod
+    def validate_query(cls, val: str) -> str:
+        if not val.strip():
+            raise ValueError("Query string cannot be empty.")
+        return val.strip()
+
+class NoteMatchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     file_name: str
     relative_path: str
-    matching_snippet: str
+    snippet: str
 
-class VaultSearchResponse(BaseModel):
-    results: List[NoteSearchResult]
-    total_matches: int
-    status: str = Field(default="success")
+class VaultSearchResponsePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    status: str
+    match_count: int
+    matches: List[NoteMatchResult]
 
-@mcp.tool()
-def search_obsidian_notes(request: VaultSearchRequest) -> VaultSearchResponse:
-    """Searches local Obsidian vault notes for matching text keywords."""
-    vault = pathlib.Path(os.path.expanduser(request.vault_path))
-    if not vault.exists() or not vault.is_dir():
-        return VaultSearchResponse(results=[], total_matches=0, status="error: vault directory not found")
+class AppendNoteSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    note_relative_path: str = Field(..., description="Target note path relative to vault root e.g. Daily/2027-01-07.md")
+    content_to_append: str = Field(..., description="Markdown text to append to file")
+    vault_path: str = Field(default="~/Documents/ObsidianVault", description="Root vault directory path")
 
-    matches = []
-    for md_path in vault.rglob("*.md"):
-        try:
-            content = md_path.read_text(encoding="utf-8")
-            if request.query.lower() in content.lower():
-                idx = content.lower().find(request.query.lower())
-                snippet = content[max(0, idx-50):min(len(content), idx+150)].replace("\n", " ")
-                matches.append(NoteSearchResult(
-                    file_name=md_path.name,
-                    relative_path=str(md_path.relative_to(vault)),
-                    matching_snippet=f"...{snippet}..."
-                ))
-                if len(matches) >= request.max_results:
-                    break
-        except Exception:
-            continue
+@mcp.tool(name="search_obsidian_notes", description="Searches local Obsidian Markdown vault files for matching text keywords via FastMCP 3.1.")
+def search_obsidian_notes(spec_json: str) -> str:
+    """Parses search specification, scans vault Markdown files, and returns validated JSON response."""
+    try:
+        raw_data = json.loads(spec_json) if isinstance(spec_json, str) else spec_json
+        spec = VaultSearchSpec.model_validate(raw_data)
 
-    return VaultSearchResponse(results=matches, total_matches=len(matches), status="success")
+        vault = pathlib.Path(os.path.expanduser(spec.vault_path))
+        if not vault.exists() or not vault.is_dir():
+            return json.dumps({"status": "ERROR", "message": f"Vault path '{spec.vault_path}' not found."})
+
+        results = []
+        for md_path in vault.rglob("*.md"):
+            try:
+                content = md_path.read_text(encoding="utf-8")
+                if spec.query.lower() in content.lower():
+                    idx = content.lower().find(spec.query.lower())
+                    snippet_text = content[max(0, idx-40):min(len(content), idx+120)].replace("\n", " ")
+                    results.append(NoteMatchResult(
+                        file_name=md_path.name,
+                        relative_path=str(md_path.relative_to(vault)),
+                        snippet=f"...{snippet_text}..."
+                    ))
+                    if len(results) >= spec.max_results:
+                        break
+            except Exception:
+                continue
+
+        res = VaultSearchResponsePayload(status="SUCCESS", match_count=len(results), matches=results)
+        return json.dumps(res.model_dump(), indent=2)
+
+    except ValidationError as err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": err.errors()})
+    except Exception as err:
+        return json.dumps({"status": "ERROR", "message": str(err)})
+
+@mcp.tool(name="append_to_obsidian_note", description="Appends Markdown content to a specified note in the local vault.")
+def append_to_obsidian_note(spec_json: str) -> str:
+    """Validates append spec and appends text to target note file."""
+    try:
+        raw_data = json.loads(spec_json) if isinstance(spec_json, str) else spec_json
+        spec = AppendNoteSpec.model_validate(raw_data)
+
+        vault = pathlib.Path(os.path.expanduser(spec.vault_path))
+        target_file = vault / spec.note_relative_path
+
+        if not target_file.exists():
+            target_file.parent.mkdir(parents=True, exist_ok=True)
+            target_file.write_text(f"# {target_file.stem}\n\n", encoding="utf-8")
+
+        with open(target_file, "a", encoding="utf-8") as f:
+            f.write(f"\n{spec.content_to_append}\n")
+
+        return json.dumps({"status": "SUCCESS", "updated_file": str(spec.note_relative_path)}, indent=2)
+    except ValidationError as err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": err.errors()})
+    except Exception as err:
+        return json.dumps({"status": "ERROR", "message": str(err)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Python: Validating Note Metadata with Pydantic v2
-Parse YAML frontmatter from Obsidian Markdown files using strict **Pydantic v2** validation schemas:
+## Production Deployment & Systemd Service Architecture
 
-```python
-import pathlib
-import frontmatter
-from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+### Container Orchestration with Docker Compose
 
-class NoteMetadataSchema(BaseModel):
-    title: str = Field(..., description="Note title from frontmatter or filename")
-    last_reviewed: datetime = Field(..., description="ISO review timestamp")
-    confidence: str = Field(default="high")
-    tags: list[str] = Field(default_factory=list)
+Deploy the Obsidian FastMCP vault server microservice in a containerized environment using Docker Compose:
 
-    @field_validator("confidence")
-    @classmethod
-    def validate_confidence(cls, v: str) -> str:
-        allowed = {"high", "medium", "low"}
-        if v.lower() not in allowed:
-            raise ValueError(f"Confidence must be one of {allowed}")
-        return v.lower()
+```yaml
+version: "3.8"
 
-def load_and_validate_note(file_path: pathlib.Path) -> NoteMetadataSchema:
-    post = frontmatter.load(file_path)
-    metadata = NoteMetadataSchema(
-        title=post.get("title", file_path.stem),
-        last_reviewed=post.get("Last reviewed", datetime.now()),
-        confidence=post.get("Confidence", "high"),
-        tags=post.get("tags", [])
-    )
-    return metadata
-
-note_file = pathlib.Path.home() / "ObsidianVault/Architecture.md"
-if note_file.exists():
-    validated = load_and_validate_note(note_file)
-    print("Validated note metadata:")
-    print(validated.model_dump())
+services:
+  obsidian-fastmcp-server:
+    image: python:3.11-slim
+    container_name: obsidian-fastmcp-server
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run obsidian_mcp_server.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OBSIDIAN_VAULT_PATH=/var/obsidian_vault
+    volumes:
+      - ./vault_storage:/var/obsidian_vault:rw
+      - ./obsidian_mcp_server.py:/app/obsidian_mcp_server.py:ro
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import os; print(os.path.exists('/var/obsidian_vault'))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
 ```
 
-### FastMCP 3.1 Tool Request Schema
-An agent running **Claude 5.1** or **GPT-5.5** uses this FastMCP 3.1 payload to search Obsidian notes:
+### Systemd Service Unit Specification
 
-```json
-{
-  "tool": "obsidian_search",
-  "arguments": {
-    "query": "FastMCP 3.1 architecture standards",
-    "vault": "MainVault",
-    "limit": 5
-  }
-}
+For host-level Linux deployments managing the Obsidian vault FastMCP daemon, install the following systemd service unit:
+
+```ini
+[Unit]
+Description=Obsidian Vault FastMCP 3.1 Server Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=obsidian-agent
+Group=obsidian-agent
+WorkingDirectory=/opt/obsidian-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run obsidian_mcp_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=OBSIDIAN_VAULT_PATH=/home/obsidian-agent/ObsidianVault
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadWritePaths=/home/obsidian-agent/ObsidianVault
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-## Performance & Indexing Benchmarks
+## Operational Best Practices
 
-| Vault Scale | File Count | Incremental Indexing Time | Full Vector Embed Time | FastMCP Search Latency |
-| :--- | :--- | :--- | :--- | :--- |
-| **Small Vault** | 250 notes | 0.8 seconds | 4.2 seconds | 12 ms |
-| **Medium Vault** | 1,500 notes | 3.1 seconds | 22.5 seconds | 28 ms |
-| **Large Enterprise Vault** | 10,000 notes | 18.2 seconds | 145.0 seconds | 85 ms |
+1. **Automated Atomic Link Renaming**: Enable Obsidian's native "Automatically update internal links" setting so file renames automatically refactor `[[WikiLinks]]` across all notes.
+2. **Git Auto-Commit Backup**: Configure background automated git backup commits using the Obsidian Git community plugin or a cron script (`git commit -m "Auto vault sync"`).
+3. **Structured Frontmatter Validation**: Maintain consistent YAML frontmatter keys (`title`, `last_reviewed`, `confidence`, `tags`) to allow Pydantic v2 schemas to parse note metadata reliably.
 
-## Troubleshooting & Diagnostics
+## Diagnostic Troubleshooting Matrix
 
-### 1. Broken Internal Links / Orphaned Attachments
-- **Symptom**: Unresolved `[[Link]]` warnings or unreferenced image assets cluttering vault storage.
-- **Cause**: Renaming Markdown files outside of Obsidian interface without atomic link updates.
-- **Resolution**:
-  - Use Obsidian's built-in "Automatically update internal links" setting.
-  - Run `scripts/fix_internal_links.py` across the vault directory.
-
-### 2. FastMCP Plugin Connection Refused
-- **Symptom**: Claude Desktop or agent framework fails to communicate with local Obsidian FastMCP bridge.
-- **Cause**: Local socket port collision or missing CORS authorization in Obsidian MCP plugin settings.
-- **Resolution**:
-  - Verify server port (default 3000 or stdio pipe) in `mcp_config.json`.
-  - Ensure Obsidian application is actively running with the FastMCP plugin toggled ON.
-
-### 3. Frontmatter YAML Parsing Errors
-- **Symptom**: Dataview queries or Python frontmatter parsers fail with syntax exceptions.
-- **Cause**: Unquoted special characters or unindented YAML list items.
-- **Resolution**:
-  - Wrap string values containing colons or quotes in double quotes.
-  - Run `scripts/audit_docs_quality.py` or frontmatter linting tools.
+| Symptom / Error | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Broken [[WikiLinks]] Warnings** | File renamed outside of Obsidian UI without updating link references | `grep -rn "[[OldFileName]]" ~/ObsidianVault` | Run `scripts/fix_internal_links.py` or enable "Automatically update internal links" in settings. |
+| **FastMCP Connection Refused** | Local FastMCP server port collision or plugin toggled off | `netstat -tuln \| grep 8000` | Verify port availability and confirm FastMCP plugin status in Obsidian settings. |
+| **YAML Frontmatter Parsing Failure** | Unquoted colons or unindented list formatting in frontmatter | `python3 -c "import frontmatter; frontmatter.load('file.md')"` | Enclose string values with special characters in quotes and validate YAML syntax. |
 
 ## Related tools / concepts
 - [Logseq](logseq.md) - Outliner-based local Markdown PKM alternative.
 - [Anytype](../intake_storage/anytype.md) - Local-first, object-oriented PKM software.
 - [SilverBullet](../intake_storage/silverbullet.md) - Extensible Markdown wiki system.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Communication standard for agentic note access (FastMCP 3.1).
-- [Claude](../ai_knowledge/claude.md) - Frontier model commonly paired with Obsidian for research synthesis.
-- [Syncthing](../../services/syncthing.md) - Open-source utility for cross-device vault synchronization.
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) - Implementing retrieval pipelines over private Obsidian notes.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) - Standard for agent note access.
+- [Syncthing](../../services/syncthing.md) - Open-source tool for cross-device vault synchronization.
 
 ## Sources / references
 - [Obsidian Official Website](https://obsidian.md/)
