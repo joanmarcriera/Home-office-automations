@@ -10,6 +10,30 @@ Key capabilities include:
 - **Adaptive Personal Voice Modeling**: Trains personalized persona models on sent communication histories to ensure generated drafts maintain tone, style, and terminology consistency.
 - **Enterprise FastMCP 3.1 Integration**: Connects executive workflows directly into enterprise issue trackers (Jira, Linear) and database stores via standardized tool servers.
 
+## Workflow Orchestration & Sequence Architecture
+The following sequence diagram illustrates the lifecycle of incoming executive emails, voice persona alignment checking, FastMCP 3.1 triage routing, and automated draft synthesis:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Exec as Executive / Delegate
+    participant Workspace as Workspace Mail Engine (Gmail/Outlook)
+    participant Gateway as Fyxer Gateway & Triage Router
+    participant VoiceModel as Adaptive Voice Persona Engine
+    participant FastMCP as FastMCP 3.1 Enterprise Tools (Jira/Linear)
+    participant LLM as Frontier LLM Runtime (Claude 5.6 / GPT-5.6)
+
+    Workspace->>Gateway: Webhook Push (`email.received`)
+    Gateway->>VoiceModel: Query Active Voice Profile & Writing Rules
+    VoiceModel-->>Gateway: Return Terminology Matrix & Tone Embeddings
+    Gateway->>FastMCP: Check Calendar Conflicts & CRM Metadata
+    FastMCP-->>Gateway: Return Calendar Free/Busy & Client Profile
+    Gateway->>LLM: Synthesize Contextual Draft & Priority Score
+    LLM-->>Gateway: Return Draft Response & Action Items
+    Gateway->>Workspace: Insert Staging Draft in Executive Inbox
+    Gateway->>Exec: Dispatch Real-Time Triage Digest Notification
+```
+
 ## What problem it solves
 Executive leadership teams and senior management spend upwards of 15–20 hours per week managing inbox overload, negotiating calendar conflicts, manually summarizing meetings, and routing task assignments. Traditional email filters and simple template tools lack semantic reasoning and contextual awareness, requiring constant manual intervention.
 
@@ -45,6 +69,16 @@ Fyxer AI operates at the **Enterprise Workflow & Productivity Layer**, bridging 
 │ - Context-Aware Response Generation   │ │ - CRM & ERP Database Updates │
 └───────────────────────────────────────┘ └──────────────────────────────┘
 ```
+
+## Feature Comparison Matrix
+
+| Capability / Feature | Fyxer AI Platform | Legacy Email Rules / Filters | Generic AI Assistant | Manual Executive Assistant |
+| :--- | :--- | :--- | :--- | :--- |
+| **Voice Persona Fidelity** | High (Deep fine-tuning on sent mail) | None (Static text) | Low (Generic prompt) | High (Human learning) |
+| **Autonomous Scheduling** | End-to-end multi-party negotiation | Manual link sharing | Single-slot selection | Full human negotiation |
+| **FastMCP 3.1 Integration** | Native server & client tools | None | Custom API wrapper | None |
+| **Action Extraction** | Structured JSON with Jira/Linear sync | None | Text notes only | Manual entry |
+| **Response Latency** | < 45 seconds | Instant (Rule match) | 10–30 seconds | Hours to Days |
 
 ## Typical use cases
 - **Executive Inbox Delegation**: Managing high-volume executive email streams by auto-generating drafted replies, triaging urgent messages, and archiving routine updates.
@@ -84,6 +118,66 @@ To record, transcribe, and extract action items from any calendar event, add `as
 
 ```bash
 # Simply invite assistant@fyxer.com as a participant in your Google Calendar or Outlook invite.
+```
+
+## Systemd Service Configuration
+For self-hosted edge gateways proxying Fyxer AI FastMCP traffic (`/etc/systemd/system/fyxer-mcp-gateway.service`):
+
+```ini
+[Unit]
+Description=Fyxer AI FastMCP Executive Gateway Service
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fyxer
+Group=fyxer
+WorkingDirectory=/opt/fyxer-mcp-gateway
+ExecStart=/usr/local/bin/python3 -m fyxer_mcp.gateway --port 8092 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=FYXER_API_TOKEN=fyx_sec_991122334455
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/fyxer-mcp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment
+Deploying the self-hosted Fyxer FastMCP integration proxy stack (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  fyxer-gateway:
+    image: python:3.11-slim
+    container_name: fyxer-mcp-gateway
+    restart: unless-stopped
+    command: python3 -m fyxer_mcp.gateway
+    ports:
+      - "8092:8092"
+    environment:
+      - FYXER_API_TOKEN=${FYXER_API_TOKEN}
+      - WORKSPACE_OAUTH_TOKEN=${WORKSPACE_OAUTH_TOKEN}
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./logs:/var/log/fyxer-mcp
+      - ./config:/opt/fyxer-mcp-gateway/config:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 ```
 
 ## CLI examples
@@ -129,15 +223,17 @@ curl -X POST "https://api.fyxer.com/v1/meetings/dispatch" \
 ## API examples
 
 ### Fetching Executive Briefings in Python with Pydantic v2
-The following production script demonstrates retrieving daily executive briefings, parsing pending email drafts, and validating the complete response schema using **Pydantic v2**:
+The following production script demonstrates retrieving daily executive briefings, parsing pending email drafts, and validating the complete response schema using **Pydantic v2** (`extra="forbid"`):
 
 ```python
 import os
 import requests
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, ValidationError, ConfigDict
 
 class ActionItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     item_id: str = Field(..., description="Unique action item identifier")
     task: str = Field(..., description="Task summary extracted from email or meeting")
     source_type: str = Field(..., description="Originating source (email, meeting, calendar)")
@@ -146,6 +242,8 @@ class ActionItem(BaseModel):
     assignee: Optional[str] = Field(None, description="Assigned team member or executive")
 
 class PendingEmailDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     draft_id: str = Field(..., description="Unique draft identifier in workspace")
     recipient: str = Field(..., description="Target email address")
     subject: str = Field(..., description="Generated message subject line")
@@ -153,6 +251,8 @@ class PendingEmailDraft(BaseModel):
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Voice persona alignment confidence score")
 
 class FyxerDailyBrief(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     brief_id: str = Field(..., description="Unique daily brief ID")
     generated_at: str = Field(..., description="ISO timestamp of brief creation")
     executive_summary: str = Field(..., description="High-level summary of inbox and calendar state")
@@ -213,37 +313,61 @@ if __name__ == "__main__":
 ```
 
 ### FastMCP 3.1 Tool Adapter
-The following Python script implements a **FastMCP 3.1** server that exposes Fyxer AI executive actions as standardized tools for multi-agent ecosystems:
+The following Python script implements a **FastMCP 3.1** server that exposes Fyxer AI executive actions as standardized tools for multi-agent ecosystems with strict Pydantic v2 validation (`extra="forbid"`):
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import os
 
-mcp = FastMCP("Fyxer-Executive-MCP-Server")
+mcp = FastMCP("Fyxer-Executive-MCP-Server", version="3.1.0")
 
 class FastMCPScheduleRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     attendees: list[str] = Field(..., description="List of attendee email addresses")
-    duration_minutes: int = Field(default=30, ge=15, description="Meeting duration in minutes")
-    topic: str = Field(..., description="Meeting topic and context")
+    duration_minutes: int = Field(default=30, ge=15, le=480, description="Meeting duration in minutes")
+    topic: str = Field(..., min_length=3, description="Meeting topic and context")
     preferred_time_window: str = Field(default="this_week", description="Preferred time range")
 
+class FastMCPScheduleResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(..., description="Execution status code")
+    negotiation_id: str = Field(..., description="Unique calendar negotiation task ID")
+    topic: str = Field(..., description="Confirmed meeting subject")
+    attendees_contacted: list[str] = Field(..., description="List of invited addresses")
+    message: str = Field(..., description="Detailed status message")
+
 @mcp.tool()
-async def schedule_executive_meeting(request: FastMCPScheduleRequest) -> dict:
-    """Delegates autonomous calendar negotiation to Fyxer AI."""
-    # FastMCP Tool Handler Logic
-    return {
-        "status": "initiated",
-        "negotiation_id": "neg_2027_001",
-        "topic": request.topic,
-        "attendees_contacted": request.attendees,
-        "message": "Fyxer AI has initiated calendar negotiation email threads.",
-        "fastmcp_version": "3.1"
-    }
+async def schedule_executive_meeting(request: FastMCPScheduleRequest) -> str:
+    """Delegates autonomous calendar negotiation to Fyxer AI with FastMCP 3.1."""
+    response = FastMCPScheduleResponse(
+        status="initiated",
+        negotiation_id="neg_2027_001",
+        topic=request.topic,
+        attendees_contacted=request.attendees,
+        message="Fyxer AI has initiated calendar negotiation email threads."
+    )
+    return response.model_dump_json(indent=2)
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(host="0.0.0.0", port=8092)
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Symptom / Issue | Probable Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`OAuth Token Expired (401 Unauthorized)`** | Workspace refresh token revoked or expired in Google Workspace / Azure AD | Re-authenticate workspace admin connection in Fyxer Admin Portal and update OAuth secret. |
+| **`Voice Persona Alignment Mismatch`** | Insufficient sent mail samples (<100 messages) in voice training queue | Run `curl -X POST https://api.fyxer.com/v1/voice/sync` with `min_sample_count: 250`. |
+| **`FastMCP Gateway Connection Refused`** | Daemon `fyxer-mcp-gateway.service` inactive on port 8092 | Run `systemctl restart fyxer-mcp-gateway` and verify `journalctl -u fyxer-mcp-gateway`. |
+| **`Meeting Bot Unable to Join Call`** | Missing guest permissions or external bot blocking enabled in Zoom/Teams | Whitelist `assistant@fyxer.com` domain in organization video conferencing tenant settings. |
+
+## Operational Best Practices & Guardrails
+1. **Delegation Guardrail Thresholds**: Set explicit monetary or legal thresholds in Fyxer rules so drafts involving commitments over $5,000 require manual sign-off.
+2. **Audit Trail Retention**: Enable automated logging of all drafted email responses and meeting transcriptions to compliant cloud storage for SOC 2 compliance.
+3. **Pydantic v2 Schema Enforcement**: Always utilize `extra="forbid"` on all API models to prevent unvalidated field injection in automated executive tasks.
 
 ## Related tools / concepts
 - [tldv](tldv.md) — AI meeting recorder and transcript summarizer.

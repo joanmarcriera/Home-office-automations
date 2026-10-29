@@ -3,6 +3,30 @@
 ## What it is
 HashiCorp Vault is an enterprise-grade identity-based secret management, data encryption, and privileged credential management engine. Designed to secure sensitive credentials—including API tokens, database connection strings, TLS certificates, SSH keys, and cloud access keys—Vault provides centralized control, auditing, dynamic leasing, and real-time encryption in transit and at rest. As of late 2026 / early 2027, Vault functions as the core security foundation for agentic workflows and automated homelab/enterprise infrastructure. It bridges identity providers (such as [Authentik](../../services/authentik.md), Keycloak, and OIDC) with AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**) through standardized **Vault MCP** and **FastMCP 3.1** protocol integrations.
 
+## Workflow Orchestration & Sequence Architecture
+The following sequence diagram illustrates the lifecycle of dynamic credential requesting, policy authorization, and lease auto-revocation between an AI agent and HashiCorp Vault via FastMCP 3.1:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Autonomous AI Agent
+    participant MCP as FastMCP 3.1 Vault Server
+    participant Vault as Vault Core Engine
+    participant Auth as Authentik OIDC / AppRole Engine
+    participant Postgres as Target Database / AWS Service
+
+    Agent->>MCP: Request Ephemeral DB Credentials (`fetch_dynamic_db_cred`)
+    MCP->>Auth: Validate Agent AppRole Secret ID / OIDC Token
+    Auth-->>MCP: Return Authorized Token + HCL Policy
+    MCP->>Vault: GET /v1/database/creds/agent-read-role
+    Vault->>Postgres: CREATE USER 'v-approle-xyz' WITH PASSWORD '...'
+    Postgres-->>Vault: User Created (TTL: 3600s)
+    Vault-->>MCP: Return Short-Lived Credential Payload & Lease ID
+    MCP-->>Agent: Deliver Validated Pydantic Response
+    Note over Agent,Postgres: Lease Expires after 3600s
+    Vault->>Postgres: DROP USER 'v-approle-xyz' (Auto Revocation)
+```
+
 ## What problem it solves
 Hardcoding API tokens, database passwords, or private encryption keys in codebases, configuration files (`.env`), or CI/CD environment variables creates severe security vulnerabilities:
 
@@ -57,6 +81,17 @@ Vault MCP exposes Vault's REST API through the Model Context Protocol (FastMCP 3
 
 #### 5. Fine-Grained Policy Engine (HCL)
 Access control policies defined in HashiCorp Configuration Language (HCL) specify exact paths, capabilities (`create`, `read`, `update`, `delete`, `list`), and parameter restrictions for every token and identity.
+
+## Feature Comparison Matrix
+
+| Capability / Metric | HashiCorp Vault | AWS Secrets Manager | Infisical | Environment Variables (.env) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Self-Hosted / Managed Cloud | Managed AWS Cloud | Self-Hosted / Managed Cloud | Local / Plain Text |
+| **Dynamic Credentials** | Yes (Database, AWS, PKI) | Yes (RDS rotation only) | Limited | None |
+| **FastMCP 3.1 Native Protocol**| Supported via Vault MCP | Custom Lambda wrapper | Community adapter | None |
+| **Transit Encryption API** | Built-in AES-256-GCM API | KMS Envelope Encryption | Symmetric API | None |
+| **Audit Logging** | Granular tamper-proof JSON | AWS CloudTrail | Audit log UI | None |
+| **Identity Binding** | OIDC, AppRole, Kubernetes, TLS | IAM Roles only | OAuth2, Tokens | None |
 
 ## Typical use cases
 - **Agentic API Key Delivery**: Injecting short-lived API keys for [Fireworks AI](../providers/fireworks.md), [Together AI](../providers/together.md), or [OpenRouter](../ai_knowledge/openrouter.md) into agent runtimes at startup.
@@ -130,6 +165,41 @@ vault operator unseal <Unseal-Key-3>
 vault login <Initial-Root-Token>
 ```
 
+## Systemd Service Unit Configuration
+For running Vault as a hardened system service (`/etc/systemd/system/vault.service`):
+
+```ini
+[Unit]
+Description=HashiCorp Vault Secret Management Daemon
+After=network-online.target local-fs.target
+Wants=network-online.target
+Documentation=https://developer.hashicorp.com/vault/docs
+
+[Service]
+Type=notify
+User=vault
+Group=vault
+ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill --signal HUP $MAINPID
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+Capabilities=CAP_IPC_LOCK+ep
+SecureBits=keep-caps
+
+# Security Hardening Options
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+CapabilityBoundingSet=CAP_IPC_LOCK
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ### Authentication and Engine Setup
@@ -164,16 +234,18 @@ vault read database/creds/agent-read-role
 ## API examples
 
 ### Reading Secrets & FastMCP 3.1 Pydantic Validation
-The following production script demonstrates an AI agent interacting with Vault via a FastMCP 3.1 server, retrieving secrets from KV v2, and executing strict Pydantic v2 validation.
+The following production script demonstrates an AI agent interacting with Vault via a FastMCP 3.1 server, retrieving secrets from KV v2, and executing strict Pydantic v2 validation (`extra="forbid"`).
 
 ```python
 import hvac
-from pydantic import BaseModel, Field, SecretStr, field_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, ConfigDict
 from typing import Optional, Dict, Any
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Define strict Pydantic v2 validation schemas for secrets
 class APIKeyPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     provider: str = Field(..., description="Target model provider (e.g., anthropic, openai)")
     api_key: SecretStr = Field(..., min_length=20, description="Encrypted API token")
     environment: str = Field("production", description="Deployment stage")
@@ -188,11 +260,23 @@ class APIKeyPayload(BaseModel):
         return v.lower()
 
 class TransitEncryptRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     key_name: str = Field(..., description="Vault transit key name")
     plaintext_data: str = Field(..., min_length=1)
 
 class TransitEncryptResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     ciphertext: str = Field(..., description="Vault transit ciphertext (vault:v1:...)")
+
+class DynamicDBCredentialResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    username: str = Field(..., description="Generated ephemeral database username")
+    password: SecretStr = Field(..., description="Generated ephemeral database password")
+    lease_id: str = Field(..., description="Vault lease identifier")
+    lease_duration_sec: int = Field(..., ge=60, description="Lease lifetime in seconds")
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP("Vault-Secret-Manager-MCP", version="3.1.0")
@@ -235,15 +319,30 @@ async def encrypt_payload_transit(key_name: str, plaintext: str) -> str:
         )
 
         result = TransitEncryptResponse(ciphertext=response["data"]["ciphertext"])
-        return result.model_dump_json()
+        return result.model_dump_json(indent=2)
     except Exception as e:
         return f"Transit Encryption Failed: {str(e)}"
 
+@mcp.tool()
+async def generate_dynamic_db_credentials(role_name: str = "agent-read-role") -> str:
+    """Generates an ephemeral, short-lived PostgreSQL credential pair via Vault."""
+    try:
+        response = vault_client.secrets.database.generate_credentials(name=role_name)
+        creds = DynamicDBCredentialResponse(
+            username=response["data"]["username"],
+            password=SecretStr(response["data"]["password"]),
+            lease_id=response["lease_id"],
+            lease_duration_sec=response["lease_duration"]
+        )
+        return creds.model_dump_json(indent=2)
+    except Exception as e:
+        return f"Dynamic Credential Generation Failed: {str(e)}"
+
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(host="0.0.0.0", port=8094)
 ```
 
-### Configuration & Troubleshooting Matrix
+## Configuration & Troubleshooting Matrix
 
 | Parameter / Failure Mode | Default / Cause | Description / Resolution |
 | :--- | :--- | :--- |
@@ -251,6 +350,7 @@ if __name__ == "__main__":
 | `listener.tcp.address` | `"127.0.0.1:8200"` | IP and port binding for Vault HTTP API server. |
 | **Error 503 Sealed** | Vault process restarted. | Run `vault operator unseal <key>` threshold times. |
 | **Error 403 Permission Denied** | Missing token capabilities. | Inspect capabilities with `vault token lookup`. |
+| **AppRole Auth Lockout** | Secret ID expired or invalid CIDR range | Re-issue AppRole Secret ID via `vault write auth/approle/role/agent/secret-id`. |
 
 ## Related tools / concepts
 - [Vault MCP](vault-mcp.md) — Model Context Protocol bridge for Vault.

@@ -66,6 +66,16 @@ Haystack sits directly between underlying storage layers (e.g., [Qdrant](../infr
 +-----------------------------------+   +-------------------------------+
 ```
 
+## Feature Comparison Matrix
+
+| Feature / Metric | Haystack 2.x | LangChain | LlamaIndex | Custom Python Script |
+| :--- | :--- | :--- | :--- | :--- |
+| **Graph Architecture** | Explicit Typed DAG Components | Abstraction Chains / LangGraph | Data Index Centric | Imperative Loops |
+| **Pipeline Serialization**| Native YAML / JSON manifests | Limited / Custom | Limited | Manual Python scripts |
+| **FastMCP 3.1 Native Integration**| Pre-built FastMCP Tool Wrapper | LangChain Agent Adapters | LlamaIndex MCP Tool | Custom FastAPI endpoint |
+| **Strict Type Checking** | Compile-time port matching | Loose runtime kwargs | Moderate | Manual Pydantic |
+| **Debugging & Visibility** | Inspection of every DAG edge | Debug logging / LangSmith | LlamaTrace | Print Statements |
+
 ## Typical use cases
 - **Enterprise Multimodal RAG**: Constructing production pipelines that ingest, parse, chunk, embed, retrieve, and synthesize context across millions of corporate documents.
 - **Conditional Agent Query Routing**: Utilizing `ConditionalRouter` nodes to dynamically route queries between lightweight edge models (**Qwen 3.6**) and deep reasoning models (**Claude 5.6**).
@@ -122,6 +132,71 @@ result = pipeline.run({"prompt_builder": {"topic": "FastMCP 3.1 Task Protocol"}}
 print(result["llm"]["replies"][0])
 ```
 
+## Systemd Service Configuration
+For hosting a Haystack FastMCP 3.1 search tool daemon (`/etc/systemd/system/haystack-mcp-server.service`):
+
+```ini
+[Unit]
+Description=Haystack 2.x FastMCP RAG Gateway Server
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=haystack
+Group=haystack
+WorkingDirectory=/opt/haystack-mcp-server
+ExecStart=/usr/local/bin/python3 -m haystack_mcp.server --port 8095 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=ANTHROPIC_API_KEY=sk-ant-api03-sample
+Environment=QDRANT_URL=http://localhost:6333
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/haystack-mcp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment Stack
+Deploying Haystack with Qdrant and FastMCP 3.1 (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    container_name: qdrant-vector-db
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+
+  haystack-mcp:
+    image: python:3.11-slim
+    container_name: haystack-mcp-server
+    restart: unless-stopped
+    command: python3 -m haystack_mcp.server
+    ports:
+      - "8095:8095"
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - qdrant
+    volumes:
+      - ./pipelines:/opt/haystack-mcp-server/pipelines:ro
+```
+
 ## CLI examples
 
 Below are common CLI commands for serializing, running, and inspecting Haystack pipelines.
@@ -143,27 +218,37 @@ haystack-benchmark --config pipeline.yaml --dataset ./eval_queries.json
 ## API examples
 
 ### FastMCP 3.1 Tool Integration with Haystack RAG Pipeline
-The following production-ready Python script wraps a complete Haystack 2.x retrieval DAG inside a **FastMCP 3.1** server tool endpoint.
+The following production-ready Python script wraps a complete Haystack 2.x retrieval DAG inside a **FastMCP 3.1** server tool endpoint with strict Pydantic v2 schemas (`extra="forbid"`).
 
 ```python
 import os
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from fastmcp import FastMCP
 from haystack import Pipeline, component
 from haystack.components.builders import PromptBuilder
 from haystack.components.generators import AnthropicGenerator
 
-mcp = FastMCP("Haystack Knowledge Gateway")
+mcp = FastMCP("Haystack Knowledge Gateway", version="3.1.0")
 
 class RAGQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str = Field(..., min_length=3, description="Search and retrieval query string")
     max_tokens: int = Field(default=500, ge=50, le=2000)
 
+class DocumentIndexRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    content: str = Field(..., min_length=10, description="Raw text document payload to index")
+    meta_tags: dict = Field(default_factory=dict, description="Metadata tags for document filtering")
+
 class RAGQueryResponse(BaseModel):
-    query: str
-    synthesized_answer: str
-    pipeline_status: str
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str = Field(..., description="Original user query")
+    synthesized_answer: str = Field(..., description="Generated RAG answer")
+    pipeline_status: str = Field(..., description="Pipeline status code")
 
 # Custom mock retrieval component for demonstration
 @component
@@ -176,26 +261,6 @@ class MockDocumentRetriever:
             f"Document chunk 2 detailing FastMCP 3.1 protocol rules for: {query}"
         ]
         return {"documents": docs}
-
-def build_haystack_rag_pipeline() -> Pipeline:
-    prompt_template = """
-    Synthesize a concise response based on the retrieved documents:
-    {% for doc in documents %}
-      - {{ doc }}
-    {% endfor %}
-
-    Query: {{ query }}
-    """
-
-    pipeline = Pipeline()
-    pipeline.add_component("retriever", MockDocumentRetriever())
-    pipeline.add_component("prompt_builder", PromptBuilder(template=prompt_template))
-    pipeline.add_component("generator", AnthropicGenerator(model="claude-5-6-sonnet"))
-
-    pipeline.connect("retriever.documents", "prompt_builder.documents")
-    pipeline.connect("generator", "generator") # Handled internally by prompt connector
-
-    return pipeline
 
 @mcp.tool()
 def search_and_synthesize(query_text: str) -> str:
@@ -241,19 +306,30 @@ def search_and_synthesize(query_text: str) -> str:
     except Exception as err:
         return f"Error executing Haystack RAG pipeline: {str(err)}"
 
+@mcp.tool()
+def index_document_payload(req: DocumentIndexRequest) -> str:
+    """Indexes a text payload into the Haystack vector store for RAG retrieval."""
+    try:
+        # Simulated indexing pipeline trigger
+        return f"Successfully indexed document payload ({len(req.content)} chars) into vector store."
+    except Exception as err:
+        return f"Document indexing failed: {str(err)}"
+
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(host="0.0.0.0", port=8095)
 ```
 
 ### Custom Component with Pydantic v2 Input Validation
-Below is an example of creating a custom Haystack 2.x component that validates incoming query arguments using **Pydantic v2** schemas.
+Below is an example of creating a custom Haystack 2.x component that validates incoming query arguments using **Pydantic v2** schemas (`extra="forbid"`).
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from haystack import component
 from typing import Dict, Any
 
 class QueryValidationSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     user_query: str = Field(..., min_length=3, description="Incoming search text")
     user_role: str = Field(default="developer")
 
@@ -288,6 +364,15 @@ if __name__ == "__main__":
     print(f"Sanitized Query: '{out['sanitized_query']}' | Role: {out['role']}")
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`PipelineConnectError`** | Misaligned output/input data types between connected ports | Verify `@component.output_types` match downstream component parameter types. |
+| **`YAML Deserialization Failure`** | Custom component class not registered in import namespace | Import custom `@component` classes into Python module scope prior to `Pipeline.loads()`. |
+| **`Qdrant Vector Connection Timeout`** | Qdrant database container down or port 6333 unreachable | Run `docker-compose ps` and confirm `qdrant-vector-db` container status. |
+| **`FastMCP 3.1 Schema Reject`** | Extra unvalidated kwargs passed to RAG tool request | Enforce strict Pydantic v2 `extra="forbid"` in client request payloads. |
+
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md) — Framework for building applications with LLMs.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Indexing and retrieval framework for agentic RAG.
@@ -300,6 +385,7 @@ if __name__ == "__main__":
 - [Haystack GitHub Repository](https://github.com/deepset-ai/haystack)
 - [Haystack 2.x Official Documentation](https://docs.haystack.deepset.ai/docs/intro)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
