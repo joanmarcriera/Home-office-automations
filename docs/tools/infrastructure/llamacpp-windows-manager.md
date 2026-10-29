@@ -62,6 +62,17 @@ sequenceDiagram
     Llama-->>Client: Stream Response Tokens & Tool Executions
 ```
 
+## Feature Comparison Matrix
+
+| Capability / Metric | llama.cpp Windows Manager | Ollama Windows | LM Studio | vLLM (WSL2) |
+| :--- | :--- | :--- | :--- | :--- |
+| **OS Runtime** | Native Windows 10/11 / Server | Native Windows / macOS | Native Windows / macOS | Linux / WSL2 Hypervisor |
+| **Acceleration Backends**| CUDA 12.x, Vulkan, SYCL, DirectML | CUDA, DirectML | CUDA, Vulkan, Metal | CUDA, ROCm |
+| **Windows Service Daemon**| Built-in (`sc.exe` service control) | System tray app only | GUI process only | Systemd in WSL2 Ubuntu |
+| **FastMCP 3.1 Support** | Native Task Protocol Server | Custom Tool API | Standard REST / OpenAI | OpenAI API Endpoints |
+| **VRAM Offload Control**| Granular (`-ngl` layer slider) | Automated heuristics | Visual slider control | PagedAttention VRAM alloc |
+| **RAM / Overhead** | < 35 MB host RAM | ~120 MB host RAM | ~350 MB host RAM | > 1.5 GB WSL2 VM memory |
+
 ## Typical use cases
 - **One-Click Native Windows GPU Acceleration**: Automated setup of CUDA 12.x, Vulkan, or Intel SYCL acceleration for GGUF models on NVIDIA GeForce/RTX, AMD Radeon, or Intel Arc GPUs.
 - **Hugging Face Model Library Management**: Direct searching, downloading, and organizing of GGUF model files (such as [Gemma 4](../ai_knowledge/gemma.md) and [Qwen 3.6](../ai_knowledge/qwen.md)) into dedicated storage locations.
@@ -104,6 +115,76 @@ winget install Llamacpp.WindowsManager
 2. Select your acceleration backend (`CUDA 12.x`, `Vulkan`, or `CPU`).
 3. Set your GGUF storage path (e.g. `C:\LLM_Models`).
 
+## Windows Service & Systemd Gateway Setup
+
+### Windows Service Control Manager (`sc.exe`) Setup
+To register `llama-server.exe` as an unattended Windows service daemon:
+
+```cmd
+:: Register LlamaCpp Windows Service daemon
+sc.exe create LlamaCppService binPath= "C:\Program Files\llama.cpp\llama-server.exe -m C:\LLM_Models\gemma-4-12b-Q4_K_M.gguf -ngl 99 -c 8192 --port 8080" start= auto
+
+:: Set display name and description
+sc.exe config LlamaCppService DisplayName= "llama.cpp Windows Inference Service"
+sc.exe description LlamaCppService "Background GGUF LLM inference engine supporting OpenAI and FastMCP 3.1 APIs."
+
+:: Start service
+sc.exe start LlamaCppService
+```
+
+### Linux Gateway Systemd Proxy Unit (`/etc/systemd/system/llama-windows-proxy.service`)
+If proxying Windows host inference traffic through a Linux gateway:
+
+```ini
+[Unit]
+Description=Llama Windows FastMCP Proxy Gateway
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=llama
+Group=llama
+WorkingDirectory=/opt/llama-windows-proxy
+ExecStart=/usr/local/bin/python3 -m llama_windows_proxy.gateway --port 8096 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=LLAMA_WINDOWS_ENDPOINT=http://192.168.1.50:8080
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/llama-proxy
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Configuration (Windows Containers)
+Deploying `llama-server.exe` inside a Windows Server Container (`docker-compose.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  llama-windows-container:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: llama-windows-server
+    restart: unless-stopped
+    command: powershell -Command "C:\\llama\\llama-server.exe -m C:\\models\\model.gguf -ngl 99 --port 8080 -b 0.0.0.0"
+    ports:
+      - "8080:8080"
+    volumes:
+      - C:\LLM_Models:C:\models
+      - C:\Program Files\llama.cpp:C:\llama
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+```
+
 ## CLI examples
 
 ### Starting Server Daemon via PowerShell Command Line
@@ -123,12 +204,12 @@ Get-Service -Name "LlamaCppService" | Select-Object Status, StartType, DisplayNa
 ## API examples
 
 ### Windows Server Monitoring & FastMCP 3.1 Tool Schema
-The following Python script illustrates how to query the local `llama.cpp` Windows endpoint, execute tool calling via FastMCP 3.1, and validate service health telemetry using **Pydantic v2**.
+The following Python script illustrates how to query the local `llama.cpp` Windows endpoint, execute tool calling via FastMCP 3.1, and validate service health telemetry using **Pydantic v2** (`extra="forbid"`).
 
 ```python
 import urllib.request
 import json
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List, Dict, Any
 from fastmcp import FastMCP, Context
 
@@ -140,6 +221,8 @@ mcp = FastMCP(
 )
 
 class WindowsServerTelemetry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     service_status: str = Field(..., alias="serviceStatus", description="Windows service state ('Running', 'Stopped')")
     active_model: str = Field(..., alias="activeModel", description="Path to active GGUF model")
     gpu_layers_offloaded: int = Field(..., alias="gpuLayers", ge=0)
@@ -156,6 +239,8 @@ class WindowsServerTelemetry(BaseModel):
         return v
 
 class LlamaLaunchConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_path: str = Field(..., description="Absolute Windows path to target GGUF file")
     n_gpu_layers: int = Field(99, ge=0, description="Number of model layers to offload to GPU VRAM")
     context_size: int = Field(8192, ge=512, le=131072, description="Context window size in tokens")
@@ -201,7 +286,7 @@ async def relaunch_llama_windows_process(config: LlamaLaunchConfig, ctx: Context
     }
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(host="0.0.0.0", port=8096)
 ```
 
 ## Architectural Comparison & Windows Inference Matrix
@@ -227,6 +312,7 @@ if __name__ == "__main__":
 | `DLL Load Failed: vulkan-1.dll missing` | Missing Vulkan runtime environment on clean Windows Server | Install Vulkan Runtime (`vulkan-1.dll`) via GPU vendor driver installer or DirectX runtime redistributables. |
 | Windows Service fails with `Error 1053: Service did not respond` | Invalid model path or missing GGUF weights on service startup | Verify GGUF file exists in `C:\LLM_Models` and service user account has read permissions. |
 | Stuttering / High RAM swap during token generation | GGUF weight allocation exceeding physical VRAM budget | Lower `-ngl` layer count or switch to a lower quantization format (e.g. `Q4_K_M` to `Q3_K_S`). |
+| **FastMCP Schema Error** | Extra fields passed to Windows manager bridge | Enforce strict Pydantic v2 `extra="forbid"` validation in caller agent models. |
 
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Core C/C++ GGUF inference engine.

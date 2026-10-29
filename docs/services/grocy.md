@@ -46,7 +46,31 @@ Grocy functions as an ERP engine for domestic inventory management, linking barc
 |   | SQLite 3 Database (`grocy.db`)      | Offsite Backup Sync                 |   |
 |   | Volumetric & Storage Location Map   | (Rclone Automation to Cloud)        |   |
 |   +-------------------------------------+-------------------------------------+   |
-+-----------------------------------------------------------------------------------+
++-----------------------------------------|-----------------------------------------+
+```
+
+## Inventory Processing Sequence
+The following sequence diagram outlines the workflow of an automated barcode/vision scan event processed via FastMCP 3.1 gateway tools:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Household Member / Vision Camera
+    participant Scanner as Barcode Scanner / Agent Camera
+    participant MCP as Grocy FastMCP 3.1 Gateway
+    participant Pydantic as Pydantic v2 Validator
+    participant GrocyAPI as Grocy REST API Engine
+    participant SQLite as SQLite 3 Database
+
+    User->>Scanner: Capture GS1 Barcode / Package Image
+    Scanner->>MCP: Dispatch Scan Event Payload (`log_stock_movement`)
+    MCP->>Pydantic: Validate Schema (`StockMovement`, extra="forbid")
+    Pydantic-->>MCP: Validated Pydantic Object
+    MCP->>GrocyAPI: POST /api/stock/products/{id}/add (Header: `GROCY-API-KEY`)
+    GrocyAPI->>SQLite: Insert Stock Entry & Calculate Expire Date
+    SQLite-->>GrocyAPI: Commit Transaction Success
+    GrocyAPI-->>MCP: HTTP 200 OK Response
+    MCP-->>User: Emit Spoken Confirmation / UI Toast
 ```
 
 ## What problem it solves
@@ -166,6 +190,39 @@ services:
     restart: unless-stopped
 ```
 
+## Systemd Service Unit Setup
+For running the Grocy FastMCP Gateway service directly on host hardware (`/etc/systemd/system/grocy-mcp-gateway.service`):
+
+```ini
+[Unit]
+Description=Grocy FastMCP 3.1 Inventory Gateway Service
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=grocy
+Group=grocy
+WorkingDirectory=/opt/grocy-mcp-gateway
+ExecStart=/usr/local/bin/python3 -m grocy_mcp.gateway --port 8093 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=GROCY_URL=http://127.0.0.1:9283
+Environment=GROCY_API_KEY=grc_sec_991122334455
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/grocy-mcp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 Use the Docker CLI for maintenance and troubleshooting:
 
@@ -184,19 +241,19 @@ docker exec -it grocy sqlite3 /config/data/grocy.db ".backup /config/data/grocy_
 ```
 
 ## API examples
-This Python server uses **FastMCP 3.1** and **Pydantic v2** validation models to expose Grocy stock and shopping list features to AI agents.
+This Python server uses **FastMCP 3.1** and **Pydantic v2** validation models with strict schema enforcement (`extra="forbid"`) to expose Grocy stock, chore tracking, recipe calculation, and shopping list features to AI agents.
 
 ```python
 import os
 import requests
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
-mcp = FastMCP("grocy-inventory-gateway")
+mcp = FastMCP("grocy-inventory-gateway", version="3.1.0")
 
 class StockMovement(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, frozen=True)
 
     product_id: int = Field(..., gt=0, description="Grocy numeric product ID")
     amount: float = Field(..., gt=0.0, description="Quantity to add or consume")
@@ -212,11 +269,32 @@ class StockMovement(BaseModel):
         return v
 
 class ShoppingListItem(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     product_id: int = Field(..., gt=0)
     amount: float = Field(default=1.0, gt=0.0)
     note: Optional[str] = Field(default=None, max_length=150)
+
+class ChoreLogRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    chore_id: int = Field(..., gt=0, description="Grocy numeric chore ID")
+    tracked_time: str = Field(..., description="ISO timestamp when chore was completed")
+    done_by_user_id: int = Field(default=1, gt=0, description="User ID logging the chore")
+
+class RecipeFulfillRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    recipe_id: int = Field(..., gt=0, description="Grocy numeric recipe ID")
+    servings: int = Field(default=1, ge=1, description="Number of recipe servings to consume from stock")
+
+class StockMovementResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(..., description="Execution status message")
+    product_id: int = Field(..., description="Target product ID")
+    amount: float = Field(..., description="Amount processed")
+    transaction_type: str = Field(..., description="Action performed")
 
 def get_headers() -> dict:
     key = os.getenv("GROCY_API_KEY", "")
@@ -242,7 +320,13 @@ def log_stock_movement(movement: StockMovement) -> str:
     try:
         resp = requests.post(url, json=payload, headers=get_headers(), timeout=10)
         resp.raise_for_status()
-        return f"Successfully logged {movement.transaction_type} of {movement.amount} units for Product #{movement.product_id}."
+        response_obj = StockMovementResponse(
+            status="SUCCESS",
+            product_id=movement.product_id,
+            amount=movement.amount,
+            transaction_type=movement.transaction_type
+        )
+        return response_obj.model_dump_json(indent=2)
     except Exception as e:
         return f"Error updating Grocy stock: {str(e)}"
 
@@ -265,8 +349,39 @@ def add_to_shopping_list(item: ShoppingListItem) -> str:
     except Exception as e:
         return f"Error adding item to shopping list: {str(e)}"
 
+@mcp.tool()
+def log_chore_completion(chore: ChoreLogRequest) -> str:
+    """Logs the completion of a recurring household chore in Grocy."""
+    base_url = os.getenv("GROCY_URL", "http://localhost:9283")
+    url = f"{base_url}/api/chores/{chore.chore_id}/execute"
+
+    payload = {
+        "tracked_time": chore.tracked_time,
+        "done_by": chore.done_by_user_id
+    }
+
+    try:
+        resp = requests.post(url, json=payload, headers=get_headers(), timeout=10)
+        resp.raise_for_status()
+        return f"Logged chore #{chore.chore_id} execution for user #{chore.done_by_user_id}."
+    except Exception as e:
+        return f"Error logging chore completion: {str(e)}"
+
+@mcp.tool()
+def consume_recipe_ingredients(req: RecipeFulfillRequest) -> str:
+    """Consumes required recipe ingredients directly from current Grocy inventory stock."""
+    base_url = os.getenv("GROCY_URL", "http://localhost:9283")
+    url = f"{base_url}/api/recipes/{req.recipe_id}/consume"
+
+    try:
+        resp = requests.post(url, json={"servings": req.servings}, headers=get_headers(), timeout=10)
+        resp.raise_for_status()
+        return f"Successfully consumed ingredients for recipe #{req.recipe_id} ({req.servings} serving(s))."
+    except Exception as e:
+        return f"Error consuming recipe ingredients: {str(e)}"
+
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(host="0.0.0.0", port=8093)
 ```
 
 ## Performance Benchmarks & Operational Metrics
@@ -278,28 +393,14 @@ if __name__ == "__main__":
 | **Grocy Memory Usage (PHP FPM)**| 48 MB | 62 MB | 110 MB |
 | **SQLite DB Size** | ~2.5 MB | ~18 MB | ~75 MB |
 
-## Operational Runbook & Troubleshooting
+## Operational Runbook & Troubleshooting Matrix
 
-### Issue 1: HTTP 403 / API Key Unrecognized
-- **Symptoms**: API calls return `{"error_message": "Invalid or missing API key"}`.
-- **Root Cause**: The `GROCY-API-KEY` header is missing, expired, or rejected due to improper header formatting in reverse proxy.
-- **Resolution**:
-  1. Go to Grocy Web UI **Manage API keys** and issue a fresh API key.
-  2. Verify that your Nginx proxy passes custom headers: `proxy_set_header GROCY-API-KEY $http_grocy_api_key;`.
-
-### Issue 2: Quantity Unit Conversion Error on Purchase
-- **Symptoms**: Adding stock via API returns HTTP 400 with message "No valid quantity unit factor found".
-- **Root Cause**: The product setup lacks a mapping between the stock quantity unit and purchase quantity unit.
-- **Resolution**:
-  1. Open Grocy UI **Master Data > Products > Edit Product**.
-  2. Set **Quantity unit stock** and **Quantity unit purchase** to matching units or define a conversion factor in **Quantity unit conversions**.
-
-### Issue 3: SQLite Database Locking Under High Agent Load
-- **Symptoms**: PHP error logs show `SQLSTATE[HY000]: General error: 5 database is locked`.
-- **Root Cause**: Multiple simultaneous agent requests attempting concurrent writes to SQLite 3.
-- **Resolution**:
-  1. Enable Write-Ahead Logging (WAL) in SQLite:
-     `docker exec -it grocy sqlite3 /config/data/grocy.db "PRAGMA journal_mode=WAL;"`
+| Issue / Error Symptom | Probable Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **`HTTP 403 / API Key Unrecognized`** | `GROCY-API-KEY` header missing, expired, or rejected in Nginx proxy | Re-issue key in Grocy UI **Manage API keys** and set `proxy_set_header GROCY-API-KEY $http_grocy_api_key;`. |
+| **`Quantity Unit Conversion Error`** | Lacking mapping between stock unit and purchase unit | In Grocy UI **Master Data > Products**, define conversion factor under **Quantity unit conversions**. |
+| **`SQLite Database Lock (Code 5)`** | Concurrent write requests from multiple AI agents to SQLite 3 | Enable WAL mode: `docker exec -it grocy sqlite3 /config/data/grocy.db "PRAGMA journal_mode=WAL;"`. |
+| **`Pydantic v2 Schema Reject`** | Extra unvalidated attributes passed to FastMCP tool endpoint | Ensure caller payload matches strict `extra="forbid"` Pydantic v2 schema. |
 
 ## Related tools / concepts
 
