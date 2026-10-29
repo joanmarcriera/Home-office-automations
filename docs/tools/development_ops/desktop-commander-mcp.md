@@ -74,6 +74,65 @@ Desktop Commander MCP sits at the **System Operations Gateway**, bridging LLM ag
 - In multi-tenant untrusted cloud environments where full OS-level container isolation is required (consider containerized sandboxes like [Claude Code Container MCP](claude-code-container-mcp.md)).
 - For browser-based visual web automation tasks (use [Playwright](playwright.md) instead).
 
+## Docker Compose Container Sandbox
+
+To run Desktop Commander MCP inside an isolated Linux container workspace with bounded filesystem privileges, use the following `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  desktop-commander-sandbox:
+    image: node:20-bookworm-slim
+    container_name: desktop_commander_mcp
+    ports:
+      - "3100:3100"
+    environment:
+      - ALLOWED_DIRECTORIES=/workspace
+      - ENABLE_PROCESS_MANAGER=true
+      - FASTMCP_TRANSPORT=sse
+    volumes:
+      - /home/developer/projects/repo:/workspace:rw
+    command: >
+      bash -c "apt-get update && apt-get install -y ripgrep git curl &&
+               npm install -g @democratize-technology/desktop-commander-mcp &&
+               desktop-commander-mcp --port 3100 --allowed-dirs '/workspace'"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+```
+
+## Systemd Service Configuration
+
+For Linux workstations running Desktop Commander MCP as a native background daemon:
+
+```ini
+[Unit]
+Description=Desktop Commander FastMCP 3.1 Workspace Server
+After=network.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer
+Environment="ALLOWED_DIRECTORIES=/home/developer/projects:/tmp/agent-workspace"
+Environment="ENABLE_PROCESS_MANAGER=true"
+Environment="PATH=/home/developer/.nvm/versions/node/v20.10.0/bin:/usr/local/bin:/usr/bin"
+ExecStart=/home/developer/.nvm/versions/node/v20.10.0/bin/desktop-commander-mcp --port 3100
+Restart=always
+RestartSec=3s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### 1. Global Installation
@@ -131,10 +190,39 @@ Run a code search query using the client CLI wrapper:
 mcp-cli call desktop-commander search_code '{"query": "def parse_ast", "include": ["*.py"]}'
 ```
 
+## Background Process Lifecycle & Shell Management
+
+Desktop Commander includes a process supervisor tool layer that allows autonomous agents to launch, inspect, and terminate asynchronous background tasks without blocking tool execution loops:
+
+### 1. Spawning Async Background Tasks
+When agents start long-running test suites or local development web servers (`npm run dev`), the process is assigned a unique process handle (`pid_handle`):
+
+```json
+{
+  "tool": "start_background_process",
+  "arguments": {
+    "command": "npm run dev",
+    "working_dir": "/workspace/frontend",
+    "log_output_path": "/tmp/dev_server.log"
+  }
+}
+```
+
+### 2. Inspecting Log Streams & Terminating Runaway Processes
+Agents can query process status, fetch recent stdout/stderr log chunks, or send SIGTERM/SIGKILL signals:
+
+```bash
+# Query active background processes
+mcp-cli call desktop-commander list_processes
+
+# Terminate process by handle ID
+mcp-cli call desktop-commander stop_process '{"pid_handle": "proc_88102"}'
+```
+
 ## API examples
 
 ### 1. FastMCP 3.1 Tool Server Implementation (Python)
-The following Python script illustrates how Desktop Commander MCP exposes surgical editing, ripgrep searching, and command execution as a FastMCP 3.1 server:
+The following Python script illustrates how Desktop Commander MCP exposes surgical editing, ripgrep searching, and command execution as a FastMCP 3.1 server using Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import os
@@ -142,7 +230,7 @@ import subprocess
 import re
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 mcp = FastMCP(
     "Desktop Commander MCP",
@@ -157,6 +245,8 @@ def is_path_allowed(target_path: str) -> bool:
     return any(abs_target.startswith(os.path.abspath(allowed)) for allowed in ALLOWED_DIRECTORIES)
 
 class EditBlockRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     path: str = Field(..., description="Target file path relative to workspace root")
     edit_content: str = Field(..., description="Merge diff string formatted with <<<<<<< SEARCH, =======, >>>>>>> REPLACE")
 
@@ -218,7 +308,7 @@ if __name__ == "__main__":
 ```
 
 ### 2. Pydantic v2 Command Execution Guardrail Schema
-Enforce strict validation and command blacklisting before dispatching terminal commands:
+Enforce strict validation (`extra="forbid"`) and command blacklisting before dispatching terminal commands:
 
 ```python
 import re
@@ -229,7 +319,7 @@ class TerminalCommandPayload(BaseModel):
     """
     Strict Pydantic v2 schema for validating terminal command execution requests.
     """
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
     command: str = Field(..., min_length=1, description="The CLI command to execute")
     working_directory: str = Field(default=".", description="Target execution directory")
@@ -264,6 +354,15 @@ if __name__ == "__main__":
     print(f"Command: {validated.command}")
     print(f"Directory: {validated.working_directory}")
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Path Access Denied Error** | Target file path lies outside declared `ALLOWED_DIRECTORIES` list | `desktop-commander-mcp --list-allowed` | Add target directory path to `ALLOWED_DIRECTORIES` environment variable. |
+| **`SEARCH block content not found`** | Indentation or whitespace mismatch between prompt diff and target file | Check git diff or inspect exact file lines using `read_file` | Re-read target file lines and construct exact byte-for-byte matching `SEARCH` block. |
+| **Ripgrep Not Found (`rg: command not found`)** | Native `ripgrep` binary is not installed in system PATH | `which rg` | Install ripgrep via package manager (`apt install ripgrep` or `brew install ripgrep`). |
+| **Command Timeout Triggered** | Long-running build or test process exceeded default `timeout_seconds` | Inspect FastMCP client error response | Increase `timeout_seconds` in request or execute command as background process. |
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Anthropic's terminal-native developer agent.

@@ -67,6 +67,68 @@ Verba addresses these engineering challenges by providing:
 - When you require a non-Weaviate vector store (e.g., Pinecone, LanceDB, or pgvector) as your core database backend.
 - When building a simple, flat text-search tool where basic BM25 search without vector embeddings is sufficient.
 
+## Docker Compose Production Stack Setup
+
+To run a fully containerized, air-gapped production deployment of Verba coupled with a dedicated Weaviate v4 vector database and local Ollama embedding service, use the following `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  verba-app:
+    image: semitechnologies/verba:latest
+    container_name: verba_app
+    ports:
+      - "8000:8000"
+    environment:
+      - WEAVIATE_URL_VERBA=http://weaviate-db:8080
+      - OLLAMA_URL=http://ollama-service:11434
+      - DEFAULT_EMBEDDER=Ollama
+      - DEFAULT_GENERATOR=Ollama
+    volumes:
+      - verba_data:/app/data
+    restart: unless-stopped
+    depends_on:
+      weaviate-db:
+        condition: service_healthy
+
+  weaviate-db:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.27.0
+    container_name: verba_weaviate
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      - QUERY_DEFAULTS_LIMIT=25
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+      - DEFAULT_VECTORIZER_MODULE=none
+      - ENABLE_MODULES=text2vec-ollama,reranker-cohere
+      - CLUSTER_HOSTNAME=verba-node
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: verba_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  verba_data:
+  weaviate_data:
+  ollama_models:
+```
+
 ## Systemd Service Configuration
 For Linux servers and production homelabs running native Python environments without Docker, Verba can be managed as a systemd background daemon:
 
@@ -99,7 +161,7 @@ WantedBy=multi-user.target
 Install Verba directly using `pip`:
 
 ```bash
-pip install goldenverba pydantic>=2.0
+pip install goldenverba pydantic>=2.0 mcp
 ```
 
 ### Docker Compose Quickstart
@@ -150,6 +212,37 @@ sequenceDiagram
 4. **Retriever**: Queries Weaviate using hybrid search (adjusting `alpha` balance between vector similarity and keyword match) and applies reranking algorithms.
 5. **Generator**: Constructs the final augmented prompt and streams LLM completion tokens to the client.
 
+## Custom Component Development
+
+Verba provides modular Python interfaces allowing engineers to extend the pipeline with custom reader or chunker logic. Below is an example of subclassing `Chunker` to implement a custom AST-aware code chunker:
+
+```python
+from goldenverba.components.chunking.interface import Chunker
+from goldenverba.components.types import Document, Chunk
+
+class CustomPythonASTChunker(Chunker):
+    def __init__(self):
+        super().__init__()
+        self.name = "CustomPythonASTChunker"
+        self.description = "Splits Python source code into syntax-aware AST function chunks."
+
+    def chunk(self, documents: list[Document]) -> list[Chunk]:
+        chunks = []
+        for doc in documents:
+            # Simple line-based split fallback or AST parsing
+            lines = doc.text.split("\n")
+            current_chunk = []
+            for line in lines:
+                current_chunk.append(line)
+                if len(current_chunk) >= 25:
+                    chunk_text = "\n".join(current_chunk)
+                    chunks.append(Chunk(text=chunk_text, doc_name=doc.name, doc_type=doc.type))
+                    current_chunk = []
+            if current_chunk:
+                chunks.append(Chunk(text="\n".join(current_chunk), doc_name=doc.name, doc_type=doc.type))
+        return chunks
+```
+
 ## CLI examples
 
 The `verba` CLI enables managing servers, importing document directories, and inspecting system state:
@@ -170,29 +263,35 @@ verba export --output ./exported_chunks.json
 
 ## API examples
 
-The following script demonstrates querying a running Verba server directly via REST APIs or FastMCP 3.1 handlers, using Pydantic V2 schemas for strict query validation and response extraction:
+The following script demonstrates querying a running Verba server directly via REST APIs or FastMCP 3.1 handlers, using Pydantic V2 schemas (`extra="forbid"`) for strict query validation and response extraction:
 
 ```python
 import json
 import requests
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("VerbaRAGKnowledgeServer")
+mcp = FastMCP("VerbaRAGKnowledgeServer", version="3.1.0")
 
 # 1. Pydantic V2 Models for Request & Response Verification
 class VerbaSearchFilter(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     document_type: Optional[str] = Field(default=None, description="e.g. pdf, markdown, txt")
     tags: List[str] = Field(default_factory=list)
 
 class VerbaQueryPayload(BaseModel):
-    query: str = Field(min_length=3, description="Semantic question or search query")
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    query: str = Field(..., min_length=3, description="Semantic question or search query")
     top_k: int = Field(default=5, ge=1, le=20, description="Number of context chunks to retrieve")
     hybrid_alpha: float = Field(default=0.75, ge=0.0, le=1.0, description="1.0 = Pure Vector, 0.0 = Pure BM25")
     filters: Optional[VerbaSearchFilter] = None
 
 class ContextChunk(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     chunk_id: str
     doc_name: str
     content: str
@@ -200,6 +299,8 @@ class ContextChunk(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 class VerbaRAGResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str
     answer: str
     retrieved_chunks: List[ContextChunk]
@@ -237,6 +338,22 @@ def execute_verba_rag_query(raw_json_input: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & Ingestion Performance
+
+### 1. Hybrid Search Parameter Tuning (`alpha`)
+Weaviate's hybrid search uses the parameter `alpha` to balance dense vector search and sparse BM25 keyword matching:
+- **`alpha = 0.75` (Recommended)**: Biases heavily toward semantic meaning while retaining strong exact-keyword matching for technical terms, IDs, or model identifiers.
+- **`alpha = 1.0`**: Pure vector search. Best for open-ended conceptual queries or natural language questions.
+- **`alpha = 0.0`**: Pure BM25 keyword search. Recommended when querying specific error codes, UUIDs, or precise code symbols.
+
+### 2. Chunk Size & Overlap Strategy
+- For general technical documentation, a chunk size of **300–500 words** with a **10–15% sliding window overlap** prevents semantic context clipping across section boundaries.
+- For code and API specification ingestion, use code-aware AST chunkers or line-based chunkers to avoid splitting function bodies mid-statement.
+
+### 3. Reranker Selection & Evaluation
+- **Cohere Rerank v3.5**: Top performance for enterprise multi-lingual setups; requires cloud API key.
+- **Local BGE-Reranker-Large**: High accuracy cross-encoder running fully off-grid on GPU or CPU; zero external network calls.
 
 ## Diagnostic & Troubleshooting Matrix
 

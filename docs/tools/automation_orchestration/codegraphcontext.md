@@ -91,12 +91,71 @@ It addresses the challenge of "context window overload" and "hallucination" when
 - If you don't have an MCP-compatible client or framework set up.
 - For non-code documents where general RAG solutions are more appropriate.
 
+## Docker Compose Server Deployment
+
+To run CodeGraphContext in a persistent background container exposing HTTP/SSE or TCP socket endpoints for FastMCP 3.1 agent clusters, use the following `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  codegraph-server:
+    image: python:3.11-slim
+    container_name: codegraph_context_mcp
+    ports:
+      - "3000:3000"
+    environment:
+      - REPO_PATH=/workspace
+      - DB_PATH=/var/lib/codegraph/repo.graph
+      - FASTMCP_VERSION=3.1.0
+    volumes:
+      - /home/developer/projects/app:/workspace:ro
+      - codegraph_db:/var/lib/codegraph
+    command: >
+      bash -c "pip install codegraphcontext &&
+               codegraphcontext index --path /workspace --output /var/lib/codegraph/repo.graph &&
+               codegraphcontext serve --db /var/lib/codegraph/repo.graph --port 3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  codegraph_db:
+```
+
+## Systemd Service Configuration
+
+For Linux development workstations running CodeGraphContext as a local background daemon:
+
+```ini
+[Unit]
+Description=CodeGraphContext FastMCP 3.1 Server
+After=network.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/opt/codegraphcontext
+Environment="PATH=/opt/codegraphcontext/venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/opt/codegraphcontext/venv/bin/codegraphcontext serve --path /home/developer/projects/monorepo --port 3000
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 CodeGraphContext is available as a Python package and can be integrated into MCP clients like Claude Desktop.
 
 ### Installation
 ```bash
-pip install codegraphcontext
+pip install codegraphcontext mcp pydantic>=2.0
 ```
 
 ### Configuration (Claude Desktop)
@@ -130,29 +189,57 @@ codegraphcontext visualize --db ./repo.graph --port 3000
 codegraphcontext query --db ./repo.graph --cypher "MATCH (c:Class)-[:INHERITS_FROM]->(p:Class) RETURN c.name, p.name"
 ```
 
+## Cypher Graph Querying Patterns
+
+CodeGraphContext allows agents to execute openCypher query statements directly against the indexed AST knowledge graph:
+
+### 1. Identifying Impact Blast Radius
+To locate all functions and methods across the codebase that directly or indirectly invoke a modified symbol:
+
+```cypher
+MATCH (target:Function {name: "process_payment"})<-[:CALLS*1..3]-(caller:Function)
+RETURN caller.name AS function_name, caller.file_path AS file, caller.line_number AS line
+```
+
+### 2. Mapping Class Inheritance Hierarchies
+To map deep inheritance chains and abstract base implementation dependencies:
+
+```cypher
+MATCH (child:Class)-[:INHERITS_FROM*]->(parent:Class {name: "BaseAgentTool"})
+RETURN child.name AS subclass, parent.name AS base_class, child.file_path AS file
+```
+
 ## API examples
 
 ### FastMCP 3.1 Code Graph Tool Server Implementation
+
+Below is a complete FastMCP 3.1 server implementation utilizing Pydantic v2 validation (`extra="forbid"`) to expose symbol lookups:
 
 ```python
 import asyncio
 from typing import Dict, List, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 mcp = FastMCP("CodeGraphContext MCP Server", version="3.1.0")
 
 class SymbolLookupInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation string")
     symbol_name: str = Field(..., min_length=2, description="Target symbol/function name")
     depth: int = Field(default=2, ge=1, le=5, description="Search call graph depth")
 
 class CallGraphEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     caller: str
     callee: str
     file_path: str
 
 class SymbolLookupResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str
     symbol: str
     callers: List[CallGraphEdge]
@@ -178,26 +265,32 @@ if __name__ == "__main__":
 ```
 
 ### Programmatic Execution with FastMCP 3.1 & Pydantic v2 Validation
-To maintain the safety and integrity of code-graph querying, structured inputs and outputs must be strictly validated. Below is a robust Python example utilizing **Pydantic v2** validation and FastMCP 3.1 task protocol correlation tracking.
+To maintain the safety and integrity of code-graph querying, structured inputs and outputs must be strictly validated. Below is a robust Python example utilizing **Pydantic v2** validation (`extra="forbid"`) and FastMCP 3.1 task protocol correlation tracking.
 
 ```python
 import asyncio
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional, Dict
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 # 1. Define schemas using strict Pydantic v2 annotations including FastMCP 3.1 task correlation ID
 class GraphQuery(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     task_id: str = Field(..., description="FastMCP 3.1 task protocol correlation ID")
     query: str = Field(..., min_length=10, description="The Cypher or semantic graph query string.")
     parameters: Optional[Dict[str, str]] = Field(default=None, description="Optional parameters for the query.")
     timeout_ms: int = Field(default=5000, ge=1000, le=30000, description="Execution timeout limit in milliseconds.")
 
 class NodeProperties(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     type: str
     file_path: Optional[str] = None
 
 class QueryResultNode(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str
     properties: NodeProperties
 
@@ -253,15 +346,14 @@ if __name__ == "__main__":
         print(f"Found node: {res.properties.name} ({res.properties.type}) in {res.properties.file_path}")
 ```
 
-## Operational Best Practices & Troubleshooting
+## Diagnostic & Troubleshooting Matrix
 
-### Incremental Indexing Performance
-1. **Repository Exclusions**: Exclude build artifacts, `.venv`, `node_modules`, `.git`, and test fixture directories in `.codegraphignore` to avoid indexing bloat.
-2. **Grammar Cache**: Pre-warm Tree-Sitter grammars before running large CI/CD index jobs.
-
-### FastMCP Server Health Checks
-- Verify MCP port binding and STDIO transport streams using `mcp doctor` or `codegraphcontext health`.
-- Ensure memory limits are scaled appropriately (minimum 2GB RAM for repositories over 100k lines of code).
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Tree-Sitter Language Parse Error** | Unsupported code language extension or syntax version | `codegraphcontext index --verbose` | Add grammar mapping or exclude unsupported file types in `.codegraphignore`. |
+| **Out-Of-Memory During Indexing** | Large monorepo exceeding node process RAM allocation | `dmesg -T \| grep -i oom` / inspect container memory | Configure `--batch-size` or increase process RAM limit (`NODE_OPTIONS="--max-old-space-size=8192"`). |
+| **FastMCP 3.1 Task Correlator Mismatch** | Client missing `task_id` field in JSON payload | Inspect FastMCP stderr logs | Ensure agent framework passes valid `task_id` matching FastMCP 3.1 Task Protocol specification. |
+| **Graph DB Lock Contention** | Multiple processes attempting concurrent write access to SQLite/Kùzu DB | `lsof /var/lib/codegraph/repo.graph` | Run CodeGraphContext server in read-only mode for query workers (`--read-only`). |
 
 ## Related tools / concepts
 - [MCP (Model Context Protocol)](mcp.md) — The underlying protocol for tool communication.

@@ -21,7 +21,7 @@ Braintrust is a developer-first AI evaluation and observability platform that co
 |  |  +--------------------+   +---------------------+   +--------------------+  |  |
 |  |  | Trace Store & UI   |   | LLM-as-a-Judge      |   | Prompt Registry    |  |  |
 |  |  | (Nested Spans)     |   | (Automated Scorers) |   | (Dynamic Version)  |  |  |
-|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  +--------------------+   +---------------------+   +--------------------+  |  |
 |  +-----------------------------------------------------------------------------+  |
 +-----------------------------------------------------------------------------------+
 ```
@@ -71,6 +71,69 @@ Non-deterministic AI agent failures present a primary engineering hurdle in prod
 - For single-file scripts or basic prototypes where terminal outputs and standard console loggers are sufficient.
 - In air-gapped environments prohibiting third-party telemetry (unless deploying Braintrust Enterprise Private Cloud).
 
+## Docker Compose Local Evaluation & Proxy Setup
+
+To run a containerized evaluation runner and local proxy for forwarding FastMCP 3.1 agent trace telemetry to Braintrust Enterprise or Cloud, use the following `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  braintrust-proxy:
+    image: braintrustdata/proxy:latest
+    container_name: braintrust_proxy
+    ports:
+      - "8000:8000"
+    environment:
+      - BRAINTRUST_API_KEY=${BRAINTRUST_API_KEY}
+      - BRAINTRUST_ORG_NAME=enterprise-homelab
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  eval-runner:
+    image: python:3.11-slim
+    container_name: braintrust_eval_runner
+    environment:
+      - BRAINTRUST_API_URL=http://braintrust-proxy:8000
+      - BRAINTRUST_API_KEY=${BRAINTRUST_API_KEY}
+    volumes:
+      - ./evals:/app/evals
+    working_dir: /app
+    command: python -m braintrust.cli eval --file /app/evals/test_agent.py
+    depends_on:
+      - braintrust-proxy
+```
+
+## Systemd Daemon Configuration
+
+For production evaluation hosts or CI runners executing Braintrust trace logging daemons natively under Linux:
+
+```ini
+[Unit]
+Description=Braintrust Telemetry Collector Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=braintrust
+Group=braintrust
+WorkingDirectory=/opt/braintrust
+Environment="BRAINTRUST_API_KEY=pk-enterprise-key-xxxx"
+Environment="PATH=/opt/braintrust/venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/opt/braintrust/venv/bin/python -m braintrust.cli proxy --port 8000
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 Install the Braintrust Python SDK alongside Pydantic v2:
@@ -96,6 +159,30 @@ logger.log(
 )
 ```
 
+## Custom LLM-as-a-Judge Scorer Implementation
+
+Braintrust enables custom scoring functions that run during offline evaluation tasks or real-time production stream monitoring. Below is an example of an asynchronous correctness scorer:
+
+```python
+from braintrust import Eval
+from typing import Dict, Any
+
+async def custom_factuality_scorer(input_text: str, output_text: str, expected_text: str) -> Dict[str, Any]:
+    """
+    Evaluates semantic factuality of output against expected ground truth.
+    Returns float score between 0.0 and 1.0.
+    """
+    # Simple token overlap or model-graded LLM evaluation logic
+    match_count = sum(1 for word in expected_text.split() if word.lower() in output_text.lower())
+    score = match_count / max(len(expected_text.split()), 1)
+
+    return {
+        "name": "factuality_score",
+        "score": min(score, 1.0),
+        "metadata": {"matched_tokens": match_count}
+    }
+```
+
 ## CLI examples
 
 ### braintrust login
@@ -119,21 +206,23 @@ bt eval --file evals/test_agent_reasoning.py
 ## API examples
 
 ### FastMCP 3.1 Agent Tool Execution Tracing
-This example demonstrates how an autonomous agent powered by FastMCP 3.1 decorates tool calls and reasoning tasks with Braintrust tracing spans.
+This example demonstrates how an autonomous agent powered by FastMCP 3.1 decorates tool calls and reasoning tasks with Braintrust tracing spans using Pydantic v2 validation (`extra="forbid"`):
 
 ```python
 import asyncio
 from typing import Dict, Any, List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from braintrust import init_logger, traced, current_span
 from mcp.server.fastmcp import FastMCP
 
 # Initialize Braintrust logger for FastMCP 3.1 tool server
 init_logger(project="fastmcp-braintrust-observability")
 
-mcp = FastMCP("Braintrust-Observed-Server")
+mcp = FastMCP("Braintrust-Observed-Server", version="3.1.0")
 
 class FastMCPToolTrace(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     tool_name: str = Field(..., description="Name of the invoked MCP tool")
     params: Dict[str, Any] = Field(default_factory=dict, description="Parameters passed to tool")
     execution_time_ms: float = Field(..., ge=0.0, description="Latency in ms")
@@ -172,17 +261,19 @@ if __name__ == "__main__":
 ```
 
 ### Python: Asynchronous Nested Tracing with Pydantic v2 & Validation
-This example demonstrates logging nested agent execution spans and validating trace payloads using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`).
+This example demonstrates logging nested agent execution spans and validating trace payloads using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `extra="forbid"`).
 
 ```python
 import asyncio
 from typing import Dict, Any, List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from braintrust import init_logger, traced, current_span
 
 init_logger(project="Agent-Tracing-2027")
 
 class ToolExecutionTelemetry(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     tool_name: str = Field(..., description="Name of the executed FastMCP tool")
     arguments: Dict[str, Any] = Field(..., description="Arguments passed to the tool function")
     output: str = Field(..., description="Output string returned by the tool")
@@ -190,6 +281,8 @@ class ToolExecutionTelemetry(BaseModel):
     success: bool = Field(default=True, description="Execution success status")
 
 class AgentStepTelemetry(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     step_id: int = Field(..., description="Sequential index of reasoning step")
     reasoning: str = Field(..., description="Agent internal thought chain")
     executed_tools: List[ToolExecutionTelemetry] = Field(default_factory=list, description="List of tool executions")
@@ -257,6 +350,15 @@ When monitoring production autonomous agents executing hundreds of sub-agent too
 
 ### Continuous Evaluation in CI/CD
 Integrate `bt eval` directly into GitHub Actions or GitLab CI. Fail build pipelines if the LLM-as-a-Judge correctness score falls below configured baseline thresholds (e.g., 0.90) on the Golden Set evaluation dataset.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **API Key Authentication Failure** | Missing or expired `BRAINTRUST_API_KEY` environment variable | `braintrust status` | Re-authenticate via `braintrust login` or regenerate API key in Braintrust dashboard. |
+| **Trace Spans Not Appearing in UI** | Asynchronous logger buffer flush not called before process exit | Check stderr for unhandled background queue exceptions | Ensure `braintrust.flush()` or async context manager is invoked prior to script termination. |
+| **High Network Latency on Spans** | Synchronous span logging blocking agent event loop | Run profile with `python -m cProfile` | Enable background batching (`init_logger(async_flush=True)`) to decouple telemetry transport from agent reasoning loops. |
+| **Pydantic ValidationError on Trace Payload** | Unrecognised or unexpected fields present in telemetry dictionary | Inspect Pydantic `ValidationError` exception trace | Ensure trace dictionary keys strictly match Pydantic schema field definitions (`extra="forbid"`). |
 
 ## Related tools / concepts
 - [Arize AI](./arize-ai.md) — Enterprise ML observability and Phoenix LLM tracing platform.
