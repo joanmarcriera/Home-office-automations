@@ -50,6 +50,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "antigravity.google?ref=2026-10-19-audit](https:": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "antigravity.google](https:": {
       "discovered": 1,
       "integrated": 1,
@@ -446,8 +451,8 @@
       "score": 1.0
     },
     "github.com": {
-      "discovered": 336,
-      "integrated": 336,
+      "discovered": 343,
+      "integrated": 343,
       "score": 1.0
     },
     "glaive.ai": {
@@ -526,8 +531,8 @@
       "score": 1.0
     },
     "help.sunsama.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "heygen.com": {
@@ -556,8 +561,8 @@
       "score": 1.0
     },
     "hypothesis.works": {
-      "discovered": 5,
-      "integrated": 5,
+      "discovered": 6,
+      "integrated": 6,
       "score": 1.0
     },
     "ifttt.com": {
@@ -606,8 +611,8 @@
       "score": 1.0
     },
     "jupyter.org": {
-      "discovered": 5,
-      "integrated": 5,
+      "discovered": 6,
+      "integrated": 6,
       "score": 1.0
     },
     "k3s.io": {
@@ -1101,8 +1106,8 @@
       "score": 1.0
     },
     "researchobject.org": {
-      "discovered": 4,
-      "integrated": 4,
+      "discovered": 5,
+      "integrated": 5,
       "score": 1.0
     },
     "rivet.ironcladapp.com": {
@@ -1296,8 +1301,8 @@
       "score": 1.0
     },
     "ui.shadcn.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "unsloth.ai": {
@@ -1396,5 +1401,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-10-19"
+  "updated": "2026-10-25"
 }
