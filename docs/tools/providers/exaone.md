@@ -120,12 +120,14 @@ The following Python script demonstrates building a FastMCP 3.1 server that expo
 ```python
 import os
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("EXAONE-Expert-Reasoning-Server")
 
 class PatentQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     patent_id: str = Field(..., description="Patent reference identifier e.g. US11223344B2 or KR1020260012345")
     language: str = Field(default="ko", description="Target output language: 'ko' or 'en'")
     extract_claims: bool = Field(default=True, description="Whether to extract independent legal claims")
@@ -139,6 +141,8 @@ class PatentQueryRequest(BaseModel):
         return v.lower()
 
 class PatentQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     patent_id: str
     title: str
     claims_summary: List[str]
@@ -176,9 +180,11 @@ if __name__ == "__main__":
 When integrating enterprise models with custom APIs, tracking token counts and confirming schema formats is crucial. Here is a Pydantic v2 example demonstrating bilingual token and execution metadata validation:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class ExpertInferenceReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     model_id: str = Field(default="LGAI-EXAONE/EXAONE-3.5-750B")
     target_language: str = Field(default="ko")  # 'ko' or 'en'
     prompt_tokens: int = Field(..., gt=0)
@@ -195,6 +201,7 @@ class ExpertInferenceReport(BaseModel):
 
 # Output payload from LG EXAONE Enterprise interface
 payload = {
+    "model_id": "LGAI-EXAONE/EXAONE-3.5-750B",
     "target_language": "ko",
     "prompt_tokens": 120,
     "completion_tokens": 340,
@@ -205,6 +212,90 @@ payload = {
 # Validate using Pydantic v2
 report = ExpertInferenceReport(**payload)
 print(f"Validated Expert Report:\n{report.model_dump_json(indent=2)}")
+```
+
+## Production Deployment & Orchestration
+
+### Systemd Service Unit (`vllm-exaone.service`)
+Deploying EXAONE open weights (EXAONE-3.5-7.8B-Instruct) locally using vLLM and systemd:
+
+```ini
+[Unit]
+Description=vLLM EXAONE 3.5 7.8B Model Server
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=llm
+Group=llm
+WorkingDirectory=/opt/vllm
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="PYTHONIOENCODING=utf-8"
+ExecStart=/usr/local/bin/python3 -m vllm.entrypoints.openai.api_server \
+    --model LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct \
+    --port 8000 \
+    --trust-remote-code \
+    --gpu-memory-utilization 0.90 \
+    --max-model-len 32768 \
+    --tensor-parallel-size 1
+Restart=always
+RestartSec=10s
+
+# Sandboxing
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Configuration (`docker-compose.yml`)
+For orchestrated deployment of vLLM EXAONE alongside the FastMCP 3.1 gateway:
+
+```yaml
+version: "3.8"
+
+services:
+  exaone-vllm:
+    image: vllm/vllm-openai:v0.6.0
+    container_name: exaone-vllm-server
+    restart: unless-stopped
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      --model LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct
+      --port 8000
+      --trust-remote-code
+      --max-model-len 32768
+
+  exaone-fastmcp-bridge:
+    image: python:3.11-slim
+    container_name: exaone-fastmcp-bridge
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - EXAONE_API_BASE=http://exaone-vllm:8000/v1
+    volumes:
+      - ./bridge:/app
+    working_dir: /app
+    command: python -m mcp.server.fastmcp exaone_server.py
+    depends_on:
+      - exaone-vllm
 ```
 
 ## Performance & Throughput Benchmarks
@@ -238,6 +329,11 @@ print(f"Validated Expert Report:\n{report.model_dump_json(indent=2)}")
 - **Resolution**:
   - Configure FastMCP client timeout to 120 seconds in `mcp_config.json`.
   - Stream tokens directly via FastMCP server event-stream bindings.
+
+### 4. `TrustRemoteCodeError` on Load
+- **Symptom**: vLLM or Hugging Face fails to initialize EXAONE model weights with custom code execution warnings.
+- **Cause**: EXAONE model repository utilizes custom model code modules.
+- **Resolution**: Pass `--trust-remote-code` flag in CLI or `trust_remote_code=True` in Python `from_pretrained`.
 
 ## Related tools / concepts
 - [AWS Bedrock](aws-bedrock.md) — Managed enterprise service for hosting foundation models.

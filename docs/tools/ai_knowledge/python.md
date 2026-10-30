@@ -166,6 +166,8 @@ class AgentExecutionTask(BaseModel):
         return v.lower()
 
 class AgentExecutionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str
     status: str
     executed_model: str
@@ -213,9 +215,11 @@ This snippet illustrates asynchronous parallel execution of data validation task
 ```python
 import asyncio
 import polars as pl
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class DataRowSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     feature_id: int
     score: float = Field(..., ge=0.0, le=1.0)
     label: str
@@ -240,6 +244,89 @@ data = pl.DataFrame({
 validated_batch = asyncio.run(process_data_batch(data))
 print(f"Validated {len(validated_batch)} rows successfully.")
 ```
+
+## Production Deployment & Orchestration
+
+### Systemd Service Unit (`fastmcp-python-server.service`)
+Deploying a production Python FastMCP 3.1 service using systemd:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Asynchronous Python Tool Execution Service
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=fastmcp
+Group=fastmcp
+WorkingDirectory=/opt/fastmcp-server
+Environment="PYTHONPATH=/opt/fastmcp-server"
+Environment="PYTHONIOENCODING=utf-8"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/fastmcp-server/.venv/bin/python -m mcp.server.fastmcp main_server.py --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5s
+
+# Security Sandboxing & Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/fastmcp /tmp/fastmcp-cache
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack (`docker-compose.yml`)
+For multi-container deployments hosting Python FastMCP services and Redis state backends:
+
+```yaml
+version: "3.8"
+
+services:
+  python-fastmcp-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-fastmcp-agent
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      - FASTMCP_ENV=production
+    volumes:
+      - ./app:/opt/app:ro
+      - agent-cache:/tmp/fastmcp-cache
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: fastmcp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  agent-cache:
+  redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Diagnostic Step | Resolution / Fix |
+| :--- | :--- | :--- | :--- |
+| `ValidationError: Extra inputs are not permitted` | Payload contains unlisted keys sent to Pydantic v2 model with `extra="forbid"` | Print `request.dict()` and check schema definitions | Filter extra payload keys or add allowed fields to Pydantic model |
+| `ModuleNotFoundError: No module named 'mcp'` | FastMCP package not installed in active virtual environment | Run `python -c "import mcp"` inside `.venv` | Re-activate virtualenv (`source .venv/bin/activate`) and run `pip install fastmcp` |
+| `GIL Thread Contention Overhead` | CPU-bound multi-threading bottleneck on Python < 3.13 builds | Profile process CPU utilization across threads using `top -H` or `py-spy` | Upgrade to Python 3.13+ free-threaded build or utilize `multiprocessing` / `ProcessPoolExecutor` |
+| `CUDA Out of Memory (OOM)` | PyTorch tensor allocation exceeded GPU RAM limits | Execute `nvidia-smi` to monitor VRAM allocation | Clear PyTorch cache (`torch.cuda.empty_cache()`), enable `torch.bfloat16`, or decrease batch size |
+| `FastMCP Connection Refused` | Systemd service failed to bind host port 8000 | Check logs via `journalctl -u fastmcp-python-server.service -f` | Ensure port 8000 is free (`ss -tulpn \| grep 8000`) and verify network permissions |
 
 ## Related tools / concepts
 - [PydanticAI](../frameworks/pydantic-ai.md) — Model-driven agent framework leveraging Python.
