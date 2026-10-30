@@ -86,6 +86,86 @@ During home sales or insurance audits, the assistant synthesizes model numbers, 
 - **High-Voltage or Gas Line Emergencies**: Never use AI advice for live electrical panel work, main gas line leaks, or structural hazard remediation. Always call licensed professionals.
 - **Active Structural Flooding or Fire**: Immediate safety hazards require manual shutoff valves, emergency services, and professional intervention.
 
+## Systemd Ingestion Worker Service Unit
+
+To run continuous automated PDF manual ingestion and vector indexing as a Linux background service:
+
+```ini
+[Unit]
+Description=Local Appliance Manual RAG Ingestion Daemon
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=homelab
+Group=homelab
+WorkingDirectory=/opt/manual-troubleshooting
+Environment="PATH=/opt/manual-troubleshooting/venv/bin:/usr/bin"
+Environment="CHROMADB_HOST=localhost"
+Environment="CHROMADB_PORT=8000"
+Environment="OLLAMA_BASE_URL=http://localhost:11434"
+ExecStart=/opt/manual-troubleshooting/venv/bin/python3 scripts/process_manuals.py --watch-dir /data/manuals_intake --collection household_manuals
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Diagnostic Stack
+
+Deploying ChromaDB, Docling Vision Parser, Ollama LLM Runtime, and the FastMCP Diagnostic Gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    container_name: manual_chromadb
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  docling-parser:
+    image: ds4sd/docling-serve:v1.2.0
+    container_name: manual_docling_parser
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - DOCLING_DEVICE=cuda
+
+  diagnostic-mcp-server:
+    image: python:3.11-slim
+    container_name: manual_diagnostic_mcp
+    restart: unless-stopped
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - CHROMADB_HOST=chromadb
+      - CHROMADB_PORT=8000
+    ports:
+      - "8095:8095"
+    command: ["python3", "-m", "mcp.server.fastmcp", "run", "scripts/diagnostic_mcp.py", "--port", "8095"]
+    depends_on:
+      - chromadb
+      - docling-parser
+
+volumes:
+  chroma_data:
+```
+
 ## Getting started
 
 ### 1. Ingesting Manuals into Vector Database
@@ -141,7 +221,7 @@ python3 scripts/setup_video_db.py --list-collections
 ## API examples
 
 ### FastMCP 3.1 Appliance Diagnostic Server
-The following Python script implements a production-grade FastMCP 3.1 server exposing appliance manual retrieval and diagnostic tools to agentic clients:
+The following Python script implements a production-grade FastMCP 3.1 server exposing appliance manual retrieval and diagnostic tools with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 #!/usr/bin/env python3
@@ -153,7 +233,7 @@ Exposes tools for searching ingested manuals, parsing error codes, and generatin
 import os
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Initialize FastMCP Server
 mcp = FastMCP(
@@ -161,6 +241,22 @@ mcp = FastMCP(
     version="3.1.0",
     description="Local-first appliance diagnostic and RAG manual retrieval server"
 )
+
+class ErrorCodeLookupRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    appliance_type: str = Field(..., description="Type of appliance (e.g. Dishwasher, Refrigerator)")
+    error_code: str = Field(..., description="Alphanumeric error code shown on panel")
+
+class DiagnosticResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    appliance: str
+    error_code: str
+    cause: str
+    remediation_steps: List[str]
+    source_manual: str
 
 # Mock Vector DB Store
 MOCK_MANUAL_DB = {
@@ -180,20 +276,20 @@ MOCK_MANUAL_DB = {
 
 @mcp.tool()
 def diagnose_error_code(appliance_type: str, error_code: str) -> Dict[str, Any]:
-    """
-    Retrieves grounded troubleshooting steps for a specific appliance error code.
-    """
+    """Retrieves grounded troubleshooting steps for a specific appliance error code."""
     code_clean = error_code.strip().upper()
     if code_clean in MOCK_MANUAL_DB:
         entry = MOCK_MANUAL_DB[code_clean]
-        return {
-            "status": "grounded_match",
-            "appliance": entry["appliance"],
-            "error_code": code_clean,
-            "cause": entry["cause"],
-            "remediation_steps": entry["steps"],
-            "source_manual": f"Page {entry['manual_page']} of Official Service Manual"
-        }
+        res = DiagnosticResponse(
+            status="grounded_match",
+            appliance=entry["appliance"],
+            error_code=code_clean,
+            cause=entry["cause"],
+            remediation_steps=entry["steps"],
+            source_manual=f"Page {entry['manual_page']} of Official Service Manual"
+        )
+        return res.model_dump()
+
     return {
         "status": "unmatched",
         "message": f"No exact match for code '{error_code}' in {appliance_type} manual. Please consult manual index."
@@ -207,9 +303,11 @@ if __name__ == "__main__":
 ```python
 import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 
 class ApplianceDiagnosticRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     appliance_brand: str = Field(..., min_length=2, description="Brand name (e.g. Bosch, LG, Samsung)")
     model_number: Optional[str] = Field(None, description="Appliance model or serial number")
     error_code: str = Field(..., min_length=1, description="Displayed error code")
@@ -224,6 +322,8 @@ class ApplianceDiagnosticRequest(BaseModel):
         return v
 
 class RemediationPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     appliance_brand: str
     error_code: str
     safety_warning: str = Field(..., description="Mandatory safety warning header")
@@ -260,6 +360,15 @@ if __name__ == "__main__":
     print("Successfully validated Diagnostic Remediation Plan:")
     print(validated_json)
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure | Root Cause | Remediation Action |
+| :--- | :--- | :--- |
+| `ChromaDB connection refused (port 8000)` | Vector database service down or container restarted. | Check container status (`docker ps`) and restart `manual_chromadb` service. |
+| `Zero vector search results returned` | Document chunks parsed with incorrect embedding dimensions. | Re-run `process_manuals.py` using matching embedding model (`nomic-embed-text` / `bge-m3`). |
+| `Docling Vision OCR timeout on PDF` | High-resolution PDF scanning exceeding CPU/GPU processing window. | Enable GPU acceleration (`DOCLING_DEVICE=cuda`) or split multi-page PDF files. |
+| `Pydantic Extra Fields Error on Request` | Agent payload contained unexpected metadata keys. | Validate client payloads against strict `extra="forbid"` Pydantic schemas before posting. |
 
 ## Related tools / concepts
 - [Open WebUI](../services/open-webui.md)

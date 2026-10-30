@@ -75,6 +75,71 @@ It allows enterprise organizations to use advanced LLMs with improved security, 
 - If you need immediate access to experimental OpenAI features the day they are announced.
 - If your workload is entirely local and requires on-premises execution (use [Ollama](../../services/ollama.md) or [Mistral](mistral.md)).
 
+## Systemd Token Maintenance Service Unit
+
+To run continuous Microsoft Entra ID token caching and renewal daemon for autonomous Azure agents:
+
+```ini
+[Unit]
+Description=Azure OpenAI Entra ID Token Renewal Service
+After=network.target
+
+[Service]
+Type=simple
+User=azure-agent
+Group=azure-agent
+WorkingDirectory=/opt/azure-openai-agent
+Environment="AZURE_TENANT_ID=00000000-0000-0000-0000-000000000000"
+Environment="AZURE_CLIENT_ID=11111111-1111-1111-1111-111111111111"
+Environment="AZURE_OPENAI_ENDPOINT=https://my-enterprise-resource.openai.azure.com/"
+ExecStart=/opt/azure-openai-agent/venv/bin/python3 -m azure_token_cache.daemon --refresh-interval 3000
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Setup for Azure Private Link Proxy Gateway
+
+For routing internal agent traffic through an NGINX TLS proxy connected to Azure Private Link endpoints:
+
+```yaml
+version: '3.8'
+
+services:
+  azure-openai-proxy:
+    image: nginx:1.25-alpine
+    container_name: azure_openai_private_link_proxy
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  azure-fastmcp-agent:
+    image: python:3.11-slim
+    container_name: azure_fastmcp_agent_server
+    restart: unless-stopped
+    environment:
+      - AZURE_OPENAI_ENDPOINT=https://azure-openai-proxy:8443/
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+    ports:
+      - "8092:8092"
+    depends_on:
+      - azure-openai-proxy
+    command: ["python3", "-m", "mcp.server.fastmcp", "run", "agent_server.py", "--port", "8092"]
+```
+
 ## Getting started
 
 ### 1. Installation
@@ -158,21 +223,25 @@ print(response.choices[0].message.content)
 ```
 
 ### Python (Structured Outputs via Pydantic v2)
-Uses Azure OpenAI's beta client parsing features to enforce structured output compliance through a strict Pydantic v2 schema.
+Uses Azure OpenAI's beta client parsing features to enforce structured output compliance through a strict Pydantic v2 schema (`extra="forbid"`).
 
 ```python
 import os
 from openai import AzureOpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 
 # Define strict Pydantic v2 schemas
 class SecurityRisk(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     category: str = Field(..., description="The type of risk detected (e.g., Prompt Injection, PII leakage)")
     risk_level: str = Field(..., description="Severity level: High, Medium, or Low")
     description: str = Field(..., description="Details and mitigating actions")
 
 class AuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     is_compliant: bool = Field(..., description="True if no high-risk items are found")
     findings: List[SecurityRisk] = Field(default_factory=list, description="List of identified issues")
 
@@ -181,7 +250,6 @@ client = AzureOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT", "https://my-resource.openai.azure.com/")
 )
 
-# Leverage response_format with parse to strictly validate the payload structure
 completion = client.beta.chat.completions.parse(
     model="gpt56-prod",
     response_format=AuditReport,
@@ -191,7 +259,6 @@ completion = client.beta.chat.completions.parse(
     ]
 )
 
-# Directly access the structured Pydantic model response
 report: AuditReport = completion.choices[0].message.parsed
 print(f"Compliance status: {report.is_compliant}")
 for finding in report.findings:
@@ -199,25 +266,29 @@ for finding in report.findings:
 ```
 
 ### Advanced FastMCP 3.1 Task Protocol Server
-Expose an Azure OpenAI-powered enterprise agent tool via [FastMCP 3.1](../automation_orchestration/mcp.md) with task state tracking and strict schema verification:
+Expose an Azure OpenAI-powered enterprise agent tool via [FastMCP 3.1](../automation_orchestration/mcp.md) with task state tracking and strict schema verification (`extra="forbid"`):
 
 ```python
 import os
 import asyncio
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-mcp = FastMCP("EnterpriseAzureAgent")
+mcp = FastMCP("EnterpriseAzureAgent", version="3.1.0")
 
 class EnterpriseTaskQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(..., description="The high-level user query or task instruction")
     data_context: str = Field(..., description="Data context or domain parameters for processing")
     confidence_threshold: float = Field(0.85, ge=0.0, le=1.0, description="Minimum confidence score required")
 
 class EnterpriseTaskResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="Unique task identifier")
     status: str = Field(..., description="Execution status (COMPLETED, FAILED, REVIEW_REQUIRED)")
     summary: str = Field(..., description="Executive summary of task output")
@@ -271,6 +342,15 @@ if __name__ == "__main__":
 4. **Monitoring & Cost Control**:
    - Enable Azure Monitor diagnostic settings to stream token usage, latency (TTFT / time-to-first-token), and request volume to Log Analytics workspaces.
    - Implement Azure Cost Management budgets with alert triggers at 80% and 100% threshold consumption.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure | Root Cause | Remediation Action |
+| :--- | :--- | :--- |
+| `HTTP 401 PrincipalNotFound` | Entra ID Managed Identity missing `Cognitive Services OpenAI User` role. | Assign role via Azure CLI: `az role assignment create --assignee <principal-id> --role "Cognitive Services OpenAI User"`. |
+| `HTTP 429 Too Many Requests` | Standard Pay-As-You-Go deployment exceeded Tokens-Per-Minute (TPM) quota. | Request TPM quota increase in Azure Portal or migrate workload to Provisioned Throughput (PTU). |
+| `Private Endpoint DNS Name Error` | VNet private DNS zone missing split-horizon record for `openai.azure.com`. | Add CNAME record pointing `my-resource.openai.azure.com` to private endpoint IP in Azure Private DNS. |
+| `Pydantic Extra Fields Error` | Response or query payload included unregistered schema parameters. | Configure client models with strict `model_config = ConfigDict(extra="forbid")` validation. |
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The underlying model developer.

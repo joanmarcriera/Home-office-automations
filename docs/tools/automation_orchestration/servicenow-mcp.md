@@ -112,6 +112,72 @@ To use the ServiceNow MCP server (early 2027 FastMCP 3.1 compatible version):
 }
 ```
 
+## Systemd Service Configuration
+
+To run the ServiceNow MCP Server as a background daemon on Linux servers:
+
+```ini
+[Unit]
+Description=ServiceNow MCP Server (FastMCP 3.1)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=servicenow-mcp
+Group=servicenow-mcp
+WorkingDirectory=/opt/servicenow-mcp
+Environment="SERVICENOW_INSTANCE_URL=https://your-instance.service-now.com"
+Environment="SERVICENOW_USERNAME=mcp_service_acct"
+Environment="SERVICENOW_PASSWORD=SecretServicePassword123!"
+ExecStart=/opt/servicenow-mcp/venv/bin/python -m mcp_server_servicenow.cli --transport sse --port 8090
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment
+
+Deploying ServiceNow MCP alongside Redis for tool token bucket caching:
+
+```yaml
+version: '3.8'
+
+services:
+  servicenow-mcp:
+    image: mcp-server-servicenow:3.1.0
+    container_name: servicenow_mcp_gateway
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - SERVICENOW_INSTANCE_URL=https://your-instance.service-now.com
+      - SERVICENOW_USERNAME=${SERVICENOW_USERNAME}
+      - SERVICENOW_PASSWORD=${SERVICENOW_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: servicenow_mcp_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+```
+
 ## CLI examples
 
 ### Running the Server Manually
@@ -142,18 +208,20 @@ mcp-cli read-resource servicenow://incidents
 ## API examples
 
 ### Python: FastMCP 3.1 Custom ServiceNow Server Bridge
-The following complete FastMCP 3.1 Python implementation builds a custom ServiceNow MCP tool endpoint with Pydantic v2 schemas:
+The following complete FastMCP 3.1 Python implementation builds a custom ServiceNow MCP tool endpoint with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import os
 import requests
 from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("Custom-ServiceNow-ITSOM-Server")
+mcp = FastMCP("Custom-ServiceNow-ITSOM-Server", version="3.1.0")
 
 class IncidentSearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     table_name: str = Field(default="incident", description="Target ServiceNow table")
     query: str = Field(..., description="Encoded ServiceNow sysparm_query (e.g., active=true^priority=1)")
     limit: int = Field(default=10, ge=1, le=100)
@@ -167,6 +235,8 @@ class IncidentSearchRequest(BaseModel):
         return v.lower()
 
 class IncidentRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     sys_id: str
     number: str
     short_description: str
@@ -174,13 +244,15 @@ class IncidentRecord(BaseModel):
     state: str
 
 class IncidentSearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     records: List[IncidentRecord]
     total_found: int
     status: str = Field(default="success")
 
 @mcp.tool()
 def search_servicenow_records(request: IncidentSearchRequest) -> IncidentSearchResponse:
-    """Queries ServiceNow records using encoded sysparm_query over REST API."""
+    """Queries ServiceNow records using encoded sysparm_query over REST API with strict Pydantic v2 validation."""
     instance_url = os.getenv("SERVICENOW_INSTANCE_URL", "https://dev00000.service-now.com")
     username = os.getenv("SERVICENOW_USERNAME", "admin")
     password = os.getenv("SERVICENOW_PASSWORD", "secret")
@@ -244,9 +316,11 @@ Robust local validation (Python) of incident and record payloads prior to updati
 ```python
 import os
 from typing import Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 
 class ServiceNowIncident(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     sys_id: str = Field(..., description="Unique ServiceNow system identifier")
     number: str = Field(..., description="Descriptive human-readable number (e.g. INC0012345)")
     short_description: str = Field(..., alias="shortDescription", description="Brief summary of the issue")
@@ -254,6 +328,8 @@ class ServiceNowIncident(BaseModel):
     assigned_to: Optional[str] = Field(None, alias="assignedTo", description="Assigned support agent name")
 
 class UpdateResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     incident: ServiceNowIncident
 
@@ -314,21 +390,21 @@ Directly updating ServiceNow business logic from an agent:
 | **Script Include Upload** | FastMCP 3.1 Stdio | 380 ms | 12.5 KB | 99.5% |
 | **CMDB Topology Search** | FastMCP 3.1 SSE | 450 ms | 28.0 KB | 98.9% |
 
-## Troubleshooting & Diagnostics
+## Operational Guardrails & Security Best Practices
 
-### 1. HTTP 401 Unauthorized / Authentication Failures
-- **Symptom**: FastMCP client receives `401 Unauthorized` responses during tool calls.
-- **Cause**: Invalid Web Service user credentials, expired OAuth tokens, or account lockout in ServiceNow.
-- **Resolution**:
-  - Verify ServiceNow user has `rest_api_explorer` or `itil` roles assigned.
-  - Test credentials via direct cURL request: `curl -u "user:pass" https://your-instance.service-now.com/api/now/table/incident?sysparm_limit=1`.
+1. **Service Account Least Privilege**: Do not execute ServiceNow MCP Server using personal administrator credentials. Create a dedicated Web Services account with restricted ACL roles (`itil_admin` or specific read/write access to targeted custom tables).
+2. **Field-Level Access Control (ACLs)**: Enforce ACL policies within ServiceNow to restrict AI agents from modifying critical fields like `sys_created_by` or overriding audit histories.
+3. **Rate Limit Throttling**: Configure token-bucket throttling on the FastMCP server layer to avoid tripping ServiceNow instance API throttle thresholds (429 Too Many Requests).
+4. **Audit Logging**: All write actions performed via FastMCP tools automatically append the invoking LLM agent session ID to the ServiceNow work notes log for trace compliance.
 
-### 2. Slow Response Times / Timeout Exceptions
-- **Symptom**: Tool execution times exceed 30 seconds when querying large CMDB or audit tables.
-- **Cause**: Unindexed queries in `sysparm_query` causing full table scans in ServiceNow.
-- **Resolution**:
-  - Ensure query string utilizes indexed fields like `sys_id`, `number`, or `active`.
-  - Add explicit limit filters (`sysparm_limit=10`).
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Action |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` | Invalid service account credentials or expired OAuth token. | Verify username/password in systemd environment file or test cURL token endpoint. |
+| `HTTP 403 Forbidden` | Service account lacks ACL permissions for requested table. | Assign necessary ACL role (`itil`, `cmdb_read`) in ServiceNow user configuration. |
+| `FastMCP Tool Timeout (>30s)` | Unindexed `sysparm_query` causing full table scan on massive table. | Optimize query filter to use indexed columns (`sys_id`, `number`, `active=true`). |
+| `Pydantic Extra Fields Error` | Unregistered payload parameter passed to strict schema. | Ensure agent payloads strictly match defined model fields without extra keys. |
 
 ## Licensing and cost
 - **Open Source**: Yes (project listed with MIT badge in registry listing)
