@@ -279,6 +279,110 @@ except ValidationError as e:
     print("Manifest validation failed:", e.errors())
 ```
 
+## Production Deployment & Operational Management
+
+In production AI engineering workflows, Hugging Face Hub operations require automated cache maintenance daemons and containerized inference or mirror proxy stacks.
+
+### Systemd Daemon Configuration (`hf-cache-management.service`)
+
+The following systemd service unit runs scheduled cache pruning and hub model artifact verification across shared multi-GPU worker nodes.
+
+```ini
+[Unit]
+Description=Hugging Face Hub Cache & Sync Daemon
+Documentation=https://huggingface.co/docs/huggingface_hub
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=hf-runner
+Group=hf-runner
+WorkingDirectory=/opt/hf-cache-mgr
+Environment="HF_HOME=/var/cache/huggingface"
+Environment="HF_HUB_ENABLE_HF_TRANSFER=1"
+EnvironmentFile=/etc/huggingface/hub.env
+ExecStart=/opt/hf-cache-mgr/bin/python3 -m huggingface_hub.cli.scan_cache --delete-strategy limit=100GB
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hf-cache-mgr
+
+# Security hardening
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/cache/huggingface /var/log/huggingface
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Deployment (`docker-compose.yml`)
+
+Deploying a local Hugging Face Hub proxy along with Text Generation Inference (TGI) and Redis cache ensures optimized model download performance and offline resiliency.
+
+```yaml
+version: '3.8'
+
+services:
+  hf-hub-proxy:
+    image: huggingface/hub-mirror-proxy:v2.4.0
+    container_name: hf-hub-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8088:8088"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - REDIS_URL=redis://hf-redis-cache:6379/0
+      - CACHE_DIR=/var/cache/huggingface
+      - FASTMCP_LISTEN_PORT=8088
+    volumes:
+      - hf-shared-cache:/var/cache/huggingface
+    depends_on:
+      hf-redis-cache:
+        condition: service_healthy
+    networks:
+      - hf-network
+    resources:
+      limits:
+        cpus: '2.0'
+        memory: 4GiB
+
+  hf-redis-cache:
+    image: redis:7.2-alpine
+    container_name: hf-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - hf-redis-data:/data
+    networks:
+      - hf-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hf-network:
+    driver: bridge
+
+volumes:
+  hf-shared-cache:
+  hf-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The reference table below highlights common operational failures when managing Hugging Face Hub models, datasets, and FastMCP endpoints.
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`401 Client Error: Unauthorized`** | Missing or expired `HF_TOKEN` when accessing gated repositories (e.g., Llama-3). | `huggingface-cli whoami` | Re-authenticate using `huggingface-cli login` or verify token permissions in `/etc/huggingface/hub.env`. |
+| **Disk Exhaustion on Node** | Accumulated unpruned revisions in `~/.cache/huggingface/hub`. | `huggingface-cli scan-cache` | Run cache pruning daemon or execute `huggingface-cli delete-cache` to reclaim storage space. |
+| **Slow Download Speeds** | Rust `hf_transfer` module disabled or missing dependencies. | `python3 -c "import hf_transfer"` | Set `export HF_HUB_ENABLE_HF_TRANSFER=1` and ensure `hf_transfer` Python package is installed. |
+| **FastMCP Schema Validation Error** | Invalid parameter types sent to Hugging Face FastMCP server tool. | `journalctl -u hf-cache-management.service -n 50 --no-pager` | Ensure request attributes conform strictly to `HFModelDownloadRequest` with `extra="forbid"`. |
+
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local model runner utilizing Hugging Face model weights.
 - [vLLM](../infrastructure/vllm.md) — High-throughput LLM serving engine for Hugging Face models.

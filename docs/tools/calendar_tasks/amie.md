@@ -229,6 +229,112 @@ if __name__ == "__main__":
     validate_amie_sync_response(sample_response)
 ```
 
+## Production Deployment & Operational Management
+
+In enterprise environments, Amie background synchronization services operate as high-reliability systemd daemons alongside containerized local proxy stacks.
+
+### Systemd Daemon Configuration (`amie-sync.service`)
+
+The following systemd service unit maintains continuous background event polling and webhook synchronization between local calendar clients and the Amie API gateway.
+
+```ini
+[Unit]
+Description=Amie Calendar & Task Sync Daemon
+Documentation=https://amie.so/help
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=amie
+Group=amie
+WorkingDirectory=/opt/amie-sync
+Environment="AMIE_ENV=production"
+Environment="AMIE_API_ENDPOINT=https://api.amie.so/v2"
+EnvironmentFile=/etc/amie/sync-daemon.env
+ExecStart=/opt/amie-sync/bin/python3 -m amie_sync.daemon --interval 30 --enable-fastmcp-listener
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=amie-sync
+
+# Hardening measures
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/amie /var/run/amie
+PrivateTmp=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Deployment (`docker-compose.yml`)
+
+Deploying the local Amie synchronization relay and FastMCP gateway in containerized infrastructure ensures isolation, caching, and rate-limit buffering.
+
+```yaml
+version: '3.8'
+
+services:
+  amie-proxy:
+    image: amie/sync-relay:v3.1.0
+    container_name: amie-sync-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8085:8085"
+    environment:
+      - AMIE_API_KEY=${AMIE_API_KEY}
+      - REDIS_HOST=amie-cache
+      - REDIS_PORT=6379
+      - FASTMCP_SERVER_PORT=8085
+      - LOG_LEVEL=info
+    depends_on:
+      amie-cache:
+        condition: service_healthy
+    networks:
+      - amie-network
+    resources:
+      limits:
+        cpus: '0.50'
+        memory: 512M
+
+  amie-cache:
+    image: redis:7.2-alpine
+    container_name: amie-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - amie-redis-data:/data
+    networks:
+      - amie-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  amie-network:
+    driver: bridge
+
+volumes:
+  amie-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The following reference table lists common operational issues, diagnostic commands, and recovery procedures when integrating Amie with FastMCP 3.1 workflows.
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **OAuth Token Expiration (401 Unauthorized)** | Stale refresh token for Google Workspace or Microsoft 365. | `curl -H "Authorization: Bearer $TOKEN" https://api.amie.so/v2/user/profile` | Re-authenticate via `amie auth login --reauth` or refresh secrets in `/etc/amie/sync-daemon.env`. |
+| **FastMCP Tool Validation Error (`extra_fields`)** | Payload contains forbidden attributes breaking strict schema contract. | `journalctl -u amie-sync.service -n 50 --no-pager \| grep ValidationError` | Ensure incoming agent requests strictly match `AmieCalendarSyncRequest` schema parameters. |
+| **Bi-directional Sync Drift** | Concurrent offline edits creating conflict timestamps. | `python3 -m amie_sync.cli verify-drift --calendar-id primary` | Trigger manual resynchronization with `amie-cli sync --force-resolution=server`. |
+| **Webhook Delivery Latency** | Network throttling or rate limit threshold exceeded on API provider. | `redis-cli -a $REDIS_PASSWORD info stats \| grep rejected_connections` | Upgrade proxy cache retention and increase exponential backoff retry interval in `docker-compose.yml`. |
+
 ## Related tools / concepts
 - [Sunsama](sunsama.md) — Daily planning tool focused on intentional work rituals.
 - [Akiflow](akiflow.md) — Time-blocking and task aggregation competitor.

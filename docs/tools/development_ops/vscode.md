@@ -279,6 +279,114 @@ WantedBy=multi-user.target
 - **Extension Audit Policy**: Periodically run `code --list-extensions` in CI pipelines to check installed extension IDs against approved security allowlists.
 - **Telemetry Opt-Out**: Set `"telemetry.telemetryLevel": "off"` in global settings for strict air-gapped security compliance.
 
+## Production Deployment & Operational Management
+
+In enterprise remote development workflows, VS Code Server (`code-server`) is deployed as a managed systemd service or containerized web-accessible environment alongside FastMCP 3.1 sidecar agents.
+
+### Systemd Service Configuration (`code-server-remote.service`)
+
+The systemd service unit below manages a multi-user headless VS Code Server daemon with authentication middleware and extension synchronization.
+
+```ini
+[Unit]
+Description=VS Code Server Remote Daemon
+Documentation=https://code.visualstudio.com/docs/remote/vscode-server
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer/workspace
+Environment="CODE_SERVER_PORT=8080"
+Environment="VSCODE_AGENT_FOLDER=/home/developer/.vscode-server"
+EnvironmentFile=/etc/vscode/code-server.env
+ExecStart=/usr/bin/code-server --bind-addr 127.0.0.1:8080 --auth password --user-data-dir /home/developer/.code-server
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vscode-server
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=false
+ReadWritePaths=/home/developer /var/log/vscode
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Deployment (`docker-compose.yml`)
+
+Deploying web-based VS Code (`code-server`) with sidecar FastMCP tool services and a caching proxy allows developers to access secure cloud development environments from any browser.
+
+```yaml
+version: '3.8'
+
+services:
+  vscode-server:
+    image: codercom/code-server:4.90.0
+    container_name: vscode-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - PASSWORD=${VSCODE_PASSWORD}
+      - SUDO_PASSWORD=${VSCODE_SUDO_PASSWORD}
+      - FASTMCP_SERVER_URI=http://vscode-mcp-sidecar:8093
+    volumes:
+      - vscode-workspace:/home/coder/project
+      - vscode-config:/home/coder/.local/share/code-server
+    depends_on:
+      vscode-redis-cache:
+        condition: service_healthy
+    networks:
+      - vscode-network
+    resources:
+      limits:
+        cpus: '2.0'
+        memory: 4GiB
+
+  vscode-redis-cache:
+    image: redis:7.2-alpine
+    container_name: vscode-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - vscode-redis-data:/data
+    networks:
+      - vscode-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  vscode-network:
+    driver: bridge
+
+volumes:
+  vscode-workspace:
+  vscode-config:
+  vscode-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The reference matrix below summarizes typical operational failures encountered when running VS Code, extension sync engines, or FastMCP 3.1 sidecar integration processes.
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`code-server` Authentication Bypass Block** | Invalid password configuration or missing HTTPS termination. | `curl -i http://localhost:8080/healthz` | Verify `PASSWORD` variable in `/etc/vscode/code-server.env` and enforce reverse proxy SSL/TLS. |
+| **Extension Host Crashes (`ENOSPC`)** | Inotify file watcher limit exhausted on Linux kernel. | `cat /proc/sys/fs/inotify/max_user_watches` | Increase limit in `/etc/sysctl.conf`: `fs.inotify.max_user_watches=524288`. |
+| **FastMCP Extension Tool Error (`extra_fields`)** | Unexpected parameters breaking strict Pydantic v2 validation. | `journalctl -u code-server-remote.service -n 50 --no-pager` | Validate payload against `VSCodeWorkspaceInspectionRequest` schema with `extra="forbid"`. |
+| **Extension Installation Failure** | Marketplace network timeout or proxy misconfiguration. | `code --install-extension ms-python.python --verbose` | Set `http.proxy` setting in `.vscode/settings.json` or pre-load `.vsix` files into cache directory. |
+
 ## Related tools / concepts
 - [Windsurf](windsurf.md) — AI-powered IDE from Codeium.
 - [Zed](zed.md) — High-performance Rust-based editor alternative.
