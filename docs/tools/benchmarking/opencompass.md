@@ -255,6 +255,112 @@ if __name__ == "__main__":
 2. **Dataset Contamination Auditing**: Run contamination detection scripts (`tools/check_contamination.py`) against custom training datasets prior to benchmarking.
 3. **vLLM Acceleration**: Always enable `--acceleration vllm` or SGLang for batch evaluations to increase throughput by up to 10x.
 
+## Production Deployment & Operational Management
+
+In enterprise benchmark environments, OpenCompass evaluation pipelines run as automated systemd queue daemons or distributed Ray worker clusters managed via Docker Compose.
+
+### Systemd Service Configuration (`opencompass-eval.service`)
+
+The systemd service unit below runs scheduled model evaluation jobs in headless environments, handling logging, artifact storage, and GPU worker coordination.
+
+```ini
+[Unit]
+Description=OpenCompass Benchmarking Daemon
+Documentation=https://opencompass.readthedocs.io/
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opencompass
+Group=opencompass
+WorkingDirectory=/opt/opencompass
+Environment="PYTHONPATH=/opt/opencompass"
+Environment="CUDA_VISIBLE_DEVICES=0,1,2,3"
+EnvironmentFile=/etc/opencompass/eval.env
+ExecStart=/opt/opencompass/bin/python3 -m opencompass.cli.daemon --config /etc/opencompass/daily_eval_config.py --work-dir /var/lib/opencompass/outputs
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=opencompass-eval
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/opencompass /var/log/opencompass
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Deployment (`docker-compose.yml`)
+
+The multi-container Docker Compose setup provisions an OpenCompass evaluation master alongside Ray worker nodes and a FastMCP 3.1 evaluation gateway server.
+
+```yaml
+version: '3.8'
+
+services:
+  opencompass-master:
+    image: opencompass/opencompass:v0.3.5
+    container_name: opencompass-master
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8094:8094"
+    environment:
+      - FASTMCP_SERVER_PORT=8094
+      - RAY_ADDRESS=ray-head:6379
+      - WORK_DIR=/outputs
+    volumes:
+      - opencompass-data:/data
+      - opencompass-outputs:/outputs
+    depends_on:
+      ray-head:
+        condition: service_started
+    networks:
+      - eval-network
+    resources:
+      limits:
+        cpus: '4.0'
+        memory: 16GiB
+
+  ray-head:
+    image: rayproject/ray:2.9.0-py310
+    container_name: ray-head
+    restart: unless-stopped
+    command: ray start --head --port=6379 --dashboard-host=0.0.0.0
+    ports:
+      - "127.0.0.1:8265:8265"
+    networks:
+      - eval-network
+    resources:
+      limits:
+        cpus: '4.0'
+        memory: 8GiB
+
+networks:
+  eval-network:
+    driver: bridge
+
+volumes:
+  opencompass-data:
+  opencompass-outputs:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The reference table below addresses common execution errors, GPU memory exhaustion issues, and schema validation failures during OpenCompass benchmark runs.
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`OutOfMemoryError` (CUDA OOM)** | Batch size too large for allocated GPU VRAM during model inference. | `nvidia-smi` | Decrease `max_seq_len` or set `max_num_workers` to lower value in evaluation config. |
+| **`DatasetNotFoundError`** | Benchmark dataset missing from local cache directory. | `ls /data/datasets/` | Run `python tools/download_dataset.py` or check dataset mounting paths in `docker-compose.yml`. |
+| **FastMCP Tool Validation Error (`extra_fields`)** | Payload contains forbidden attributes breaking strict schema contract. | `journalctl -u opencompass-eval.service -n 50 --no-pager \| grep ValidationError` | Ensure incoming agent requests strictly match `OpenCompassEvalRequest` schema parameters. |
+| **Ray Cluster Desynchronization** | Network packet drop or head node timeout. | `ray status` | Restart `ray-head` service and verify cluster ports in `eval-network`. |
+
 ## Related tools / concepts
 - [LM Evaluation Harness](lm-evaluation-harness.md) — Open-source LLM benchmark harness.
 - [HELM](helm.md) — Stanford Holistic Evaluation of Language Models framework.

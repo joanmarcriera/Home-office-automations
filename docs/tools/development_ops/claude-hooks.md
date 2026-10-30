@@ -269,6 +269,112 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Operational Management
+
+Deploying Claude Hooks in enterprise software environments requires centralized hook routing daemons, strict payload audit logging, and isolated container stacks.
+
+### Systemd Service Configuration (`claude-hook-router.service`)
+
+The following systemd service daemon acts as a high-performance event bus that intercepts pre-tool execution events, validates syntax, and streams security telemetry.
+
+```ini
+[Unit]
+Description=Claude Hook Event Router & Security Dispatcher
+Documentation=https://docs.anthropic.com/
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=claude-hooks
+Group=claude-hooks
+WorkingDirectory=/opt/claude-hook-router
+Environment="HOOK_ROUTER_ENV=production"
+Environment="REDIS_URL=redis://localhost:6379/0"
+EnvironmentFile=/etc/claude-hooks/router.env
+ExecStart=/opt/claude-hook-router/bin/python3 -m hook_router.main --port 8092 --strict-mode
+Restart=always
+RestartSec=3s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-hook-router
+
+# Hardening measures
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/claude-hooks /var/run/claude-hooks
+PrivateTmp=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Deployment (`docker-compose.yml`)
+
+The multi-container stack provides an isolated runtime environment for validating hooks before tools execute on production development endpoints.
+
+```yaml
+version: '3.8'
+
+services:
+  hook-router:
+    image: claude/hook-router:v1.2.0
+    container_name: claude-hook-router
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8092:8092"
+    environment:
+      - FASTMCP_SERVER_PORT=8092
+      - REDIS_HOST=hook-redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=info
+      - STRICT_SCHEMA_VALIDATION=true
+    depends_on:
+      hook-redis:
+        condition: service_healthy
+    networks:
+      - hook-network
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 1GiB
+
+  hook-redis:
+    image: redis:7.2-alpine
+    container_name: claude-hook-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - hook-redis-data:/data
+    networks:
+      - hook-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hook-network:
+    driver: bridge
+
+volumes:
+  hook-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The diagnostic table below outlines common failure conditions encountered during hook registration, verification, or FastMCP tool invocation.
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Hook Blocked by Security Rule** | Command payload matched dangerous regex in pre-tool filter. | `journalctl -u claude-hook-router.service -n 50 --no-pager \| grep BLOCKED` | Review command input parameters in `ClaudeHookInvocationPayload` schema and update policy rules if authorized. |
+| **Timeout During Hook Execution** | Hook script hung on external network call or subprocess lock. | `python3 -m hook_router.cli inspect-active-hooks` | Set explicit timeout threshold in hook metadata (`timeout_seconds: 10`) and enable asynchronous execution. |
+| **FastMCP Schema Validation Error** | Extra fields passed in tool call breaking `extra="forbid"`. | `curl -s -X POST http://localhost:8092/validate -d @payload.json` | Ensure hook event objects strictly adhere to `ClaudeHookInvocationPayload` schema. |
+| **Redis Connection Failure** | Network disconnection between router and Redis cache container. | `redis-cli -h localhost -p 6379 -a $REDIS_PASSWORD ping` | Restart `claude-hook-redis` container and verify port binding settings in `docker-compose.yml`. |
+
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — The primary agentic software engineering CLI.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Standardization protocol for extending agent capabilities.
