@@ -76,6 +76,69 @@ Lakera Guard solves these threats by delivering real-time, context-aware screeni
 
 ## Getting started
 
+### Systemd Service Setup
+For self-hosted proxy instances or enterprise VPC gateway deployments, manage the Lakera security proxy daemon using systemd:
+
+```ini
+[Unit]
+Description=Lakera Guard Enterprise Security Proxy Service
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=lakera
+Group=lakera
+WorkingDirectory=/opt/lakera-guard
+ExecStart=/opt/lakera-guard/venv/bin/python3 -m lakera_proxy.server --port 8090 --api-key-file /etc/lakera/api_key
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle using systemd:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now lakera-guard.service
+sudo systemctl status lakera-guard.service
+```
+
+### Containerized Deployment (Docker Compose)
+Deploy an inline Lakera Guard security proxy alongside downstream FastMCP agent tools via `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  lakera-guard-proxy:
+    image: ghcr.io/lakera/guard-proxy:latest
+    container_name: lakera-guard-proxy
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - LAKERA_API_KEY_FILE=/run/secrets/lakera_api_key
+      - LAKERA_LATENCY_TARGET_MS=30
+      - LAKERA_REDACT_PII=true
+    secrets:
+      - lakera_api_key
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8090/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+secrets:
+  lakera_api_key:
+    file: ./secrets/lakera_api_key.txt
+```
+
 ### Installation
 Install the official Lakera Python SDK along with FastMCP 3.1 and Pydantic v2:
 
@@ -105,13 +168,13 @@ lakera-guard scan-dataset --input ./agent-prompt-logs.csv --output ./vulnerabili
 ## API examples
 
 ### Complete FastMCP 3.1 Security Server with Pydantic v2 Payload Validation
-The following production-ready Python script implements a **FastMCP 3.1** server that wraps tool calls and user prompts with Lakera Guard security screening, utilizing **Pydantic v2** for strict payload validation.
+The following production-ready Python script implements a **FastMCP 3.1** server that wraps tool calls and user prompts with Lakera Guard security screening, utilizing **Pydantic v2** (`extra="forbid"`) for strict payload validation.
 
 ```python
 import os
 import lakera
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
@@ -128,22 +191,30 @@ lakera_client = lakera.LakeraClient(api_key=os.environ.get("LAKERA_API_KEY", "mo
 # ---------------------------------------------------------------------------
 
 class PromptScanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     user_prompt: str = Field(..., min_length=1, description="Raw input user prompt string")
     session_id: str = Field("default_session", min_length=3)
     role: str = Field("user", pattern=r"^(user|system|assistant)$")
 
 class SecurityViolationDetail(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     category: str
     flagged: bool
     confidence_score: float = Field(..., ge=0.0, le=1.0)
 
 class SecurityCheckResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     is_safe: bool
     risk_level: str
     detected_violations: List[SecurityViolationDetail]
     sanitized_prompt: Optional[str] = None
 
 class ToolExecutionSecurityPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     tool_name: str = Field(..., min_length=2)
     parameters: Dict[str, Any]
     session_id: str
@@ -219,19 +290,35 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-## Troubleshooting & Common Operational Pitfalls
+## Security Evaluation Comparison Matrix
 
-| Diagnostic Scenario | Potential Root Cause | Recommended Operational Resolution |
-| :--- | :--- | :--- |
-| **`401 Unauthorized` API Error** | Missing or malformed `LAKERA_API_KEY` | Verify API key string in Lakera Security Dashboard and confirm environment variable export. |
-| **False Positive Injections on Code Snippets** | Technical source code flagged as injection heuristic | Configure custom Lakera Guard policy rules to whitelist code block patterns for development projects. |
-| **High Latency on Network Timeout** | Region endpoint mismatch or network routing bottleneck | Set `LAKERA_API_HOST` to nearest geographic region endpoint (e.g., `us-east-1` or `eu-central-1`). |
-| **Unredacted Secrets in Logs** | PII redaction layer not enabled in scan request | Set `redact_pii=True` in Lakera client request options. |
+| Security Feature / Gateway | Lakera Guard | NeMo Guardrails | LLM Guard | AWS Bedrock Guardrails |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | Ultra-low latency API / Inline Proxy | Colang runtime engine | Local Python/Go library | Cloud provider native API |
+| **P99 Execution Latency** | < 30ms | 150ms - 400ms | 50ms - 120ms | 100ms - 250ms |
+| **FastMCP 3.1 Native Support** | Native Tool Parameter Inspection | Custom Action Hook required | Custom middleware required | Direct integration via Bedrock Agent |
+| **Gandalf Intelligence Feed** | Continuous Real-Time Updates | Static rulesets | Open-source heuristics | Proprietary AWS Threat Model |
+| **Multimodal VLM Scanning** | Visual Steganography & Direct Injection | Text-only | Text-only | Image & Text Guardrails |
+| **PII & Secret Redaction** | Native Real-Time Masking | Regex / Presidio integration | Presidio integration | Native Bedrock Redaction |
 
-## Operational Guardrails & Best Practices
-1. **Inline Proxy Precedence**: Place Lakera Guard at the outermost network perimeter before any LLM inference calls or vector store retriever executions.
-2. **FastMCP Parameter Scanning**: Always run tool parameter strings through `validate_mcp_tool_call_safety` before invoking file-system or database mutation tools.
-3. **Audit Log Deduplication**: Stream security audit events to a centralized logging pipeline ([Grafana Loki](../process_understanding/grafana-loki.md), [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md)) for forensic analysis.
+## Operational Guardrails & Knowledge Management Standards
+
+| Policy Dimension | Standard / Threshold | Implementation Mechanism | Enforcement Level |
+| :--- | :--- | :--- | :--- |
+| **Max Allowable Latency** | Overhead must not exceed 30ms per turn | P99 latency alerts via OpenTelemetry | Auto-bypass to secondary local heuristic if timeout > 50ms |
+| **FastMCP Execution Boundary** | Zero uninspected tool parameter executions | Pre-execution FastMCP tool hook wrapper | Hard block on unvalidated parameters |
+| **Audit Telemetry Persistence** | Log all flagged violations with session IDs | Stream structured JSON logs to Grafana Loki | Retain security event logs for 90 days |
+| **PII Masking Rigor** | Redact SSNs, credit cards, API keys before LLM context ingress | Lakera Guard inline redaction filter | Mandatory pre-inference filter |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` API Error | Missing or malformed `LAKERA_API_KEY` | Verify API key string in Lakera Security Dashboard and confirm environment variable export. | Export valid key: `export LAKERA_API_KEY="lk_live_..."` |
+| False Positive Injections on Code Snippets | Technical source code flagged as injection heuristic | Inspect confidence score and flagged category in scan response | Configure custom Lakera Guard policy rules to whitelist code block patterns for dev projects. |
+| High Latency on Network Timeout | Region endpoint mismatch or network routing bottleneck | Benchmark latency via `curl -w "%{time_total}\n" https://api.lakera.ai/v1/guard` | Set `LAKERA_API_HOST` to nearest geographic region endpoint (e.g., `us-east-1` or `eu-central-1`). |
+| Unredacted Secrets in Logs | PII redaction layer not enabled in scan request | Check client initialization config parameters | Set `redact_pii=True` in Lakera client request options. |
+| Systemd Proxy Service Exit | Missing configuration file or port 8090 binding conflict | `journalctl -u lakera-guard.service -n 50` | Ensure `/etc/lakera/api_key` exists and port 8090 is available. |
 
 ## Related tools / concepts
 - [SharpAI Security Benchmark](sharp-ai.md) — Benchmark evaluation suite for testing AI agent guardrails.
