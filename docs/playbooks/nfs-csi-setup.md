@@ -164,45 +164,72 @@ kubectl describe storageclass nfs-client
 
 # View logs for the provisioner to debug mount issues
 kubectl logs -l app=nfs-subdir-external-provisioner --tail=50
+
+# Test NFS RPC ping from worker node to TrueNAS host
+rpcinfo -p <TRUENAS_IP>
+
+# Manually verify export visibility on client node
+showmount -e <TRUENAS_IP>
 ```
 
 ## API examples
 
+### Production StorageClass Deployment Manifest
+
 ```yaml
-# Example of an automated StorageClass definition for a late August 2026 cluster
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: truenas-nfs-auto
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
 provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
 parameters:
   archiveOnDelete: "true"
-  pathPattern: "${.PVC.namespace}/${.PVC.name}" # Custom path pattern for better organization
+  pathPattern: "${.PVC.namespace}/${.PVC.name}"
 mountOptions:
   - nfsvers=4.1
   - hard
   - timeo=600
   - retrans=2
   - noresvport
+  - rsize=1048576
+  - wsize=1048576
 ```
 
-### FastMCP 3.1 NFS Volume Provisioner & Pydantic v2 Validation
-Below is an early January 2027 FastMCP 3.1 server exposing programmatic NFS PersistentVolumeClaim orchestration and validation using strict **Pydantic v2** structures:
+### FastMCP 3.1 NFS Volume Provisioner Server & Pydantic v2 Validation
+
+Below is an production-grade FastMCP 3.1 server exposing programmatic NFS PersistentVolumeClaim orchestration and validation using strict **Pydantic v2** structures (`extra="forbid"`):
 
 ```python
 import asyncio
+import re
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP Server for NFS Storage Management
 mcp = FastMCP("K3s NFS Storage Manager", version="3.1.0")
 
 class VolumeMountSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str = Field(..., min_length=2, description="The name of the volume mount")
     mount_path: str = Field(..., description="The directory path inside the container")
 
+    @field_validator("mount_path")
+    @classmethod
+    def validate_absolute_path(cls, v: str) -> str:
+        if not v.startswith("/"):
+            raise ValueError("mount_path must be an absolute path starting with '/'")
+        return v
+
 class VolumeSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str = Field(..., min_length=2, description="Volume identifier")
     storage_class: str = Field(default="truenas-nfs-auto", description="Kubernetes StorageClass name")
     capacity: str = Field(..., description="Requested storage capacity (e.g. 100Gi)")
@@ -211,15 +238,19 @@ class VolumeSpec(BaseModel):
     @field_validator("capacity")
     @classmethod
     def validate_capacity_format(cls, value: str) -> str:
-        if not value.endswith(("Gi", "Mi", "Ti")):
-            raise ValueError("Capacity must end with Gi, Mi, or Ti (e.g., 100Gi)")
+        if not re.match(r"^\d+(Mi|Gi|Ti)$", value):
+            raise ValueError("Capacity must be a positive integer ending with Mi, Gi, or Ti (e.g., 100Gi)")
         return value
 
 class ContainerSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     image: str = Field(..., description="The Docker image name and tag")
     volume_mounts: List[VolumeMountSpec] = Field(..., description="Associated volume mounts")
 
 class TaskSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_name: str = Field(..., min_length=2, description="Name of the agent task")
     volumes: List[VolumeSpec] = Field(..., description="Volumes requested by the task")
     container: ContainerSpec = Field(..., description="Container specification")
@@ -234,6 +265,8 @@ class TaskSpec(BaseModel):
         return self
 
 class ProvisioningResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="Unique generated task identifier")
     status: str = Field(..., description="Current status of the PVC request")
     storage_class_used: str = Field(..., description="StorageClass applied to the PVC")
@@ -242,7 +275,6 @@ class ProvisioningResponse(BaseModel):
 @mcp.tool()
 async def provision_agent_nfs_volume(task: TaskSpec) -> ProvisioningResponse:
     """Programmatically validate and claim an NFS-backed PV for a K3s workload under FastMCP 3.1."""
-    # Programmatically process the task specification
     volume = task.volumes[0]
     mount = task.container.volume_mounts[0]
 
@@ -257,21 +289,110 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-## Troubleshooting & Error Remediation
+### Production Systemd Service Definition
 
-| Symptom / Error | Primary Cause | Resolution Procedure |
+Below is the production systemd service configuration for running the FastMCP 3.1 NFS Volume Provisioner agent as an isolated background daemon:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 K3s NFS Storage Provisioner Service
+After=network.target remote-fs.target
+Wants=network-online.target
+Documentation=https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/nfs-mcp-provisioner
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8740
+Restart=always
+RestartSec=5s
+
+# Security Hardening Guardrails
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SYS_ADMIN
+
+# Resource Limits
+LimitNOFILE=65536
+MemoryMax=1G
+CPUWeight=100
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Multi-Service Setup (`docker-compose.yml`)
+
+The complete multi-container setup running the NFS provisioner, TrueNAS metric exporter, and local storage validation API:
+
+```yaml
+version: '3.8'
+
+services:
+  nfs-provisioner-mcp:
+    build:
+      context: ./provisioner
+      dockerfile: Dockerfile
+    container_name: nfs-mcp-provisioner
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_PORT=8740
+      - TRUENAS_HOST=192.168.1.50
+      - KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    volumes:
+      - /etc/rancher/k3s/k3s.yaml:/etc/rancher/k3s/k3s.yaml:ro
+      - ./config:/app/config
+    ports:
+      - "8740:8740"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8740/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  nfs-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: nfs-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.nfs'
+      - '--collector.mountstats'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    ports:
+      - "9100:9100"
+
+networks:
+  default:
+    name: k3s-storage-net
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Diagnostic Output | Root Cause Analysis | Remediation Procedure |
 | :--- | :--- | :--- |
 | `Output: mount.nfs: access denied by server` | TrueNAS NFS share IP restrictions or export misconfiguration | Check TrueNAS **Hosts Allow** array; verify `maprootuser=root` and `maprootgroup=root` settings. |
 | `pvc stuck in Pending state` | `nfs-subdir-external-provisioner` pod crashes or cannot connect | Run `kubectl logs -n kube-system -l app=nfs-subdir-external-provisioner`; check network route to NAS. |
 | `RPC: Program not registered` | NFS service disabled on TrueNAS or firewall blocking RPC ports | Enable NFS service in TrueNAS SCALE; open port `2049` (TCP/UDP) and `111` (rpcbind) on firewall. |
 | `Stale file handle (errno 116)` | ZFS dataset destroyed or NFS share restarted while pod actively mounted | Restart the application pod (`kubectl rollout restart deploy/<app>`) to re-establish kernel NFS handle. |
 | `Slow read/write IOPS (<10MB/s)` | NFS mounting without `noresvport` or defaulting to TCP packet fragmentation | Add `mountOptions: [ "nfsvers=4.1", "noresvport", "rsize=1048576", "wsize=1048576" ]` to StorageClass. |
+| `lockd: cannot monitor <host>` | RPC statd/lockd daemon uncoordinated between kernel NFS client & host | Add `nolock` to mountOptions if strict locking is not required across shared pods. |
+| `pvc expansion failed: Invalid argument` | `allowVolumeExpansion` set without trueNAS quota support | Enable user/group quotas on the underlying ZFS dataset in TrueNAS SCALE web UI. |
 
 ## Operational Hardening & Production Guardrails
 
 1. **Explicit Mount Options**: Always configure `mountOptions` in your StorageClass with `nfsvers=4.1`, `hard`, `timeo=600`, `retrans=2`, and `noresvport` to prevent socket reconnection hangs.
 2. **TrueNAS Maproot Security**: Map administrative root mounts explicitly to `root:root` (UID/GID 0) or dedicated service accounts (`1000:1000`) on TrueNAS to prevent privilege escalation or permission denied errors during dynamic pod startup.
 3. **Dedicated Storage Subnet**: Isolate NFS traffic on a dedicated VLAN or 10GbE network interface to prevent storage I/O starvation caused by cluster compute or external web traffic.
+4. **ZFS Automated Snapshot Policies**: Schedule hourly/daily snapshots on the parent ZFS dataset on TrueNAS SCALE to provide instantaneous recovery against pod corruption.
 
 ## Related tools / concepts
 

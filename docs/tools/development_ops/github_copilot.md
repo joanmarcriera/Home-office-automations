@@ -46,6 +46,36 @@ The diagram below illustrates how GitHub Copilot coordinates IDE editor events, 
 +---------------+                +---------------+                +---------------+
 ```
 
+```mermaid
+flowchart TD
+    subgraph Client_Environment [Developer Client Environment]
+        IDE[VS Code / JetBrains / Zed]
+        CLI[gh copilot CLI]
+        Web[GitHub.com Web PRs]
+    end
+
+    subgraph Copilot_Gateway [Copilot Enterprise Gateway]
+        Filter[IP & Security Privacy Filter]
+        Router[Multi-Model Router]
+        FastMCP_Hub[FastMCP 3.1 Tool Hub]
+    end
+
+    subgraph Model_Providers [Frontier Model Services]
+        GPT[OpenAI GPT-5.6]
+        Claude[Anthropic Claude 5.6]
+        Gemini[Google Gemini 4.0 Ultra]
+    end
+
+    IDE --> Filter
+    CLI --> Filter
+    Web --> Filter
+    Filter --> Router
+    Router --> FastMCP_Hub
+    FastMCP_Hub --> GPT
+    FastMCP_Hub --> Claude
+    FastMCP_Hub --> Gemini
+```
+
 ## Where it fits in the stack
 **Category**: Developer Experience (DX) / AI Pair Programming / Agentic Engineering Platform. It operates directly inside developer IDEs, terminals, and GitHub CI/CD workflows, functioning as a primary coding agent and completion engine alongside competitors like [Cursor](cursor.md), [Claude Code](claude-code.md), and [Aider](aider.md).
 
@@ -123,7 +153,7 @@ gh extension upgrade gh-copilot
 
 ## FastMCP 3.1 Copilot Server & Pydantic v2 Validation
 
-The following Python code demonstrates how to build a FastMCP 3.1 tool server designed to expose local enterprise tools to GitHub Copilot's `@workspace` agent.
+The following Python code demonstrates how to build a FastMCP 3.1 tool server designed to expose local enterprise tools to GitHub Copilot's `@workspace` agent with strict Pydantic v2 validation (`extra="forbid"`).
 
 ```python
 #!/usr/bin/env python3
@@ -135,14 +165,16 @@ Exposes repository analysis and linting tools to GitHub Copilot Chat.
 import os
 import subprocess
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP Server
-mcp = FastMCP("Copilot Workspace Tools")
+mcp = FastMCP("Copilot Workspace Tools", version="3.1.0")
 
 # Pydantic v2 Request & Response Schemas
 class WorkspaceAnalysisRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     repo_path: str = Field(..., description="Local repository path to analyze")
     max_depth: int = Field(default=3, ge=1, le=10, description="Directory search depth")
 
@@ -154,6 +186,8 @@ class WorkspaceAnalysisRequest(BaseModel):
         return v
 
 class LintResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     filepath: str = Field(..., description="Target file path")
     error_count: int = Field(..., description="Number of linter errors found")
     details: str = Field(..., description="Raw output from linter")
@@ -196,10 +230,12 @@ if __name__ == "__main__":
 Programmatically validate enterprise Copilot deployment configurations and model accessibility policies:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Literal, Optional
 
 class ModelPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     allowed_models: List[str] = Field(..., description="Permitted model identifiers")
     block_public_code_matches: bool = Field(default=True)
     telemetry_enabled: bool = Field(default=False)
@@ -212,6 +248,8 @@ class ModelPolicy(BaseModel):
         return v
 
 class EnterpriseCopilotConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     organization: str = Field(..., description="GitHub Organization slug")
     tier: Literal["business", "enterprise"] = Field(..., description="Licensing tier")
     policy: ModelPolicy
@@ -234,6 +272,78 @@ print(f"Validated Enterprise Config for: {validated_config.organization}")
 print(f"Allowed Models: {', '.join(validated_config.policy.allowed_models)}")
 ```
 
+### Production Systemd Service Unit
+
+```ini
+[Unit]
+Description=GitHub Copilot FastMCP 3.1 Enterprise Workspace Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=copilot-agent
+Group=copilot-agent
+WorkingDirectory=/opt/copilot-mcp-service
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8820
+Restart=always
+RestartSec=5s
+
+# Security Restrictions
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadOnlyPaths=/opt/copilot-mcp-service
+
+# Resource Management
+LimitNOFILE=65536
+MemoryMax=2G
+CPUWeight=100
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Multi-Service Deployment (`docker-compose.yml`)
+
+```yaml
+version: '3.8'
+
+services:
+  copilot-mcp-bridge:
+    build:
+      context: ./bridge
+      dockerfile: Dockerfile
+    container_name: copilot-mcp-bridge
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_PORT=8820
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ALLOWED_MODELS=gpt-5.6,claude-5.6,gemini-4.0-ultra
+    ports:
+      - "8820:8820"
+    volumes:
+      - ./repo-cache:/workspace/cache:rw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8820/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  copilot-metrics-collector:
+    image: prom/statsd-exporter:v0.26.0
+    container_name: copilot-metrics
+    ports:
+      - "9102:9102"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: copilot-enterprise-net
+```
+
 ## Performance Benchmarks & Operational Metrics
 The following metrics reflect performance benchmark testing of GitHub Copilot executed during Q1 2027 testing.
 
@@ -246,20 +356,20 @@ The following metrics reflect performance benchmark testing of GitHub Copilot ex
 
 ## Troubleshooting & Diagnostics
 
-### 1. Copilot Extension Authentication Failure
-- **Symptom**: `Error: GitHub Copilot authentication failed. Please sign in again.`
-- **Cause**: Expired OAuth token or revoked GitHub enterprise SSO session.
-- **Resolution**: Run `gh auth logout` followed by `gh auth login` and re-authenticate in the IDE.
+| Symptom / Diagnostic Message | Root Cause Analysis | Remediation Procedure |
+| :--- | :--- | :--- |
+| `GitHub Copilot authentication failed` | Expired OAuth token or revoked GitHub enterprise SSO session | Run `gh auth logout` followed by `gh auth login` and re-authenticate in the IDE. |
+| `@workspace agent fails to invoke local FastMCP tools` | Server process missing executable permissions or invalid stdio pipe | Verify `command` path in `mcp.json` and test tool execution directly using `python3 -m fastmcp_server`. |
+| `Suggestion blocked due to public code match filter` | Generated code matches existing open-source code above threshold | Rephrase prompt or adjust enterprise organization policy settings on GitHub.com if permitted. |
+| `FastMCP 3.1 connection timeout (504)` | Custom MCP server took over 30 seconds to return payload | Optimize internal linter logic or implement chunked streaming response in MCP server. |
+| `Model context overflow error` | Workspace search retrieved excess files exceeding token budget | Refine query using `@workspace /explain` or limit directory indexing via `.copilotignore`. |
+| `NVIDIA NIM proxy handshake failed` | Air-gapped enterprise proxy certificate untrusted by local IDE | Import custom CA bundle into IDE settings (`github.copilot.advanced.debug.overrideCAs`). |
 
-### 2. FastMCP Tool Discovery Failure
-- **Symptom**: `@workspace` agent fails to invoke local FastMCP tools.
-- **Cause**: Server process missing executable permissions or invalid stdio pipe configuration in `.vscode/mcp.json`.
-- **Resolution**: Verify `command` path in `mcp.json` and test tool execution directly using `python3 -m fastmcp_server`.
+## Operational Hardening & Production Guardrails
 
-### 3. Public Code Match Rejection
-- **Symptom**: Copilot refuses to suggest code block with message `Suggestion blocked due to public code match filter`.
-- **Cause**: The generated code matches existing open-source code above the similarity threshold when policy forbids public code matching.
-- **Resolution**: Rephrase prompt or adjust enterprise organization policy settings on GitHub.com if permitted.
+1. **Repository Indexing Rules (`.copilotignore`)**: Deploy `.copilotignore` files in large repositories to exclude generated build artifacts, minified JavaScript, and synthetic datasets from `@workspace` indexing.
+2. **Dedicated Token Scoping**: Enterprise SAML SSO policies should enforce short-lived personal access tokens (PATs) for CLI authentication with explicit read-only scope boundaries.
+3. **Audit Trail Streaming**: Stream IDE event telemetry and FastMCP tool executions to centralized SIEM platforms (e.g. Datadog or Splunk) to audit automated agent code generation.
 
 ## Related tools / concepts
 - [Codeium](codeium.md) — AI coding assistant.
