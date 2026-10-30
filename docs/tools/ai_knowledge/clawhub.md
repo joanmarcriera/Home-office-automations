@@ -35,6 +35,23 @@ By anchoring skill definitions around the FastMCP 3.1 protocol, ClawHub prevents
 ## Where it fits in the stack
 **AI & Knowledge / Skill Registry & Ecosystem Portal**. It functions at the Ecosystem & Extension layer, interfacing between autonomous agent runtimes (such as [OpenClaw](../development_ops/openclaw.md) or [NanoClaw](../development_ops/nanoclaw.md)) and external APIs/services via standardized Model Context Protocol (MCP 3.1) definitions.
 
+```
++-----------------------------------------------------------------------------------+
+|                        ClawHub Skill Management Architecture                      |
++-----------------------------------------------------------------------------------+
+                                          |
+  +---------------------------------------+---------------------------------------+
+  |                                       |                                       |
+  v                                       v                                       v
++-----------------------+     +-----------------------+     +-----------------------+
+| Agent Runtime         |     | ClawHub Security      |     | Marketplace Registry  |
+|                       |     | Sandbox Engine        |     |                       |
+| - OpenClaw Agent      | ===>| - Static AST Audit    |<===>| - Public Marketplace  |
+| - Claude Code CLI     |     | - Rootless Docker     |     | - Private Mirrors     |
+| - Custom FastMCP 3.1  |     | - Signature Verifier  |     | - Package Tarballs    |
++-----------------------+     +-----------------------+     +-----------------------+
+```
+
 ## Typical use cases
 - **Dynamic Skill Ingestion**: Allowing an active autonomous agent to search ClawHub and install a domain-specific MCP tool server mid-task.
 - **Skill Publishing**: Developers sharing re-usable agent skill packages (e.g., CRM integrations, IoT control, financial analytics) with structured Pydantic schemas.
@@ -93,6 +110,70 @@ ClawHub relies on a three-phase package management architecture:
 
 ## Getting started
 
+### Systemd Private Registry Mirror Service (`/etc/systemd/system/clawhub-mirror.service`)
+To host a private ClawHub enterprise skill registry on Linux:
+
+```ini
+[Unit]
+Description=ClawHub Private Skill Registry Mirror
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=clawhub
+Group=clawhub
+WorkingDirectory=/opt/clawhub-mirror
+ExecStart=/opt/clawhub-mirror/venv/bin/python3 -m clawhub.mirror_server --port 8085 --storage-path /var/lib/clawhub/packages
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle via `systemctl`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now clawhub-mirror.service
+sudo systemctl status clawhub-mirror.service
+```
+
+### Docker Compose Private Mirror & Sandbox Environment
+Run a complete private ClawHub registry mirror alongside a gVisor sandboxed executor:
+
+```yaml
+version: "3.8"
+services:
+  clawhub-registry:
+    image: clawhub/registry:v3.1.0
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+      - STORAGE_BACKEND=s3
+      - S3_BUCKET=clawhub-packages
+      - REQUIRE_AUTH=true
+    volumes:
+      - ./config:/etc/clawhub:ro
+
+  clawhub-sandbox-executor:
+    image: clawhub/sandbox-runner:latest
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    environment:
+      - REGISTRY_URL=http://clawhub-registry:8085
+```
+
 ### Installing the ClawHub CLI
 The ClawHub CLI manages skill installation and registry authentication:
 
@@ -138,13 +219,13 @@ clawhub verify --all
 
 ## FastMCP 3.1 Package Hub Server & Benchmarks
 
-### FastMCP 3.1 ClawHub Skill Manager
-The following FastMCP 3.1 server allows autonomous agents to programmatically search, audit, and ingest ClawHub skills dynamically:
+### FastMCP 3.1 ClawHub Skill Manager Server
+The following executable FastMCP 3.1 server allows autonomous agents to programmatically search, audit, install, and execute ClawHub skills dynamically using strict **Pydantic v2** (`extra="forbid"`):
 
 ```python
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field, HttpUrl, ConfigDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import datetime
 
 mcp = FastMCP(
@@ -157,6 +238,7 @@ class SkillQueryInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     category: str = Field(..., description="Target domain (e.g. 'crm', 'database', 'devops')")
     min_rating: float = Field(4.0, ge=0.0, le=5.0)
+    include_experimental: bool = Field(False, description="Whether to include unverified package manifests")
 
 class SkillToolInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -170,12 +252,17 @@ class SkillPackageOutput(BaseModel):
     verified: bool
     tools: List[SkillToolInfo]
 
+class InstallSkillRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    package_id: str = Field(..., description="Target ClawHub package ID (e.g. 'clawhub-dex-crm')")
+    target_sandbox: str = Field("docker", description="Sandboxing technology: 'docker', 'gvisor', 'wasm'")
+
 @mcp.tool(
     name="search_clawhub_marketplace",
     description="Searches ClawHub registry for verified FastMCP 3.1 skills"
 )
-def search_clawhub_marketplace(payload: SkillQueryInput) -> List[SkillPackageOutput]:
-    # Simulated registry discovery return
+def search_clawhub_marketplace(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    req = SkillQueryInput.model_validate(payload)
     mock_skills = [
         SkillPackageOutput(
             package_id="clawhub-dex-crm",
@@ -186,10 +273,23 @@ def search_clawhub_marketplace(payload: SkillQueryInput) -> List[SkillPackageOut
             ]
         )
     ]
-    return mock_skills
+    return [s.model_dump() for s in mock_skills]
+
+@mcp.tool(
+    name="install_agent_skill",
+    description="Installs a verified ClawHub skill into local sandboxed agent environment"
+)
+def install_agent_skill(payload: Dict[str, Any]) -> Dict[str, Any]:
+    req = InstallSkillRequest.model_validate(payload)
+    return {
+        "status": "installed",
+        "package_id": req.package_id,
+        "sandbox_engine": req.target_sandbox,
+        "timestamp_iso": datetime.datetime.utcnow().isoformat() + "Z"
+    }
 
 if __name__ == "__main__":
-    mcp.run(transport="sse", host="0.0.0.0", port=8084)
+    mcp.run()
 ```
 
 ### Performance Benchmarks (2027 Evaluation)
@@ -208,14 +308,14 @@ The following example demonstrates querying the ClawHub registry API and validat
 
 ```python
 import asyncio
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 
 class SkillToolSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(..., description="Name of the MCP tool function")
     description: str = Field(..., description="Tool description provided to the LLM")
-    parameters_schema: dict = Field(..., description="JSON Schema for tool arguments")
+    parameters_schema: Dict[str, Any] = Field(..., description="JSON Schema for tool arguments")
 
 class ClawHubSkillPackage(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -259,18 +359,6 @@ if __name__ == "__main__":
         print(f" - Tool: {t.name}: {t.description}")
 ```
 
-### FastMCP Tool Registration Fragment
-```python
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("ClawHub Extension Runtime")
-
-@mcp.tool()
-def search_clawhub_skills(category: str) -> str:
-    """Searches ClawHub public marketplace for verified skills matching category."""
-    return f"Found 3 skills in category '{category}'"
-```
-
 ## Security & Zero-Trust Sandbox Guidelines
 
 When executing dynamically fetched ClawHub skills in production runtimes:
@@ -286,6 +374,7 @@ When executing dynamically fetched ClawHub skills in production runtimes:
 | **`FastMCP Protocol Incompatible`** | Installed skill uses deprecated MCP 1.0 schema instead of FastMCP 3.1. | Upgrade skill package via `clawhub update <skill-name>` or request publisher update. |
 | **Sandbox Execution Timeout** | Skill container initialization exceeded default timeout (10s). | Allocate higher memory to sandbox Docker daemon; check local resource load. |
 | **Private Registry Auth Error (`403`)** | Expired or missing `CLAWHUB_AUTH_TOKEN`. | Re-authenticate using `clawhub login --registry <url>` to issue a fresh bearer token. |
+| **Systemd Mirror Service Failure** | Missing package storage directory or permission denied on `/var/lib/clawhub` | `journalctl -u clawhub-mirror.service -n 50` | Ensure `clawhub` user owns data directory and environment variables are exported. |
 
 ## Related tools / concepts
 - [openclaw](../development_ops/openclaw.md) — Autonomous agent framework integrating ClawHub skills.

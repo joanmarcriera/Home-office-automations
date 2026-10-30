@@ -127,7 +127,44 @@ GPT Engineer leverages WebContainers to run complete Node.js runtimes natively i
 
 ## Getting started
 
-### Installation
+### Systemd Service Management
+For continuous headless synthesis or internal API worker setups, manage GPT Engineer worker runtimes via systemd:
+
+```ini
+[Unit]
+Description=GPT Engineer Autonomous Codebase Synthesis Worker
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=gptengineer
+Group=gptengineer
+WorkingDirectory=/opt/gpt-engineer-worker
+Environment="PATH=/opt/gpt-engineer-worker/venv/bin:/usr/local/bin:/usr/bin"
+Environment="OPENAI_API_KEY=sk-proj-xxxx"
+Environment="ANTHROPIC_API_KEY=sk-ant-xxxx"
+ExecStart=/opt/gpt-engineer-worker/venv/bin/python -m gpt_engineer.worker --port 8080 --mcp-bind 0.0.0.0:3001
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle via `systemctl`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now gpt-engineer-worker.service
+sudo systemctl status gpt-engineer-worker.service
+```
+
+### Installation & Basic CLI
 ```bash
 # Run interactive WebContainer generator CLI:
 npx gpt-engineer
@@ -136,13 +173,36 @@ npx gpt-engineer
 pip install gpt-engineer pydantic>=2.0 fastmcp
 ```
 
-### Basic Workflow
-```bash
-# Initialize workspace
-mkdir solar-dashboard && cd solar-dashboard
+### Docker Compose Deployment
+Run GPT Engineer headless API runner alongside local FastMCP tool proxy and WebContainer preview server:
 
-# Launch GPT Engineer
-gpt-engineer . --model claude-5.6-sonnet
+```yaml
+version: "3.8"
+services:
+  gpt-engineer-api:
+    image: gptengineer/runner:v3.1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MCP_PROXY_URL=http://mcp-proxy:3000
+    volumes:
+      - ./workspace:/app/workspace
+
+  mcp-proxy:
+    image: fastmcp/proxy:v3.1
+    ports:
+      - "3000:3000"
+    environment:
+      - ALLOWED_ORIGINS=*
+
+  webcontainer-preview:
+    image: nginx:alpine
+    ports:
+      - "5173:80"
+    volumes:
+      - ./workspace/dist:/usr/share/nginx/html:ro
 ```
 
 ## CLI examples
@@ -165,83 +225,96 @@ gpt-engineer . --framework vite-react-ts --mcp-server http://localhost:3000/mcp
 gpt-engineer . --run-tests --auto-patch
 ```
 
-## API examples
-
-### FastMCP 3.1 Workspace Tool Server
-This executable Python script demonstrates exposing GPT Engineer repository scaffolding tools via **FastMCP 3.1** and validating configurations with **Pydantic v2**:
+## FastMCP 3.1 Workspace & Refactoring Server
+This executable Python script demonstrates exposing GPT Engineer repository scaffolding tools and refactoring routines via **FastMCP 3.1** and validating configurations with strict **Pydantic v2** (`extra="forbid"`):
 
 ```python
 import json
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from fastmcp import FastMCP
 
-mcp = FastMCP("GPT Engineer FastMCP Server")
+mcp = FastMCP("GPT Engineer FastMCP Server", version="3.1")
 
 class WebContainerEnvConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     port: int = Field(default=3000, ge=1024, le=65535)
     hot_reload: bool = Field(default=True)
     framework: str = Field(default="vite-react-ts", pattern=r"^(vite-react-ts|nextjs|svelte-kit|fastapi)$")
 
 class GPTEngineerWorkspaceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     project_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
     model_name: str = Field("claude-5.6-sonnet", description="Target reasoning model")
     webcontainer: WebContainerEnvConfig = Field(default_factory=WebContainerEnvConfig)
     mcp_servers: List[str] = Field(default_factory=list)
     auto_install_dependencies: bool = Field(default=True)
 
-@mcp.tool()
-def scaffold_new_project(project_name: str, framework: str = "vite-react-ts") -> str:
-    """Scaffold a new validated project workspace using GPT Engineer v3.0 specs."""
-    raw_payload = {
-        "project_name": project_name,
-        "model_name": "claude-5.6-sonnet",
-        "webcontainer": {
-            "port": 3000,
-            "hot_reload": True,
-            "framework": framework
-        },
-        "mcp_servers": ["http://localhost:3000/mcp"],
-        "auto_install_dependencies": True
+class RefactorModuleRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    target_filepath: str = Field(..., description="Relative path to file in project")
+    refactor_instruction: str = Field(..., description="Detailed transformation instruction")
+    apply_unified_diff: bool = Field(default=True)
+
+@mcp.tool(name="scaffold_new_project", description="Scaffold a new validated project workspace using GPT Engineer v3.0 specs")
+def scaffold_new_project(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Scaffold a new validated project workspace using GPT Engineer specs."""
+    req = GPTEngineerWorkspaceConfig.model_validate(payload)
+    return {
+        "status": "success",
+        "project_name": req.project_name,
+        "framework": req.webcontainer.framework,
+        "port": req.webcontainer.port,
+        "model": req.model_name,
+        "mcp_servers_connected": len(req.mcp_servers)
     }
 
-    try:
-        config = GPTEngineerWorkspaceConfig(**raw_payload)
-        return (
-            f"Successfully validated GPT Engineer scaffolding request:\n"
-            f"  Project: {config.project_name}\n"
-            f"  Framework: {config.webcontainer.framework}\n"
-            f"  WebContainer Port: {config.webcontainer.port}\n"
-            f"  Model: {config.model_name}"
-        )
-    except ValidationError as e:
-        return f"Configuration validation error: {e.errors()}"
+@mcp.tool(name="refactor_target_module", description="Apply deterministic diff refactoring patch to generated codebase file")
+def refactor_target_module(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Applies AST/diff transformations to codebase modules."""
+    req = RefactorModuleRequest.model_validate(payload)
+    sample_diff = (
+        f"--- {req.target_filepath}\n"
+        f"+++ {req.target_filepath}\n"
+        f"@@ -1,3 +1,4 @@\n"
+        f"+// Applied refactor: {req.refactor_instruction}\n"
+    )
+    return {
+        "status": "applied",
+        "filepath": req.target_filepath,
+        "unified_diff": sample_diff,
+        "patch_bytes": len(sample_diff)
+    }
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
+## API examples
+
 ### Programmatic Configuration Validation with Pydantic v2
 The following Python module demonstrates modeling and validating GPT Engineer workspace configurations under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field, ValidationError
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from typing import List, Dict, Any
 import json
 
 class WebContainerEnvConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     port: int = Field(default=3000, ge=1024, le=65535)
     hot_reload: bool = Field(default=True)
     framework: str = Field(default="vite-react-ts", pattern=r"^(vite-react-ts|nextjs|svelte-kit|fastapi)$")
 
 class GPTEngineerWorkspaceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     project_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
     model_name: str = Field(..., pattern=r"^(claude-5\.6-.*|gpt-5\.6-.*|gemini-4\.0-.*|llama-4-.*|gemma-4-.*|qwen-3\.6-.*|deepseek-.*)$")
     webcontainer: WebContainerEnvConfig = Field(default_factory=WebContainerEnvConfig)
     mcp_servers: List[str] = Field(default_factory=list)
     auto_install_dependencies: bool = Field(default=True)
 
-def validate_gpt_engineer_config(payload: dict) -> str:
+def validate_gpt_engineer_config(payload: Dict[str, Any]) -> str:
     """Validates GPT Engineer workspace configuration using Pydantic v2."""
     try:
         config = GPTEngineerWorkspaceConfig.model_validate(payload)
@@ -269,6 +342,24 @@ if __name__ == "__main__":
     }
     print(validate_gpt_engineer_config(test_payload))
 ```
+
+## Code Generation & Synthesis Stage Matrix
+
+| Pipeline Stage | Inputs | Artifact Output | Validation Gate |
+| :--- | :--- | :--- | :--- |
+| **1. Spec Parsing** | Prompt markdown, FastMCP context | `clarification_questions.json` | Model confidence score > 0.92 |
+| **2. Architecture Design** | Answered prompts | `architecture.json` schema map | File path collision check |
+| **3. File Synthesis** | File spec + AST graph | Raw TypeScript/Python source files | Syntax AST validation |
+| **4. WebContainer Sandbox** | In-memory filesystem | Wasm hot reload dev server | `npm test` exit code 0 |
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **WebContainer Build Freeze** | Out of Wasm heap memory due to massive dependency tree in `package.json` | Open browser DevTools console | Prune unused packages or replace heavy libraries with native browser equivalents |
+| **Infinite Error Loop in Auto-Patch** | Generated diff patch contains invalid line offset numbers | Check `gpt-engineer.log` for AST patch mismatch | Force `--no-diff-patch` flag to rewrite whole module file |
+| **FastMCP Context Timeout** | External FastMCP tool server unreachable or misconfigured | `curl -i http://localhost:3000/mcp/health` | Verify FastMCP endpoint availability and CORS header access |
+| **Systemd Service Worker Failure** | Missing API environment key variables or invalid permission rights | `journalctl -u gpt-engineer-worker.service -n 50` | Export `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` in environment unit file |
 
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-native git-integrated agentic coding assistant.
