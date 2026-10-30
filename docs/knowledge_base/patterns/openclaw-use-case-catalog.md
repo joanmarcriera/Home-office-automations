@@ -159,7 +159,7 @@ from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigD
 import re
 
 class ParameterSpec(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     name: str = Field(..., description="Parameter key name")
     type: str = Field(..., description="Data type: string, integer, boolean, float, list")
@@ -177,6 +177,8 @@ class GuardrailConfig(BaseModel):
     enforce_rate_limits: bool = Field(default=True)
 
 class OpenClawSkillDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     description: str
     version: str = "2027.1"
@@ -222,15 +224,17 @@ The snippet below illustrates registering an OpenClaw pattern tool on a FastMCP 
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP("openclaw-usecase-server")
 
 class InfrastructureCheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     target_host: str = Field(..., description="Hostname or IP address of the node to check.")
     check_type: str = Field(default="ping", description="Diagnostic check: ping, disk, load, services")
 
 class InfrastructureCheckResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     target_host: str
     status: str
     metrics: dict
@@ -250,6 +254,94 @@ async def run_infrastructure_heuristic(request: InfrastructureCheckRequest) -> I
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Production Deployment & Orchestration
+
+### Systemd Service Unit (`openclaw.service`)
+To ensure high availability and sandboxed execution in production Linux environments, deploy OpenClaw using systemd:
+
+```ini
+[Unit]
+Description=OpenClaw Autonomous Agent Runtime & FastMCP 3.1 Skill Gateway
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=openclaw
+Group=openclaw
+WorkingDirectory=/opt/openclaw
+EnvironmentFile=/etc/openclaw/openclaw.env
+ExecStart=/usr/local/bin/openclaw serve --host 0.0.0.0 --port 8080 --config /etc/openclaw/config.yaml
+Restart=always
+RestartSec=5s
+
+# Security Hardening & Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/openclaw /var/lib/openclaw
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack (`docker-compose.yml`)
+For multi-container orchestrations incorporating Redis job queues and FastMCP 3.1 tool proxies:
+
+```yaml
+version: "3.8"
+
+services:
+  openclaw-runtime:
+    image: openclaw/runtime:2027.1
+    container_name: openclaw-runtime
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - OPENCLAW_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - FASTMCP_SERVER_URI=mcp://fastmcp-proxy:8001
+    volumes:
+      - ./config:/etc/openclaw:ro
+      - openclaw-data:/var/lib/openclaw
+    depends_on:
+      - redis
+      - fastmcp-proxy
+
+  fastmcp-proxy:
+    image: openclaw/fastmcp-proxy:3.1
+    container_name: fastmcp-proxy
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - LOG_LEVEL=INFO
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: openclaw-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+volumes:
+  openclaw-data:
+  redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Diagnostic Step | Resolution / Fix |
+| :--- | :--- | :--- | :--- |
+| `ValidationError: Extra inputs are not permitted` | Unregistered payload fields sent to Pydantic v2 schema with `extra="forbid"` | Check API request body against strict `GuardrailConfig` specification | Filter out extra keys or update schema contract definitions in `skills/` |
+| `FastMCPToolExecutionError: Connection refused` | FastMCP tool server daemon is down or unreachable on port 8001 | Test connectivity via `nc -zv localhost 8001` or check `fastmcp-proxy` logs | Restart FastMCP daemon service or check systemd status via `systemctl status fastmcp` |
+| `TokenBudgetExceededException` | Recursive research loop exceeded max token budget limit | Inspect step count and prompt context window in `/var/log/openclaw/agent.log` | Increase `max_token_budget` in skill guardrail config or tighten recursion exit conditions |
+| `HITLStagingQueueTimeout` | Human admin approval gate timed out waiting for action confirmation | Run `openclaw tasks pending` to inspect staged actions in queue | Approve pending action via `openclaw approval grant <task_id>` or adjust timeout settings |
+| `ModelRoutingFallback` | Primary LLM endpoint (Claude 5.6) returned 503 rate-limit error | Verify fallback routing in `config.yaml` model list | Ensure fallback models (GPT-5.5 / Llama 4) are configured with valid API keys |
 
 ## Operational Best Practices & Security Hardening
 

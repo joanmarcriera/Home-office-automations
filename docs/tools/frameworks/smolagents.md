@@ -117,7 +117,7 @@ Smolagents is structured around two lightweight primary agent classes:
 
 ### Installation
 ```bash
-pip install smolagents
+pip install smolagents fastmcp pydantic
 ```
 
 ### Minimal Python Example
@@ -284,6 +284,88 @@ except Exception as e:
     print(f"Trace validation failed: {e}")
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Unit (`smolagents-daemon.service`)
+Deploying a background Smolagents daemon service using systemd:
+
+```ini
+[Unit]
+Description=Smolagents Background Micro-Agent Orchestration Daemon
+After=network.target vllm-server.service
+Wants=vllm-server.service
+
+[Service]
+Type=simple
+User=smolagent
+Group=smolagent
+WorkingDirectory=/opt/smolagents
+Environment="PYTHONPATH=/opt/smolagents"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/smolagents/.venv/bin/python main_agent_loop.py --model-url http://localhost:8000/v1
+Restart=always
+RestartSec=5s
+
+# Security Sandboxing & Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/smolagents /tmp/smolagent-sandbox
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack (`docker-compose.yml`)
+For containerized deployments running Smolagents alongside local Ollama or vLLM backends:
+
+```yaml
+version: "3.8"
+
+services:
+  smolagents-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smolagents-runtime
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_BASE_URL=http://ollama-backend:11434
+      - FASTMCP_BRIDGE_URL=http://fastmcp-bridge:8082
+    volumes:
+      - ./agent_scripts:/app/scripts:ro
+      - smolagents-logs:/var/log/smolagents
+    depends_on:
+      - ollama-backend
+
+  ollama-backend:
+    image: ollama/ollama:latest
+    container_name: smolagents-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+volumes:
+  smolagents-logs:
+  ollama-data:
+```
+
+## Enterprise Integration Patterns & Best Practices
+
+1. **Hybrid Execution Router**: Route low-complexity code synthesis steps to local `CodeAgent` models (Gemma 3) and complex reasoning steps to frontier cloud swarms (Claude 5.6) via FastMCP 3.1.
+2. **Deterministic Output Caching**: Cache idempotent `@tool` results in Redis to avoid re-querying expensive downstream APIs during multi-turn agent conversations.
+3. **Audit Trail Logging**: Persist all AST execution trees and generated code blocks into append-only JSONL files for compliance auditing and security analysis.
+4. **State Machine Serialization**: Store conversational agent state in Postgres or Redis to enable stateless agent restarts across microservice pod scale-outs.
+5. **Rate-Limiting & Cost Guardrails**: Enforce per-agent token quotas and maximum tool invocation budgets to prevent run-away recursion loops in production environments.
+6. **Graceful Fallback Protocols**: When code sandbox execution encounters unhandled exceptions, fallback to standard `ToolCallingAgent` JSON tool parsing pipelines automatically.
+7. **Multi-Tenant Memory Isolation**: Isolate tenant execution contexts using segregated SQLite or Vector store namespaces to prevent cross-account information leaks during agentic retrieval.
+
 ## Security & AST Sandbox Guidelines
 
 When deploying `CodeAgent` instances that execute LLM-written code dynamically:
@@ -299,6 +381,7 @@ When deploying `CodeAgent` instances that execute LLM-written code dynamically:
 | **Local Model Output Syntax Error** | Quantized local LLM failed to output valid ````python ```` code blocks. | Switch to `ToolCallingAgent` or use a larger instruction-tuned model (Gemma 3 27B / Llama 3.3 70B). |
 | **FastMCP 3.1 Connection Refused** | Remote FastMCP tool SSE endpoint not reachable. | Check FastMCP host and port; confirm network accessibility from agent runtime. |
 | **Excessive Execution Steps** | Agent stuck in iteration loop without reaching final answer. | Reduce `max_steps` or refine tool docstrings for clearer tool selection hints. |
+| **Systemd Service Restarts Loops** | Missing environment variables or `.venv` virtualenv path mismatch. | Inspect `journalctl -u smolagents-daemon.service -f` and verify python binary path in `ExecStart`. |
 
 ## Related tools / concepts
 - [LangChain](../../tools/ai_knowledge/langchain.md)

@@ -129,6 +129,94 @@ NoNewPrivileges=true
 WantedBy=multi-user.target
 ```
 
+## Docker Compose Orchestration (`docker-compose.yml`)
+
+For containerized deployment of vLLM FastMCP workers and local gateway proxies on Nebius GPU instances:
+
+```yaml
+version: "3.8"
+
+services:
+  nebius-vllm-worker:
+    image: vllm/vllm-openai:v0.6.0
+    container_name: nebius-vllm-worker
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+      - NCCL_DEBUG=INFO
+      - NCCL_IB_DISABLE=0
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      --model Qwen/Qwen2.5-72B-Instruct
+      --tensor-parallel-size 8
+      --port 8000
+      --enable-chunked-prefill
+      --max-num-seqs 256
+
+  nebius-mcp-gateway:
+    image: python:3.11-slim
+    container_name: nebius-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - NEBIUS_INFERENCE_URL=http://nebius-vllm-worker:8000/v1
+    volumes:
+      - ./gateway:/app
+    working_dir: /app
+    command: python -m mcp.server.fastmcp server.py
+    depends_on:
+      - nebius-vllm-worker
+```
+
+## Slurm Batch Job Submission Script (`train_job.slurm`)
+
+For scheduling multi-node distributed PyTorch training jobs across Nebius InfiniBand GPU clusters:
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=nebius-fsdp-training
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=8
+#SBATCH --gpus-per-node=8
+#SBATCH --partition=h100-ib
+#SBATCH --time=24:00:00
+#SBATCH --output=logs/slurm-%j.out
+#SBATCH --error=logs/slurm-%j.err
+
+export NCCL_DEBUG=INFO
+export NCCL_IB_DISABLE=0
+export NCCL_IB_HCA=mlx5
+export PYTHONUNBUFFERED=1
+
+srun python3 -m torch.distributed.run \
+    --nnodes=4 \
+    --nproc_per_node=8 \
+    --rdzv_id=$SLURM_JOB_ID \
+    --rdzv_backend=c10d \
+    --rdzv_endpoint=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1):29500 \
+    train.py --config configs/llama4_fine_tune.yaml
+```
+
+## Enterprise Security, Compliance & Data Isolation
+
+Nebius AI Cloud implements zero-trust hardware-level isolation for multi-tenant AI training and inference:
+1. **InfiniBand SR-IOV Partitioning**: Tenant GPU instances are assigned isolated virtual InfiniBand fabrics, preventing packet snooping or cross-tenant network access during distributed NCCL collective operations.
+2. **Encrypted NVMe Scratch Volumes**: Direct-attached NVMe local storage volumes enforce LUKS AES-256 encryption with tenant-managed keys automatically rotated via HashiCorp Vault integrations.
+3. **GDPR & SOC2 Type II Attestation**: All Nebius cloud data centers located in North America and Europe maintain full SOC2 Type II, ISO 27001, and GDPR compliance certifications for regulated healthcare, financial, and enterprise AI workloads.
+
 ## Diagnostic & Troubleshooting Matrix
 
 | Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
@@ -138,6 +226,8 @@ WantedBy=multi-user.target
 | **Tavily API Latency Spikes** | Rate limit throttling on shared cloud API gateway | Inspect HTTP status code responses in agent logs | Migrate to dedicated Nebius Tavily enterprise token with reserved quota |
 | **K8s Node Pending State** | Insufficient GPU quota in target Nebius cloud region | Run `kubectl describe node` and check Nebius console quotas | Request GPU quota increase via Nebius Cloud Console |
 | **FastMCP Stream Disconnect** | HTTP keep-alive timeout severed by Ingress proxy | Check load balancer proxy timeout settings | Set `keep_alive_timeout` to 300s in Ingress gateway configuration |
+| **`ValidationError: Extra inputs are not permitted`** | Request sent to Pydantic v2 schema containing unmapped extra parameters | Check client JSON request body against strict Pydantic model (`extra="forbid"`) | Remove unexpected request keys or adjust `NebiusClusterConfig` schema definition |
+| **InfiniBand Subnet Degradation** | Fabric cable fault or switch port congestion | Check `ibdiagnet` output logs | Re-route traffic via alternative InfiniBand switch port or notify Nebius Support |
 
 ## Strengths
 - **Bare-Metal & Managed GPU Compute**: Native InfiniBand connectivity with minimal virtualization overhead.
@@ -278,11 +368,18 @@ if __name__ == "__main__":
 ### 3. FastMCP 3.1 Task Protocol Integration
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP("nebius-cloud-controller", version="3.1.0")
 
+class ProvisionClusterRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    cluster_name: str = Field(..., description="Unique cluster identifier")
+    gpu_type: str = Field(default="gpu-h100-sxm5")
+    node_count: int = Field(default=1, ge=1, le=64)
+
 class ProvisionClusterResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     status: str = Field(..., description="Provisioning state outcome")
     cluster_name: str
     gpu_type: str
@@ -295,17 +392,15 @@ class ProvisionClusterResponse(BaseModel):
     description="Provisions an InfiniBand-connected GPU cluster on Nebius AI Cloud."
 )
 def provision_gpu_cluster(
-    cluster_name: str,
-    gpu_type: str = "gpu-h100-sxm5",
-    node_count: int = 1
+    request: ProvisionClusterRequest
 ) -> ProvisionClusterResponse:
     return ProvisionClusterResponse(
         status="provisioned",
-        cluster_name=cluster_name,
-        gpu_type=gpu_type,
-        total_gpus=node_count * 8,
+        cluster_name=request.cluster_name,
+        gpu_type=request.gpu_type,
+        total_gpus=request.node_count * 8,
         infiniband="active",
-        cluster_endpoint=f"https://{cluster_name}.k8s.nebius.cloud"
+        cluster_endpoint=f"https://{request.cluster_name}.k8s.nebius.cloud"
     )
 
 if __name__ == "__main__":
