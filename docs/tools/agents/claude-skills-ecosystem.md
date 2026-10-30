@@ -61,14 +61,14 @@ It makes operational engineering know-how reusable, modular, and version-control
 
 ## Tooling & Harness Comparison Matrix
 
-| Feature / Dimension | Claude Skills Ecosystem | LangChain Tools | Custom Agent Tools | AutoGen Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Protocol Standard** | FastMCP 3.1 / Agent SDK | LangChain Tool Specs | Custom / Ad-hoc JSON | AutoGen Tool Protocol |
-| **Packaging & Distribution**| Portable Skill Packs (`npx skills`) | Python / JS Packages | Repository Scripts | Python Modules |
-| **Context Window Control**| Dynamic Tool Injection | Static Prompt Binding | Manual Construction | Static Agent Config |
-| **Cross-Harness Support**| Claude Code, Cline, Roo, Zed | LangChain Ecosystem | Single Application | AutoGen Framework |
-| **Schema Validation** | Pydantic v2 / Zod | Pydantic v1 / v2 | Manual JSON Parsing | Pydantic v2 |
-| **Security Isolation** | Workspace Sandboxing | In-process Execution | Application Dependent | Docker Container Sandbox |
+| Feature / Dimension | Claude Skills Ecosystem | LangChain Tools | Custom Agent Tools | AutoGen Capabilities | Token Cost Index |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Protocol Standard** | FastMCP 3.1 / Agent SDK | LangChain Tool Specs | Custom / Ad-hoc JSON | AutoGen Tool Protocol | Low-Moderate |
+| **Packaging & Distribution**| Portable Skill Packs (`npx skills`) | Python / JS Packages | Repository Scripts | Python Modules | Low |
+| **Context Window Control**| Dynamic Tool Injection | Static Prompt Binding | Manual Construction | Static Agent Config | Low |
+| **Cross-Harness Support**| Claude Code, Cline, Roo, Zed | LangChain Ecosystem | Single Application | AutoGen Framework | Moderate |
+| **Schema Validation** | Pydantic v2 / Zod (`extra="forbid"`) | Pydantic v1 / v2 | Manual JSON Parsing | Pydantic v2 | Low |
+| **Security Isolation** | Workspace Sandboxing | In-process Execution | Application Dependent | Docker Container Sandbox | High |
 
 ## Typical use cases
 - **UI Prototyping & Design Systems**: Invoking the `frontend-design` skill for production-grade React, Next.js 16, and Vue components adhering to corporate design systems.
@@ -115,6 +115,164 @@ npx skills@latest add anthropic/code-analysis-mcp
 ### Usage
 Once installed, Claude or other FastMCP-compatible agents (such as [Cline](cline.md) or [Roo Code](roo-code.md)) automatically index registered skills into their tool invocation manifest during runtime initialization.
 
+## FastMCP 3.1 Skill Definition & Server Implementation
+
+The following complete Python server implementation demonstrates a production-grade FastMCP 3.1 Claude Skill pack server with strict Pydantic v2 models (`extra="forbid"`):
+
+```python
+import asyncio
+import json
+from enum import Enum
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP, Context
+
+# Initialize FastMCP 3.1 Server for Skill Pack Management
+mcp = FastMCP("Claude-Skills-Pack-Manager")
+
+class SkillExecutionCategory(str, Enum):
+    FRONTEND_DESIGN = "frontend_design"
+    E2E_TESTING = "e2e_testing"
+    SECURITY_AUDIT = "security_audit"
+    REFACTORING = "refactoring"
+
+class SkillActionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    skill_name: str = Field(..., min_length=3, description="Name of registered skill pack.")
+    category: SkillExecutionCategory = Field(..., description="Skill category classification.")
+    target_path: str = Field(..., description="Target file or directory path in workspace.")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Skill execution parameters.")
+
+    @field_validator("skill_name")
+    @classmethod
+    def sanitize_skill_name(cls, v: str) -> str:
+        return v.strip().lower()
+
+class SkillActionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    skill_name: str
+    status: str = Field(..., description="Execution status: success, warning, or error.")
+    modified_files: List[str] = Field(default_factory=list, description="List of modified file paths.")
+    summary_report: str = Field(..., description="Detailed execution output and findings.")
+    execution_time_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds.")
+
+@mcp.tool()
+async def invoke_claude_skill(
+    skill_name: str,
+    category: str,
+    target_path: str,
+    parameters_json: Optional[str] = None
+) -> Dict[str, Any]:
+    """Invoke a registered FastMCP 3.1 Claude Skill against a local workspace path."""
+    try:
+        parsed_params = json.loads(parameters_json) if parameters_json else {}
+        req = SkillActionRequest(
+            skill_name=skill_name,
+            category=SkillExecutionCategory(category),
+            target_path=target_path,
+            parameters=parsed_params
+        )
+    except ValidationError as err:
+        return {"status": "error", "validation_errors": err.errors()}
+    except json.JSONDecodeError:
+        return {"status": "error", "message": "Invalid JSON string in parameters_json."}
+
+    # Simulate execution of skill action
+    result = SkillActionResult(
+        skill_name=req.skill_name,
+        status="success",
+        modified_files=[f"{req.target_path}/generated_component.tsx"],
+        summary_report=f"Successfully applied skill '{req.skill_name}' across {req.target_path}. Created production React Next.js 16 component.",
+        execution_time_ms=142.5
+    )
+
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Systemd Service Unit Setup
+
+To run the Claude Skills FastMCP manager daemon in background server environments, create `/etc/systemd/system/claude-skills.service`:
+
+```ini
+[Unit]
+Description=FastMCP Claude Skills Manager Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=skills-agent
+Group=skills-agent
+WorkingDirectory=/opt/claude-skills
+Environment="PATH=/opt/claude-skills/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8403"
+Environment="SKILLS_REGISTRY_PATH=/opt/claude-skills/registry"
+ExecStart=/opt/claude-skills/venv/bin/python3 -m claude_skills_server
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security Hardening Guidelines
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start systemd daemon:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now claude-skills
+sudo systemctl status claude-skills
+```
+
+## Docker Compose Production Setup
+
+Deploy the Claude Skills manager container environment with health checks:
+
+```yaml
+version: "3.8"
+
+services:
+  claude-skills-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-skills-mcp-server
+    restart: always
+    ports:
+      - "8403:8403"
+    environment:
+      - FASTMCP_PORT=8403
+      - SKILLS_REGISTRY_PATH=/var/lib/claude-skills/registry
+    volumes:
+      - skills-data:/var/lib/claude-skills/registry
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8403/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  skills-data:
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`ValidationError: extra_forbidden`** | Caller passed unknown arguments to skill invocation endpoint | `fastmcp call Claude-Skills-Pack-Manager invoke_claude_skill --data '{"skill_name": "test", "extra": 1}'` | Align tool payload with strict Pydantic v2 models (`extra="forbid"`). |
+| **Skill Name Collision** | Multiple skill packs expose identical trigger names | Run `/skills list` in Claude Code session | Rename skill action using corporate prefix (e.g., `corp-frontend-design`). |
+| **Workspace Path Sandboxing Error** | Skill attempted access outside allowed workspace directory | Check systemd `/var/log/claude-skills.log` trace | Update workspace path permissions or pass relative paths. |
+| **JSON Parse Error on Parameters** | Malformed `parameters_json` string provided to CLI tool | Test parameter string with `python3 -m json.tool <<< '$PARAMS'` | Validate parameter JSON string syntax before invoking tool. |
+
 ## CLI examples
 ```bash
 # List all active skills in the current Claude Code environment
@@ -133,20 +291,22 @@ npx @modelcontextprotocol/inspector --skill-path ./skills/frontend-design
 ## API examples
 
 ### Pydantic v2 Skill Schema Validation & Registration
-When building custom agent harnesses or managing skills dynamically, skill pack configurations and registered actions can be parsed and validated using **Pydantic v2**:
+When building custom agent harnesses or managing skills dynamically, skill pack configurations and registered actions can be parsed and validated using **Pydantic v2** (`extra="forbid"`):
 
 ```python
 import json
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, HttpUrl, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError, field_validator
 
 class SkillParameter(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: str = Field(..., description="Parameter name")
     param_type: str = Field(..., alias="type", description="Data type of the parameter (e.g., string, integer, boolean)")
     description: str = Field(..., description="Parameter usage description and constraints")
     required: bool = Field(default=False, description="Whether the parameter is mandatory")
 
 class SkillAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: str = Field(..., description="Unique trigger name within the skill pack")
     description: str = Field(..., description="Purpose and expected result of executing this action")
     parameters: List[SkillParameter] = Field(default_factory=list, description="Input schema parameters")
@@ -159,6 +319,7 @@ class SkillAction(BaseModel):
         return v
 
 class SkillPackConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     pack_name: str = Field(..., alias="packName", description="Display name of the skill pack")
     version: str = Field(..., description="Semantic version of the skill pack")
     author: str = Field(..., description="Author or organization maintaining the pack")

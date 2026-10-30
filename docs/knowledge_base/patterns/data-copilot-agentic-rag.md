@@ -102,13 +102,13 @@ This pattern operates at the **Reasoning, Query Planning & Synthesis Layer** of 
 
 ## FastMCP 3.1 Multi-Hop Server Implementation
 
-The following complete Python server implementation demonstrates an production-grade FastMCP 3.1 Agentic RAG endpoint with Pydantic v2 validation:
+The following complete Python server implementation demonstrates a production-grade FastMCP 3.1 Agentic RAG endpoint with strict Pydantic v2 validation (`extra="forbid"`):
 
 ```python
 import asyncio
 from enum import Enum
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
@@ -120,11 +120,13 @@ class RetrievalTarget(str, Enum):
     HYBRID = "hybrid"
 
 class SearchFilter(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     category: Optional[str] = Field(None, description="Optional metadata filter category.")
     date_range_start: Optional[str] = Field(None, description="ISO timestamp start filter.")
     date_range_end: Optional[str] = Field(None, description="ISO timestamp end filter.")
 
 class RetrievalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     query: str = Field(..., min_length=3, description="Diagnostic user query.")
     target: RetrievalTarget = Field(default=RetrievalTarget.HYBRID, description="Target data silo.")
     top_k: int = Field(default=5, ge=1, le=20, description="Max chunks/rows to retrieve.")
@@ -136,12 +138,14 @@ class RetrievalRequest(BaseModel):
         return v.strip()
 
 class RetrievalDocumentChunk(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     chunk_id: str = Field(..., description="Unique document chunk UUID.")
     content: str = Field(..., description="Text excerpt content.")
     score: float = Field(..., ge=0.0, le=1.0, description="Relevance score.")
     source_uri: str = Field(..., description="Document source location.")
 
 class RetrievalResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     query: str
     target_used: RetrievalTarget
     chunks: List[RetrievalDocumentChunk]
@@ -200,6 +204,111 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Service Unit Setup
+
+To run the FastMCP Agentic RAG Orchestrator as a resilient background daemon in Linux production environments, create the following systemd unit file at `/etc/systemd/system/agentic-rag.service`:
+
+```ini
+[Unit]
+Description=FastMCP Agentic RAG Orchestrator Service
+After=network.target postgresql.service vector-db.service
+Wants=postgresql.service vector-db.service
+
+[Service]
+Type=simple
+User=rag-agent
+Group=rag-agent
+WorkingDirectory=/opt/agentic-rag
+Environment="PATH=/opt/agentic-rag/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8401"
+Environment="DB_READONLY_URL=postgresql://rag_reader:SecretPass123@localhost:5432/analytics"
+ExecStart=/opt/agentic-rag/venv/bin/python3 -m agentic_rag_server
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security Hardening Guidelines
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and verify the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now agentic-rag
+sudo systemctl status agentic-rag
+```
+
+## Docker Compose Production Setup
+
+Deploy the complete hybrid RAG pipeline using Docker Compose:
+
+```yaml
+version: "3.8"
+
+services:
+  agentic-rag-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentic-rag-mcp-server
+    restart: always
+    ports:
+      - "8401:8401"
+    environment:
+      - FASTMCP_PORT=8401
+      - DB_READONLY_URL=postgresql://rag_reader:SecretPass123@postgres:5432/analytics
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8401/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentic-rag-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_USER: rag_reader
+      POSTGRES_PASSWORD: SecretPass123
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag_reader -d analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    container_name: agentic-rag-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Pydantic ValidationError (`extra_forbidden`)** | Client sent undocumented payload attributes to FastMCP endpoint | `fastmcp call Agentic-RAG-Orchestrator execute_agentic_retrieval --data '{"extra": 1}'` | Update client payload to adhere strictly to Pydantic v2 schemas (`extra="forbid"`). |
+| **RAG Retrieval Timeout (> 4.0s)** | Heavy vector store payload without metadata filter index | `curl -s http://localhost:6333/collections/documents | jq .result.status` | Ensure Qdrant metadata payload fields (e.g., `category`, `date_range`) are indexed. |
+| **SQL Access Permission Error** | Read-only database credential lacks target schema select permissions | `psql -U rag_reader -d analytics -c "SELECT * FROM quarterly_finance LIMIT 1;"` | Grant `SELECT` permissions on required schema tables to `rag_reader` role. |
+| **Context Window Saturation** | Too many top-k chunks returned without MMR pruning | Check token counts in FastMCP trace logs (`/var/log/agentic-rag.log`) | Decrease `top_k` parameter or enable ColBERT score threshold filtering (threshold >= 0.75). |
+
 ## CLI examples
 
 ### CLI Verification of FastMCP Retrieval Tools
@@ -222,7 +331,7 @@ The following Python implementation defines an agentic routing model with heuris
 ```python
 from enum import Enum
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
 class RouteDestination(str, Enum):
     """Target retrieval system for incoming query."""
@@ -232,6 +341,7 @@ class RouteDestination(str, Enum):
 
 class QueryAnalysis(BaseModel):
     """Pydantic v2 schema for analyzing and validating query routing parameters."""
+    model_config = ConfigDict(extra="forbid")
     original_query: str = Field(..., description="Unmodified input query string.")
     route: RouteDestination = Field(..., description="Determined routing destination.")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Routing confidence score.")
