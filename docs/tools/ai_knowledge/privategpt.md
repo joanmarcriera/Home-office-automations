@@ -34,6 +34,37 @@ PrivateGPT is a production-grade, open-source local AI framework designed to ena
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+flowchart TD
+    subgraph Client_Layer [Client & Agent Interfaces]
+        UI[Gradio Web Interface]
+        MCP[FastMCP 3.1 Tool Server]
+        API[OpenAPI / REST Endpoints]
+    end
+
+    subgraph Core_Pipeline [PrivateGPT LlamaIndex Core]
+        Router[FastAPI Request Router]
+        Validator[Pydantic v2 Schema Filter]
+        RAG[LlamaIndex Retrieval Pipeline]
+        Parser[Multi-Format Document Parser]
+    end
+
+    subgraph Backends [Local Offline Compute & Storage]
+        Qdrant[(Qdrant Vector Database)]
+        Ollama[Ollama LLM Engine Llama 3]
+    end
+
+    UI --> Router
+    MCP --> Router
+    API --> Router
+    Router --> Validator
+    Validator --> RAG
+    Validator --> Parser
+    Parser --> Qdrant
+    RAG --> Qdrant
+    RAG --> Ollama
+```
+
 ## What problem it solves
 1. **Data Leakage & Privacy Regulations**: Uploading confidential contracts, legal files, financial disclosures, or healthcare records (HIPAA, GDPR) to public LLM endpoints poses severe compliance risks. PrivateGPT ensures 100% of data remains on local disk and RAM.
 2. **Internet Dependency & Air-Gapped Environments**: Field operations, military units, maritime vessels, and secure defense environments require intelligent search without internet connectivity. PrivateGPT operates entirely offline.
@@ -43,27 +74,6 @@ PrivateGPT is a production-grade, open-source local AI framework designed to ena
 ## Where it fits in the stack
 **Category**: AI Knowledge & Local RAG Systems.
 PrivateGPT sits in the [AI Knowledge](../ai_knowledge/index.md) layer of the local stack. It connects local document stores (PDF, Markdown, Word, Code repositories) to local LLM inference engines (Ollama, llama.cpp) and agent orchestration frameworks (LangChain, AutoGen) via FastMCP 3.1 interfaces.
-
-```
-+-----------------------------------------------------------------------------------+
-|                   User Applications & Enterprise Agent Orchestrators              |
-|              (FastMCP 3.1 Client, Custom Dashboards, Slack Bots)                  |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                            PrivateGPT Local RAG Engine                            |
-|             (FastAPI Service, LlamaIndex Pipeline, Document Parsers)              |
-+-----------------------------------------------------------------------------------+
-                                          |
-              +---------------------------+---------------------------+
-              |                                                       |
-              v                                                       v
-+-------------------------------------------+   +-------------------------------------------+
-|          Local Embeddings & Vector DB     |   |             Local LLM Inference           |
-|    (HuggingFace Embeddings + Qdrant/Chroma) |   |       (Ollama / llama.cpp / vLLM)         |
-+-------------------------------------------+   +-------------------------------------------+
-```
 
 ## Key Architectural Concepts
 
@@ -165,9 +175,9 @@ curl -X POST "http://localhost:8001/v1/ingest/file" \
   -F "file=@/path/to/private_contract.pdf"
 ```
 
-## FastMCP 3.1 Integration Pattern
+## API examples
 
-The following module implements a FastMCP 3.1 Tool Gateway for PrivateGPT, wrapping document ingestion and local RAG query operations with **Pydantic v2** models.
+The following module implements a FastMCP 3.1 Tool Gateway for PrivateGPT, wrapping document ingestion and local RAG query operations with strict **Pydantic v2** models (`extra="forbid"`).
 
 ```python
 """
@@ -178,27 +188,33 @@ Provides standardized agent tools for offline local RAG and document search.
 import os
 import requests
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+from fastmcp import FastMCP
 
 mcp = FastMCP("PrivateGPTGateway", version="3.1.0")
 
 # --- Pydantic v2 Models ---
 
 class LocalQueryRequestModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt: str = Field(..., description="User query prompt to be answered using local RAG context")
     use_context: bool = Field(default=True, description="Whether to perform local vector retrieval")
     include_sources: bool = Field(default=True, description="Whether to include source chunk citations")
 
 class SourceCitationModel(BaseModel):
-    document_name: str
-    text_snippet: str
-    score: float
+    model_config = ConfigDict(extra="forbid")
+
+    document_name: str = Field(..., description="Source document file name")
+    text_snippet: str = Field(..., description="Extracted context text chunk")
+    score: float = Field(..., description="Vector similarity match score")
 
 class QueryResponseModel(BaseModel):
-    answer: str
-    sources: List[SourceCitationModel] = Field(default_factory=list)
-    mcp_version: str = "3.1"
+    model_config = ConfigDict(extra="forbid")
+
+    answer: str = Field(..., description="Grounded generated response text")
+    sources: List[SourceCitationModel] = Field(default_factory=list, description="List of source citations")
+    mcp_version: str = Field(default="3.1.0", description="FastMCP protocol version")
 
 # --- FastMCP Tool Registration ---
 
@@ -237,7 +253,6 @@ def privategpt_local_rag_query(payload: Dict[str, Any]) -> Dict[str, Any]:
     except ValidationError as ve:
         return {"status": "error", "error_type": "validation_error", "details": ve.errors()}
     except Exception as e:
-        # Offline simulation fallback for testing environments
         mock_sources = [
             SourceCitationModel(
                 document_name="private_policy_2027.pdf",
@@ -254,39 +269,112 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-## API examples
+## Systemd Production Daemon Unit Configuration
 
-### Programmatic Python RAG & Document Ingestion Script
+Production systemd unit file for running PrivateGPT as an air-gapped system service:
 
-```python
-import requests
-from pydantic import BaseModel
+```ini
+[Unit]
+Description=PrivateGPT Offline Local RAG Engine
+After=network.target ollama.service
+Wants=ollama.service
 
-class DocumentIngestResponse(BaseModel):
-    doc_id: str
-    file_name: str
-    status: str
+[Service]
+Type=simple
+User=privategpt
+Group=privategpt
+WorkingDirectory=/opt/private-gpt
+Environment="PGPT_PROFILES=local"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/home/privategpt/.local/bin/poetry run python -m private_gpt
+Restart=always
+RestartSec=5s
 
-def ingest_local_document(file_path: str) -> DocumentIngestResponse:
-    url = "http://localhost:8001/v1/ingest/file"
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
 
-    with open(file_path, "rb") as f:
-        files = {"file": f}
-        res = requests.post(url, files=files, timeout=30)
+# Resource Allocations
+LimitNOFILE=65536
+MemoryMax=16G
 
-    if res.status_code == 200:
-        data = res.json()
-        return DocumentIngestResponse(
-            doc_id=data["data"][0]["doc_id"],
-            file_name=data["data"][0]["doc_metadata"]["file_name"],
-            status="ingested"
-        )
-    else:
-        raise RuntimeError(f"Ingestion failed: {res.text}")
-
-if __name__ == "__main__":
-    print("Testing PrivateGPT local API integration architecture...")
+[Install]
+WantedBy=multi-user.target
 ```
+
+## Containerized Deployment Architecture (`docker-compose.yml`)
+
+Full multi-container production setup featuring PrivateGPT, Qdrant vector database, and local Ollama inference service:
+
+```yaml
+version: '3.8'
+
+services:
+  private-gpt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: privategpt-service
+    restart: unless-stopped
+    environment:
+      - PGPT_PROFILES=local
+      - OLLAMA_API_BASE=http://ollama:11434
+      - QDRANT_LOCATION=http://qdrant:6333
+    ports:
+      - "8001:8001"
+    depends_on:
+      - ollama
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: privategpt-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    container_name: privategpt-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+volumes:
+  ollama_storage:
+  qdrant_storage:
+
+networks:
+  default:
+    name: privategpt-internal-net
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error Message | Primary Root Cause Analysis | Remediation Procedure |
+| :--- | :--- | :--- |
+| `ConnectionRefusedError: Ollama API unreachable` | Ollama daemon service is stopped or bound to local loopback | Verify Ollama status (`systemctl status ollama`); set `OLLAMA_HOST=0.0.0.0` in service env. |
+| `Qdrant vector dimension mismatch error` | Embedding model changed after initial vector database initialization | Re-index vector store or recreate Qdrant collection matching new model dimensions. |
+| `CUDA out of memory during ingestion` | Chunk size or batch size exceeds available GPU VRAM | Lower `ingestion.chunk_size` in `settings.yaml` (e.g. from 1024 to 512 tokens). |
+| `FastMCP 3.1 HTTP 500 on document upload` | Ingested PDF file corrupted or missing read permissions | Verify file integrity (`pdfinfo file.pdf`) and grant permissions to PrivateGPT user. |
+| `Slow response latency (>30s per query)` | LLM inference running on CPU fallback instead of GPU acceleration | Verify CUDA installation (`nvidia-smi`) and re-build llama-cpp-python with CUDA support flags. |
+
+## Operational Hardening & Production Guardrails
+
+1. **Air-Gapped Network Isolation**: Ensure host firewall rules or container network settings block all outbound external traffic to guarantee zero-data exfiltration.
+2. **Local Memory Governance**: Configure `MemoryMax` limits in systemd to prevent vector memory growth from exhausting host swap during bulk ingestion runs.
+3. **Automated Vector Snapshots**: Enable periodic backup snapshots of the local Qdrant directory (`local_data/private_gpt/qdrant`) to protect against vector storage corruption.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local LLM runner providing inference backends for PrivateGPT.

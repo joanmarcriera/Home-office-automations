@@ -8,7 +8,6 @@
 - **Syscall Restrictions (seccomp & AppArmor)**: Restricting available kernel system calls (blocking `ptrace`, raw socket creation, kernel module loading) to neutralize container breakout vectors.
 - **Ephemeral Cleanup & Snapshot Restores**: Booting clean sandbox environments in milliseconds and immediately destroying sandbox instances after execution completion.
 
-
 ## What problem it solves
 - Eliminates arbitrary code execution (ACE), privilege escalation, and host filesystem compromise risks when running untrusted, LLM-generated code.
 - Prevents resource exhaustion and network exfiltration during autonomous agent coding and data analysis tasks.
@@ -52,6 +51,33 @@
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+flowchart TD
+    subgraph Host_Environment [Host Agent Infrastructure]
+        LLM[Agent / LLM Output]
+        Validator[Pydantic v2 Schema Validator]
+        Orchestrator[Sandbox Daemon / FastMCP 3.1]
+    end
+
+    subgraph Isolation_Boundary [gVisor / Firecracker Security Boundary]
+        Cgroups[cgroups v2 Limits RAM/CPU]
+        Seccomp[Seccomp Syscall Filter]
+        Network[Air-Gapped Network Namespace]
+        FS[Read-Only Filesystem + /tmp tmpfs]
+    end
+
+    subgraph Guest_Runtime [Isolated Guest Environment]
+        Python[Python 3.12 Runtime]
+        Bash[Bash Command Interpreter]
+    end
+
+    LLM --> Validator
+    Validator --> Orchestrator
+    Orchestrator --> Isolation_Boundary
+    Isolation_Boundary --> Python
+    Isolation_Boundary --> Bash
+```
+
 ## Typical use cases
 
 - **Autonomous Coding Agents**: Safely running unit tests, linting scripts, and code generation outputs produced by coding assistants (Claude Engineer, OpenCode, Aider).
@@ -59,19 +85,16 @@
 - **Web Scraping & DOM Rendering**: Running browser automation tools (Puppeteer, Playwright) to scrape untrusted external web pages safely.
 - **Benchmark Evaluation Platforms**: Running untrusted code generation test suites (HumanEval, MultiPL-E, SWE-bench) across multi-tenant evaluation infrastructure.
 
-
 ## Strengths
 
 - **Enterprise Security Compliance**: Mitigates prompt injection, malicious code generation, and arbitrary code execution (ACE) risks in production AI deployments.
 - **Multi-Tenant Isolation**: Prevents side-channel data leaks and cross-agent memory pollution in shared multi-agent servers.
 - **Deterministic Reproducibility**: Clean, reproducible base images ensure consistent script evaluation regardless of host system configuration.
 
-
 ## Limitations
 
 - **Latency Overhead**: MicroVM creation and container startup introduce execution latency compared to native host execution (mitigated by pre-warmed sandbox pools).
 - **Tooling Constraints**: Air-gapped sandboxes prevent script installation of missing PyPI/npm packages at runtime without pre-built environment images or proxy mirrors.
-
 
 ## Sandbox Technology Comparison Matrix
 
@@ -79,7 +102,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Docker (cgroups v2)** | Linux Namespaces + Seccomp | ~200ms | Minimal (<10MB) | Seccomp Profile | Standard Agent Script Execution |
 | **gVisor (`runsc`)** | User-space Kernel Sentry | ~50ms | Low (~15MB) | User-space Syscall Trapping | Multi-tenant Agent Platforms |
-| **Firecracker MicroVM**| KVM Hypervisor Isolation | ~5ms | Low (~5MB per VM) | KVM Hardware Isolation | Untrusted Untrusted Untrusted Code |
+| **Firecracker MicroVM**| KVM Hypervisor Isolation | ~5ms | Low (~5MB per VM) | KVM Hardware Isolation | Untrusted Code Execution |
 | **Wasmtime (Wasm)** | WebAssembly Memory Sandbox| <1ms | Negligible (<1MB) | Capability-based WASI | Edge / Browser Code Execution |
 | **Bubblewrap (bwrap)**| Unprivileged User Namespaces| ~2ms | Minimal | User Namespace Mapping | Lightweight CLI Tool Isolation |
 
@@ -88,7 +111,6 @@
 - When building agentic platforms that execute LLM-generated code, shell scripts, or raw queries.
 - When running multi-tenant coding platforms processing user-submitted or agent-generated scripts.
 - When enterprise security standards prohibit direct execution of AI code output on host developer machines or production servers.
-
 
 ## When not to use it
 - When executing fully trusted, pre-compiled static system maintenance scripts on dedicated isolated hardware.
@@ -134,12 +156,12 @@ wasmtime run --dir=. binary_module.wasm
 
 ## API examples
 
-The following Python script demonstrates an asynchronous FastMCP 3.1 server implementation for sandboxed execution using Docker/Podman SDK with strict resource bounds, air-gapped network restrictions, and **Pydantic v2** validation of execution inputs and outputs.
+The following Python script demonstrates an asynchronous FastMCP 3.1 server implementation for sandboxed execution using Docker/Podman SDK with strict resource bounds, air-gapped network restrictions, and **Pydantic v2** validation (`extra="forbid"`) of execution inputs and outputs.
 
 ```python
 import docker
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP Server for Sandboxed Code Execution
@@ -149,11 +171,15 @@ mcp = FastMCP("Sandboxed Code Execution Engine", version="3.1.0")
 # Pydantic v2 Input/Output Schemas
 # ---------------------------------------------------------------------------
 class SandboxExecutionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     code_script: str = Field(..., min_length=1, description="Python script to execute in sandbox")
     timeout_seconds: int = Field(default=5, ge=1, le=30, description="Max allowed execution duration")
     memory_limit_mb: int = Field(default=256, ge=64, le=1024, description="RAM cap in Megabytes")
 
 class SandboxExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     stdout: str = Field(default="", description="Captured standard output")
     stderr: str = Field(default="", description="Captured standard error")
     exit_code: int = Field(..., description="Process exit code (0 for success)")
@@ -234,6 +260,80 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Daemon Unit Configuration
+
+Production systemd unit file for deploying the sandboxed execution orchestrator daemon on Linux hosts:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Sandboxed Execution Daemon
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=sandbox-daemon
+Group=docker
+WorkingDirectory=/opt/sandbox-orchestrator
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8850
+Restart=always
+RestartSec=3s
+
+# Security Restrictions
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+# Resource Limits
+LimitNOFILE=65536
+MemoryMax=4G
+CPUWeight=100
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Containerized Multi-Service Orchestration (`docker-compose.yml`)
+
+Multi-container configuration provisioning gVisor execution workers alongside a local security proxy:
+
+```yaml
+version: '3.8'
+
+services:
+  sandbox-orchestrator:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    container_name: sandbox-mcp-server
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_PORT=8850
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8850:8850"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8850/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  sandbox-metrics:
+    image: prom/statsd-exporter:v0.26.0
+    container_name: sandbox-metrics
+    ports:
+      - "9102:9102"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: sandbox-internal-net
+```
+
 ## Troubleshooting & Error Remediation
 
 | Symptom / Exit Code | Primary Root Cause | Remediation Procedure |
@@ -243,19 +343,20 @@ if __name__ == "__main__":
 | `Exit Code 159 (Bad Syscall)` | Script invoked system call blocked by active Seccomp profile | Update seccomp profile rules or switch to gVisor (`runsc`) user-space sandbox. |
 | `OSError: [Errno 30] Read-only FS` | Script attempted to write output to root filesystem instead of `/tmp` | Redirect file writes explicitly to `/tmp/` directory. |
 | `ModuleNotFoundError` | Script attempted `pip install` inside air-gapped sandbox | Build custom base image containing pre-installed PyPI libraries. |
+| `Permission denied: /var/run/docker.sock` | Daemon process user lacks docker group membership | Add execution user to `docker` group (`usermod -aG docker sandbox-daemon`). |
 
 ## Production Security Rules & Hardening
 
 1. **Mandatory Air-Gapping (`--net=none`)**: Disallow network interface creation in sandbox containers unless outbound requests pass through an explicit eBPF inspection proxy.
 2. **Capability Elimination (`cap_drop=["ALL"]`)**: Drop all Linux capabilities (`CAP_SYS_ADMIN`, `CAP_NET_RAW`, `CAP_PTRACE`) to prevent privilege escalation or container escape attacks.
 3. **Read-Only Root Filesystem**: Mount container filesystems read-only with a small ephemeral `tmpfs` volume for temporary scratch storage.
+4. **Pre-Warmed Pool Recycling**: Maintain a warm pool of initialized sandbox containers to achieve sub-10ms invocation latency for interactive coding agents.
 
 ## Related tools / concepts
 
 - **[Docker](../../tools/infrastructure/docker.md)**: Container engine providing cgroups, namespace isolation, and ephemeral base images.
 - **[Inspect AI](../../tools/benchmarking/inspect-ai.md)**: Framework for orchestrating model evaluations using sandboxed execution.
 - **[Agency-Agents](../../tools/agents/agency-agents.md)**: Agent personas utilizing sandboxed tools for secure multi-step tasks.
-
 
 ## Sources / references
 
