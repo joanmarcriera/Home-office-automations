@@ -99,19 +99,14 @@ The table below illustrates Cohere's capabilities against primary enterprise pro
 - When native multi-modal capabilities (like complex image-to-text or image generation) are the primary requirement.
 - If you are building on a stack that is 100% committed to a different provider's proprietary ecosystem (e.g., Google Vertex AI exclusive).
 
-### Failure Modes & Mitigation Strategies
+## Diagnostic & Troubleshooting Matrix
 
-#### 1. Vector Search Noise Dilution in RAG Pipelines
-- **Symptom**: Low relevance context documents polluting the LLM prompt window, causing verbose or off-topic generation.
-- **Mitigation**: Insert `cohere.rerank` with a strict `top_n` limit (e.g., top 3–5) and a relevance threshold score cutoff (e.g., score >= 0.75) prior to prompt construction.
-
-#### 2. High Latency on Unbatched Embedding Requests
-- **Symptom**: Application timeouts when generating embeddings for thousands of individual document chunks sequentially.
-- **Mitigation**: Batch texts into chunks of up to 96 items per `co.embed` request and utilize asynchronous execution threads.
-
-#### 3. Missing Citation Markers in Custom JSON Mode
-- **Symptom**: When enforcing strict custom JSON schemas, Command R+ may occasionally suppress citation metadata output.
-- **Mitigation**: Explicitly declare citation fields in your Pydantic schema or utilize Cohere's native `citations` response metadata object instead of forcing text-embedded inline brackets.
+| Issue / Error Symptom | Probable Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **`400 Invalid Input Type`** | `co.embed` called without specifying `input_type` (`search_document` vs `search_query`) | Explicitly pass `input_type="search_document"` for document indexing and `input_type="search_query"` for runtime search queries. |
+| **`429 Rate Limit Exceeded`** | Vector embedding batch payload exceeded 96 items or maximum throughput quota | Cap batch requests at 96 items per call and implement exponential backoff retry policies. |
+| **`Schema Validation Error`** | FastMCP client payload contained illegal parameters violating Pydantic schema | Enforce `extra="forbid"` models in Pydantic v2 schemas for all FastMCP tool execution endpoints. |
+| **`Missing RAG Citations`** | Context documents passed without proper titles or document IDs to Command R+ | Format document context lists as dict objects containing `title`, `snippet`, and `id` before calling `co.chat`. |
 
 ### Operational Best Practices
 - **Combine Embed-v3 with Rerank-v3.5**: Always pair vector distance search with cross-encoder reranking to achieve up to 35% higher precision on complex queries.
@@ -237,6 +232,8 @@ mcp = FastMCP("CohereRagServer", version="3.1.0")
 co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 class GroundedFact(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     statement: str = Field(..., description="The primary factual statement extracted")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score in the fact extraction")
     sources: List[str] = Field(default_factory=list, description="Associated source documents cited")
@@ -249,6 +246,8 @@ class GroundedFact(BaseModel):
         return v.strip()
 
 class FactExtractionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     topic: str
     facts: List[GroundedFact]
 
@@ -279,6 +278,8 @@ def extract_grounded_facts(topic_prompt: str) -> dict:
         return {"status": "error", "message": str(e)}
 
 class CohereEmbeddingBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     texts: List[str] = Field(..., min_length=1, max_length=96, description="List of texts to embed (max 96 per call)")
     input_type: str = Field(default="search_document", description="search_document or search_query")
 
