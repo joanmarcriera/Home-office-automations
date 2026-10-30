@@ -135,6 +135,18 @@ curl https://api.openai.com/v1/chat/completions \
   }' | jq .
 ```
 
+### Ingesting Remote STAC Items via CLI
+```bash
+# Extract STAC item assets directly via local GPT-6.1 Terra FastMCP 3.1 Tool Gateway
+curl -s -X POST http://localhost:8095/tools/ingest_stac_catalog_item \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stac_item_id": "S2A_MSIL2A_20270107T103021",
+    "catalog_url": "https://earth-search.aws.element84.com/v1",
+    "bands": ["B04", "B08"]
+  }' | jq .
+```
+
 ### Inspecting Local FastMCP Terra Gateway
 ```bash
 # Query active local GPT-6.1 Terra FastMCP Gateway service status
@@ -249,8 +261,9 @@ class TerraSpatialAnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     bbox: GeoBoundingBox = Field(..., description="Target geographic bounding box")
-    analysis_type: str = Field(..., description="Type of analysis: ndvi, wildfire_risk, land_use")
+    analysis_type: str = Field(..., description="Type of analysis: ndvi, ndwi, ndbi, wildfire_risk, land_use")
     cloud_cover_max: float = Field(default=10.0, ge=0.0, le=100.0, description="Max acceptable cloud cover percentage")
+    target_epsg: int = Field(default=4326, description="Spatial reference system EPSG code")
 
 class TerraSpatialAnalysisResponse(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -258,11 +271,26 @@ class TerraSpatialAnalysisResponse(BaseModel):
     status: str = Field(..., description="Analysis status result")
     geojson_feature_collection: Dict[str, Any] = Field(..., description="Valid GeoJSON FeatureCollection payload")
     mean_index_score: float = Field(..., description="Calculated spatial metric mean")
+    processed_bands: List[str] = Field(..., description="Satellite multi-spectral bands evaluated")
+
+class StacItemIngestRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    stac_item_id: str = Field(..., description="STAC item ID (e.g., S2A_MSIL2A_20270107T103021)")
+    catalog_url: str = Field(..., description="STAC Catalog API endpoint URL")
+    bands: List[str] = Field(default=["B04", "B08"], description="Spectral band asset keys to extract")
+
+class StacItemIngestResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(..., description="Ingestion status")
+    stac_item_id: str = Field(..., description="Ingested STAC item identifier")
+    asset_urls: Dict[str, str] = Field(..., description="Map of band identifiers to COG asset URLs")
+    calculated_index: Optional[float] = Field(None, description="Computed mean multi-spectral band index")
 
 @mcp.tool()
 def execute_terra_spatial_analysis(request: TerraSpatialAnalysisRequest) -> str:
     """Executes a geospatial multi-spectral analysis via GPT-6.1 Terra engine."""
-    # Construct mock GeoJSON response matching Terra spatial format
     mock_geojson = {
         "type": "FeatureCollection",
         "features": [
@@ -280,18 +308,41 @@ def execute_terra_spatial_analysis(request: TerraSpatialAnalysisRequest) -> str:
                 },
                 "properties": {
                     "analysis_type": request.analysis_type,
-                    "quality_score": 0.94
+                    "quality_score": 0.94,
+                    "target_epsg": request.target_epsg
                 }
             }
         ]
     }
 
+    bands_map = {
+        "ndvi": ["B04_Red", "B08_NIR"],
+        "ndwi": ["B03_Green", "B08_NIR"],
+        "ndbi": ["B08_NIR", "B11_SWIR"],
+        "wildfire_risk": ["B04_Red", "B08_NIR", "B12_SWIR2"],
+        "land_use": ["B02_Blue", "B03_Green", "B04_Red", "B08_NIR"]
+    }
+
     response = TerraSpatialAnalysisResponse(
         status="completed",
         geojson_feature_collection=mock_geojson,
-        mean_index_score=0.72
+        mean_index_score=0.72,
+        processed_bands=bands_map.get(request.analysis_type, ["B04_Red", "B08_NIR"])
     )
 
+    return response.model_dump_json(indent=2)
+
+@mcp.tool()
+def ingest_stac_catalog_item(request: StacItemIngestRequest) -> str:
+    """Ingests a SpatioTemporal Asset Catalog (STAC) item and extracts COG asset URLs for GPT-6.1 Terra reasoning."""
+    asset_map = {band: f"{request.catalog_url}/items/{request.stac_item_id}/assets/{band}.tif" for band in request.bands}
+
+    response = StacItemIngestResponse(
+        status="success",
+        stac_item_id=request.stac_item_id,
+        asset_urls=asset_map,
+        calculated_index=0.68 if "B08" in request.bands and "B04" in request.bands else None
+    )
     return response.model_dump_json(indent=2)
 
 if __name__ == "__main__":
@@ -306,11 +357,16 @@ if __name__ == "__main__":
 | **`504 Gateway Timeout on Tile Ingest`** | Image size exceeds maximum single-shot raster token limits (>1GB) | Tile high-resolution imagery into STAC/COG blocks and query via bounding box subsets. |
 | **`Spatial Schema Validation Error`** | FastMCP client omitted required `bbox` field in tool invocation | Enforce Pydantic v2 `extra="forbid"` models in client tool dispatcher. |
 | **`GeoJSON Self-Intersection Error`** | Model returned invalid polygon boundary topology | Pass raw GeoJSON through `shapely.geometry.shape(geom).make_valid()` before map rendering. |
+| **`Spectral Band Dimension Mismatch`** | Multi-band COG layers have mismatched raster array dimensions or resolutions | Resample NIR and SWIR bands to match base Red/Green resolution via GDAL Warp or Rasterio prior to tool dispatch. |
+| **`STAC Ingest 404 Asset Not Found`** | Requested Sentinel/Landsat band key does not exist in target STAC Catalog | Validate asset keys via `stac_item.assets.keys()` prior to calling `ingest_stac_catalog_item`. |
+| **`Nodata Mask Bleed Failure`** | Zero or NoData ocean/cloud values polluting multi-spectral index calculation | Apply explicit valid-data bitmasks (e.g. SCL Scene Classification in Sentinel-2) before computing NDVI/NDWI. |
 
 ## Operational Best Practices & Guardrails
 1. **Always Use COGs (Cloud Optimized GeoTIFFs)**: Stream multi-band rasters via HTTP range requests rather than uploading massive raw binary GeoTIFF files.
 2. **Enforce Strict Coordinate Systems**: Standardize all API inputs/outputs on EPSG:4326 or EPSG:3857 to prevent projection mismatches in client UI maps.
 3. **Set Token Caps on Tile Queries**: Limit maximum context tokens per tile request to manage per-invocation API expenditure.
+4. **Automate STAC Item Validation**: Validate STAC item asset catalog keys (e.g., `B04`, `B08`) against remote catalog metadata before requesting multi-band GeoTIFF downloads.
+5. **Implement Spatial Caching**: Cache clipped GeoJSON bounding box queries in PostGIS or Redis to reduce redundant GPT-6.1 Terra spatial model API invocations across identical geographic regions.
 
 ## Related tools / concepts
 - [OpenAI](openai.md) — Main OpenAI provider overview.
