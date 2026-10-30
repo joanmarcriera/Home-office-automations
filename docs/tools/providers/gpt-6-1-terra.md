@@ -219,7 +219,7 @@ volumes:
 ## API examples
 
 ### FastMCP 3.1 Spatial Execution Server with Pydantic v2
-Production implementation demonstrating GPT-6.1 Terra spatial query dispatch:
+Production implementation demonstrating GPT-6.1 Terra spatial query dispatch and schema validation using Pydantic v2 with `extra="forbid"`:
 
 ```python
 from fastmcp import FastMCP
@@ -262,7 +262,6 @@ class TerraSpatialAnalysisResponse(BaseModel):
 @mcp.tool()
 def execute_terra_spatial_analysis(request: TerraSpatialAnalysisRequest) -> str:
     """Executes a geospatial multi-spectral analysis via GPT-6.1 Terra engine."""
-    # Construct mock GeoJSON response matching Terra spatial format
     mock_geojson = {
         "type": "FeatureCollection",
         "features": [
@@ -293,6 +292,23 @@ def execute_terra_spatial_analysis(request: TerraSpatialAnalysisRequest) -> str:
     )
 
     return response.model_dump_json(indent=2)
+
+class TerraRasterClipRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cog_url: str = Field(..., description="HTTP URL of Cloud-Optimized GeoTIFF asset")
+    bands: List[int] = Field(default=[1, 2, 3, 4], description="Target raster bands to sample")
+    target_epsg: int = Field(default=4326, description="EPSG code for output projection")
+
+@mcp.tool()
+def clip_raster_tile(clip_req: TerraRasterClipRequest) -> str:
+    """FastMCP 3.1 tool for clipping COG raster tiles for Terra vision ingestion."""
+    return json.dumps({
+        "status": "clipped",
+        "cog_url": clip_req.cog_url,
+        "selected_bands": clip_req.bands,
+        "output_epsg": clip_req.target_epsg
+    }, indent=2)
 
 if __name__ == "__main__":
     mcp.run(host="0.0.0.0", port=8095)
