@@ -43,12 +43,12 @@ Client App / MCP Host               Bedrock Runtime Gateway          Guardrails 
 
 ## AWS Bedrock Provider Comparison Matrix
 
-| Provider / Service | Hosted Models | Latency SLA | Private Link Support | Custom Fine-Tuning | Target Enterprise Tier |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **AWS Bedrock** | Claude 5.1, Llama 4, Nova, Command R+ | <150ms TTFT | Native VPC Endpoints | Continual Pre-training / Fine-Tuning | Global Enterprise / Fortune 500 |
-| **Azure OpenAI** | GPT-5.5, GPT-5.6, O3 | <180ms TTFT | Private Endpoints | Fine-Tuning / Hyper-tuning | Microsoft Enterprise Ecosystem |
-| **Google Cloud Vertex AI**| Gemini 4.0 Pro, PaLM 2 | <160ms TTFT | PSC (Private Service Connect) | Adapter / LoRA Tuning | GCP Enterprise Ecosystem |
-| **Self-Hosted vLLM / K3s**| Any Open Weights | Variable (<80ms) | Internal Mesh Overlay | Full Unsloth / Axolotl Fine-Tuning| Private Homelab / Sovereignty |
+| Provider / Service | Hosted Models | Latency SLA | Private Link Support | Custom Fine-Tuning | Target Enterprise Tier | Token Cost Index |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **AWS Bedrock** | Claude 5.1, Llama 4, Nova, Command R+ | <150ms TTFT | Native VPC Endpoints | Continual Pre-training / Fine-Tuning | Global Enterprise / Fortune 500 | Moderate |
+| **Azure OpenAI** | GPT-5.5, GPT-5.6, O3 | <180ms TTFT | Private Endpoints | Fine-Tuning / Hyper-tuning | Microsoft Enterprise Ecosystem | Moderate |
+| **Google Cloud Vertex AI**| Gemini 4.0 Pro, PaLM 2 | <160ms TTFT | PSC (Private Service Connect) | Adapter / LoRA Tuning | GCP Enterprise Ecosystem | Moderate |
+| **Self-Hosted vLLM / K3s**| Any Open Weights | Variable (<80ms) | Internal Mesh Overlay | Full Unsloth / Axolotl Fine-Tuning| Private Homelab / Sovereignty | Ultra-Low |
 
 ## What problem it solves
 It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and high-performance execution on next-generation hardware.
@@ -97,22 +97,9 @@ pip install boto3 pydantic mcp
 aws bedrock list-foundation-models --region us-east-1 --query "modelSummaries[?providerName=='Anthropic'].modelId"
 ```
 
-## CLI examples
-
-```bash
-# Invoke Claude Sonnet model directly using AWS CLI converse
-aws bedrock-runtime converse \
-    --model-id anthropic.claude-3-5-sonnet-20241022-v2:0 \
-    --messages '[{"role": "user", "content": [{"text": "Summarize AWS Bedrock features."}]}]' \
-    --region us-east-1
-
-# Check provisioned throughput model capacity
-aws bedrock list-provisioned-model-throughputs --region us-east-1
-```
-
 ## FastMCP 3.1 Server & Pydantic v2 AWS Bedrock Gateway
 
-The following Python script implements a complete FastMCP 3.1 server that interfaces with AWS Bedrock Runtime, utilizing Pydantic v2 schemas for strict request/response validation:
+The following Python script implements a complete FastMCP 3.1 server that interfaces with AWS Bedrock Runtime, utilizing Pydantic v2 schemas (`extra="forbid"`) for strict request/response validation:
 
 ```python
 #!/usr/bin/env python3
@@ -124,13 +111,15 @@ import sys
 import json
 import boto3
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("aws-bedrock-gateway-server", version="1.4.0")
+mcp = FastMCP("aws-bedrock-gateway-server", version="3.1.0")
 
 class BedrockInvokeConfig(BaseModel):
     """Pydantic v2 validation schema for AWS Bedrock model invocation requests."""
+    model_config = ConfigDict(extra="forbid")
+
     model_id: str = Field(..., description="Target AWS Bedrock model ID (e.g. anthropic.claude-3-5-sonnet-20241022-v2:0).")
     prompt: str = Field(..., min_length=5, description="Input query prompt.")
     max_tokens: int = Field(default=512, ge=1, le=8192)
@@ -147,6 +136,8 @@ class BedrockInvokeConfig(BaseModel):
 
 class BedrockOutputPayload(BaseModel):
     """Validated response payload returned from Bedrock Runtime."""
+    model_config = ConfigDict(extra="forbid")
+
     model_id: str
     completion_text: str
     input_token_count: int = Field(..., ge=0)
@@ -154,10 +145,20 @@ class BedrockOutputPayload(BaseModel):
     stop_reason: str
 
 @mcp.tool()
-def invoke_bedrock_model(req_dict: Dict[str, Any]) -> Dict[str, Any]:
+def invoke_bedrock_model(
+    model_id: str,
+    prompt: str,
+    max_tokens: int = 512,
+    temperature: float = 0.7
+) -> Dict[str, Any]:
     """Validates parameters and executes an AWS Bedrock converse invocation."""
     try:
-        config = BedrockInvokeConfig.model_validate(req_dict)
+        config = BedrockInvokeConfig(
+            model_id=model_id,
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
 
         client = boto3.client("bedrock-runtime", region_name="us-east-1")
         response = client.converse(
@@ -201,25 +202,7 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-## API examples
-
-```python
-# Programmatic AWS Bedrock Runtime invocation using boto3
-import boto3
-import json
-
-client = boto3.client("bedrock-runtime", region_name="us-east-1")
-
-response = client.converse(
-    modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
-    messages=[{"role": "user", "content": [{"text": "Hello AWS Bedrock"}]}],
-    inferenceConfig={"maxTokens": 200, "temperature": 0.5}
-)
-
-print("Bedrock Output:", response["output"]["message"]["content"][0]["text"])
-```
-
-## Production Systemd Gateway Service Unit (`aws-bedrock-gateway.service`)
+## Systemd Gateway Service Unit Setup (`aws-bedrock-gateway.service`)
 
 Deploying the Bedrock FastMCP gateway daemon on Linux enterprise systems:
 
@@ -236,7 +219,8 @@ Group=bedrock-runner
 WorkingDirectory=/opt/aws-bedrock-gateway
 Environment=AWS_DEFAULT_REGION=us-east-1
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/python3 /opt/aws-bedrock-gateway/bedrock_mcp_server.py
+Environment=FASTMCP_PORT=8404
+ExecStart=/opt/aws-bedrock-gateway/venv/bin/python3 /opt/aws-bedrock-gateway/bedrock_mcp_server.py
 Restart=always
 RestartSec=5s
 LimitNOFILE=65536
@@ -247,6 +231,109 @@ ReadWritePaths=/var/log/aws-bedrock-gateway
 
 [Install]
 WantedBy=multi-user.target
+```
+
+Enable and activate systemd service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now aws-bedrock-gateway
+sudo systemctl status aws-bedrock-gateway
+```
+
+## Docker Compose Production Setup
+
+Deploy containerized AWS Bedrock FastMCP gateway with local LocalStack AWS mock for offline testing:
+
+```yaml
+version: "3.8"
+
+services:
+  bedrock-mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aws-bedrock-mcp-gateway
+    restart: always
+    ports:
+      - "8404:8404"
+    environment:
+      - FASTMCP_PORT=8404
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8404/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+## Advanced Knowledge Base RAG & Provisioned Throughput Integration
+
+AWS Bedrock Knowledge Bases enable high-accuracy hybrid search across S3 document stores and transactional vector engines like AWS DynamoDB Vector Search:
+
+```python
+def query_bedrock_knowledge_base(
+    kb_id: str,
+    query_text: str,
+    number_of_results: int = 5
+) -> dict:
+    client = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
+    response = client.retrieve(
+        knowledgeBaseId=kb_id,
+        retrievalQuery={"text": query_text},
+        retrievalConfiguration={
+            "vectorSearchConfiguration": {
+                "numberOfResults": number_of_results
+            }
+        }
+    )
+    return response.get("retrievalResults", [])
+```
+
+### AWS Bedrock Cross-Region Model Routing & Resiliency
+To maximize availability and avoid localized regional quota throttles, enterprise architectures leverage AWS Bedrock Cross-Region Inference endpoints (e.g., `us.anthropic.claude-3-5-sonnet-20241022-v2:0`):
+
+```python
+def invoke_bedrock_cross_region(prompt_text: str) -> str:
+    # Cross-region inference profile automatically routes requests across us-east-1, us-west-2, and us-east-2
+    client = boto3.client("bedrock-runtime", region_name="us-east-1")
+    response = client.converse(
+        modelId="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        messages=[{"role": "user", "content": [{"text": prompt_text}]}]
+    )
+    return response["output"]["message"]["content"][0]["text"]
+```
+
+## CLI examples
+
+```bash
+# Invoke Claude Sonnet model directly using AWS CLI converse
+aws bedrock-runtime converse \
+    --model-id anthropic.claude-3-5-sonnet-20241022-v2:0 \
+    --messages '[{"role": "user", "content": [{"text": "Summarize AWS Bedrock features."}]}]' \
+    --region us-east-1
+
+# Check provisioned throughput model capacity
+aws bedrock list-provisioned-model-throughputs --region us-east-1
+```
+
+## API examples
+
+```python
+# Programmatic AWS Bedrock Runtime invocation using boto3
+import boto3
+import json
+
+client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+response = client.converse(
+    modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
+    messages=[{"role": "user", "content": [{"text": "Hello AWS Bedrock"}]}],
+    inferenceConfig={"maxTokens": 200, "temperature": 0.5}
+)
+
+print("Bedrock Output:", response["output"]["message"]["content"][0]["text"])
 ```
 
 ## Operational Safety & IAM Hardening
@@ -278,11 +365,12 @@ WantedBy=multi-user.target
 3. **VPC Endpoint Network Isolation**:
    - Route all Bedrock API calls inside AWS VPCs via AWS PrivateLink (`com.amazonaws.region.bedrock-runtime`). Avoid routing model inference over public internet gateways.
 
-## Systematic Troubleshooting Guide
+## Systematic Troubleshooting Matrix
 
 | Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
 | :--- | :--- | :--- | :--- |
 | **`AccessDeniedException` on InvokeModel** | Model access not requested or IAM role lacks permissions | `aws bedrock get-foundation-model-availability --model-identifier <ID>` | Request model access in AWS Bedrock Console under "Model Access" tab |
+| **Pydantic `extra_forbidden` Error** | Client payload sent unmapped arguments to Bedrock gateway | `fastmcp call aws-bedrock-gateway-server invoke_bedrock_model --data '{"model_id": "...", "unknown": 1}'` | Update client request payload to strictly comply with `extra="forbid"` models. |
 | **`ThrottlingException` (429 Rate Limit)** | Exceeded Provisioned Throughput or account TPM limit | `aws cloudwatch get-metric-statistics --namespace AWS/Bedrock` | Implement exponential backoff retries or purchase Provisioned Throughput |
 | **`ValidationException` in Knowledge Base Search** | Vector index dimension mismatch in DynamoDB / OpenSearch | Check DynamoDB Vector Search index configuration | Re-create vector index matching embedding model dimensions (e.g. 1536 for Titan) |
 | **High Latency on First Token (TTFT)** | Cold start on rarely used custom fine-tuned model | Inspect CloudWatch `InvocationLatency` metric | Warm model via scheduled ping lambda or switch to standard foundation model |

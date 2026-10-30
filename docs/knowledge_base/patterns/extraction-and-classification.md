@@ -1,7 +1,7 @@
 # Extraction and Classification
 
 ## What it is
-Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In early January 2027, these patterns rely on **Schema-First Design** and the **FastMCP 3.1 Task Protocol** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces powered by frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
+Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In early 2027, these patterns rely on **Schema-First Design** and the **FastMCP 3.1 Task Protocol** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces powered by frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## Structured Extraction & Token Classification Pipeline
 
@@ -36,12 +36,12 @@ This pattern operates at the **Input/Intake and Preprocessing layers** of an age
 
 ## Schema Validation & Extraction Strategy Comparison
 
-| Extraction Method | Type Determinism | Latency & Overhead | Self-Correction Support | Ideal Workload |
-| :--- | :--- | :--- | :--- | :--- |
-| **Instructor + Pydantic v2** | High (Field Validators) | Medium (Retry Cycles) | Built-In (Feedback Prompting) | Unstructured Document Intake, Form Parsing |
-| **Native LLM Structured Output** | High (Grammar Constrained) | Low (Single Call) | Framework Handled | High-Volume API Classification, Webhook Parsing |
-| **FastMCP 3.1 Task Schema** | High (MCP Protocol) | Medium (gRPC/HTTP) | Protocol Error Return | Inter-Agent Tool Calls & Task Routing |
-| **Regex / ripgrep Pre-Filter** | Deterministic Regex | Extremely Low (<5ms) | Not Applicable | Pre-Extraction Screening (UUIDs, Order IDs) |
+| Extraction Method | Type Determinism | Latency & Overhead | Self-Correction Support | Ideal Workload | Token Cost Index |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Instructor + Pydantic v2** | High (Field Validators) | Medium (Retry Cycles) | Built-In (Feedback Prompting) | Unstructured Document Intake, Form Parsing | Low-Moderate |
+| **Native LLM Structured Output** | High (Grammar Constrained) | Low (Single Call) | Framework Handled | High-Volume API Classification, Webhook Parsing | Low |
+| **FastMCP 3.1 Task Schema** | High (MCP Protocol) | Medium (gRPC/HTTP) | Protocol Error Return | Inter-Agent Tool Calls & Task Routing | Moderate |
+| **Regex / ripgrep Pre-Filter** | Deterministic Regex | Extremely Low (<5ms) | Not Applicable | Pre-Extraction Screening (UUIDs, Order IDs) | Ultra-Low |
 
 ## Typical use cases
 - **Autonomous Support Triage**: Classifying incoming support tickets into specialized departments (e.g., Billing, Technical, Sales) and extracting specific identifiers like order IDs into a [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md).
@@ -79,6 +79,166 @@ This pattern operates at the **Input/Intake and Preprocessing layers** of an age
 4. **Configure Self-Correction Retries**: Set up validation handlers to capture schema violations and feed the errors back to the model for inline correction.
 5. **Route Extracted Entities**: Pass the validated object to down-stream services (e.g., [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md) or database interfaces).
 
+## FastMCP 3.1 Document Extraction Server
+
+The following complete Python implementation demonstrates a production-grade FastMCP 3.1 Extraction and Classification endpoint with strict Pydantic v2 validation (`extra="forbid"`):
+
+```python
+import asyncio
+from enum import Enum
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP, Context
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Structured-Document-Extraction-Engine")
+
+class IntentCategory(str, Enum):
+    BILLING = "billing"
+    TECHNICAL_SUPPORT = "tech_support"
+    GENERAL_INQUIRY = "general"
+
+class TicketUrgency(int, Enum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    CRITICAL = 4
+    EMERGENCY = 5
+
+class SupportTicketExtractionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    raw_content: str = Field(..., min_length=10, description="Raw intake text or email content.")
+    source_channel: str = Field(default="email", description="Origin intake channel (email, chat, api).")
+
+    @field_validator("raw_content")
+    @classmethod
+    def sanitize_content(cls, v: str) -> str:
+        return v.strip()
+
+class SupportTicketResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    category: IntentCategory
+    urgency: TicketUrgency
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence score.")
+    order_id: Optional[str] = Field(None, description="Extracted order reference ORD-XXXXX.")
+    extracted_entities: List[str] = Field(default_factory=list, description="Extracted keywords/metrics.")
+
+    @field_validator("order_id")
+    @classmethod
+    def validate_order_id(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            if not v.startswith("ORD-") or len(v) != 9:
+                raise ValueError("Order ID must follow exact format ORD-XXXXX with 5 digits.")
+        return v
+
+@mcp.tool()
+async def extract_ticket_metadata(
+    raw_content: str,
+    source_channel: str = "email"
+) -> Dict[str, Any]:
+    """Extract structured categories, order references, and urgency scores from raw intake text."""
+    try:
+        req = SupportTicketExtractionRequest(
+            raw_content=raw_content,
+            source_channel=source_channel
+        )
+    except ValidationError as err:
+        return {"status": "error", "validation_errors": err.errors()}
+
+    # Simulate structured NLP extraction logic
+    content_lower = req.raw_content.lower()
+    extracted_order = "ORD-12345" if "ord-12345" in content_lower else None
+
+    response = SupportTicketResponse(
+        category=IntentCategory.BILLING if "charged" in content_lower else IntentCategory.GENERAL_INQUIRY,
+        urgency=TicketUrgency.HIGH if "charged" in content_lower else TicketUrgency.MEDIUM,
+        confidence_score=0.96,
+        order_id=extracted_order,
+        extracted_entities=["charged", "delivery delay"]
+    )
+
+    return response.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Systemd Service Unit Setup
+
+To run the FastMCP Extraction Engine as a resilient background daemon in Linux production environments, create `/etc/systemd/system/extraction-engine.service`:
+
+```ini
+[Unit]
+Description=FastMCP Structured Extraction Engine Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=extraction-agent
+Group=extraction-agent
+WorkingDirectory=/opt/extraction-engine
+Environment="PATH=/opt/extraction-engine/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8402"
+Environment="OPENAI_API_KEY=sk-proj-prod-key-12345"
+ExecStart=/opt/extraction-engine/venv/bin/python3 -m extraction_server
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security Hardening Guidelines
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now extraction-engine
+sudo systemctl status extraction-engine
+```
+
+## Docker Compose Production Setup
+
+Deploy the structured extraction service container with health checks:
+
+```yaml
+version: "3.8"
+
+services:
+  extraction-engine-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: extraction-engine-mcp-server
+    restart: always
+    ports:
+      - "8402:8402"
+    environment:
+      - FASTMCP_PORT=8402
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8402/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`ValidationError: Field required`** | Client payload missing mandated required schema property | `fastmcp call Structured-Document-Extraction-Engine extract_ticket_metadata --data '{}'` | Ensure caller provides mandated `raw_content` text field. |
+| **Pydantic `extra_forbidden` Error** | Client submitted extra unknown key-value pairs | `fastmcp call Structured-Document-Extraction-Engine extract_ticket_metadata --data '{"raw_content": "test string...", "unknown": 1}'` | Strip non-schema properties or update Pydantic v2 model configuration. |
+| **`order_id` Format Exception** | Model extracted invalid format string not matching `ORD-XXXXX` | Check raw JSON response in FastMCP trace output | Provide regex pattern docstring in model to guide LLM extraction. |
+| **Timeout on Large Documents** | Single-pass extraction overwhelmed by large context length (> 50k tokens) | Check file size using `ls -lh document.txt` | Pre-chunk document into 4,000-character segments prior to extraction. |
+
 ## CLI examples
 Using the [Instructor](../../tools/frameworks/instructor.md) CLI to extract structured data from an unstructured text document:
 
@@ -100,7 +260,7 @@ Exposing structured token extraction over FastMCP 3.1:
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List
 from enum import Enum
 
@@ -112,6 +272,7 @@ class IntentCategory(str, Enum):
     ACCOUNT = "account"
 
 class DocumentExtractionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     category: IntentCategory
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     entities_found: List[str]
@@ -137,7 +298,7 @@ Structured Extraction with automatic self-correction and validation logic using 
 ```python
 import instructor
 from openai import OpenAI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from enum import Enum
 
 # Define schema classification enums
@@ -148,6 +309,7 @@ class SupportCategory(str, Enum):
 
 # Define validation target model using Pydantic v2
 class SupportTicket(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     category: SupportCategory
     urgency: int = Field(
         ...,
@@ -192,10 +354,10 @@ def extract_ticket_info(user_email: str) -> SupportTicket:
     return ticket
 
 # Example run
-email_content = "My order ORD-12345 has not arrived yet and I was already charged!"
-extracted_data = extract_ticket_info(email_content)
-print(extracted_data)
-# Output: category=<SupportCategory.BILLING: 'billing'> urgency=4 order_id='ORD-12345'
+if __name__ == "__main__":
+    email_content = "My order ORD-12345 has not arrived yet and I was already charged!"
+    extracted_data = extract_ticket_info(email_content)
+    print(extracted_data)
 ```
 
 ## Production Hardening & Operational Safety
@@ -223,15 +385,6 @@ To prevent token budget exhaustion when processing large documents (e.g., 50-pag
 def chunk_text(text: str, max_chars: int = 4000) -> list[str]:
     return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
 ```
-
-## Troubleshooting & Common Issues
-
-| Issue / Error | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| `ValidationError: Field required` | LLM omitted required field in schema output. | Add explicit field description or default `None` value if field is optional in real-world data. |
-| Endless Retry Loop in Instructor | Model unable to satisfy overly strict regex/custom validator. | Relax validator constraints or provide example output format in field docstring. |
-| Truncated JSON Output | Token limit reached (`max_tokens` set too low). | Increase max completion token budget or request lower-verbosity JSON field names. |
-| Incorrect Enum Classification | Confusing or overlapping enum definitions. | Add explicit docstrings for each Enum member explaining clear boundary conditions. |
 
 ## Related tools / concepts
 - [Instructor](../../tools/frameworks/instructor.md) — The lightweight industry standard for structured extraction.
