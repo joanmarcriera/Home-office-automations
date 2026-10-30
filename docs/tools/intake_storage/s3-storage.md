@@ -97,79 +97,41 @@ Managing unstructured data (such as image assets, PDF documents, video files, an
 - If you have zero connectivity to cloud services and need purely local, file-system based storage for a single machine.
 - For structured data that requires complex querying and indexing (see ClickHouse).
 
-## FastMCP 3.1 Integration Pattern
+## Getting started
 
-The Python script below demonstrates how an S3 object adapter can be served as a FastMCP 3.1 tool server, incorporating strict Pydantic v2 validation for object uploads and presigned URL generation:
+### Systemd Service Management (MinIO On-Premise)
+Manage local MinIO S3 object storage infrastructure as a dedicated background system service:
 
-```python
-#!/usr/bin/env python3
-"""
-FastMCP 3.1 S3 Adapter Tool Server
-Provides structured object storage and retrieval tools for AI agents.
-"""
+```ini
+[Unit]
+Description=MinIO S3 Compatible High Performance Object Storage
+After=network.target local-fs.target
+Wants=network.target
 
-import os
-import json
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
+[Service]
+Type=simple
+User=minio-user
+Group=minio-user
+WorkingDirectory=/var/lib/minio
+EnvironmentFile=/etc/default/minio
+ExecStart=/usr/local/bin/minio server $MINIO_OPTS $MINIO_VOLUMES
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+ProtectSystem=full
 
-mcp = FastMCP("s3-storage-adapter")
-
-class S3ObjectMetadata(BaseModel):
-    bucket_name: str = Field(..., description="Target S3 bucket name")
-    object_key: str = Field(..., description="Destination S3 object key/path")
-    content_type: str = Field("application/json", description="MIME content type")
-    content_bytes: int = Field(..., ge=1, description="Size of object in bytes")
-    tags: Dict[str, str] = Field(default_factory=dict, description="Metadata tags attached to object")
-
-class S3ObjectResult(BaseModel):
-    status: str = Field("success", description="Task status flag")
-    bucket_name: str = Field(..., description="Bucket name")
-    object_key: str = Field(..., description="S3 object key")
-    presigned_url: str = Field(..., description="Generated presigned access URL")
-    e_tag: str = Field(..., description="MD5/ETag string returned by storage gateway")
-
-@mcp.tool()
-async def upload_agent_trace_log(
-    bucket_name: str,
-    object_key: str,
-    payload_json: str,
-    content_type: str = "application/json"
-) -> str:
-    """
-    Stores structured payload JSON into an S3 bucket and returns object confirmation metadata.
-    """
-    try:
-        data_bytes = len(payload_json.encode('utf-8'))
-        metadata = S3ObjectMetadata(
-            bucket_name=bucket_name,
-            object_key=object_key,
-            content_type=content_type,
-            content_bytes=data_bytes,
-            tags={"source": "fastmcp-3.1", "environment": "production"}
-        )
-
-        # Simulated S3 upload execution (in production, invokes boto3.client('s3').put_object)
-        simulated_etag = f'"etag-{hash(payload_json) & 0xffffffff}"'
-        presigned_url = f"https://{metadata.bucket_name}.s3.amazonaws.com/{metadata.object_key}?token=simulated_presigned_key"
-
-        result = S3ObjectResult(
-            status="success",
-            bucket_name=metadata.bucket_name,
-            object_key=metadata.object_key,
-            presigned_url=presigned_url,
-            e_tag=simulated_etag
-        )
-        return result.model_dump_json(indent=2)
-    except ValidationError as err:
-        return f'{{"status": "error", "message": {json.dumps(str(err))}}}'
-
-if __name__ == "__main__":
-    mcp.run()
+[Install]
+WantedBy=multi-user.target
 ```
 
-## Getting started
+Manage service lifecycle using systemd commands:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now minio.service
+sudo systemctl status minio.service
+```
 
 ### Self-Hosting MinIO via Docker Compose
 To host an S3-compatible object store locally using MinIO:
@@ -178,7 +140,7 @@ To host an S3-compatible object store locally using MinIO:
 version: "3.8"
 services:
   minio:
-    image: minio/minio:RELEASE.2025-01-01T00-00-00Z # Or latest stable
+    image: minio/minio:RELEASE.2025-01-01T00-00-00Z
     container_name: minio-s3
     ports:
       - "9000:9000"
@@ -189,6 +151,11 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   minio_data:
@@ -224,15 +191,92 @@ mc alias set localminio http://localhost:9000 minioadmin minioadminpassword
 mc mb localminio/agent-memory-lake
 ```
 
+## FastMCP 3.1 Integration Pattern & Python Implementation
+
+The Python script below demonstrates how an S3 object adapter can be served as a FastMCP 3.1 tool server, incorporating strict Pydantic v2 validation (`extra="forbid"`) for object uploads and presigned URL generation:
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 S3 Adapter Tool Server
+Provides structured object storage and retrieval tools for AI agents.
+"""
+
+import os
+import json
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+from fastmcp import FastMCP
+
+mcp = FastMCP(name="s3-storage-adapter", version="3.1")
+
+class S3ObjectMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    bucket_name: str = Field(..., description="Target S3 bucket name")
+    object_key: str = Field(..., description="Destination S3 object key/path")
+    content_type: str = Field("application/json", description="MIME content type")
+    content_bytes: int = Field(..., ge=1, description="Size of object in bytes")
+    tags: Dict[str, str] = Field(default_factory=dict, description="Metadata tags attached to object")
+
+class S3ObjectResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    status: str = Field("success", description="Task status flag")
+    bucket_name: str = Field(..., description="Bucket name")
+    object_key: str = Field(..., description="S3 object key")
+    presigned_url: str = Field(..., description="Generated presigned access URL")
+    e_tag: str = Field(..., description="MD5/ETag string returned by storage gateway")
+
+@mcp.tool(name="upload_agent_trace_log", description="Stores structured payload JSON into an S3 bucket")
+def upload_agent_trace_log(payload: Dict[str, Any]) -> str:
+    """
+    Stores structured payload JSON into an S3 bucket and returns object confirmation metadata.
+    """
+    try:
+        bucket_name = payload.get("bucket_name", "agent-logs")
+        object_key = payload.get("object_key", "traces/default.json")
+        payload_json = payload.get("payload_json", "{}")
+        content_type = payload.get("content_type", "application/json")
+
+        data_bytes = len(payload_json.encode('utf-8'))
+        metadata = S3ObjectMetadata(
+            bucket_name=bucket_name,
+            object_key=object_key,
+            content_type=content_type,
+            content_bytes=data_bytes,
+            tags={"source": "fastmcp-3.1", "environment": "production"}
+        )
+
+        simulated_etag = f'"etag-{hash(payload_json) & 0xffffffff}"'
+        presigned_url = f"https://{metadata.bucket_name}.s3.amazonaws.com/{metadata.object_key}?token=simulated_presigned_key"
+
+        result = S3ObjectResult(
+            status="success",
+            bucket_name=metadata.bucket_name,
+            object_key=metadata.object_key,
+            presigned_url=presigned_url,
+            e_tag=simulated_etag
+        )
+        return result.model_dump_json(indent=2)
+    except ValidationError as err:
+        return f'{{"status": "error", "message": {json.dumps(str(err))}}}'
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## API examples
 
 ### Python Boto3 Client with Pydantic v2 Payload Verification
 ```python
 import json
 import boto3
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class TraceLogSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     trace_id: str = Field(..., min_length=5)
     prompt_tokens: int = Field(..., ge=0)
     completion_tokens: int = Field(..., ge=0)
@@ -252,6 +296,25 @@ def fetch_and_validate_s3_log(bucket: str, key: str) -> None:
     except Exception as e:
         print(f"Failed to fetch S3 object: {e}")
 ```
+
+## Operational Guardrails & Storage Management Standards
+
+| Policy Dimension | Standard / Metric | Implementation Mechanism | Enforcement Level |
+| :--- | :--- | :--- | :--- |
+| **Object Immutability** | Enable Object Lock for trace audit buckets | AWS S3 / MinIO Governance Retain Mode | Hard compliance restriction |
+| **Bucket Policy Boundaries** | Enforce TLS 1.3 encryption on all S3 requests | S3 Bucket Policy `aws:SecureTransport` | Reject unencrypted HTTP requests |
+| **Egress Cost Optimization** | Store active AI multi-agent assets in Cloudflare R2 or MinIO | FastMCP adapter dynamic endpoint routing | Automated cost control route |
+| **Lifecycle Archival** | Transition raw logs to Glacier Instant Retrieval after 30 days | S3 Lifecycle Rule XML specification | Automated lifecycle background task |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `403 Forbidden` / Access Denied | Invalid IAM credentials or bucket policy restriction | Verify IAM permissions with `aws sts get-caller-identity` | Ensure `s3:PutObject` and `s3:GetObject` are granted to agent role. |
+| Slow Multipart Upload Overhead | Small chunk size causing excessive API HTTP roundtrips | Benchmark transfer speed via `aws s3 cp --page-size 100` | Set minimum multipart chunk size to 16MB or 64MB in SDK config. |
+| Presigned URL Expiration | Access token expired before client read completed | Inspect `ExpiresIn` parameter value on generated presigned URL | Increase URL lifetime to match agent job duration (e.g., 3600 seconds). |
+| SignatureDoesNotMatch Error | S3 endpoint region mismatch or trailing slash error | Compare SDK region setting against bucket location | Set explicit `endpoint_url` and `region_name` in Boto3 client setup. |
+| MinIO Systemd Unit Fail | Permission denied writing to volume mount path | Check `/var/lib/minio` folder ownership | Run `chown -R minio-user:minio-user /var/lib/minio`. |
 
 ## Related tools / concepts
 - [OpenRouter](../ai_knowledge/openrouter.md) — Streams LLM traces directly to S3.

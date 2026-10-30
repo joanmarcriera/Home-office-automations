@@ -78,10 +78,98 @@ Traditional databases are not optimized for the high-dimensional vector data pro
 
 ## Getting started
 
+### Systemd Service Setup (Standalone Milvus Service)
+For single-node Linux host setups running Milvus standalone or Milvus Lite gateway daemon:
+
+```ini
+[Unit]
+Description=Milvus Standalone Vector Database Service
+After=docker.service network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=milvus
+Group=milvus
+WorkingDirectory=/opt/milvus
+ExecStart=/opt/milvus/venv/bin/python3 -m milvus.server --port 19530 --data-dir /var/lib/milvus
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle using systemd:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now milvus.service
+sudo systemctl status milvus.service
+```
+
+### Containerized Deployment (Docker Compose)
+Deploy a standalone Milvus vector store node with MinIO and etcd using `docker-compose.yml`:
+
+```yaml
+version: '3.5'
+
+services:
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - minio_data:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.4.0
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - etcd
+      - minio
+
+volumes:
+  etcd_data:
+  minio_data:
+  milvus_data:
+```
+
 ### Installation (Milvus Lite)
 Ideal for local development and prototyping.
 ```bash
-pip install pymilvus mcp
+pip install pymilvus fastmcp pydantic
 ```
 
 ### Basic Setup
@@ -107,14 +195,15 @@ milvus-cli list collections
 ## API examples
 
 ### FastMCP 3.1 Agent Memory Tool Server
-This example demonstrates wrapping Milvus Lite in a FastMCP 3.1 server to provide autonomous agents with high-performance vector memory tools.
+This example demonstrates wrapping Milvus Lite in a FastMCP 3.1 server with strict Pydantic v2 schemas (`extra="forbid"`) to provide autonomous agents with high-performance vector memory tools.
 
 ```python
 from typing import List, Dict, Any
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
 from pymilvus import MilvusClient
 
-mcp = FastMCP("Milvus-Agent-Memory-Server")
+mcp = FastMCP("Milvus-Agent-Memory-Server", version="3.1")
 client = MilvusClient("agent_memory.db")
 
 COLLECTION_NAME = "agent_observations"
@@ -127,38 +216,57 @@ if not client.has_collection(COLLECTION_NAME):
         auto_id=True
     )
 
-@mcp.tool()
-def store_observation(agent_id: str, observation: str, embedding: List[float]) -> str:
+class StoreObservationPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    agent_id: str = Field(..., min_length=2)
+    observation: str = Field(..., min_length=5)
+    embedding: List[float] = Field(..., min_items=128, max_items=128)
+
+class MemoryQueryPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    agent_id: str = Field(..., min_length=2)
+    query_vector: List[float] = Field(..., min_items=128, max_items=128)
+    top_k: int = Field(default=3, ge=1, le=20)
+
+@mcp.tool(name="store_observation", description="Store an agent observation vector and metadata in Milvus")
+def store_observation(payload: Dict[str, Any]) -> str:
     """Store an agent observation vector and metadata in Milvus."""
-    if len(embedding) != 128:
-        return "Error: Embedding vector must be 128 dimensions."
+    try:
+        req = StoreObservationPayload.model_validate(payload)
+        client.insert(
+            collection_name=COLLECTION_NAME,
+            data=[{"vector": req.embedding, "agent_id": req.agent_id, "observation": req.observation}]
+        )
+        return f"Observation stored successfully for agent '{req.agent_id}'."
+    except Exception as e:
+        return f"Error storing observation: {str(e)}"
 
-    client.insert(
-        collection_name=COLLECTION_NAME,
-        data=[{"vector": embedding, "agent_id": agent_id, "observation": observation}]
-    )
-    return f"Observation stored successfully for agent '{agent_id}'."
-
-@mcp.tool()
-def recall_similar_memories(agent_id: str, query_vector: List[float], top_k: int = 3) -> List[Dict[str, Any]]:
+@mcp.tool(name="recall_similar_memories", description="Retrieve top-K semantic memories for an agent from Milvus")
+def recall_similar_memories(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Retrieve top-K semantic memories for an agent from Milvus."""
-    results = client.search(
-        collection_name=COLLECTION_NAME,
-        data=[query_vector],
-        filter=f"agent_id == '{agent_id}'",
-        limit=top_k,
-        output_fields=["observation", "agent_id"]
-    )
+    try:
+        req = MemoryQueryPayload.model_validate(payload)
+        results = client.search(
+            collection_name=COLLECTION_NAME,
+            data=[req.query_vector],
+            filter=f"agent_id == '{req.agent_id}'",
+            limit=req.top_k,
+            output_fields=["observation", "agent_id"]
+        )
 
-    memories = []
-    for hits in results:
-        for hit in hits:
-            memories.append({
-                "id": hit["id"],
-                "distance": float(hit["distance"]),
-                "observation": hit["entity"].get("observation", "")
-            })
-    return memories
+        memories = []
+        for hits in results:
+            for hit in hits:
+                memories.append({
+                    "id": hit["id"],
+                    "distance": float(hit["distance"]),
+                    "observation": hit["entity"].get("observation", "")
+                })
+        return memories
+    except Exception as e:
+        return [{"error": str(e)}]
 
 if __name__ == "__main__":
     mcp.run()
@@ -169,17 +277,21 @@ This example demonstrates how to interact with Milvus via `MilvusClient`, insert
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from pymilvus import MilvusClient
 
 # Define structural validation schemas using Pydantic v2
 class MilvusResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     id: int = Field(..., description="Unique document ID in the collection")
     distance: float = Field(..., description="Similarity score or distance metric value")
     task: str = Field(..., description="The task associated with this memory chunk")
     agent_id: str = Field(..., description="The ID of the agent that authored the memory")
 
 class MilvusQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     collection_name: str
     results: List[MilvusResultItem]
 
@@ -261,6 +373,15 @@ if __name__ == "__main__":
 1. **GPU Acceleration**: On NVIDIA H100 / L40S clusters, enable `GPU_CAGRA` index type for billion-scale collections. CAGRA provides graph-based ANN search optimized for massive parallel GPU memory bandwidth.
 2. **Partition Keys**: Assign `partition_key="agent_id"` during collection creation. Milvus uses partition key hashes to route queries directly to relevant data segments, avoiding full collection scans across tens of millions of records.
 3. **MMap Data Storage**: For memory-constrained nodes, configure `mmap.enabled=true` on scalar and vector fields to offload segment files to local NVMe storage without triggering OOM (Out Of Memory) kernel panics.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `RPC error: code = Unavailable` | Milvus standalone or etcd service down | Check systemd or Docker container status (`docker ps`) | Restart etcd and Milvus standalone containers via `docker compose restart`. |
+| Out Of Memory (OOM) panic during index build | Vector segment size exceeds available RAM during HNSW index construction | Monitor memory usage via `top` or Prometheus metrics | Enable `mmap.enabled=true` on vector fields or scale GPU node VRAM. |
+| Vector Dimension Mismatch Error | Query vector dimension differs from collection schema dimension | Check `dimension` parameter in client collection schema | Re-embed query using matching embedding model dimension (e.g. 1536 vs 768). |
+| High Search Latency (> 100ms) | Unindexed collection scanning or missing partition key filter | Run `milvus-cli describe collection` to verify index type | Ensure HNSW / CAGRA index is built and query includes `partition_key` filter. |
 
 ## Related tools / concepts
 - [Pinecone](pinecone.md) — managed cloud-native vector database.

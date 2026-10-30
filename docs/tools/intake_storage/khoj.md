@@ -153,11 +153,11 @@ khoj search --query "Kubernetes K3s cluster architecture and nodes" --limit 3
 
 ### Production FastMCP 3.1 Gateway Tool Implementation
 
-Expose local Khoj search capabilities directly as FastMCP 3.1 tools with strict Pydantic v2 validation:
+Expose local Khoj search capabilities directly as FastMCP 3.1 tools with strict Pydantic v2 validation (`extra="forbid"`):
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 import requests
 
@@ -168,26 +168,46 @@ mcp = FastMCP(
 )
 
 class SearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     query: str = Field(..., description="Semantic search prompt or question")
     top_k: int = Field(default=5, ge=1, le=20)
     file_type: Optional[str] = Field(default=None, description="Optional filter e.g. 'pdf' or 'md'")
 
 class DocumentMatch(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     source_path: str
     score: float
     excerpt: str
 
 class SearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     status: str = Field(default="success")
     matches: List[DocumentMatch]
 
-@mcp.tool()
-async def search_second_brain(query: str, top_k: int = 5, file_type: Optional[str] = None) -> dict:
-    """Execute semantic vector search across local Khoj indexed documents via FastMCP 3.1."""
-    req_model = SearchQuery(query=query, top_k=top_k, file_type=file_type)
+class DocumentIndexingPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    api_url = "http://localhost:8000/api/search"
+    folder_path: str = Field(..., min_length=2, description="Target filesystem path to index")
+    recursive: bool = Field(default=True)
+    force_reindex: bool = Field(default=False)
+
+class ConversationContextPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    session_id: str = Field(..., min_length=3)
+    user_query: str = Field(..., min_length=1)
+    max_context_chunks: int = Field(default=5, ge=1, le=15)
+
+@mcp.tool(name="search_second_brain", description="Execute semantic vector search across local Khoj indexed documents")
+def search_second_brain(payload: Dict[str, Any]) -> dict:
+    """Execute semantic vector search across local Khoj indexed documents via FastMCP 3.1."""
     try:
+        req_model = SearchQuery.model_validate(payload)
+
+        api_url = "http://localhost:8000/api/search"
         res = requests.get(api_url, params={"q": req_model.query, "limit": req_model.top_k}, timeout=10)
         res.raise_for_status()
         data = res.json()
@@ -214,6 +234,30 @@ async def search_second_brain(query: str, top_k: int = 5, file_type: Optional[st
             ]
         }
 
+@mcp.tool(name="trigger_document_indexing", description="Triggers background vector embedding indexer for target local directory")
+def trigger_document_indexing(payload: Dict[str, Any]) -> dict:
+    """Invokes Khoj re-indexing daemon for specified filesystem path."""
+    try:
+        req = DocumentIndexingPayload.model_validate(payload)
+        api_url = "http://localhost:8000/api/index"
+        res = requests.post(api_url, json=req.model_dump(), timeout=15)
+        res.raise_for_status()
+        return {"status": "success", "indexed_path": req.folder_path, "response": res.json()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@mcp.tool(name="fetch_conversation_context", description="Retrieves relevant past conversation snippets and context blocks")
+def fetch_conversation_context(payload: Dict[str, Any]) -> dict:
+    """Fetches contextual thread history and related document memories for an active session."""
+    try:
+        req = ConversationContextPayload.model_validate(payload)
+        api_url = f"http://localhost:8000/api/history/{req.session_id}"
+        res = requests.get(api_url, timeout=10)
+        res.raise_for_status()
+        return {"session_id": req.session_id, "context": res.json()}
+    except Exception as e:
+        return {"session_id": payload.get("session_id", "unknown"), "context": [], "error": str(e)}
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -224,16 +268,20 @@ Programmatic queries in early 2027 validate both request schemas and model paylo
 
 ```python
 import requests
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict, Any
 
 class KhojChatPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     message: str = Field(..., min_length=1, description="Message to Khoj agent")
     stream: bool = Field(default=False)
     model: str = Field(default="claude-5-6-sonnet-20270105", description="Frontier model target")
     agent_id: Optional[str] = Field(default="research-assistant")
 
 class KhojChatResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     response: str
     context_sources: Optional[List[Dict[str, Any]]] = None
 
@@ -310,6 +358,15 @@ Vector retrieval and search benchmarks measured on a workstation (32GB RAM, AMD 
 | **pgvector Cosine Query (50k vectors)** | 14 ms per query | 450 MB System RAM | CPU 12% |
 | **Pipali FastMCP Action Call** | 48 ms turnaround | 180 MB System RAM | CPU 5% |
 
+## Operational Guardrails & Knowledge Management Standards
+
+| Dimension | Policy Standard / Directive | Enforcement Mechanism | Operational Level |
+| :--- | :--- | :--- | :--- |
+| **Indexing Isolation** | Restrict document file watchers to designated `/data` and `/docs` trees | Systemd unit `ReadWritePaths` & Pydantic path checks | Strict security boundary |
+| **Database Reindex Schedule** | Execute pgvector CONCURRENTLY index rebuild weekly | Cron task / systemd timer trigger | Background maintenance |
+| **Vault Write Protections** | Block unapproved agent modifications to source Markdown files | Staging directory strategy for agent notes | Mandatory human review |
+| **MCP Tool Boundary** | Enforce schema validation on all incoming tool payloads | FastMCP 3.1 Pydantic v2 `extra="forbid"` wrapper | Microservice gateway rule |
+
 ## Diagnostic & Troubleshooting Matrix
 
 | Issue / Symptom | Root Cause | Remediation Procedure |
@@ -318,6 +375,7 @@ Vector retrieval and search benchmarks measured on a workstation (32GB RAM, AMD 
 | **Vector Search Latency > 2s on 100k+ docs** | Missing HNSW or IVFFlat index on pgvector column in PostgreSQL. | Execute `CREATE INDEX ON khoj_entries USING hnsw (embedding vector_cosine_ops);` in database console. |
 | **Obsidian Plugin Connection Error** | Backend CORS policy blocking local app origins (`app://obsidian.md`). | Export `KHOJ_ALLOW_ORIGINS="app://obsidian.md,http://localhost:8000"` in Khoj service environment. |
 | **Pipali MCP Tool Call Timeouts** | FastMCP stdio subprocess deadlocked or waiting for input. | Verify MCP server paths and ensure JSON-RPC response complies with FastMCP 3.1 specification. |
+| **Systemd Daemon Startup Failure** | Invalid database URI credentials or PostgreSQL port conflict. | Run `journalctl -u khoj.service -n 50` and verify `/opt/khoj` directory permissions. |
 
 ## Operational Guardrails
 
@@ -331,9 +389,9 @@ Vector retrieval and search benchmarks measured on a workstation (32GB RAM, AMD 
 - [Paperless-ngx](../../services/paperless-ngx.md) — Document management system feeding into Khoj.
 - [n8n](../../services/n8n.md) — Automate document ingestion into Khoj via webhooks.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Protocol used by Pipali for tool integration.
-- [Llama 4](../ai_knowledge/local_llms.md) — Standard open model for local privacy-first processing.
+- [Llama 4](../ai_knowledge/llama.md) — Standard open model for local privacy-first processing.
 - [Claude 5.6](../providers/anthropic.md) — Frontier LLM supported via API integration.
-- [AnyType](anytype.md) — Alternative local-first knowledge base tool.
+- [Anytype](anytype.md) — Alternative local-first knowledge base tool.
 
 ## Sources / references
 - [Official Khoj Website](https://khoj.dev/)

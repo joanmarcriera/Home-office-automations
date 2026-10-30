@@ -3,6 +3,35 @@
 ## What it is
 Logseq is a privacy-first, open-source knowledge management and collaboration platform. It is a local-first application that treats information as a "knowledge graph" rather than a set of files, utilizing an outliner-based approach to capture and organize thoughts. As of early January 2027, Logseq is a cornerstone of privacy-first Personal Knowledge Management (PKM), offering high-performance SQLite database storage alongside local Markdown/Org-mode files, fully compatible with **FastMCP 3.1** (Model Context Protocol) for autonomous agent graph interaction.
 
+```
++---------------------------------------------------------------------------------------------------+
+|                                 Logseq Privacy-First Architecture                                 |
+|                                                                                                   |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | Local Plaintext Markdown & Org-Mode Layer                                                  |  |
+|  | (~/Documents/logseq/journals/YYYY_MM_DD.md, ~/Documents/logseq/pages/*.md)                 |  |
+|  +---------------------------------------------------------------------------------------------+  |
+|                                                ||                                                 |
+|                                                \/                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | High-Speed Local Datalog / SQLite Index Engine                                              |  |
+|  | (~/.logseq/graphs/default/db.sqlite, Atomic Block-Level UUID Map)                          |  |
+|  +---------------------------------------------------------------------------------------------+  |
+|                                                ||                                                 |
+|                                                \/                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Graph Sync Gateway                                                              |  |
+|  | (Datalog Queries, Journal Block Append, Backlink Resolution, Multi-Agent Context Injection) |  |
+|  +---------------------------------------------------------------------------------------------+  |
+|                                                ||                                                 |
+|                                                \/                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | Frontier Reasoning Models & Local Inference Engines                                         |  |
+|  | (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Ollama Local Micro-Models)                             |  |
+|  +---------------------------------------------------------------------------------------------+  |
++---------------------------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Traditional note-taking apps force users into rigid, hierarchy-bound file systems. Logseq solves this by using bidirectional linking and block-level references, allowing users to build a non-linear network of ideas while retaining 100% data ownership via local plain-text files and high-speed local database indexes. This architecture prevents vendor lock-in and ensures private knowledge graphs remain accessible offline and to local or cloud-hosted AI agents.
 
@@ -80,6 +109,36 @@ sudo systemctl enable --now logseq-sync.service
 sudo systemctl status logseq-sync.service
 ```
 
+### Containerized Deployment (Docker Compose)
+For headless graph sync nodes or server-side Logseq web instances, deploy via `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  logseq-mcp-bridge:
+    image: ghcr.io/logseq/mcp-bridge:3.1
+    container_name: logseq-mcp-bridge
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    environment:
+      - LOGSEQ_GRAPH_DIR=/data/graph
+      - LOGSEQ_READ_ONLY=false
+      - LOGSEQ_SYNC_INTERVAL=300
+    volumes:
+      - /home/logseq/Documents/logseq:/data/graph
+      - logseq-mcp-cache:/root/.logseq
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8088/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  logseq-mcp-cache:
+```
+
 ### Installation
 Download Logseq for macOS, Linux, or Windows from the official site or package manager:
 ```bash
@@ -124,7 +183,7 @@ sqlite3 ~/.logseq/graphs/default/db.sqlite "SELECT content FROM blocks WHERE con
 
 ## FastMCP 3.1 Logseq Bridge Implementation (Python)
 
-The following complete Python snippet implements a **FastMCP 3.1** server that exposes Logseq SQLite graph querying, journal block creation, and backlink resolution to AI agents.
+The following complete Python snippet implements a **FastMCP 3.1** server that exposes Logseq SQLite graph querying, journal block creation, and backlink resolution to AI agents using strict **Pydantic v2** validation (`extra="forbid"`).
 
 ```python
 import pathlib
@@ -146,13 +205,17 @@ class LogseqBlock(BaseModel):
     is_todo: bool = Field(default=False)
 
 class SearchBlocksRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
     query_term: str = Field(..., min_length=2, description="Search term to query across Logseq blocks")
 
 class JournalBlockAppendRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
     date_str: Optional[str] = Field(default=None, description="YYYY_MM_DD date string. Defaults to today")
     block_text: str = Field(..., min_length=3, description="Bullet text to append to journal")
+
+class BacklinkResolveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    page_name: str = Field(..., min_length=1, description="Logseq page name to resolve backlinks for")
 
 @mcp.tool(name="search_logseq_blocks", description="Search Logseq blocks matching keyword query via Datalog SQLite index")
 def search_logseq_blocks(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -170,6 +233,41 @@ def search_logseq_blocks(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
         return [{"uuid": r[0], "content": r[1]} for r in rows]
     except Exception as e:
         return [{"error": str(e)}]
+
+@mcp.tool(name="append_journal_block", description="Appends a new atomic bullet block to today's Logseq journal entry")
+def append_journal_block(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Appends bullet text to specified or current date journal file."""
+    req = JournalBlockAppendRequest.model_validate(payload)
+    target_date = req.date_str or datetime.datetime.now().strftime("%Y_%m_%d")
+    file_path = GRAPH_JOURNALS_PATH / f"{target_date}.md"
+
+    GRAPH_JOURNALS_PATH.mkdir(parents=True, exist_ok=True)
+    with open(file_path, "a", encoding="utf-8") as f:
+        f.write(f"\n- {req.block_text}")
+
+    return {"status": "success", "file": str(file_path), "appended": req.block_text}
+
+@mcp.tool(name="resolve_page_backlinks", description="Resolves all incoming block backlink references for a given page name")
+def resolve_page_backlinks(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Finds blocks referencing [[Page Name]] across the graph."""
+    req = BacklinkResolveRequest.model_validate(payload)
+    if not GRAPH_DB_PATH.exists():
+        return {"error": f"Logseq DB not found at {GRAPH_DB_PATH}"}
+
+    try:
+        conn = sqlite3.connect(GRAPH_DB_PATH)
+        cursor = conn.cursor()
+        query_pattern = f"%[[{req.page_name}]]%"
+        cursor.execute("SELECT uuid, content FROM blocks WHERE content LIKE ? LIMIT 50", (query_pattern,))
+        rows = cursor.fetchall()
+        conn.close()
+        return {
+            "page": req.page_name,
+            "backlink_count": len(rows),
+            "referencing_blocks": [{"uuid": r[0], "content": r[1]} for r in rows]
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
