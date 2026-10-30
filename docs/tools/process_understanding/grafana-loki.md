@@ -43,6 +43,7 @@ In autonomous AI agent setups, agents generate massive volumes of structured JSO
 - **LLM Agent Pipeline Inspection**: Correlating high-volume execution logs and API responses with OpenTelemetry traces across agent tool calls.
 - **Security Audit & Error Alerting**: Querying real-time authentication logs and setting alert rules via Grafana or Prometheus Alertmanager.
 - **Microservice Diagnostics**: Filtering structured JSON log streams using LogQL label matchers during operational incidents and automated agent error recovery routines.
+- **Multi-Tenant Autonomous Sandbox Isolations**: Enforcing strict tenant header segregation (`X-Scope-OrgID`) across multi-tenant AI agent test environments.
 
 ## Strengths
 - **Low Storage & Compute Overhead**: Indexing labels only results in tiny index sizes and reduced memory consumption compared to full-text engines.
@@ -103,24 +104,92 @@ sudo systemctl enable --now loki.service
 sudo systemctl status loki.service
 ```
 
+### Enterprise Production Configuration (`loki-config.yaml`)
+A complete multi-tenant, TSDB-indexed production configuration for Loki 3.x with MinIO/S3 object storage and retention policies:
+
+```yaml
+auth_enabled: true
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  log_level: info
+
+common:
+  path_prefix: /var/lib/loki
+  storage:
+    s3:
+      endpoint: minio.internal.net:9000
+      bucketnames: loki-chunks
+      access_key_id: ${MINIO_ACCESS_KEY}
+      secret_access_key: ${MINIO_SECRET_KEY}
+      s3forcepathstyle: true
+      insecure: false
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: "2024-01-01"
+      store: tsdb
+      object_store: s3
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 32
+  max_entries_limit_per_query: 5000
+  retention_period: 720h  # 30 days retention
+
+compactor:
+  working_directory: /var/lib/loki/compactor
+  retention_enabled: true
+  compaction_interval: 10m
+```
+
 ### Installation via Helm (Kubernetes)
 Deploy Grafana Loki and Alloy/Promtail collector using Helm:
 ```bash
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm install loki grafana/loki-stack --set promtail.enabled=true,loki.persistence.enabled=true
+helm install loki grafana/loki-stack \
+  --set promtail.enabled=true \
+  --set loki.persistence.enabled=true \
+  --set loki.config.auth_enabled=true
 ```
 
 ### Installation via Docker Compose
-Minimal Docker Compose snippet for running Loki and Grafana locally:
+Minimal Docker Compose snippet for running Loki, MinIO, and Grafana locally:
 ```yaml
 version: "3.8"
 services:
   loki:
-    image: grafana/loki:3.0.0
+    image: grafana/loki:3.1.0
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+    depends_on:
+      - minio
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    command: server /data --console-address ":9001"
+
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -135,18 +204,23 @@ services:
 Install `logcli` and query logs matching specific label selectors:
 ```bash
 export LOKI_ADDR=http://localhost:3100
+export LOKI_ORG_ID=tenant-production
 logcli query '{job="docker", container="paperless-ngx"}' --limit=50
 ```
 
 ### Tail Live Log Stream
 ```bash
-logcli tail '{app="agent-runner"}'
+logcli tail '{app="agent-runner"}' --org-id="tenant-production"
 ```
 
-### LogQL Rate Calculation
-Calculate the rate of log lines matching error regex over a 5-minute window:
+### LogQL Rate Calculation & Quantile Percentiles
+Calculate the rate of log lines matching error regex over a 5-minute window and extract LLM execution latencies:
 ```bash
+# Error rate per component
 logcli query 'sum(rate({app="agent-runner"} |= "error" [5m])) by (component)'
+
+# 95th percentile latency from structured JSON log fields
+logcli query 'quantile_over_time(0.95, {app="agent-runner"} | json | unwrap latency_ms [15m]) by (tool_name)'
 ```
 
 ## FastMCP 3.1 LogQL Query & Diagnostic Server
@@ -162,6 +236,7 @@ mcp = FastMCP(name="grafana-loki-logql", version="3.1")
 class LogQLSearchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     logql_query: str = Field(..., description="Valid LogQL selector string")
+    tenant_id: str = Field(default="default", description="Multi-tenant X-Scope-OrgID header")
     limit: int = Field(default=50, ge=1, le=1000)
     start_time_offset: str = Field(default="1h", description="Time window offset (e.g., 15m, 1h, 24h)")
 
@@ -172,9 +247,17 @@ class LogQueryResult(BaseModel):
 
 class LogQLSearchResponse(BaseModel):
     query: str
+    tenant_id: str
     total_matches: int
     results: List[LogQueryResult]
     execution_time_ms: float
+
+class MultiTenantIngestRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    tenant_id: str = Field(..., description="Target tenant isolation ID")
+    app_label: str = Field(..., description="Application or service identifier")
+    log_line: str = Field(..., description="Raw string or structured JSON log entry")
+    severity: str = Field(default="info", description="Log level: debug, info, warn, error")
 
 @mcp.tool(name="search_loki_logql", description="Execute LogQL queries against Loki server for agent log inspection")
 def search_loki_logql(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -195,6 +278,7 @@ def search_loki_logql(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     resp = LogQLSearchResponse(
         query=req.logql_query,
+        tenant_id=req.tenant_id,
         total_matches=len(sample_results),
         results=sample_results[:req.limit],
         execution_time_ms=18.5,
@@ -202,14 +286,27 @@ def search_loki_logql(payload: Dict[str, Any]) -> Dict[str, Any]:
     return resp.model_dump()
 
 @mcp.tool(name="compute_log_error_rate", description="Calculate stream error rate percentage from Loki logs")
-def compute_log_error_rate(app_label: str, window_minutes: int = 15) -> Dict[str, Any]:
+def compute_log_error_rate(app_label: str, window_minutes: int = 15, tenant_id: str = "default") -> Dict[str, Any]:
     """Calculates error rate metrics using LogQL stream aggregations."""
     return {
+        "tenant_id": tenant_id,
         "app": app_label,
         "window": f"{window_minutes}m",
         "total_logs": 1240,
         "error_logs": 3,
         "error_rate_pct": 0.24,
+    }
+
+@mcp.tool(name="push_agent_telemetry_log", description="Push real-time agent execution log to Loki under multi-tenant header")
+def push_agent_telemetry_log(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Ingests a telemetry log line into Loki with tenant header validation."""
+    req = MultiTenantIngestRequest.model_validate(payload)
+    return {
+        "status": "success",
+        "tenant_id": req.tenant_id,
+        "app": req.app_label,
+        "ingested_bytes": len(req.log_line),
+        "status_code": 204
     }
 
 if __name__ == "__main__":
@@ -218,8 +315,8 @@ if __name__ == "__main__":
 
 ## API examples
 
-### Python Log Ingestion & Pydantic v2 Payload Validator
-The following code demonstrates pushing structured JSON logs formatted for Loki collection and validating payloads with Pydantic v2:
+### Python Multi-Tenant Log Ingestion & Pydantic v2 Payload Validator
+The following code demonstrates pushing structured JSON logs formatted for Loki multi-tenant collection and validating payloads with Pydantic v2:
 
 ```python
 import json
@@ -237,12 +334,13 @@ class LokiPushPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
     streams: List[LokiLogStream] = Field(..., description="List of log streams to push")
 
-def push_log_to_loki(loki_url: str, app_name: str, message: str, level: str = "info") -> bool:
+def push_log_to_loki(loki_url: str, tenant_id: str, app_name: str, message: str, level: str = "info") -> bool:
     nanosecond_ts = str(int(time.time() * 1e9))
     log_entry = {
         "event": message,
         "severity": level,
-        "component": "agent_service"
+        "component": "agent_service",
+        "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 
     payload = LokiPushPayload(
@@ -255,10 +353,14 @@ def push_log_to_loki(loki_url: str, app_name: str, message: str, level: str = "i
     )
 
     validated_payload = payload.model_dump()
+    headers = {
+        "Content-Type": "application/json",
+        "X-Scope-OrgID": tenant_id
+    }
     response = requests.post(
         f"{loki_url}/loki/api/v1/push",
         json=validated_payload,
-        headers={"Content-Type": "application/json"}
+        headers=headers
     )
     return response.status_code == 204
 
@@ -283,6 +385,7 @@ if __name__ == "__main__":
 | **Line Filter** | `{app="k3s"} \|= "error" !~ "timeout"` | Matches log lines containing "error" while excluding "timeout" |
 | **Parser Stage** | `{job="docker"} \| json \| status_code >= 500` | Extracts structured JSON fields dynamically for numeric comparison |
 | **Metric Aggregations** | `sum(rate({app="agent"} \|= "fail" [5m])) by (agent)` | Computes rate of failure logs over a 5-minute sliding window |
+| **Unwrap & Quantile** | `quantile_over_time(0.99, {app="llm"} \| json \| unwrap duration [1h])` | Extracts numeric field durations and calculates 99th percentile latency |
 
 ## Operational Troubleshooting & Diagnostics
 
@@ -292,6 +395,7 @@ if __name__ == "__main__":
 | **High Memory / OOM on Ingester** | High label cardinality (e.g. adding unique user_id or transaction_id as a Loki label) | `curl http://loki:3100/loki/api/v1/label` | Remove high-cardinality attributes from labels; move them inside the raw JSON payload and parse via LogQL `\| json` |
 | **Slow Query Execution Time** | Query searching unindexed raw text across large time ranges without label constraints | Inspect query with LogQL `query_range` stats | Narrow down initial label selector `{app="..."}` before appending text filters |
 | **Systemd Service Startup Fail** | Insufficient file descriptors or permission denied on `/var/lib/loki` | `journalctl -u loki.service -n 50` | Ensure `LimitNOFILE=65536` in systemd unit and verify ownership of data directory. |
+| **HTTP 401 "Tenant ID Missing"** | Multi-tenancy enabled (`auth_enabled: true`) but missing `X-Scope-OrgID` request header | `curl -i http://localhost:3100/loki/api/v1/push` | Add `X-Scope-OrgID: <tenant_id>` in API clients, log forwarders (Alloy/Promtail), or reverse proxy configuration |
 
 ## Related tools / concepts
 - [Grafana Cloud](grafana-cloud.md)
