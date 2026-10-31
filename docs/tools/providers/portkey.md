@@ -109,6 +109,88 @@ Portkey solves these structural challenges by providing:
 - In extremely latency-sensitive environments where any proxy overhead (even <5ms) is unacceptable.
 - For local-only development using only a single local model provider (e.g., Ollama only).
 
+## Systemd Service Configuration
+For organizations self-hosting the Portkey AI Gateway binary as a native background service on Linux servers:
+
+```ini
+[Unit]
+Description=Portkey AI Gateway & LLM Control Plane
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=portkey
+Group=portkey
+WorkingDirectory=/opt/portkey-gateway
+Environment="PORT=8787"
+Environment="REDIS_URL=redis://127.0.0.1:6379/0"
+Environment="LOG_LEVEL=info"
+Environment="PORTKEY_VAULT_ENCRYPTION_KEY=sec_vault_k982_production"
+ExecStart=/usr/local/bin/portkey-gateway start --port 8787 --cache redis
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+Deploying Portkey Gateway with local Redis semantic caching and healthchecks:
+
+```yaml
+version: "3.8"
+
+services:
+  portkey-gateway:
+    image: portkeyai/gateway:latest
+    container_name: portkey-gateway-engine
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - CACHE_STORE=redis
+      - REDIS_URL=redis://redis-cache:6379/0
+      - LOG_LEVEL=info
+    depends_on:
+      redis-cache:
+        condition: service_healthy
+    networks:
+      - portkey-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8787/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: portkey-redis-cache
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "volatile-lru", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - portkey_redis_data:/data
+    networks:
+      - portkey-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  portkey-net:
+    driver: bridge
+
+volumes:
+  portkey_redis_data:
+```
+
 ## Comparison Matrix
 
 | Feature / Metric | Portkey AI Gateway | LiteLLM Proxy | OpenRouter | Vercel AI Gateway |
@@ -269,6 +351,17 @@ try:
 except Exception as err:
     print(f"Validation failed: {err}")
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Probable Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **HTTP 429 Rate Limit Errors** | Upstream provider tier quotas exceeded or burst threshold breached | Inspect gateway access logs for `x-portkey-provider-status: 429` | Define multi-provider fallback order in configuration to cascade requests automatically to secondary providers. |
+| **Virtual Key Authentication Failure** | Virtual key expired, deleted in vault, or mapped to revoked secret key | Validate key status: `curl http://localhost:8787/v1/virtual-keys/verify -H "x-portkey-api-key: ..."` | Re-encrypt underlying provider API tokens in Portkey vault and refresh application virtual key strings. |
+| **Semantic Cache Miss Drift** | Vector embedding distance threshold too strict for conversational variations | Inspect header `x-portkey-cache-status: MISS` | Adjust semantic similarity threshold (e.g. from 0.98 to 0.92) in routing configuration file. |
+| **Gateway High Latency Overhead (>50ms)** | Remote Redis cache network bottleneck or unindexed audit log storage | Measure upstream ping: `curl -w "@curl-format.txt" http://localhost:8787/health` | Co-locate Redis instance within same local VPC subnet or switch to internal memory cache mode for edge workers. |
+| **MCP SSE Stream Interruption** | Reverse proxy or load balancer closing idle Server-Sent Event sockets | Check proxy logs for `504 Gateway Timeout` on `/v1/chat/completions` | Increase reverse proxy proxy_read_timeout (Nginx) to 300s and configure SSE keep-alive heartbeats. |
+| **PII Guardrail False Positives** | Strict regex pattern triggering on harmless technical tokens or hex hashes | Check gateway response body for `400 GuardrailRejected` | Tune custom regex guardrail expressions to exclude alphanumeric UUIDs and hex hashes from SSN/credit card filters. |
 
 ## Related tools / concepts
 - **[LiteLLM](../../services/litellm.md)**: Lightweight open-source LLM proxy.

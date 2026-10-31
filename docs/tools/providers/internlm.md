@@ -67,6 +67,128 @@ Large-scale multi-agent enterprise platforms require open-weight reasoning model
 - On consumer edge devices with less than 16GB VRAM (where smaller Gemma 4 or Llama 4 8B models are more suitable).
 - For pure English workflows that do not require bilingual cross-lingual reasoning.
 
+## Systemd Service Configuration
+For high-availability Linux hosts serving InternLM models via vLLM with multi-GPU tensor parallelism:
+
+```ini
+[Unit]
+Description=InternLM vLLM High-Throughput Inference Engine
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=internlm
+Group=internlm
+WorkingDirectory=/opt/internlm-serving
+Environment="CUDA_VISIBLE_DEVICES=0,1,2,3"
+Environment="VLLM_NCCL_SO_PATH=/usr/local/cuda/lib64/libnccl.so"
+Environment="VLLM_ATTENTION_BACKEND=FLASH_ATTN"
+ExecStart=/opt/internlm-serving/venv/bin/python3 -m vllm.entrypoints.openai.api_server \
+  --model internlm/internlm2_5-20b-chat \
+  --tensor-parallel-size 4 \
+  --gpu-memory-utilization 0.90 \
+  --max-model-len 32768 \
+  --port 8000 \
+  --trust-remote-code
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+Deploying a production containerized InternLM stack with LMDeploy TurboMind acceleration, an MCP tool gateway bridge, and Redis request caching:
+
+```yaml
+version: "3.8"
+
+services:
+  internlm-engine:
+    image: openmmlab/lmdeploy:latest
+    container_name: internlm-lmdeploy-server
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0,1
+    ports:
+      - "23333:23333"
+    volumes:
+      - /models/internlm2_5-20b-chat:/models/internlm2_5-20b-chat
+    command: >
+      lmdeploy serve api_server /models/internlm2_5-20b-chat
+      --server-port 23333
+      --tp 2
+      --cache-max-entry-count 0.85
+      --model-name internlm2_5-20b-chat
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    networks:
+      - internlm-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:23333/v1/models"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  fastmcp-gateway:
+    image: python:3.11-slim
+    container_name: internlm-fastmcp-bridge
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./gateway:/app
+    environment:
+      - INTERNLM_API_URL=http://internlm-engine:23333/v1
+      - REDIS_URL=redis://redis-internlm:6379/0
+      - MCP_PORT=8080
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c "pip install mcp[cli] pydantic openai httpx redis &&
+             python3 -m gateway.server"
+    depends_on:
+      internlm-engine:
+        condition: service_healthy
+      redis-internlm:
+        condition: service_healthy
+    networks:
+      - internlm-net
+
+  redis-internlm:
+    image: redis:7-alpine
+    container_name: redis-internlm-cache
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "volatile-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_cache:/data
+    networks:
+      - internlm-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  internlm-net:
+    driver: bridge
+
+volumes:
+  redis_cache:
+```
+
 ## Getting started
 
 ### 1. Prerequisites and Installation
@@ -123,22 +245,27 @@ python3 -m vllm.entrypoints.openai.api_server \
 ## API examples
 
 ### 1. FastMCP 3.1 Python Integration with InternLM vLLM Endpoint
-This example demonstrates a FastMCP 3.1 tool server executing requests directed to an InternLM model running on vLLM.
+This example demonstrates a FastMCP 3.1 tool server executing requests directed to an InternLM model running on vLLM with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import os
 import asyncio
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import openai
 
 mcp = FastMCP("InternLM-Agent-Hub")
 
 class CodeReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     repository_name: str = Field(..., alias="repoName")
     source_code: str = Field(..., alias="sourceCode")
+    analysis_depth: str = Field(default="deep", pattern="^(shallow|standard|deep)$")
 
 class CodeReviewResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     repository_name: str
     security_score: float
     suggestions: list[str]
@@ -176,15 +303,17 @@ if __name__ == "__main__":
     mcp.run(transport="sse", host="0.0.0.0", port=8000)
 ```
 
-### 2. Pydantic v2 Schema Validation for InternLM Tool Calling Payloads
-This script uses Pydantic v2 to validate function-calling tool invocations generated by InternLM.
+### 2. Strict Pydantic v2 Schema Validation for InternLM Tool Calling Payloads
+This script uses strict Pydantic v2 schemas (`extra="forbid"`) to validate function-calling tool invocations generated by InternLM.
 
 ```python
 import json
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
 
 class ToolCallFunction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     arguments: str  # JSON string
 
@@ -198,16 +327,22 @@ class ToolCallFunction(BaseModel):
             raise ValueError(f"Arguments must be valid JSON: {err}")
 
 class ToolCallItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str
     type: str = Field(default="function")
     function: ToolCallFunction
 
 class InternLMResponseChoice(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     index: int
     finish_reason: str = Field(..., alias="finishReason")
     tool_calls: Optional[List[ToolCallItem]] = Field(None, alias="toolCalls")
 
 class InternLMCompletionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str
     model: str
     choices: List[InternLMResponseChoice]
@@ -242,7 +377,7 @@ sample_payload = """
                     "type": "function",
                     "function": {
                         "name": "review_code_internlm",
-                        "arguments": "{\\"repoName\\": \\"core-auth\\", \\"sourceCode\\": \\"def login(): pass\\"}"
+                        "arguments": "{\\"repoName\\": \\"core-auth\\", \\"sourceCode\\": \\"def login(): pass\\", \\"analysis_depth\\": \\"deep\\"}"
                     }
                 }
             ]
@@ -285,6 +420,17 @@ When deploying InternLM in enterprise production environments, consider the foll
 1. **Tensor Parallelism Scaling**: For `internlm2_5-20b-chat`, run tensor parallelism `--tp 2` across 2 GPUs (e.g. RTX 4090 or A10G) to maintain optimal latency (< 20ms TTFT).
 2. **Context Window Management**: Utilize PagedAttention KV-cache allocation flags in vLLM or TurboMind to prevent out-of-memory errors when processing documents near the 1M context threshold.
 3. **Structured Decoding Integration**: Pair InternLM endpoints with SGLang or Outlines to strictly enforce FastMCP 3.1 Pydantic JSON output schemas during agent function calling.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Probable Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM) on Launch** | KV cache allocation exceeds free GPU VRAM during model load | Check GPU memory: `nvidia-smi` | Lower `--gpu-memory-utilization` from 0.95 to 0.85 or reduce `--max-model-len` to match working context limits. |
+| **Tensor Parallelism NCCL Hang** | Mismatched CUDA or NCCL library versions across cluster nodes | Test communication: `python3 -m torch.distributed.run --nproc_per_node=2 torch_test.py` | Set `NCCL_DEBUG=INFO` and enforce identical NCCL/CUDA library paths via `VLLM_NCCL_SO_PATH`. |
+| **Rotary Embedding (RoPE) Degradation** | Context length exceeds default window without frequency scaling | Inspect generation output for repetitive token degradation at >32k | Specify `--rope-scaling '{"type": "dynamic", "factor": 2.0}'` in vLLM startup flags. |
+| **MoE Expert Gating Imbalance** | Specific domain prompts saturating expert router queue | Monitor expert utilization via LMDeploy telemetry metrics | Enable auxiliary loss balancing during fine-tuning or configure top-2 router threshold temperature. |
+| **Tool Calling Argument Syntax Error** | Model emitting markdown code fences around raw JSON payloads | Check regex extraction logs in FastMCP bridge server | Pass system instruction enforcing pure JSON string output without code ticks or use Outlines constrained decoding. |
+| **Slow TTFT (Time to First Token)** | TurboMind KV cache cold start without pre-warmed token memory | Measure initial request latency via `curl -w "@curl-format.txt"` | Enable chunked prefill (`--enable-chunked-prefill`) in vLLM or TurboMind engine settings. |
 
 ## Related tools / concepts
 - [DeepSeek](./deepseek.md) — Pioneer in open-source reasoning models.

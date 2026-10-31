@@ -83,6 +83,114 @@ In enterprise and compliance scenarios, copying page content into external chat 
 - When working with strict air-gapped sensitive data that prohibits cloud telemetry (use [Ollama](../../services/ollama.md) or [Local LLMs](local_llms.md) with local web scrapers).
 - For complex headless web automation jobs requiring unattended background execution (use [Playwright](../development_ops/playwright.md) or [Browser Use](../automation_orchestration/browser-use.md)).
 
+## Systemd Service Configuration
+When running an unattended headless Chrome instance acting as an automated skills execution bridge on Linux application servers, systemd manages the background process:
+
+```ini
+[Unit]
+Description=Chrome Skills Headless CDP Bridge Service
+After=network.target xvfb.service
+Wants=xvfb.service
+
+[Service]
+Type=simple
+User=chrome-runner
+Group=chrome-runner
+WorkingDirectory=/opt/chrome-skills-bridge
+Environment="DISPLAY=:99"
+Environment="CHROME_BIN=/usr/bin/google-chrome-stable"
+Environment="CDP_PORT=9222"
+Environment="FASTMCP_PORT=8765"
+ExecStart=/usr/bin/google-chrome-stable \
+  --headless=new \
+  --remote-debugging-port=9222 \
+  --remote-debugging-address=0.0.0.0 \
+  --disable-gpu \
+  --no-sandbox \
+  --enable-features=ChromeAISkills,GeminiNanoOnDevice \
+  --user-data-dir=/opt/chrome-skills-bridge/profile
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Setup
+Deploying a containerized headless Chrome CDP instance alongside a FastMCP 3.1 gateway bridge and Redis context cache:
+
+```yaml
+version: "3.8"
+
+services:
+  chrome-headless:
+    image: chromedp/headless-shell:latest
+    container_name: chrome-skills-headless
+    restart: unless-stopped
+    ports:
+      - "9222:9222"
+    environment:
+      - CHROME_OPTS=--headless --disable-gpu --no-sandbox --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0
+    shm_size: 2gb
+    networks:
+      - skills-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9222/json/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fastmcp-bridge:
+    image: python:3.11-slim
+    container_name: fastmcp-chrome-bridge
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./bridge:/app
+    environment:
+      - CDP_ENDPOINT=http://chrome-headless:9222
+      - REDIS_URL=redis://redis-skills:6379/0
+      - MCP_PORT=8765
+    ports:
+      - "8765:8765"
+    command: >
+      sh -c "pip install mcp[cli] pydantic httpx redis &&
+             python3 -m bridge.server"
+    depends_on:
+      chrome-headless:
+        condition: service_healthy
+      redis-skills:
+        condition: service_healthy
+    networks:
+      - skills-net
+
+  redis-skills:
+    image: redis:7-alpine
+    container_name: redis-skills-cache
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - skills-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  skills-net:
+    driver: bridge
+
+volumes:
+  redis_data:
+```
+
 ## Getting started
 > [!IMPORTANT]
 > Requires Google Chrome v145+ with Gemini features enabled in settings.
@@ -135,21 +243,26 @@ curl -X POST http://localhost:9222/json/rpc \
 
 ## API examples
 
-### FastMCP 3.1 Skill Manifest Validator (Pydantic v2)
-Extensions and FastMCP bridge servers can parse and validate Chrome skill manifests using **Pydantic v2**:
+### FastMCP 3.1 Skill Manifest Validator (Strict Pydantic v2)
+Extensions and FastMCP bridge servers can parse and validate Chrome skill manifests using **Pydantic v2** with strict configuration (`extra="forbid"`):
 
 ```python
 import json
 from typing import Literal, Optional, List
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
-# Define Pydantic v2 schemas for Chrome Skill manifests
+# Define strict Pydantic v2 schemas for Chrome Skill manifests
 class AgenticHookTrigger(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     url_pattern: str = Field(..., description="Glob or regex matching target web URLs")
     trigger_event: Literal["page_load", "selection", "manual_shortcut"] = Field("manual_shortcut")
+    debounce_ms: int = Field(default=300, ge=50, le=5000, description="Debounce delay in milliseconds")
 
 class ChromeSkillManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     skill_id: str = Field(..., pattern=r"^[a-z0-9\-]+$")
     name: str = Field(..., min_length=3, max_length=60)
     shortcut: str = Field(..., pattern=r"^/[a-zA-Z0-9]+$")
@@ -157,6 +270,8 @@ class ChromeSkillManifest(BaseModel):
     target_hook: AgenticHookTrigger
     prompt_template: str = Field(..., min_length=20)
     output_format: Literal["markdown", "json", "plain_text"] = "markdown"
+    temperature: float = Field(default=0.2, ge=0.0, le=1.0)
+    max_tokens: int = Field(default=2048, ge=64, le=16384)
 
     @field_validator("prompt_template")
     @classmethod
@@ -178,7 +293,18 @@ async def register_chrome_skill(manifest_json: str) -> str:
         "status": "registered",
         "skill_id": manifest.skill_id,
         "shortcut": manifest.shortcut,
-        "hook_pattern": manifest.target_hook.url_pattern
+        "hook_pattern": manifest.target_hook.url_pattern,
+        "context_mode": manifest.context_mode
+    })
+
+@mcp.tool()
+async def execute_remote_skill(skill_id: str, tab_id: int, context_payload: str) -> str:
+    """Invokes a Chrome skill via headless CDP execution."""
+    return json.dumps({
+        "status": "executed",
+        "skill_id": skill_id,
+        "tab_id": tab_id,
+        "result_length": len(context_payload)
     })
 
 if __name__ == "__main__":
@@ -190,10 +316,13 @@ if __name__ == "__main__":
         "context_mode": "active_tab_dom",
         "target_hook": {
             "url_pattern": "https://github.com/*/pull/*",
-            "trigger_event": "page_load"
+            "trigger_event": "page_load",
+            "debounce_ms": 500
         },
         "prompt_template": "Audit the code diff in {{page_content}} for security vulnerabilities.",
-        "output_format": "markdown"
+        "output_format": "markdown",
+        "temperature": 0.1,
+        "max_tokens": 4096
     }
 
     validated = ChromeSkillManifest.model_validate(sample_manifest)
@@ -201,15 +330,16 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-## Troubleshooting & Best Practices
+## Diagnostic & Troubleshooting Matrix
 
-### Agentic Hooks Failing to Trigger
-- **Cause**: Target URL glob pattern incorrectly formatted or missing wildcard scheme prefix (e.g., `github.com/*` instead of `https://github.com/*`).
-- **Solution**: Always include explicit scheme matching (`https://` or `http://`) in skill manifest URL pattern triggers.
-
-### On-Device Model Memory Pressure
-- **Cause**: Chrome tab open count exceeding system RAM threshold causing Gemini 4.0 Nano model unload.
-- **Solution**: Ensure Chrome's Memory Saver feature is active or configure fallback to cloud Gemini 4.0 Ultra execution.
+| Symptom / Failure Mode | Probable Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Agentic Hooks Fail to Trigger** | Malformed URL pattern or missing scheme wildcard (e.g. `github.com/*` instead of `https://github.com/*`) | Inspect hook trigger table via CDP `curl http://localhost:9222/json/rpc -d '{"id":1,"method":"AI.listHooks"}'` | Always include explicit scheme matching (`https://*` or `http://*`) in the skill manifest URL pattern triggers. |
+| **CDP Port Unreachable (`Connection Refused`)** | Headless Chrome crashed due to shared memory exhaustion (`/dev/shm`) | `docker logs chrome-skills-headless` or `journalctl -u chrome-skills-bridge -n 50` | Increase container shared memory via `shm_size: 2gb` in docker-compose.yml or launch with `--disable-dev-shm-usage`. |
+| **On-Device Gemini Nano Model Unload** | Excessive active tabs causing Chrome Memory Saver to purge local weights | Check on-device status: `curl http://localhost:9222/json/rpc -d '{"id":2,"method":"AI.getOnDeviceModelStatus"}'` | Pin model weights in settings, enable persistent memory allocation, or configure automatic fallback to cloud Gemini 4.0 Ultra. |
+| **DOM Context Truncation Error** | Web page DOM exceeds max context token window (>32k tokens) | Check CDP response status code `413 ContextExceeded` | Switch `context_mode` to `selected_text` or implement client-side DOM pruning via tree walker script before AI ingestion. |
+| **FastMCP Schema Validation Error** | Manifest JSON contains unexpected fields forbidden by strict Pydantic model | Run local manifest validation `python3 -m bridge.validator --file manifest.json` | Ensure manifest adheres to `extra="forbid"` schema, removing unrecognized third-party metadata properties. |
+| **CORS / Cross-Origin Isolation Blocks** | Chrome security sandbox blocking FastMCP bridge WebSocket connection | Inspect browser DevTools Console for `SecurityError: Content Security Policy directive violated` | Add local bridge host (`localhost:8765`) to Chrome extension `externally_connectable` permissions manifest. |
 
 ## Related tools / concepts
 - [Google Search](google-search.md) — Grounding platform for web search capabilities.
