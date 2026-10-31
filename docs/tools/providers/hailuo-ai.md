@@ -132,6 +132,109 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Production Multi-Container Docker Stack (`compose.yaml`)
+
+To operate an enterprise-grade Hailuo AI rendering gateway with async Redis queue management, worker autoscaling, and S3 artifact mirroring, deploy the following multi-container topology:
+
+```yaml
+version: '3.8'
+
+services:
+  hailuo-mcp-gateway:
+    image: python:3.11-slim
+    container_name: hailuo-fastmcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - HAILUO_API_KEY=${HAILUO_API_KEY}
+      - REDIS_URL=redis://hailuo-redis:6379/0
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=8095
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=hailuo-renders
+      - S3_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - S3_SECRET_KEY=${MINIO_SECRET_KEY}
+    volumes:
+      - ./server:/app:ro
+      - ./config:/etc/hailuo:ro
+    working_dir: /app
+    command: python3 -m server.fastmcp_hailuo_server
+    depends_on:
+      hailuo-redis:
+        condition: service_healthy
+    networks:
+      - hailuo-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  hailuo-queue-worker:
+    image: python:3.11-slim
+    container_name: hailuo-queue-worker
+    restart: unless-stopped
+    environment:
+      - HAILUO_API_KEY=${HAILUO_API_KEY}
+      - REDIS_URL=redis://hailuo-redis:6379/0
+      - MAX_CONCURRENT_TASKS=8
+      - POLL_INTERVAL_SECONDS=5
+    volumes:
+      - ./worker:/app:ro
+    working_dir: /app
+    command: python3 -m worker.hailuo_task_processor
+    depends_on:
+      hailuo-redis:
+        condition: service_healthy
+    networks:
+      - hailuo-network
+
+  hailuo-redis:
+    image: redis:7.2-alpine
+    container_name: hailuo-cache-broker
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-securelocalredis}
+    ports:
+      - "6389:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-securelocalredis}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - hailuo-network
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    container_name: hailuo-artifact-store
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-hailuo-admin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-hailuo-supersecret-pass}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - hailuo-network
+
+networks:
+  hailuo-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  minio-data:
+```
+
 ## Getting started
 
 ### Account Configuration & API Keys
@@ -161,53 +264,79 @@ curl -X GET "https://api.minimax.chat/v1/video/tasks/$TASK_ID" \
 ## API examples
 
 ### Python FastMCP 3.1 & Pydantic v2 Async Video Generation Server
-The following code snippet demonstrates implementing an async Hailuo AI video generation tool using FastMCP 3.1 and Pydantic v2:
+The following code snippet demonstrates implementing a production-grade async Hailuo AI video generation server using FastMCP 3.1 and strict Pydantic v2 schemas:
 
 ```python
 import os
 import time
 import requests
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import Optional, Dict, Any, List
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from fastmcp import FastMCP, Context
 
 # Initialize FastMCP 3.1 server
-mcp = FastMCP("hailuo-video-generator")
+mcp = FastMCP("hailuo-video-generator", version="3.1.0")
 
 HAILUO_API_KEY = os.getenv("HAILUO_API_KEY", "YOUR_HAILUO_MINIMAX_API_KEY")
-API_BASE = "https://api.minimax.chat/v1/video"
+API_BASE = os.getenv("HAILUO_API_BASE", "https://api.minimax.chat/v1/video")
 
 class VideoGenerationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
     prompt: str = Field(..., description="Detailed textual description of the scene to generate.")
-    camera_motion: str = Field(default="pan_right_and_zoom", description="Camera movement trajectory (e.g., pan_right, zoom_in, orbit).")
-    duration_seconds: int = Field(default=6, ge=2, le=10, description="Video clip duration in seconds.")
-    reference_image_url: Optional[str] = Field(default=None, description="Optional image URL for image-to-video animation.")
+    camera_motion: str = Field(default="pan_right_and_zoom", description="Camera movement trajectory (e.g., pan_right, zoom_in, orbit, static).")
+    duration_seconds: int = Field(default=6, ge=2, le=10, description="Video clip duration in seconds (2 to 10 seconds).")
+    resolution: str = Field(default="1080p", description="Output video resolution target: 720p or 1080p.")
+    reference_image_url: Optional[str] = Field(default=None, description="Optional HTTPS image URL for image-to-video animation.")
+    motion_intensity: float = Field(default=0.7, ge=0.1, le=1.0, description="Speed and magnitude factor for visual elements in scene.")
 
     @field_validator("prompt")
     @classmethod
     def check_prompt_length(cls, v: str) -> str:
-        if len(v.strip()) < 10:
-            raise ValueError("Prompt must be at least 10 characters for quality video rendering")
+        cleaned = v.strip()
+        if len(cleaned) < 10:
+            raise ValueError("Prompt must contain at least 10 non-whitespace characters for quality generation.")
+        return cleaned
+
+    @field_validator("resolution")
+    @classmethod
+    def check_resolution(cls, v: str) -> str:
+        if v not in ("720p", "1080p"):
+            raise ValueError("Resolution must be either '720p' or '1080p'.")
         return v
 
+class VideoTaskQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    task_id: str = Field(..., description="Hailuo task UUID returned from initial job submission.")
+
 class VideoTaskResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="Unique Hailuo task ID for polling.")
-    status: str = Field(..., description="Current status of the video rendering task (e.g., processing, completed, failed).")
-    download_url: Optional[str] = Field(default=None, description="Signed HTTP URL to download the generated MP4 video.")
+    status: str = Field(..., description="Current status: queued, processing, completed, failed, or timeout.")
+    download_url: Optional[str] = Field(default=None, description="Signed HTTP URL to download the rendered MP4 file.")
+    error_message: Optional[str] = Field(default=None, description="Error details if job failed or validation encountered issues.")
+    execution_time_seconds: Optional[float] = Field(default=None, description="Total latency elapsed from submission to completion.")
 
-@mcp.tool()
+class VideoBatchManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batch_name: str = Field(..., description="Identifier label for the generation batch.")
+    tasks: List[VideoGenerationRequest] = Field(..., max_length=10, description="List of up to 10 video generation requests to queue.")
+
+@mcp.tool(
+    name="generate_hailuo_video",
+    description="Submits an async video generation job to Hailuo AI (MiniMax) and polls until rendering completes."
+)
 async def generate_hailuo_video(
-    request_dict: Dict[str, Any],
+    request: VideoGenerationRequest,
     ctx: Optional[Context] = None
-) -> Dict[str, Any]:
+) -> VideoTaskResponse:
     """Submits an async video generation job to Hailuo AI (MiniMax) and polls until rendering completes."""
+    start_time = time.time()
     if ctx:
-        await ctx.info("Validating video generation request...")
-
-    try:
-        req = VideoGenerationRequest.model_validate(request_dict)
-    except ValidationError as ve:
-        return {"task_id": "validation_error", "status": "failed", "error": str(ve)}
+        await ctx.info(f"Dispatching Hailuo video generation task: '{request.prompt[:40]}...' (Motion: {request.camera_motion})")
 
     headers = {
         "Authorization": f"Bearer {HAILUO_API_KEY}",
@@ -216,44 +345,106 @@ async def generate_hailuo_video(
 
     payload = {
         "model": "hailuo-v3-cinematic",
-        "prompt": req.prompt,
-        "camera_motion": req.camera_motion,
-        "duration_seconds": req.duration_seconds
+        "prompt": request.prompt,
+        "camera_motion": request.camera_motion,
+        "duration_seconds": request.duration_seconds,
+        "resolution": request.resolution,
+        "motion_intensity": request.motion_intensity
     }
-    if req.reference_image_url:
-        payload["first_frame_image"] = req.reference_image_url
+    if request.reference_image_url:
+        payload["first_frame_image"] = str(request.reference_image_url)
 
     try:
-        # Trigger video generation task
-        init_res = requests.post(f"{API_BASE}/generations", json=payload, headers=headers, timeout=10)
+        init_res = requests.post(f"{API_BASE}/generations", json=payload, headers=headers, timeout=12)
+        if init_res.status_code != 200:
+            return VideoTaskResponse(
+                task_id="http_error",
+                status="failed",
+                error_message=f"API responded with status {init_res.status_code}: {init_res.text}"
+            )
+
         init_data = init_res.json()
         task_id = init_data.get("task_id", "")
-
         if not task_id:
-            return VideoTaskResponse(task_id="error", status="failed", download_url=None).model_dump()
+            return VideoTaskResponse(
+                task_id="unknown",
+                status="failed",
+                error_message=f"No task_id returned by MiniMax API: {init_data}"
+            )
 
         if ctx:
-            await ctx.info(f"Video task submitted (ID: {task_id}). Polling status...")
+            await ctx.info(f"Hailuo task queued successfully. Task ID: {task_id}. Beginning polling cycle...")
 
-        # Poll status until completed or timed out
-        for _ in range(30):  # Poll up to 5 minutes (30 * 10s)
+        # Poll status until completed or timed out (up to 300 seconds)
+        for attempt in range(30):
             time.sleep(10)
             status_res = requests.get(f"{API_BASE}/tasks/{task_id}", headers=headers, timeout=10)
-            status_data = status_res.json()
-            current_status = status_data.get("status")
+            if status_res.status_code != 200:
+                continue
 
-            if current_status == "completed":
+            status_data = status_res.json()
+            current_status = status_data.get("status", "").lower()
+
+            if current_status in ("completed", "success"):
+                elapsed = time.time() - start_time
+                if ctx:
+                    await ctx.info(f"Task {task_id} completed successfully in {elapsed:.1f}s.")
                 return VideoTaskResponse(
                     task_id=task_id,
                     status="completed",
-                    download_url=status_data.get("download_url")
-                ).model_dump()
-            elif current_status == "failed":
-                return VideoTaskResponse(task_id=task_id, status="failed", download_url=None).model_dump()
+                    download_url=status_data.get("download_url"),
+                    execution_time_seconds=round(elapsed, 2)
+                )
+            elif current_status in ("failed", "error"):
+                return VideoTaskResponse(
+                    task_id=task_id,
+                    status="failed",
+                    error_message=status_data.get("error_msg", "Unknown rendering engine failure"),
+                    execution_time_seconds=round(time.time() - start_time, 2)
+                )
 
-        return VideoTaskResponse(task_id=task_id, status="timeout", download_url=None).model_dump()
+        return VideoTaskResponse(
+            task_id=task_id,
+            status="timeout",
+            error_message="Task polling exceeded maximum timeout of 300 seconds.",
+            execution_time_seconds=round(time.time() - start_time, 2)
+        )
     except Exception as e:
-        return VideoTaskResponse(task_id="error", status=f"exception: {str(e)}", download_url=None).model_dump()
+        return VideoTaskResponse(
+            task_id="exception",
+            status="failed",
+            error_message=f"Execution encountered exception: {str(e)}",
+            execution_time_seconds=round(time.time() - start_time, 2)
+        )
+
+@mcp.tool(
+    name="check_hailuo_task_status",
+    description="Queries the immediate execution status and artifact URL of an existing Hailuo video render task."
+)
+async def check_hailuo_task_status(
+    query: VideoTaskQuery,
+    ctx: Optional[Context] = None
+) -> VideoTaskResponse:
+    """Queries status of an ongoing or completed Hailuo video render task."""
+    headers = {
+        "Authorization": f"Bearer {HAILUO_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    try:
+        res = requests.get(f"{API_BASE}/tasks/{query.task_id}", headers=headers, timeout=10)
+        data = res.json()
+        return VideoTaskResponse(
+            task_id=query.task_id,
+            status=data.get("status", "unknown"),
+            download_url=data.get("download_url"),
+            error_message=data.get("error_msg")
+        )
+    except Exception as exc:
+        return VideoTaskResponse(
+            task_id=query.task_id,
+            status="error",
+            error_message=str(exc)
+        )
 
 if __name__ == "__main__":
     mcp.run()
@@ -263,11 +454,16 @@ if __name__ == "__main__":
 
 | Issue / Symptom | Root Cause | Diagnostic Method | Remediation Action |
 | :--- | :--- | :--- | :--- |
-| **HTTP 400 Prompt Safety Trigger** | Prompt contains restricted terms violating content policy | Inspect API response body for moderation code | Rephrase scene description to remove flagged terms or violence triggers |
-| **Task Status Stuck at 'Processing'** | Peak GPU cluster congestion during high-traffic windows | Poll `/v1/video/tasks/$TASK_ID` every 15s | Extend polling timeout window up to 10 minutes or use Webhook callbacks |
-| **Keyframe Aspect Ratio Distortion** | Input reference image ratio differs from target video (16:9) | Check source image resolution metadata | Pre-crop keyframe image to 1920x1080 before submitting URL |
-| **HTTP 401 Unauthorized** | Invalid or expired `HAILUO_API_KEY` environment token | Test key with curl request to MiniMax status API | Regenerate developer API key in MiniMax console and update secrets |
-| **Camera Motion Jitter** | Conflicting motion vector commands in prompt and camera JSON | Compare natural language text vs `camera_motion` field | Simplify camera command parameter (e.g., stick to single vector `pan_right`) |
+| **HTTP 400 Prompt Safety Trigger** | Prompt contains restricted terms violating content policy | Inspect API response body for moderation code (`MINIMAX_SAFETY_VIOLATION`) | Rephrase scene description to remove flagged terms, weapons, or violence triggers. |
+| **Task Status Stuck at 'Processing'** | Peak GPU cluster congestion during high-traffic windows | Poll `/v1/video/tasks/$TASK_ID` every 15s using `check_hailuo_task_status` | Extend polling timeout window up to 10 minutes or configure webhook asynchronous callbacks. |
+| **Keyframe Aspect Ratio Distortion** | Input reference image ratio differs from target video (16:9) | Check source image resolution metadata with `ffprobe` or Pillow | Pre-crop keyframe image to exact 1920x1080 (16:9) before submitting image URL. |
+| **HTTP 401 Unauthorized** | Invalid or expired `HAILUO_API_KEY` environment token | Test key with curl request to MiniMax status API: `curl -H 'Authorization: Bearer $HAILUO_API_KEY' https://api.minimax.chat/v1/user/info` | Regenerate developer API key in MiniMax console and update `.env` / secret vaults. |
+| **Camera Motion Jitter** | Conflicting motion vector commands in prompt and camera JSON | Compare natural language text vs `camera_motion` field | Simplify camera command parameter (e.g., stick to single vector `pan_right` instead of compound). |
+| **HTTP 429 Rate Limit Exceeded** | Exceeded concurrency tier limits on concurrent video generation tasks | Inspect `Retry-After` header and Redis queue worker thread pool | Introduce Redis rate-limiting token bucket and configure worker `MAX_CONCURRENT_TASKS=4`. |
+| **FastMCP Schema ValidationError** | Extra payload fields passed to MCP tool invocation | Review MCP gateway stderr logs for Pydantic v2 `extra_forbidden` errors | Strip unrecognized parameters from client LLM tool invocation payload before dispatch. |
+| **Video Playback Codec Incompatibility** | Target embedded browser or client cannot decode H.265 profile | Run `ffprobe -v error -show_entries stream=codec_name video.mp4` | Re-encode artifact with local ffmpeg service using `-c:v libx264 -pix_fmt yuv420p`. |
+| **MinIO S3 Artifact Upload Failure** | S3 bucket permissions or network timeout during worker asset sync | Inspect `hailuo-queue-worker` container logs: `docker logs hailuo-queue-worker` | Verify MinIO service health and credentials, ensure `hailuo-renders` bucket is created. |
+| **SSL Handshake Failure on Webhook** | Expired TLS certificate or self-signed cert rejected by MiniMax webhook router | Verify endpoint certificate with `curl -Iv https://agent.example.com/hailuo/webhook` | Deploy valid Let's Encrypt certificate and ensure TLSv1.3 ciphers are active. |
 
 ## Related tools / concepts
 - [MiniMax](minimax.md) — Multi-modal foundation model provider ecosystem.
