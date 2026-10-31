@@ -270,6 +270,107 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
+### Production Host Daemon Unit (`reclaim-sync.service`)
+
+In dedicated orchestration environments or home-office automation servers, maintaining persistent calendar event sync and webhook event listening through systemd ensures high reliability:
+
+```ini
+[Unit]
+Description=Reclaim.ai Smart Calendar Sync Daemon
+Documentation=https://api.app.reclaim.ai/api/docs
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=reclaim
+Group=reclaim
+WorkingDirectory=/opt/reclaim-sync
+Environment="RECLAIM_ENV=production"
+Environment="RECLAIM_API_BASE=https://api.app.reclaim.ai/api"
+EnvironmentFile=/etc/reclaim/sync-daemon.env
+ExecStart=/opt/reclaim-sync/bin/python3 -m reclaim_sync.daemon --interval 60 --enable-fastmcp
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reclaim-sync
+
+# Security sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/reclaim /var/run/reclaim /tmp
+PrivateTmp=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Orchestration (`docker-compose.yml`)
+
+The following Compose specification deploys a local Reclaim API caching relay and FastMCP 3.1 gateway backed by a Redis session store:
+
+```yaml
+version: '3.8'
+
+services:
+  reclaim-gateway:
+    image: reclaim/fastmcp-relay:v3.1.0
+    container_name: reclaim-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8095:8095"
+    environment:
+      - RECLAIM_API_KEY=${RECLAIM_API_KEY}
+      - REDIS_URL=redis://:reclaimsecret@reclaim-cache:6379/0
+      - FASTMCP_SERVER_PORT=8095
+      - SYNC_INTERVAL_SECONDS=60
+    depends_on:
+      reclaim-cache:
+        condition: service_healthy
+    networks:
+      - reclaim-network
+    resources:
+      limits:
+        cpus: '0.5'
+        memory: 512M
+
+  reclaim-cache:
+    image: redis:7.2-alpine
+    container_name: reclaim-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass reclaimsecret
+    volumes:
+      - reclaim-redis-data:/data
+    networks:
+      - reclaim-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "reclaimsecret", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  reclaim-network:
+    driver: bridge
+
+volumes:
+  reclaim-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The following operational diagnostic matrix addresses common failure modes, diagnostic inspection commands, and remediation steps:
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **OAuth 401 Unauthorized** | Expired API token or invalidated Google Workspace / Outlook permissions. | `curl -H "Authorization: Bearer $RECLAIM_API_KEY" https://api.app.reclaim.ai/api/users/current` | Re-authenticate in Reclaim settings or update token in `/etc/reclaim/sync-daemon.env`. |
+| **Schedule Conflict Storm** | Over-constrained calendar tasks causing continuous recalculation thrashing. | `reclaim-cli diagnose-conflicts --account primary` | Demote lower-priority tasks to `P3`/`P4` or widen flexible time windows in task definitions. |
+| **Cross-Calendar Sync Drift** | Multi-account sync delayed due to external rate-limiting on Microsoft Graph / Google Calendar. | `redis-cli -a $SECRET get reclaim:sync:last_drift_check` | Trigger manual force-resync via `python3 -m reclaim_sync.cli --force-push`. |
+| **FastMCP Schema Violation (`ValidationError`)** | Orchestrator transmitted extra forbidden attributes. | `journalctl -u reclaim-sync.service -n 50 \| grep ValidationError` | Ensure incoming agent requests strictly match `ReclaimTaskInputSchema` with `extra="forbid"`. |
+
 ## Enterprise Operational & Multi-Account Privacy Best Practices
 
 ### 1. Multi-Calendar Privacy Defense Architecture

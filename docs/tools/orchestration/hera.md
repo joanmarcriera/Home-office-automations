@@ -255,6 +255,123 @@ if __name__ == "__main__":
     test_hera_validation()
 ```
 
+### Production Host Daemon Unit (`hera-workflow-engine.service`)
+
+In dedicated orchestration environments or edge automation nodes, managing the Hera workflow submission listener via systemd guarantees uninterrupted processing of DAG pipelines:
+
+```ini
+[Unit]
+Description=Hera Argo Workflow Dispatcher Daemon
+Documentation=https://hera.readthedocs.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hera
+Group=hera
+WorkingDirectory=/opt/hera-orchestrator
+Environment="PYTHONUNBUFFERED=1"
+Environment="ARGO_SERVER=argo.internal.cluster:2746"
+Environment="ARGO_NAMESPACE=argo-jobs"
+EnvironmentFile=/etc/hera/orchestrator.env
+ExecStart=/opt/hera-orchestrator/bin/python3 -m hera_daemon.server --fastmcp-port 8094
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hera-engine
+
+# Hardening boundaries
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/hera /tmp/hera-runs
+PrivateTmp=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Containerized Orchestration (`docker-compose.yml`)
+
+The following Compose specification deploys a self-contained local Argo Workflows development environment, including MinIO artifact storage, PostgreSQL database metastore, and Hera FastMCP execution proxy:
+
+```yaml
+version: '3.8'
+
+services:
+  hera-mcp-gateway:
+    image: ghcr.io/argoproj-labs/hera-mcp:v5.16.0
+    container_name: hera-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8094:8094"
+    environment:
+      - ARGO_SERVER=argo-server:2746
+      - ARGO_SECURE=false
+      - ARGO_NAMESPACE=argo-workflows
+      - FASTMCP_SERVER_PORT=8094
+      - REDIS_URL=redis://:herasecret@hera-cache:6379/0
+    depends_on:
+      argo-server:
+        condition: service_started
+      hera-cache:
+        condition: service_healthy
+    networks:
+      - hera-network
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 1024M
+
+  argo-server:
+    image: quay.io/argoproj/argocli:v3.5.5
+    container_name: argo-server
+    restart: unless-stopped
+    command: server --auth-mode=server
+    ports:
+      - "2746:2746"
+    environment:
+      - ARGO_NAMESPACE=argo-workflows
+    networks:
+      - hera-network
+
+  hera-cache:
+    image: redis:7.2-alpine
+    container_name: hera-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass herasecret
+    volumes:
+      - hera-redis-data:/data
+    networks:
+      - hera-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "herasecret", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hera-network:
+    driver: bridge
+
+volumes:
+  hera-redis-data:
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+The following operational diagnostic guide addresses common pipeline failures when synthesizing and submitting workflows via the Hera SDK:
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| **Argo 401 Unauthorized (JWT Rejection)** | Expired or malformed Kubernetes ServiceAccount token. | `curl -k -H "Authorization: Bearer $ARGO_TOKEN" https://$ARGO_SERVER/api/v1/version` | Regenerate ServiceAccount token using `kubectl create token argo-workflow-actor -n argo-workflows`. |
+| **DAG Cycle Detected / Graph Deadlock** | Cyclical dependency created between tasks in `depends_on` definition. | `python3 -m hera.validation --file pipeline.py` | Verify topological sorting of tasks; ensure no task references a downstream node as upstream dependency. |
+| **Pod Eviction / Node Pressure** | Ephemeral container requested insufficient memory or cluster node OOM. | `kubectl describe pod -l workflows.argoproj.io/workflow=<NAME>` | Increase resource requests in `HeraTaskDefinitionSchema` or adjust cluster limits in `k3s.yaml`. |
+| **FastMCP Schema Violation (`ValidationError`)** | Orchestrator transmitted forbidden extra attributes. | `journalctl -u hera-workflow-engine.service -n 50 \| grep ValidationError` | Ensure incoming payload adheres strictly to `WorkflowSubmitRequestSchema` with `extra="forbid"`. |
+
 ## Related tools / concepts
 - [Argo Workflows](argo-workflows.md) — The underlying Kubernetes-native workflow execution engine.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standardized tool connection bus interfacing agents with Hera SDK.

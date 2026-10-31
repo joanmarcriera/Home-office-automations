@@ -252,20 +252,148 @@ if __name__ == "__main__":
     print(validated.model_dump_json(indent=2))
 ```
 
-## Diagnostic & Troubleshooting Guide
+### Production Host Daemon Unit (`tgi-inference.service`)
 
+In enterprise bare-metal or GPU-accelerated virtual instances, managing TGI through systemd ensures automated crash recovery, hardware affinity binding, and environment sandboxing:
+
+```ini
+[Unit]
+Description=Text Generation Inference (TGI) GPU Daemon
+Documentation=https://huggingface.co/docs/text-generation-inference
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tgi-runner
+Group=tgi-runner
+WorkingDirectory=/opt/tgi-inference
+Environment="HF_HOME=/data/models/huggingface"
+Environment="CUDA_VISIBLE_DEVICES=0,1,2,3"
+Environment="NCCL_DEBUG=INFO"
+EnvironmentFile=/etc/tgi/inference.env
+ExecStart=/usr/local/bin/text-generation-launcher \
+    --model-id meta-llama/Llama-3.3-70B-Instruct \
+    --num-shard 4 \
+    --quantize fp8 \
+    --port 8080 \
+    --max-input-tokens 4096 \
+    --max-total-tokens 8192 \
+    --max-batch-prefill-tokens 8192
+Restart=always
+RestartSec=10s
+LimitNOFILE=1048576
+LimitMEMLOCK=infinity
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tgi-daemon
+
+# Process isolation and memory constraints
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/data/models /var/log/tgi /tmp
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
-+----------------------------------------------------------------------------------------------------+
-|                             TGI SERVING TROUBLESHOOTING MATRIX                                     |
-+-----------------------+----------------------------------+-----------------------------------------+
-| Failure Mode          | Root Cause                       | Remediation Procedure                   |
-+-----------------------+----------------------------------+-----------------------------------------+
-| CUDA OOM Exception    | KV-cache or model VRAM overflow  | Enable fp8 quantization or add shards   |
-| NCCL Timeout Error    | Multi-GPU sharded communication  | Set `--shm-size 1g` in Docker run       |
-| HTTP 422 Unprocessable| Request prompt exceeds max length| Adjust `--max-input-tokens` parameter   |
-| Slow First Token Time | Warmup kernel compilation lag    | Pre-warm container during container boot|
-+-----------------------+----------------------------------+-----------------------------------------+
+
+### Production Multi-Container Orchestration (`docker-compose.yml`)
+
+The following Compose architecture deploys TGI with NVIDIA GPU acceleration, Redis KV-cache/rate-limiting buffer, and an integrated FastMCP 3.1 proxy gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  tgi-engine:
+    image: ghcr.io/huggingface/text-generation-inference:2.4.0
+    container_name: tgi-engine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MODEL_ID=meta-llama/Llama-3.3-70B-Instruct
+      - NUM_SHARD=4
+      - QUANTIZE=fp8
+      - MAX_INPUT_TOKENS=4096
+      - MAX_TOTAL_TOKENS=8192
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - PORT=8080
+    volumes:
+      - /data/huggingface-cache:/data
+      - /dev/shm:/dev/shm
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - tgi-network
+
+  tgi-mcp-gateway:
+    image: tgi/fastmcp-proxy:v3.1.0
+    container_name: tgi-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8085:8085"
+    environment:
+      - TGI_ENDPOINT=http://tgi-engine:8080
+      - REDIS_CACHE_URL=redis://:tgipassword@tgi-cache:6379/0
+      - FASTMCP_SERVER_PORT=8085
+    depends_on:
+      tgi-engine:
+        condition: service_healthy
+      tgi-cache:
+        condition: service_healthy
+    networks:
+      - tgi-network
+    resources:
+      limits:
+        cpus: '2.0'
+        memory: 2048M
+
+  tgi-cache:
+    image: redis:7.2-alpine
+    container_name: tgi-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass tgipassword
+    volumes:
+      - tgi-redis-data:/data
+    networks:
+      - tgi-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "tgipassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  tgi-network:
+    driver: bridge
+
+volumes:
+  tgi-redis-data:
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+The following reference guide details common runtime failure modes, diagnostic commands, and recovery procedures:
+
+| Symptom / Failure Mode | Root Cause | Verification Command | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| **CUDA OOM During Prefill (Out of Memory)** | KV-cache allocation or sequence length exceeds GPU VRAM. | `nvidia-smi --query-gpu=memory.used,memory.total --format=csv` | Enable `--quantize fp8` or `--quantize bitsandbytes-nf4`, or reduce `--max-batch-prefill-tokens`. |
+| **NCCL Timeout / GPU Communication Hang** | Inter-GPU interconnect failure or missing shared memory limits. | `journalctl -u tgi-inference.service \| grep -i "NCCL WARN"` | Verify Docker container has `--shm-size 2g` or host IPC set to `--ipc=host`. |
+| **HTTP 422 Unprocessable Entity** | Prompt token count exceeds the configured `--max-input-tokens`. | `curl -s http://localhost:8080/info \| jq .max_input_tokens` | Truncate agent context window or increase `--max-input-tokens` in `/etc/tgi/inference.env`. |
+| **Warmup Kernel Compilation Delay** | Initial FlashAttention-3 or PagedAttention compilation upon cold start. | `docker logs tgi-engine \| grep -i "warmup"` | Allow initial 60–120s warmup cycle before routing production agent requests. |
+| **FastMCP Schema Rejection (`ValidationError`)** | Agent harness submitted extra attributes forbidden by strict schema. | `journalctl -u tgi-mcp-gateway \| grep ValidationError` | Ensure agent payload adheres strictly to `TGIInferenceRequest` with `extra="forbid"`. |
 
 ## Operational Guardrails & Safety Protocols
 

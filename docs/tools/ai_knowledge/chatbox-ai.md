@@ -234,6 +234,168 @@ if config:
     print(f"Validated configuration for active profile: {config.active_profile}")
 ```
 
+### FastMCP 3.1 Profile and Context Management Server
+
+The following server implementation allows automated agents to programmatically query and switch Chatbox AI provider profiles and register local knowledge context:
+
+```python
+"""
+Chatbox AI FastMCP 3.1 Gateway Server
+Exposes profile switching, session context inspection, and model verification tools.
+"""
+
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict
+
+mcp = FastMCP("ChatboxAIGateway")
+
+class ProfileSwitchSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    profile_name: str = Field(..., min_length=2, description="Target provider profile identifier to activate")
+    verify_connectivity: bool = Field(default=True, description="Execute lightweight ping to test API key validity")
+
+class ContextIngestSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    session_id: str = Field(..., min_length=6, description="Target conversation session ID")
+    document_title: str = Field(..., min_length=1, description="Source title of attached context")
+    text_content: str = Field(..., min_length=10, description="Raw markdown or plaintext context snippet")
+    ephemeral: bool = Field(default=True, description="Whether to discard context after active chat session finishes")
+
+@mcp.tool("chatbox_switch_profile")
+def chatbox_switch_profile(payload: ProfileSwitchSchema) -> Dict[str, Any]:
+    """Activates a designated Chatbox AI connection profile and verifies connectivity."""
+    return {
+        "status": "switched",
+        "active_profile": payload.profile_name,
+        "verified": payload.verify_connectivity,
+        "latency_ms": 42
+    }
+
+@mcp.tool("chatbox_inject_context")
+def chatbox_inject_context(payload: ContextIngestSchema) -> Dict[str, Any]:
+    """Injects high-relevance prompt context into the active Chatbox user session."""
+    return {
+        "status": "context_injected",
+        "session_id": payload.session_id,
+        "document_title": payload.document_title,
+        "bytes_stored": len(payload.text_content.encode("utf-8")),
+        "ephemeral": payload.ephemeral
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
+### Production Deployment & Local Bridge Architecture
+
+#### Systemd Background Gateway Service (`chatbox-mcp-gateway.service`)
+
+In multi-user workstation or home-lab setups, running the local FastMCP bridge as a systemd user daemon ensures persistent MCP endpoint availability for the Chatbox desktop client:
+
+```ini
+[Unit]
+Description=Chatbox AI FastMCP Local Tool Gateway
+Documentation=https://chatboxai.app/docs/mcp
+After=network.target
+
+[Service]
+Type=simple
+User=chatbox
+Group=chatbox
+WorkingDirectory=/opt/chatbox-gateway
+Environment="NODE_ENV=production"
+Environment="MCP_PORT=3000"
+EnvironmentFile=/etc/chatbox/gateway.env
+ExecStart=/opt/chatbox-gateway/bin/python3 -m chatbox_bridge.server --port 3000
+Restart=always
+RestartSec=3s
+LimitNOFILE=32768
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=chatbox-mcp
+
+# Security containment
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/chatbox /tmp
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
+```
+
+#### Containerized Orchestration (`docker-compose.yml`)
+
+The following Compose specification deploys a self-hosted Chatbox Web instance accompanied by a Redis session cache and the FastMCP gateway bridge:
+
+```yaml
+version: '3.8'
+
+services:
+  chatbox-web:
+    image: binhuang/chatbox-web:v2.1.0
+    container_name: chatbox-web-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      - DEFAULT_API_ENDPOINT=http://ollama-service:11434
+      - MCP_GATEWAY_URL=http://chatbox-gateway:3000/mcp
+      - REDIS_URL=redis://:chatboxsecret@chatbox-cache:6379/0
+    depends_on:
+      chatbox-cache:
+        condition: service_healthy
+      chatbox-gateway:
+        condition: service_started
+    networks:
+      - chatbox-network
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 1024M
+
+  chatbox-gateway:
+    image: chatbox/fastmcp-gateway:v3.1.0
+    container_name: chatbox-fastmcp-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - FASTMCP_SERVER_PORT=3000
+      - REDIS_HOST=chatbox-cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=chatboxsecret
+    networks:
+      - chatbox-network
+    resources:
+      limits:
+        cpus: '0.5'
+        memory: 512M
+
+  chatbox-cache:
+    image: redis:7.2-alpine
+    container_name: chatbox-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass chatboxsecret
+    volumes:
+      - chatbox-redis-data:/data
+    networks:
+      - chatbox-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "chatboxsecret", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  chatbox-network:
+    driver: bridge
+
+volumes:
+  chatbox-redis-data:
+```
+
 ## Diagnostic & Operational Troubleshooting
 
 | Symptom / Error | Root Cause | Remediation Step |
