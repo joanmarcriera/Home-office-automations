@@ -46,18 +46,22 @@ sequenceDiagram
 - **Pydantic v2 Deep Inspection**: Inspect individual model fields, schema validation rules, default value overrides, and serialization timings.
 - **OpenTelemetry Standard Compliance**: Export data seamlessly via standard OTLP over HTTP/Protobuf or gRPC to any OTLP-compliant collector.
 - **FastMCP 3.1 Protocol Tracing**: Instrument Model Context Protocol servers to log client session handshakes, tool registrations, and resource requests.
+- **Adaptive Sampling & Tail Latency Rules**: Filter high-volume healthcheck pings while guaranteeing 100% retention on span error traces and slow LLM generations.
+- **Integrated Sensitive Data Masking**: Native regex and Pydantic field-level redaction rules to prevent API keys and PII from leaving runtime boundaries.
 
 ## Typical use cases
 - **Multi-Agent Execution Tracing**: Visualizing agent tool calling cascades, memory retrieval spans, and prompt token usage in real time.
 - **API Schema Debugging**: Identifying real-time field validation errors and bad payload requests in FastAPI microservices.
 - **Database Query Performance Auditing**: Tracking SQL query latency, parameter binding, and connection pool starvation across SQLAlchemy or AsyncPG sessions.
 - **Production LLM Cost Tracking**: Aggregating input/output token counts and API costs across Anthropic, OpenAI, and local vLLM model routes.
+- **Cross-Service Trace Propagation**: Correlating incoming user HTTP web requests down to sub-agent FastMCP function calls using W3C trace context headers.
 
 ## Strengths
 - **Native Pydantic v2 Integration**: Captures rich validation telemetry without custom wrapper functions.
 - **Zero-Boilerplate Setup**: Auto-configures standard library loggers (`logging`, `structlog`, `loguru`) to emit structured trace spans.
 - **OpenTelemetry Native**: Guarantees zero vendor lock-in through standardized OTLP protocol formats.
 - **Interactive Tree Visualization**: High-density UI designed specifically for software engineers and ML engineers.
+- **Local Dev Console**: Provides zero-cloud local web dashboard for fast offline agent debugging.
 
 ## Limitations
 - **Python Ecosystem Primacy**: Full auto-instrumentation capabilities are tailored primarily for Python runtimes.
@@ -97,6 +101,111 @@ LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+For organizations hosting an on-premise OpenTelemetry collection infrastructure with ClickHouse storage and local Logfire OTLP ingestion:
+
+```yaml
+version: "3.8"
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.105.0
+    container_name: logfire-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Collector internal metrics
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - telemetry-net
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: logfire-clickhouse-db
+    restart: unless-stopped
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native protocol
+    environment:
+      - CLICKHOUSE_DB=logfire_telemetry
+      - CLICKHOUSE_USER=logfire_admin
+      - CLICKHOUSE_PASSWORD=SecureClickhousePass2027!
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - telemetry-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: logfire-span-cache
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "512mb", "--maxmemory-policy", "volatile-lru"]
+    ports:
+      - "6379:6379"
+    networks:
+      - telemetry-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  telemetry-net:
+    driver: bridge
+
+volumes:
+  clickhouse_data:
+```
+
+## OpenTelemetry Collector Configuration (`otel-config.yaml`)
+Connecting self-hosted multi-agent runtimes to ClickHouse storage and secondary OTLP sinks:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 10000
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+
+exporters:
+  clickhouse:
+    endpoint: tcp://clickhouse:9000?database=logfire_telemetry&username=logfire_admin&password=SecureClickhousePass2027!
+    ttl: 720h
+    compress: lz4
+  logging:
+    loglevel: warn
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse, logging]
 ```
 
 ## Configuration & Feature Summary
@@ -167,7 +276,7 @@ The following example demonstrates instrumenting a FastAPI application with Pyda
 ```python
 import logfire
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import List, Optional
 
 # Initialize Logfire
@@ -178,12 +287,16 @@ logfire.instrument_fastapi(app)
 logfire.instrument_pydantic()
 
 class TaskSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="Unique alphanumeric identifier")
     description: str = Field(..., min_length=5, max_length=500)
     priority: int = Field(default=1, ge=1, le=5)
     assignee_email: EmailStr
 
 class WorkflowResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str
     status: str
     processed_steps: int
@@ -217,13 +330,13 @@ if __name__ == "__main__":
 ```
 
 ### 2. FastMCP 3.1 Multi-Agent Tool Tracing & Pydantic AI Integration
-This pattern illustrates tracing FastMCP 3.1 agent tool invocations, structured output schemas, and custom OTLP span metrics:
+This pattern illustrates tracing FastMCP 3.1 agent tool invocations, structured output schemas, and custom OTLP span metrics with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import asyncio
 import logfire
-from pydantic import BaseModel, Field
-from typing import Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, Any, List
 from mcp.server.fastmcp import FastMCP
 
 mcp_server = FastMCP("LogfireFastMCPTracingServer")
@@ -235,14 +348,20 @@ logfire.configure(
 )
 
 class MCPToolParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(..., description="Search query string")
     max_results: int = Field(default=5, ge=1, le=20)
     filters: Dict[str, str] = Field(default_factory=dict)
+    include_metadata: bool = Field(default=True)
 
 class MCPToolResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str
     matches_found: int
-    data: list
+    data: List[str]
+    latency_ms: float
 
 @mcp_server.tool()
 async def execute_kb_vector_search(raw_params_json: str) -> str:
@@ -256,13 +375,16 @@ async def execute_kb_vector_search(raw_params_json: str) -> str:
         logfire.info("Executing FastMCP 3.1 tool with query: {query}", query=params.query)
 
         # Simulate external vector DB query
+        start_ts = asyncio.get_event_loop().time()
         await asyncio.sleep(0.05)
         results = ["doc_101", "doc_202", "doc_303"][:params.max_results]
+        elapsed = (asyncio.get_event_loop().time() - start_ts) * 1000
 
         response = MCPToolResponse(
             query=params.query,
             matches_found=len(results),
-            data=results
+            data=results,
+            latency_ms=round(elapsed, 2)
         )
         logfire.info("FastMCP tool completed successfully. Matches: {count}", count=response.matches_found)
         return response.model_dump_json(indent=2)
@@ -279,6 +401,8 @@ if __name__ == "__main__":
 | **High Memory / Overhead in Async Loop** | Unbatched span processing overloading asyncio event loop | Check OTLP exporter batch queue settings in `logfire.configure()` | Enable background batching processors (`send_to_logfire=True`) or adjust sampling rate for high-frequency logs. |
 | **Pydantic Validation Spans Truncated** | Record mode set to `minimal` or `summary` instead of `all` | Check `logfire.configure(pydantic_plugin=...)` setup | Set `pydantic_plugin=logfire.PydanticPlugin(record='all')` to capture full model payload attributes. |
 | **Duplicate Spans in Multi-Process Workers** | Forked Gunicorn/Uvicorn processes sharing single Logfire client instance | Check tracer provider initialization in worker process logs | Call `logfire.configure()` inside post-fork worker hooks (`post_fork` in Gunicorn config) rather than root module. |
+| **OTLP gRPC Backpressure & Dropped Spans** | Collector buffer queue overflow under high LLM token streaming load | Inspect collector metrics at `:8888/metrics` for `otelcol_exporter_enqueue_failed_spans` | Scale OTLP collector replicas, increase `queue_size` in batch processor, or configure local Redis buffering. |
+| **ClickHouse Ingestion Saturation** | Micro-batch inserts creating excessive tiny parts in ClickHouse merge tree | Query `SELECT count() FROM system.parts WHERE active` | Configure OTLP collector ClickHouse exporter with `timeout: 5s` and `send_batch_size: 10000` to buffer block inserts. |
 
 ## Related tools / concepts
 - [Datadog](datadog.md) — Enterprise APM and log management platform.

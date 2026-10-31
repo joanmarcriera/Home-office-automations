@@ -71,6 +71,105 @@ It operates at the testing and validation layer of the KnowledgeOps ecosystem, s
 - For basic non-generative ML classification or traditional statistical evaluation (use scikit-learn metrics instead).
 - When real-time sub-millisecond production request monitoring is required without offline evaluation suites (use dedicated APM tools like [Sentry](../process_understanding/sentry.md) or [Comet Opik](../process_understanding/comet-opik.md)).
 
+## Systemd Service Configuration
+For continuous background evaluation runners or automated nightly regression testing nodes on Linux CI servers:
+
+```ini
+[Unit]
+Description=DeepEval Continuous Agent Benchmark Runner
+After=network.target
+
+[Service]
+Type=simple
+User=deepeval
+Group=deepeval
+WorkingDirectory=/opt/deepeval-runner
+Environment="PATH=/opt/deepeval-runner/venv/bin:/usr/local/bin:/usr/bin"
+Environment="OPENAI_BASE_URL=http://127.0.0.1:8000/v1"
+Environment="CONFIDENT_AI_API_KEY=cai_live_sec_benchmark2027"
+Environment="DEEPEVAL_TELEMETRY_OPT_OUT=YES"
+ExecStart=/opt/deepeval-runner/venv/bin/deepeval test run /opt/deepeval-runner/tests --confidence-threshold 0.85
+Restart=on-failure
+RestartSec=15s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+Deploying a self-hosted evaluation harness with DeepEval runner, local judge LLM inference proxy, and Redis evaluation cache:
+
+```yaml
+version: "3.8"
+
+services:
+  deepeval-runner:
+    image: python:3.11-slim
+    container_name: deepeval-test-harness
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./tests:/app/tests
+      - ./reports:/app/reports
+    environment:
+      - OPENAI_BASE_URL=http://judge-llm-proxy:8000/v1
+      - REDIS_URL=redis://redis-eval:6379/0
+      - DEEPEVAL_RESULTS_FOLDER=/app/reports
+    command: >
+      sh -c "pip install deepeval pydantic pytest redis &&
+             deepeval test run /app/tests"
+    depends_on:
+      judge-llm-proxy:
+        condition: service_healthy
+      redis-eval:
+        condition: service_healthy
+    networks:
+      - eval-net
+
+  judge-llm-proxy:
+    image: vllm/vllm-openai:latest
+    container_name: deepeval-judge-proxy
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    command: >
+      --model Qwen/Qwen2.5-7B-Instruct
+      --port 8000
+      --max-model-len 8192
+    networks:
+      - eval-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/models"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  redis-eval:
+    image: redis:7-alpine
+    container_name: deepeval-redis-cache
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_eval_data:/data
+    networks:
+      - eval-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  eval-net:
+    driver: bridge
+
+volumes:
+  redis_eval_data:
+```
+
 ## Getting started
 
 ### Installation
@@ -138,23 +237,27 @@ def test_rag_faithfulness():
     assert_test(test_case, [hallucination_metric, relevancy_metric])
 ```
 
-### 2. Programmatic Metric Scoring and Structured Output Validation with Pydantic v2
-This example demonstrates programmatically evaluating LLM output quality and validating the evaluation metrics structure using **Pydantic v2** prior to storing test telemetry.
+### 2. Programmatic Metric Scoring and Structured Output Validation with Strict Pydantic v2
+This example demonstrates programmatically evaluating LLM output quality and validating the evaluation metrics structure using **Pydantic v2** (`extra="forbid"`) prior to storing test telemetry.
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 # Define structured Pydantic v2 models for test metric auditing
 class MetricEvaluationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     metric_name: str = Field(..., description="Name of the evaluation metric")
     score: float = Field(..., ge=0.0, le=1.0, description="Evaluation score between 0.0 and 1.0")
     passed: bool = Field(..., description="Whether the test passed threshold")
     reason: str = Field(..., description="Detailed explanation from the judge model")
 
 class TestSuiteAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     test_case_id: str
     input_prompt: str
     actual_output: str
@@ -208,11 +311,11 @@ if __name__ == "__main__":
 ```
 
 ### 3. FastMCP 3.1 Evaluation Tool Server Implementation
-The following Python module exposes a FastMCP 3.1 server enabling autonomous agents to execute DeepEval assessments over MCP connections:
+The following Python module exposes a FastMCP 3.1 server enabling autonomous agents to execute DeepEval assessments over MCP connections with strict Pydantic v2 validation (`extra="forbid"`):
 
 ```python
 import json
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 from deepeval.metrics import HallucinationMetric, AnswerRelevancyMetric
 from deepeval.test_case import LLMTestCase
@@ -220,9 +323,13 @@ from deepeval.test_case import LLMTestCase
 mcp = FastMCP("DeepEvalMCPServer", version="3.1")
 
 class FastMCPTestCase(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     input_text: str = Field(..., description="User query or prompt")
     generated_output: str = Field(..., description="Model generated response")
     contexts: list[str] = Field(default_factory=list, description="Retrieved context documents")
+    relevancy_threshold: float = Field(default=0.8, ge=0.0, le=1.0)
+    hallucination_threshold: float = Field(default=0.2, ge=0.0, le=1.0)
 
 @mcp.tool(name="evaluate_llm_response", description="Evaluates LLM response for hallucination and relevancy via FastMCP 3.1.")
 def evaluate_llm_response(payload_json: str) -> str:
@@ -236,7 +343,7 @@ def evaluate_llm_response(payload_json: str) -> str:
             retrieved_context=tc.contexts if tc.contexts else None
         )
 
-        relevancy_metric = AnswerRelevancyMetric(threshold=0.8)
+        relevancy_metric = AnswerRelevancyMetric(threshold=tc.relevancy_threshold)
         relevancy_metric.measure(test_case)
 
         res = {
@@ -246,7 +353,7 @@ def evaluate_llm_response(payload_json: str) -> str:
         }
 
         if tc.contexts:
-            hallucination_metric = HallucinationMetric(threshold=0.2)
+            hallucination_metric = HallucinationMetric(threshold=tc.hallucination_threshold)
             hallucination_metric.measure(test_case)
             res["hallucination_score"] = hallucination_metric.score
             res["hallucination_passed"] = hallucination_metric.is_successful()
@@ -264,10 +371,16 @@ if __name__ == "__main__":
 - **Judge Model Selection**: Utilize cost-effective frontier models (such as GPT-5.5 or Claude 5.1) for CI evaluation suites, reserving top-tier models (GPT-5.6 / Claude 5.6) for core release gates.
 - **Caching & Rate Limiting**: Enable response caching for identical prompt-context pairs during regression test runs to save evaluation API budget.
 
-## Troubleshooting & Edge Cases
-- **Metric Flakiness**: If LLM-as-a-judge metrics show variance across identical runs, set temperature to `0.0` or increase evaluation trial sample counts.
-- **Context Length Exceeded**: Split lengthy retrieved vector context blocks before building `LLMTestCase` instances to prevent judge context overflow errors.
-- **Pytest Discovery Issues**: Ensure test files begin with `test_` and use `deepeval test run` rather than plain `pytest` to ensure report telemetry generation.
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Probable Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Judge Model Timeout / 504 Gateway Error** | Heavy concurrent evaluation requests exceeding local judge proxy limits | Test proxy responsiveness: `curl http://localhost:8000/v1/models` | Reduce Pytest worker concurrency (`pytest -n 2`) or increase inference server timeout to 60s. |
+| **Metric Flakiness Across Runs** | Temperature > 0 on evaluation judge model causing non-deterministic reasoning | Check judge model initialization parameters | Enforce `temperature=0.0` across all G-Eval and LLM-as-a-judge metric instances. |
+| **Context Length Overflow on RAG Eval** | Retrieved document chunks exceed context window limit of judge model | Inspect error logs for `context_length_exceeded` | Truncate or summarize retrieved context chunks prior to building `LLMTestCase` instances. |
+| **Pytest Discovery Failure** | Test functions or files not conforming to standard naming conventions | Run discovery check: `pytest --collect-only` | Ensure test filenames start with `test_` and assertions call `assert_test()`. |
+| **FastMCP Schema Rejection** | MCP client sending extra unmapped parameters rejected by `extra="forbid"` | Inspect FastMCP bridge server stderr for `pydantic_core.ValidationError` | Align client request payload strictly with `FastMCPTestCase` schema fields. |
+| **Confident AI Cloud Push Rejection** | Expired or revoked `CONFIDENT_AI_API_KEY` token | Test login: `deepeval login --api-key $CONFIDENT_AI_API_KEY` | Reissue workspace token from Confident AI settings portal and update CI secrets. |
 
 ## Related tools / concepts
 - [Giskard](giskard.md) — Comprehensive adversarial vulnerability scanning and LLM red-teaming framework.
