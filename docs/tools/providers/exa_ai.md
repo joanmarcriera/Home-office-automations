@@ -1,7 +1,7 @@
 # Exa AI
 
 ## What it is
-Exa AI is a neural search engine engineered specifically for large language models (LLMs) and autonomous AI agents. Unlike keyword-matching or SEO-biased traditional search platforms, Exa uses transformer-based embedding models to perform semantic searches, finding high-signal web content and delivering it in structured, LLM-clean formats.
+Exa AI is a neural search engine engineered specifically for large language models (LLMs) and autonomous AI agents. Unlike keyword-matching or SEO-biased traditional search platforms, Exa uses transformer-based embedding models to perform semantic searches, finding high-signal web content and delivering it in structured, LLM-clean formats. Operating with native **FastMCP 3.1 Task Protocol** support, Exa empowers frontier agents (Claude 5.6, GPT-5.6, Gemma 4, DeepSeek-V4) to query the live web, extract markdown contents, and ground reasoning without token bloating or HTML scraping failures.
 
 ## System & Retrieval Architecture
 
@@ -53,14 +53,136 @@ Exa AI is a neural search engine engineered specifically for large language mode
 ## What problem it solves
 Standard search engines optimize results for human browsers, often cluttering responses with sponsored ads, heavy javascript elements, and SEO-bloated pages. These structures consume massive token volume and introduce irrelevant noise into agent pipelines. Exa solves this by retrieving clean, pre-parsed markdown directly from the web, drastically decreasing latency, parsing errors, and input token overhead for agent reasoning loops.
 
+By providing category filters (`company`, `research paper`, `news`, `personal site`) and subpage crawling options, Exa transforms unstructured web data into deterministic, type-safe JSON objects validated against strict Pydantic v2 schemas before reaching agent contexts.
+
 ## Where it fits in the stack
 **Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous Agent
+    participant Gateway as Exa FastMCP Gateway (Port 8092)
+    participant Cache as Redis Query Cache
+    participant Exa as Exa Neural Search API
+    participant Target as Live Web Targets
+
+    Agent->>Gateway: FastMCP Tool Call (search_live_web)
+    Gateway->>Gateway: Validate Input Schema (Strict Pydantic v2)
+    Gateway->>Cache: Check Cached Search Hashes
+    alt Cache Hit
+        Cache-->>Gateway: Return Cached Clean Markdown
+    else Cache Miss
+        Gateway->>Exa: POST https://api.exa.ai/search_and_contents
+        Exa->>Target: Ingest & Clean Web Documents
+        Target-->>Exa: Raw HTML / Text
+        Exa-->>Gateway: Sanitized Markdown & Highlight Spans
+        Gateway->>Cache: Set Key with TTL (3600s)
+    end
+    Gateway-->>Agent: Validated Pydantic Response Payload
+```
+
 ## Typical use cases
-- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 3, Qwen 3.8, DeepSeek-V4) to execute complex, multi-query research missions over the live web.
+- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.8, DeepSeek-V4) to execute complex, multi-query research missions over the live web.
 - **Dynamic Context Grounding**: Supplying real-time, high-fidelity context slices into enterprise RAG systems to keep corporate knowledge bases dynamically up to date.
 - **Automated Lead and Market Synthesis**: Aggregating structured company, academic, or product information via custom domain and timestamp filters.
 - **Factual Claims Verification**: Querying reference documents and extracting clean source texts to cross-examine and ground agent-generated responses.
+- **Autonomous Tool-Driven Fact-Checking**: Allowing FastMCP 3.1 workflows to verify breaking changes or technical documentation releases dynamically.
+
+## Systemd Service Unit Configuration
+
+### Production Exa FastMCP Gateway Service (`/etc/systemd/system/exa-mcp-gateway.service`)
+```ini
+[Unit]
+Description=Exa AI FastMCP 3.1 Web Intelligence Gateway
+After=network-online.target redis.service
+Wants=network-online.target redis.service
+
+[Service]
+Type=simple
+User=examcp
+Group=examcp
+WorkingDirectory=/opt/exa-mcp
+Environment="EXA_API_KEY=exa_prod_key_live_xxxx"
+Environment="FASTMCP_PORT=8092"
+Environment="FASTMCP_HOST=0.0.0.0"
+Environment="REDIS_CACHE_URL=redis://127.0.0.1:6379/1"
+ExecStart=/opt/exa-mcp/venv/bin/python3 /opt/exa-mcp/server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+MemoryMax=4G
+
+# Sandboxing & Security
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/exa-mcp /tmp
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and monitor the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now exa-mcp-gateway.service
+sudo systemctl status exa-mcp-gateway.service
+journalctl -u exa-mcp-gateway.service -f --output=short-iso
+```
+
+## Multi-Container Docker Compose Stack
+
+The following production-grade `docker-compose.yml` deploys the Exa FastMCP Gateway with an integrated Redis query cache and rate limiter:
+
+```yaml
+version: "3.8"
+
+services:
+  exa-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: exa-fastmcp-gateway
+    restart: always
+    ports:
+      - "8092:8092"
+    environment:
+      - EXA_API_KEY=${EXA_API_KEY}
+      - FASTMCP_PORT=8092
+      - FASTMCP_HOST=0.0.0.0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - LOG_LEVEL=info
+    depends_on:
+      - redis
+    networks:
+      - exa-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: exa-redis-cache
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - exa-net
+
+networks:
+  exa-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+```
 
 ## Strengths
 - **Clean Markdown Delivery**: Returns sanitized, readable markdown or raw text directly, bypassing the need for custom headless scrapers or proxy layers.
@@ -127,30 +249,47 @@ curl -X POST https://api.exa.ai/contents \
 
 ## API examples
 
-### FastMCP 3.1 Exa Search Server with Pydantic v2 Contracts
-The following complete Python script creates a **FastMCP 3.1** server that exposes Exa AI neural search tools to agentic clients, validating inputs and outputs with **Pydantic v2**:
+### FastMCP 3.1 Exa Search Server with Strict Pydantic v2 Contracts
+The following complete Python script creates a **FastMCP 3.1** server that exposes Exa AI neural search tools to agentic clients, validating inputs and outputs with strict **Pydantic v2** models (`extra="forbid"`):
 
 ```python
+#!/usr/bin/env python3
+"""
+Exa AI FastMCP 3.1 Neural Search Server.
+Exposes validated neural web search and content retrieval tools with extra="forbid".
+"""
+
 import os
+import logging
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, HttpUrl, ValidationError
 from fastmcp import FastMCP
 from exa_py import Exa
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("exa-fastmcp")
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP(
     name="Exa-Neural-Search-MCP",
-    instructions="FastMCP 3.1 web intelligence server utilizing Exa AI for neural semantic retrieval."
+    version="3.1.0",
+    description="FastMCP 3.1 web intelligence server utilizing Exa AI for neural semantic retrieval."
 )
 
-# Pydantic v2 Contracts
+# Strict Pydantic v2 Contracts
 class ExaSearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     query: str = Field(..., min_length=3, description="Semantic search query phrase")
-    num_results: int = Field(default=3, ge=1, le=10, description="Number of web documents to retrieve")
+    num_results: int = Field(default=3, ge=1, le=10, alias="numResults", description="Number of web documents to retrieve")
     category: Optional[str] = Field(None, description="Optional category filter (e.g. 'company', 'research paper', 'news')")
-    use_autoprompt: bool = Field(default=True, description="Enable automatic query refinement")
+    use_autoprompt: bool = Field(default=True, alias="useAutoprompt", description="Enable automatic query refinement")
+    include_domains: Optional[List[str]] = Field(None, alias="includeDomains", description="Domain whitelist filters")
 
 class WebDocumentResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     title: str = Field(..., description="Document title")
     url: str = Field(..., description="Source web URL")
     published_date: Optional[str] = Field(None, description="ISO publication date if available")
@@ -158,39 +297,41 @@ class WebDocumentResult(BaseModel):
     summary: Optional[str] = Field(None, description="Extracted content text or highlights")
 
 class ExaSearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     status: str = Field(..., description="Status string: 'success' or 'error'")
     query_processed: str = Field(..., description="Executed query string")
     documents: List[WebDocumentResult] = Field(default_factory=list, description="List of validated web document results")
     error_message: Optional[str] = Field(None, description="Error details if query failed")
 
-@mcp.tool()
-def search_live_web(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Executes neural web search via Exa AI and returns validated document summaries.
-    """
+@mcp.tool(
+    name="search_live_web",
+    description="Executes neural web search via Exa AI and returns validated document summaries with strict Pydantic v2 schemas."
+)
+def search_live_web(query_spec: ExaSearchQuery) -> Dict[str, Any]:
+    """Executes neural web search via Exa AI and returns validated document summaries."""
     api_key = os.getenv("EXA_API_KEY")
     if not api_key:
-        res = ExaSearchResponse(
+        logger.error("EXA_API_KEY environment variable is missing")
+        return ExaSearchResponse(
             status="error",
-            query_processed="N/A",
-            error_message="EXA_API_KEY environment variable is missing."
-        )
-        return res.model_dump()
+            query_processed=query_spec.query,
+            error_message="EXA_API_KEY environment variable is missing on gateway server."
+        ).model_dump()
 
     try:
-        # Validate inbound payload with Pydantic v2
-        query_data = ExaSearchQuery.model_validate(payload)
         exa = Exa(api_key=api_key)
-
-        kwargs = {
-            "num_results": query_data.num_results,
-            "use_autoprompt": query_data.use_autoprompt
+        kwargs: Dict[str, Any] = {
+            "num_results": query_spec.num_results,
+            "use_autoprompt": query_spec.use_autoprompt
         }
-        if query_data.category:
-            kwargs["category"] = query_data.category
+        if query_spec.category:
+            kwargs["category"] = query_spec.category
+        if query_spec.include_domains:
+            kwargs["include_domains"] = query_spec.include_domains
 
-        # Perform neural search
-        search_res = exa.search_and_contents(query_data.query, text=True, **kwargs)
+        logger.info("Executing Exa search for query: %s", query_spec.query)
+        search_res = exa.search_and_contents(query_spec.query, text=True, **kwargs)
 
         docs = []
         for r in getattr(search_res, "results", []):
@@ -199,30 +340,23 @@ def search_live_web(payload: Dict[str, Any]) -> Dict[str, Any]:
                 url=getattr(r, "url", ""),
                 published_date=getattr(r, "published_date", None),
                 score=float(getattr(r, "score", 0.0) or 0.0),
-                summary=getattr(r, "text", "")[:300] + "..." if getattr(r, "text", None) else None
+                summary=getattr(r, "text", "")[:400] + "..." if getattr(r, "text", None) else None
             ))
 
         response = ExaSearchResponse(
             status="success",
-            query_processed=query_data.query,
+            query_processed=query_spec.query,
             documents=docs
         )
         return response.model_dump()
 
-    except ValidationError as val_err:
-        res = ExaSearchResponse(
-            status="error",
-            query_processed=payload.get("query", "Unknown"),
-            error_message=f"Pydantic v2 Validation Error: {val_err.errors()}"
-        )
-        return res.model_dump()
     except Exception as ex:
-        res = ExaSearchResponse(
+        logger.exception("Exa search execution error")
+        return ExaSearchResponse(
             status="error",
-            query_processed=payload.get("query", "Unknown"),
+            query_processed=query_spec.query,
             error_message=f"Exa Execution Error: {str(ex)}"
-        )
-        return res.model_dump()
+        ).model_dump()
 
 if __name__ == "__main__":
     mcp.run()
@@ -237,12 +371,13 @@ if __name__ == "__main__":
 
 ## Troubleshooting Matrix
 
-| Issue / Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| **`401 Unauthorized`** | Invalid or missing `EXA_API_KEY` | Verify `export EXA_API_KEY="your-key"` is correctly set in environment. |
-| **`HTTP 429 Too Many Requests`** | API rate limit exceeded on current subscription tier | Implement exponential backoff or upgrade Exa developer plan. |
-| **`Zero Search Results Returned`** | Overly specific keyword constraints or invalid domain filter | Enable `use_autoprompt=True` or broaden query phrase syntax. |
-| **`Empty Text Payload in Contents`** | Target web page protected by paywall or anti-scraping block | Use semantic highlights fallback or query alternative domains in search results. |
+| Issue / Symptom | Root Cause | Diagnostic Inspection Command | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| **`401 Unauthorized`** | Invalid or missing `EXA_API_KEY`. | `echo $EXA_API_KEY \| cut -c1-6` | Verify `export EXA_API_KEY="your-key"` is correctly set in environment or service configuration. |
+| **`HTTP 429 Too Many Requests`** | API rate limit exceeded on current subscription tier. | `journalctl -u exa-mcp-gateway.service \| grep 429` | Implement exponential backoff, enable Redis query cache, or upgrade Exa developer plan. |
+| **`Zero Search Results Returned`** | Overly specific keyword constraints or invalid domain filter. | Test query manually with curl CLI example. | Enable `use_autoprompt=True` or broaden query phrase syntax and check domain spellings. |
+| **`Empty Text Payload in Contents`** | Target web page protected by paywall or anti-scraping block. | Inspect target URL with curl header probe. | Use semantic highlights fallback or query alternative domains in search results. |
+| **`Tool Call Rejected: extra field`** | Agent passed undeclared arguments to strict FastMCP tool. | Review client tool calling payload. | Enforce strict Pydantic v2 schemas across both agent caller and FastMCP server. |
 
 ## Related tools / concepts
 - [Tavily](tavily.md) — Semantic search tailored specifically for LLM agents.
@@ -253,8 +388,7 @@ if __name__ == "__main__":
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture powering generative web-grounded models.
 - [LangChain](../ai_knowledge/langchain.md) — LLM orchestration framework natively supporting Exa integrations.
 - [MultiOn](../agents/multion.md) — Autonomous browser control agent capable of interactive search.
-- [Docling](../process_understanding/docling.md) — High-quality document layout analyzer and parser.
-- [Docling MCP](../process_understanding/docling-mcp.md) — Model Context Protocol wrapper for parsing documents.
+- [LocalAI](../infrastructure/localai.md) — OpenAI-compatible local multi-modal inference server.
 
 ## Licensing and cost
 - **Open Source**: The SDKs and integration wrappers are open source (MIT License).
@@ -265,6 +399,7 @@ if __name__ == "__main__":
 - [Exa AI Developer Documentation](https://docs.exa.ai/)
 - [Exa Python Client GitHub Repository](https://github.com/exa-labs/exa-py)
 - [Agentic Search Best Practices](https://exa.ai/blog/agentic-search)
+- [FastMCP Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

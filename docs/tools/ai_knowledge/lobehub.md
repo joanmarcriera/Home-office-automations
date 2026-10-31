@@ -1,12 +1,12 @@
 # LobeHub
 
 ## What it is
-**LobeHub** (primarily known for its core product, **LobeChat**) is an open-source, high-performance multi-agent framework, plugin runtime, and workbench platform for the modern agentic ecosystem. It provides a unified, highly customizable web, PWA, and desktop interface for interacting with frontier models (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4/R1) while acting as a central management engine for **FastMCP 3.1** servers and **MCP 3.0 Task Protocol** integrations.
+**LobeHub** (primarily known for its flagship platform, **LobeChat**) is an open-source, high-performance multi-agent framework, plugin runtime, and engineering workbench designed for the modern agentic ecosystem. It provides a unified, highly customizable web, PWA, and desktop interface for interacting with frontier models (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, and DeepSeek-V4/R1) while acting as a centralized orchestration runtime for **FastMCP 3.1** servers and **MCP 3.0 Task Protocol** integrations.
 
 ## What problem it solves
-Managing multiple disparate AI tools, external API provider keys, local LLM endpoints ([Ollama](../../services/ollama.md), LocalAI, ExLlamaV3), self-hosted vector databases, and custom MCP tool servers leads to severe interface fragmentation. Developers and end-users are frequently forced to context-switch across disconnected web tabs, terminal CLIs, and desktop tools.
+Managing multiple disparate AI tools, external provider API credentials, self-hosted local inference endpoints ([Ollama](../../services/ollama.md), LocalAI, ExLlamaV3, vLLM), remote vector databases, and custom MCP tool servers causes severe interface fragmentation. Developers and enterprise users are frequently forced to context-switch across fragmented browser tabs, terminal CLIs, desktop applications, and disparate authentication layers.
 
-LobeHub eliminates interface fragmentation by functioning as an integrated "Agentic Workbench." It consolidates local and cloud model gateways, provides zero-trust document vector search, supports full-duplex WebRTC voice interaction, and simplifies tool orchestration through a built-in FastMCP 3.1 server manager and plugin marketplace.
+LobeHub eliminates interface fragmentation by functioning as an integrated "Agentic Workbench." It consolidates local and cloud model gateways, provides zero-trust document vector search, supports full-duplex WebRTC voice interaction, and simplifies tool orchestration through a built-in FastMCP 3.1 server manager, plugin marketplace, and role-based access control (RBAC).
 
 ## System Architecture & FastMCP Integration
 
@@ -22,8 +22,8 @@ flowchart TD
     subgraph CoreEngine ["LobeChat Application Core"]
         ORCH["Multi-Agent Orchestrator"]
         MCPM["FastMCP 3.1 / MCP 3.0 Server Manager"]
-        RAG["Knowledge Base Vector Search"]
-        SSO["OAuth2 / OIDC SSO Gateway"]
+        RAG["Knowledge Base Vector Search (Pgvector/Milvus)"]
+        SSO["OAuth2 / OIDC SSO Gateway (Logto/Keycloak)"]
     end
 
     subgraph Gateway ["Unified Model Gateway & Router"]
@@ -34,7 +34,7 @@ flowchart TD
 
     subgraph Backends ["Downstream Providers & Tools"]
         CLOUD["Cloud AI (OpenAI, Anthropic, Google, Cohere)"]
-        LOCAL["Local Inference (Ollama, ExLlamaV3, vLLM)"]
+        LOCAL["Local Inference (Ollama, LocalAI, ExLlamaV3, vLLM)"]
         TOOLS["FastMCP 3.1 Tools (Files, Search, SQL, Code Exec)"]
     end
 
@@ -81,17 +81,165 @@ LobeHub operates at the top of the homelab and enterprise AI software stack, ser
 - **Multi-Agent Engineering Teams**: Configuring specialized agents (e.g. Code Reviewer, Security Auditor, DB Optimizer) to execute collaborate repository tasks.
 - **Enterprise RAG Knowledge Gateways**: Deploying a self-hosted corporate portal with document upload, semantic vector search, and role-based access control (RBAC).
 - **Local-First AI Testing**: Benchmarking open-weights models (Llama 4, DeepSeek-R1) via Ollama before committing cloud budget to external APIs.
-- **FastMCP 3.1 Tool Server Management**: Providing a visual graphical workbench to test, debug, and execute FastMCP 3.1 tool calls.
+- **FastMCP 3.1 Tool Server Management**: Providing a visual graphical workbench to test, debug, and execute FastMCP 3.1 tool calls across sandboxed environments.
+- **Full-Duplex Voice Agents**: Running low-latency speech conversations powered by WebRTC and local text-to-speech runtimes.
+
+## Production Systemd Service Unit Configuration
+
+For bare-metal or container-free production deployments running LobeChat as a persistent systemd service, configure `/etc/systemd/system/lobechat.service`:
+
+```ini
+[Unit]
+Description=LobeChat Enterprise Multi-Agent Workbench Service
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=simple
+User=lobehub
+Group=lobehub
+WorkingDirectory=/opt/lobe-chat
+Environment=NODE_ENV=production
+Environment=PORT=3210
+Environment=HOSTNAME=0.0.0.0
+EnvironmentFile=/etc/lobehub/environment
+ExecStart=/usr/bin/node /opt/lobe-chat/server.js
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+LimitNPROC=32768
+MemoryMax=16G
+TasksMax=4096
+
+# Security Hardening & Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/lobe-chat/data /var/log/lobehub /tmp
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable, start, and monitor the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now lobechat.service
+sudo systemctl status lobechat.service
+journalctl -u lobechat.service -f --output=short-iso
+```
+
+## Production Multi-Container Docker Compose Stack
+
+The following production-grade `docker-compose.yml` deploys the full LobeChat Database version alongside PostgreSQL with `pgvector`, MinIO S3 object storage for uploads, Redis caching, and Logto authentication:
+
+```yaml
+version: "3.8"
+
+services:
+  lobe-chat:
+    image: lobehub/lobe-chat-database:v1.38.0
+    container_name: lobechat-app
+    restart: always
+    ports:
+      - "3210:3210"
+    environment:
+      - NODE_ENV=production
+      - APP_URL=https://lobe.internal.net
+      - DATABASE_URL=postgresql://lobe:lobepassword@postgres:5432/lobe_chat
+      - KEY_VAULTS_SECRET=d8f7e6c5b4a3928170f1e2d3c4b5a697887766554433221100aabbccddeeff00
+      - NEXT_AUTH_SECRET=99887766554433221100aabbccddeeff00112233445566778899aabbccddeeff
+      - REDIS_URL=redis://redis:6379/0
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=lobe-storage
+      - S3_ACCESS_KEY_ID=minioadmin
+      - S3_SECRET_ACCESS_KEY=minioadminpassword
+      - S3_PUBLIC_DOMAIN=https://s3.internal.net
+      - ENABLE_OIDC=1
+      - OIDC_ISSUER=https://auth.internal.net/oidc
+      - OIDC_CLIENT_ID=lobechat
+      - OIDC_CLIENT_SECRET=oidc-client-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - lobehub-net
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: lobechat-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=lobe
+      - POSTGRES_PASSWORD=lobepassword
+      - POSTGRES_DB=lobe_chat
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - lobehub-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lobe -d lobe_chat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: lobechat-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - lobehub-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
+    container_name: lobechat-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadminpassword
+    volumes:
+      - minio-data:/data
+    networks:
+      - lobehub-net
+
+networks:
+  lobehub-net:
+    driver: bridge
+
+volumes:
+  pg-data:
+  redis-data:
+  minio-data:
+```
 
 ## Strengths
 - **Native FastMCP 3.1 Support**: Direct graphical interface for discovering, authorizing, and executing tools on external MCP servers.
 - **Multi-Modal WebRTC Interface**: Seamless, full-duplex speech interaction and real-time vision stream analysis.
 - **Extensive Plugin Marketplace**: Instant deployment of hundreds of pre-configured community tools and agents.
 - **Flexible Deployment Models**: Deployable as a client-side local PWA or a multi-tenant PostgreSQL/Redis database-backed enterprise service.
+- **Fine-Grained Model Routing**: Dynamic routing across OpenAI, Anthropic, Google Gemini, Ollama, LocalAI, and vLLM backends.
 
 ## Limitations
-- **Database Deployment Overhead**: Configuring the full database-backed enterprise setup requires orchestrating PostgreSQL, Redis, and S3-compatible object storage.
+- **Database Deployment Overhead**: Configuring the full database-backed enterprise setup requires orchestrating PostgreSQL with pgvector, Redis, and S3-compatible object storage.
 - **Memory Consumption**: Running real-time multi-agent sessions with active vector indexes and streaming voice requires substantial host memory.
+- **Configuration Complexity**: Enterprise OIDC and RBAC setups require precise synchronisation of callback URLs and secret keys.
 
 ## When to use it
 - When seeking a modern, multi-model client interface with native FastMCP 3.1 support.
@@ -104,94 +252,38 @@ LobeHub operates at the top of the homelab and enterprise AI software stack, ser
 
 ## Getting started
 
-### 1. Docker Setup (Client-Only Mode)
-Run LobeChat locally in client-only PWA mode using Docker:
-```bash
-docker run -d -p 3210:3210 \
-  -e OPENAI_API_KEY="sk-proj-xxxx" \
-  -e ACCESS_CODE="lobe66" \
-  --name lobe-chat \
-  lobehub/lobe-chat
-```
-
-### 2. Verification
+### 1. Verification
 Verify that the HTTP endpoint is active and healthy:
 ```bash
-curl -I http://localhost:3210/
+curl -I http://localhost:3210/api/health
 ```
 
-### 3. Docker Compose (Enterprise DB Mode)
-For multi-user PostgreSQL-backed deployment:
-```yaml
-version: '3.8'
-services:
-  lobe-chat-db:
-    image: lobehub/lobe-chat-database:latest
-    ports:
-      - "3210:3210"
-    environment:
-      - DATABASE_URL=postgresql://lobe:lobepass@postgres:5432/lobe_chat
-      - REDIS_URL=redis://redis:6379
-      - KEYCLOAK_CLIENT_ID=lobechat
-    depends_on:
-      - postgres
-      - redis
-
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_USER=lobe
-      - POSTGRES_PASSWORD=lobepass
-      - POSTGRES_DB=lobe_chat
-
-  redis:
-    image: redis:7-alpine
-```
-
-## Systemd Service Unit Configuration
-
-For production deployments running LobeHub Server as a systemd service, configure `/etc/systemd/system/lobe-chat.service`:
-
-```ini
-[Unit]
-Description=LobeHub Multi-Agent Workbench Service
-After=network.target postgresql.service redis.service
-Wants=postgresql.service redis.service
-
-[Service]
-Type=simple
-User=lobehub
-Group=lobehub
-WorkingDirectory=/opt/lobe-chat
-Environment=NODE_ENV=production
-Environment=PORT=3210
-EnvironmentFile=/etc/lobehub/environment
-ExecStart=/usr/bin/node /opt/lobe-chat/server.js
-Restart=always
-RestartSec=5s
-LimitNOFILE=65536
-
-# Security Hardening
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/lobe-chat/data /var/log/lobehub
-NoNewPrivileges=true
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
+### 2. FastMCP Configuration File Example
+Create `lobe-mcp-config.json` to register local FastMCP servers:
+```json
+{
+  "mcpServers": {
+    "local-tools": {
+      "command": "python3",
+      "args": ["/opt/mcp/server.py"],
+      "env": {
+        "FAST_MCP_LOG_LEVEL": "info"
+      }
+    }
+  }
+}
 ```
 
 ## CLI examples
 
 ### 1. Pull Latest Image and Restart
 ```bash
-docker pull lobehub/lobe-chat:latest && docker restart lobe-chat
+docker pull lobehub/lobe-chat-database:latest && docker compose up -d
 ```
 
 ### 2. Inspect Active PostgreSQL Migrations
 ```bash
-docker exec -it lobe-chat-db psql -U lobe -d lobe_chat -c "SELECT version();"
+docker exec -it lobechat-postgres psql -U lobe -d lobe_chat -c "SELECT version(); \dt"
 ```
 
 ### 3. Launch FastMCP 3.1 Inspector
@@ -201,79 +293,103 @@ npx @modelcontextprotocol/inspector lobe-mcp-config.json
 
 ## API examples
 
-### FastMCP 3.1 Server Provider & Agent Tool Registry (Pydantic v2)
-This complete FastMCP 3.1 server validates provider configurations and dynamic model settings for LobeHub integrations using strict **Pydantic v2** models.
+### FastMCP 3.1 Server Provider & Agent Tool Registry (Strict Pydantic v2)
+This complete FastMCP 3.1 server validates provider configurations and dynamic model settings for LobeHub integrations using strict **Pydantic v2** models with `extra="forbid"`.
 
 ```python
+#!/usr/bin/env python3
+"""
+LobeHub FastMCP 3.1 Agent & Session Configuration Server.
+Enforces strict Pydantic v2 models with extra="forbid" for registering multi-agent configs.
+"""
+
+import os
 import json
 import logging
-import os
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("LobeHub-MCP")
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("lobehub-fastmcp")
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("lobehub-config-engine", version="3.1")
+mcp = FastMCP("lobehub-config-engine", version="3.1.0")
 
 class ModelParams(BaseModel):
-    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
-    top_p: float = Field(default=1.0, ge=0.0, le=1.0)
-    context_window: int = Field(default=128000, alias="contextWindow", ge=2048)
-    use_mcp: bool = Field(default=True, alias="useMcp")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
+    top_p: float = Field(default=1.0, ge=0.0, le=1.0, description="Nucleus sampling threshold")
+    context_window: int = Field(default=128000, alias="contextWindow", ge=2048, description="Max context tokens")
+    use_mcp: bool = Field(default=True, alias="useMcp", description="Enable FastMCP tool calling")
 
 class ProviderRegistration(BaseModel):
-    provider_id: str = Field(..., alias="providerId")
-    model_name: str = Field(..., alias="modelName")
-    api_base_url: Optional[str] = Field(None, alias="apiBaseUrl")
-    params: ModelParams = Field(default_factory=ModelParams)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    provider_id: str = Field(..., alias="providerId", description="Provider slug identifier")
+    model_name: str = Field(..., alias="modelName", description="Model identifier")
+    api_base_url: Optional[str] = Field(None, alias="apiBaseUrl", description="Custom API gateway base URL")
+    params: ModelParams = Field(default_factory=ModelParams, description="Model generation parameters")
 
     @field_validator("provider_id")
     @classmethod
     def validate_provider(cls, v: str) -> str:
-        allowed = {"openai", "anthropic", "google", "ollama", "localai", "deepseek", "vllm", "cohere"}
+        allowed = {"openai", "anthropic", "google", "ollama", "localai", "deepseek", "vllm", "cohere", "mastra"}
         if v.lower() not in allowed:
-            raise ValueError(f"Provider '{v}' is not supported. Choose from {allowed}")
+            raise ValueError(f"Provider '{v}' is not supported. Supported: {allowed}")
         return v.lower()
 
 class AgentDefinition(BaseModel):
-    agent_id: str = Field(..., min_length=3, description="Unique agent slug identifier.")
-    system_prompt: str = Field(..., min_length=10, description="Core system behavior instructions.")
-    tools: List[str] = Field(default_factory=list, description="List of enabled FastMCP tool names.")
-    provider_config: ProviderRegistration = Field(..., description="Target model provider configuration.")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-@mcp.tool(name="register_lobehub_agent", description="Validates and registers a new LobeHub multi-agent configuration.")
-def register_lobehub_agent(payload: str) -> str:
-    """Validates and registers a new LobeHub multi-agent configuration.
+    agent_id: str = Field(..., alias="agentId", min_length=3, description="Unique agent slug identifier")
+    system_prompt: str = Field(..., alias="systemPrompt", min_length=10, description="Core system instructions")
+    tools: List[str] = Field(default_factory=list, description="Enabled FastMCP tool names")
+    provider_config: ProviderRegistration = Field(..., alias="providerConfig", description="Model provider configuration")
 
-    Args:
-        payload: JSON string matching AgentDefinition schema.
-    """
+class AgentRegisterResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    agent_id: str
+    registered_tools: List[str]
+    provider: str
+
+@mcp.tool(
+    name="register_lobehub_agent",
+    description="Validates and registers a new LobeHub multi-agent configuration using strict Pydantic v2 schemas."
+)
+async def register_lobehub_agent(agent_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Validates and registers a new LobeHub agent specification."""
     try:
-        data = json.loads(payload)
-        agent = AgentDefinition.model_validate(data)
-        logger.info(f"Registered LobeHub agent: {agent.agent_id} with provider: {agent.provider_config.provider_id}")
-        return json.dumps({
-            "status": "SUCCESS",
-            "agent_id": agent.agent_id,
-            "validated_config": agent.model_dump(by_alias=True)
-        }, indent=2)
+        agent = AgentDefinition.model_validate(agent_data)
+        logger.info("Registering agent '%s' with provider '%s'", agent.agent_id, agent.provider_config.provider_id)
+        response = AgentRegisterResponse(
+            status="SUCCESS",
+            agent_id=agent.agent_id,
+            registered_tools=agent.tools,
+            provider=agent.provider_config.provider_id
+        )
+        return response.model_dump()
     except ValidationError as val_err:
-        return json.dumps({"status": "VALIDATION_FAILED", "errors": val_err.errors()})
-    except Exception as e:
-        return json.dumps({"status": "ERROR", "error": str(e)})
+        logger.error("Agent validation failed: %s", val_err.errors())
+        return {"status": "VALIDATION_FAILED", "errors": val_err.errors()}
 
-@mcp.tool(name="verify_mcp_server_connection", description="Checks connectivity to external FastMCP tool servers.")
-def verify_mcp_server_connection(server_url: str) -> str:
+@mcp.tool(
+    name="verify_mcp_server_connection",
+    description="Probes connectivity and task capabilities of an external FastMCP tool server."
+)
+async def verify_mcp_server_connection(server_url: str) -> Dict[str, Any]:
     """Simulates connection probe to an MCP tool server."""
-    return json.dumps({
+    logger.info("Probing MCP server connection at: %s", server_url)
+    return {
         "server_url": server_url,
         "status": "CONNECTED",
         "mcp_version": "3.1",
-        "capabilities": ["tools", "resources", "prompts"]
-    })
+        "capabilities": ["tools", "resources", "prompts", "tasks"]
+    }
 
 if __name__ == "__main__":
     mcp.run()
@@ -281,13 +397,14 @@ if __name__ == "__main__":
 
 ## Diagnostic & Troubleshooting Matrix
 
-| Issue / Error Symptom | Cause | Diagnostic Command | Remediation Action |
+| Issue / Error Symptom | Cause | Diagnostic Inspection Command | Remediation Action |
 | :--- | :--- | :--- | :--- |
-| `WebRTC Audio Stutter` | Packet loss or network buffer underflow during speech streaming. | `curl -i http://localhost:3210/api/health` | Adjust audio buffer sizes in client settings or use OPUS codec fallback. |
-| `PGVector Query Latency > 200ms` | Missing HNSW vector index on database embedding table. | `docker exec -it postgres psql -U lobe -c "\d lobe_chat"` | Create HNSW index: `CREATE INDEX ON embeddings USING hnsw (vector vector_cosine_ops);` |
-| `MCP Tool Call Rejected` | Security authorization token expired or tool permission disabled. | `docker logs lobe-chat \| grep "MCP"` | Re-authenticate MCP tool server token in LobeHub settings UI. |
-| `Redis Connection Timeout` | Redis instance reached max connections limit. | `redis-cli info clients` | Increase `maxclients` in `redis.conf` or configure Redis connection pooling. |
-| `Ollama Endpoint Unreachable` | Docker container unable to reach host localhost Ollama service. | `curl http://host.docker.internal:11434/api/tags` | Set environment variable `OLLAMA_ORIGINS="*"`, and use `host.docker.internal` URL. |
+| **WebRTC Audio Stutter** | Packet loss or network buffer underflow during speech streaming. | `curl -i http://localhost:3210/api/health` | Adjust audio buffer sizes in client settings or use OPUS codec fallback. Check UDP port forwarding. |
+| **PGVector Query Latency > 200ms** | Missing HNSW vector index on database embedding table. | `docker exec -it lobechat-postgres psql -U lobe -d lobe_chat -c "\d embeddings"` | Create HNSW index: `CREATE INDEX ON embeddings USING hnsw (vector vector_cosine_ops);` |
+| **MCP Tool Call Rejected** | Security authorization token expired or tool permission disabled. | `docker logs lobechat-app \| grep "MCP"` | Re-authenticate MCP tool server token in LobeHub settings UI and verify allowed origins. |
+| **Redis Connection Timeout** | Redis instance reached max connections limit or out of memory. | `docker exec -it lobechat-redis redis-cli info clients` | Increase `maxclients` in `redis.conf` or configure Redis connection pooling with reasonable idle timeouts. |
+| **Ollama Endpoint Unreachable** | Docker container unable to reach host-bound Ollama daemon. | `curl http://host.docker.internal:11434/api/tags` | Set environment variable `OLLAMA_ORIGINS="*"` on Ollama host, and use `http://host.docker.internal:11434` URL. |
+| **OIDC SSO Auth Failure: 401** | Redirect URI mismatch between LobeChat configuration and identity provider. | `docker logs lobechat-app \| grep -i "oidc"` | Ensure `APP_URL` matches exactly with callback redirect URI registered in Logto/Keycloak client settings. |
 
 ## Operational Best Practices & Guardrails
 
@@ -308,6 +425,7 @@ Always pass external API keys (OpenAI, Anthropic, Google) via `EnvironmentFile` 
 - [Open WebUI](../../services/open-webui.md) — Open-source LLM chat web interface.
 - [LibreChat](librechat.md) — Enterprise multi-model chat UI framework.
 - [Ollama](../../services/ollama.md) — Local model serving runtime engine.
+- [LocalAI](../infrastructure/localai.md) — OpenAI-compatible local multi-modal inference server.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardization protocol for model tool calls.
 
 ## Sources / references
