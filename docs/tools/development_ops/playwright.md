@@ -34,7 +34,7 @@ The diagram below illustrates how Playwright connects autonomous AI agents (via 
 +------------------------+  +------------------------+  +------------------------+
 |   Chromium Engine      |  |   Firefox Engine       |  |    WebKit Engine       |
 | - Chrome DevTools      | - Marionette Protocol     | - WebInspector Protocol  |
-|   Protocol (CDP)       | - Headless / Headed    | - Headless / Headed    |
+|   Protocol (CDP)       | - Headless / Headed       | - Headless / Headed      |
 +------------------------+  +------------------------+  +------------------------+
             |                            |                            |
             +----------------------------+----------------------------+
@@ -122,6 +122,151 @@ Execute tests via CLI:
 npx playwright test
 ```
 
+## Systemd Service Configuration
+
+For dedicated automation servers, home lab environments, or agent daemon hosts, run Playwright browser daemon pools under a persistent `systemd` service unit.
+
+Save this configuration to `/etc/systemd/system/playwright-browser-daemon.service`:
+
+```ini
+[Unit]
+Description=Playwright Browser Pool Daemon & FastMCP 3.1 Proxy
+After=network.target remote-fs.target
+Wants=network-online.target
+Documentation=https://playwright.dev/python/docs/intro
+
+[Service]
+Type=simple
+User=playwright
+Group=playwright
+WorkingDirectory=/opt/playwright-daemon
+Environment="NODE_ENV=production"
+Environment="PYTHONUNBUFFERED=1"
+Environment="PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers"
+Environment="DISPLAY=:99"
+
+# Security Hardening & Resource Isolation
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/playwright-daemon /opt/playwright-browsers /tmp
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=8G
+TasksMax=1024
+
+ExecStart=/opt/playwright-daemon/venv/bin/python3 /opt/playwright-daemon/server.py --port 8910 --pool-size 8
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+KillMode=mixed
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and manage the daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now playwright-browser-daemon.service
+sudo systemctl status playwright-browser-daemon.service
+```
+
+## Production Multi-Container Docker Compose Stack
+
+In production environments, isolate browser processes inside containerized sandboxes with dedicated memory caching, headless display servers, and FastMCP protocol endpoints.
+
+Save the following specification to `docker-compose.playwright.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  playwright-grid:
+    image: mcr.microsoft.com/playwright:v1.50.0-jammy
+    container_name: playwright-grid
+    restart: unless-stopped
+    ipc: host  # Critical for Chromium shared memory performance
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - PORT=8910
+      - BROWSER_POOL_SIZE=8
+      - REDIS_URL=redis://playwright-cache:6379/0
+    volumes:
+      - ./playwright_storage:/opt/playwright-daemon/storage
+      - ./traces:/opt/playwright-daemon/traces
+    networks:
+      - playwright-net
+    ports:
+      - "8910:8910"
+    deploy:
+      resources:
+        limits:
+          cpus: '6.0'
+          memory: 12G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8910/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  playwright-fastmcp-proxy:
+    image: python:3.12-slim-bookworm
+    container_name: playwright-fastmcp-proxy
+    restart: unless-stopped
+    depends_on:
+      playwright-grid:
+        condition: service_healthy
+      playwright-cache:
+        condition: service_healthy
+    environment:
+      - GRID_ENDPOINT=http://playwright-grid:8910
+      - REDIS_URL=redis://playwright-cache:6379/0
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./agent_scripts:/app
+    working_dir: /app
+    command: ["python3", "-m", "playwright_fastmcp_server", "--port", "9120"]
+    networks:
+      - playwright-net
+    ports:
+      - "9120:9120"
+
+  playwright-cache:
+    image: redis:7.4-alpine
+    container_name: playwright-cache
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "2gb", "--maxmemory-policy", "volatile-lru"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - playwright-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  playwright-net:
+    driver: bridge
+
+volumes:
+  redis_data:
+```
+
 ## CLI examples
 
 ### Executing Tests & Inspector
@@ -137,74 +282,146 @@ npx playwright show-trace trace.zip
 
 # Run tests in headed mode for visual observation
 npx playwright test --headed --project=chromium
+
+# Generate PDF document from web target
+npx playwright pdf https://docs.playwright.dev playwright-docs.pdf
+
+# Take screenshot with custom viewport
+npx playwright screenshot --viewport-size="1920,1080" --full-page https://github.com fullpage.png
 ```
 
 ## FastMCP 3.1 Playwright Server & Pydantic v2 Validation
 
-The following Python script implements a **FastMCP 3.1** server that wraps Playwright browser automation into typed tools with **Pydantic v2** validation.
+The following Python script implements a production-grade **FastMCP 3.1** server that wraps Playwright browser automation into typed tools with strict **Pydantic v2** validation (`extra="forbid"`), automatic context management, and screenshot base64 extraction.
 
 ```python
 #!/usr/bin/env python3
 """
 FastMCP 3.1 Playwright Browser Automation Server
-Exposes browser navigation, screenshot generation, and element extraction as MCP tools.
+Exposes browser navigation, screenshot generation, element extraction, and synthetic interaction.
 """
 
 import asyncio
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+import base64
+from typing import List, Optional, Dict, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, BrowserContext, Page
 
-# Initialize FastMCP Server
-mcp = FastMCP("Playwright Agent Browser Server")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Playwright-Agent-Browser-Server")
 
-# Pydantic v2 Schemas
+# Strict Pydantic v2 Schemas
+class ViewportConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    width: int = Field(default=1280, ge=320, le=3840, description="Viewport width in pixels")
+    height: int = Field(default=800, ge=240, le=2160, description="Viewport height in pixels")
+
 class NavigateRequest(BaseModel):
-    url: str = Field(..., description="Target web URL to open")
-    wait_until: str = Field(default="domcontentloaded", description="Navigation load state: domcontentloaded, load, networkidle")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    url: str = Field(..., description="Target web URL to navigate to")
+    wait_until: Literal["domcontentloaded", "load", "networkidle"] = Field(
+        default="domcontentloaded",
+        description="Navigation lifecycle load event"
+    )
+    timeout_ms: int = Field(default=30000, ge=1000, le=120000, description="Timeout in ms")
+    viewport: ViewportConfig = Field(default_factory=ViewportConfig)
 
     @field_validator("url")
     @classmethod
-    def validate_url_format(cls, v: str) -> str:
-        if not v.startswith("http://") and not v.startswith("https://"):
-            raise ValueError("URL must begin with http:// or https://")
-        return v.strip()
+    def validate_url_scheme(cls, v: str) -> str:
+        clean = v.strip()
+        if not (clean.startswith("http://") or clean.startswith("https://")):
+            raise ValueError("URL must start with http:// or https://")
+        return clean
+
+class ClickElementRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    selector: str = Field(..., min_length=1, description="CSS or XPath element selector to click")
+    timeout_ms: int = Field(default=5000, ge=500, le=30000)
+    force: bool = Field(default=False, description="Bypass actionability checks if True")
+
+class FillFormRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    selector: str = Field(..., min_length=1, description="CSS or XPath input field selector")
+    value: str = Field(..., description="Text string value to input into element")
+    timeout_ms: int = Field(default=5000, ge=500, le=30000)
+
+class ScreenshotRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    full_page: bool = Field(default=False, description="Capture full scrollable page height")
+    format: Literal["png", "jpeg"] = Field(default="png")
+    quality: Optional[int] = Field(default=None, ge=1, le=100)
 
 class PageContentResponse(BaseModel):
-    url: str = Field(..., description="Final page URL after redirects")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    url: str = Field(..., description="Final URL after HTTP redirects")
     title: str = Field(..., description="HTML document title")
-    text_content: str = Field(..., description="Extracted visible text content")
+    text_content: str = Field(..., description="Extracted visible text content (truncated)")
+    status_code: int = Field(..., description="HTTP status code from main document")
+    screenshot_base64: Optional[str] = Field(None, description="Base64 encoded page snapshot")
 
-# FastMCP Tool: Navigate and Extract Page Content
+# Global Browser Pool Management
+_playwright_instance = None
+_browser_instance = None
+
+async def get_browser():
+    global _playwright_instance, _browser_instance
+    if _browser_instance is None or not _browser_instance.is_connected():
+        _playwright_instance = await async_playwright().start()
+        _browser_instance = await _playwright_instance.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
+        )
+    return _browser_instance
+
 @mcp.tool()
 async def navigate_and_extract(request: NavigateRequest) -> PageContentResponse:
-    """Navigates to a webpage using Playwright and extracts text context for LLM agents."""
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1280, "height": 800})
-        page = await context.new_page()
+    """Navigates to a webpage using Playwright, returning DOM text content and snapshot."""
+    browser = await get_browser()
+    context: BrowserContext = await browser.new_context(
+        viewport={"width": request.viewport.width, "height": request.viewport.height},
+        user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 FastMCP/3.1 Agent"
+    )
+    page: Page = await context.new_page()
 
-        try:
-            await page.goto(request.url, wait_until=request.wait_until, timeout=30000)
-            title = await page.title()
-            # Extract main text content
-            text = await page.evaluate("() => document.body.innerText")
-            final_url = page.url
+    try:
+        response = await page.goto(request.url, wait_until=request.wait_until, timeout=request.timeout_ms)
+        status = response.status if response else 0
+        title = await page.title()
+        text = await page.evaluate("() => document.body.innerText")
+        screenshot_bytes = await page.screenshot(type="png", full_page=False)
+        encoded_screenshot = base64.b64encode(screenshot_bytes).decode("utf-8")
 
-            await browser.close()
-            return PageContentResponse(
-                url=final_url,
-                title=title,
-                text_content=text[:5000]  # Return capped content for context safety
-            )
-        except Exception as e:
-            await browser.close()
-            return PageContentResponse(
-                url=request.url,
-                title="Error Loading Page",
-                text_content=f"Playwright navigation failed: {str(e)}"
-            )
+        return PageContentResponse(
+            url=page.url,
+            title=title,
+            text_content=text[:6000],
+            status_code=status,
+            screenshot_base64=encoded_screenshot
+        )
+    finally:
+        await page.close()
+        await context.close()
+
+@mcp.tool()
+async def execute_element_interaction(nav: NavigateRequest, click: ClickElementRequest) -> Dict[str, str]:
+    """Navigates to target URL and clicks specified DOM selector with auto-wait validation."""
+    browser = await get_browser()
+    context = await browser.new_context(
+        viewport={"width": nav.viewport.width, "height": nav.viewport.height}
+    )
+    page = await context.new_page()
+
+    try:
+        await page.goto(nav.url, wait_until=nav.wait_until, timeout=nav.timeout_ms)
+        await page.wait_for_selector(click.selector, state="visible", timeout=click.timeout_ms)
+        await page.click(click.selector, force=click.force, timeout=click.timeout_ms)
+        new_title = await page.title()
+        return {"status": "success", "action": f"Clicked {click.selector}", "new_url": page.url, "title": new_title}
+    finally:
+        await page.close()
+        await context.close()
 
 if __name__ == "__main__":
     mcp.run()
@@ -216,27 +433,24 @@ if __name__ == "__main__":
 Validate Playwright launch configurations and browser context parameters prior to starting session loops:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import Dict, Optional
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import Dict, Optional, Literal
 
 class Viewport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     width: int = Field(default=1280, ge=320, le=3840)
     height: int = Field(default=720, ge=240, le=2160)
 
 class PlaywrightLaunchConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     headless: bool = Field(default=True)
-    browser_type: str = Field(default="chromium", description="chromium, firefox, or webkit")
+    browser_type: Literal["chromium", "firefox", "webkit"] = Field(
+        default="chromium",
+        description="Browser engine family"
+    )
     viewport: Viewport = Field(default_factory=Viewport)
     timeout_ms: int = Field(default=30000, ge=1000, le=120000)
     extra_headers: Optional[Dict[str, str]] = Field(default=None)
-
-    @field_validator("browser_type")
-    @classmethod
-    def validate_browser(cls, v: str) -> str:
-        valid = ["chromium", "firefox", "webkit"]
-        if v.lower() not in valid:
-            raise ValueError(f"Invalid browser_type '{v}'. Must be one of {valid}")
-        return v.lower()
 
 # Validate configuration
 config_data = {
@@ -262,22 +476,16 @@ The following metrics represent benchmark measurements collected across 10,000 P
 - **Worker Scalability**: Up to 16 parallel browser worker processes per 8-core, 16GB host machine without RAM paging.
 - **FastMCP Tool Overhead**: ~14ms latency overhead per stdio FastMCP action dispatch.
 
-## Troubleshooting & Diagnostics
+## Diagnostic & Operational Troubleshooting Matrix
 
-### 1. Missing Browser Binary Dependencies on Linux
-- **Symptom**: `Error: browserType.launch: Executable doesn't exist at /root/.cache/ms-playwright/...`
-- **Cause**: Browser binaries or system library dependencies (`libgbm`, `libasound2`) are not installed.
-- **Resolution**: Run `npx playwright install-deps` or `playwright install-deps` to install host OS dependencies.
-
-### 2. Flaky Timeout Rejections on Dynamic SPAs
-- **Symptom**: `TimeoutError: page.goto: Timeout 30000ms exceeded while waiting for 'networkidle'`.
-- **Cause**: Background analytics or WebSocket connections keep the network connection active indefinitely.
-- **Resolution**: Change `wait_until` to `"domcontentloaded"` or `"load"`, and wait explicitly for a target DOM element rather than `"networkidle"`.
-
-### 3. FastMCP Timeout during Long Navigation
-- **Symptom**: FastMCP client terminates with `TimeoutError` during page rendering.
-- **Cause**: Complex JS rendering exceeds default FastMCP tool call timeout.
-- **Resolution**: Set `timeout_ms=60000` in the FastMCP client configuration or optimize Playwright page timeouts.
+| Issue / Failure Mode | Root Cause | Diagnostic Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Missing Shared Memory `/dev/shm`** | Chromium crashes inside Docker due to 64MB default IPC shm size. | Inspect container crash logs: `Target closed / crashed`. | Add `ipc: host` or `--shm-size=2gb` to Docker Compose and Docker run invocations. |
+| **Zombie Browser Processes** | Node/Python process exits uncleanly without triggering `browser.close()`. | Run `pgrep -a chrome \| grep headless`. | Deploy process reaper or run inside container with `init: true` (`tini`). Use context managers `async with async_playwright()`. |
+| **Missing Linux Dependencies** | Minimal Linux distributions lack rendering libraries (`libgbm`, `libnss3`). | Error `Executable doesn't exist` or library missing on launch. | Execute `npx playwright install-deps` or `playwright install-deps` during container build. |
+| **CDP Disconnection Timeout** | Long-running JS evaluation or agent reasoning exceeds CDP socket timeout. | Trace log shows `TargetClosedError: Protocol error (Page.navigate)`. | Set custom `cdp_timeout` to 60000ms and tune FastMCP client timeouts. |
+| **Flaky Actionability Timeout** | Target DOM element covered by sticky navigation bar or modal backdrop. | Playwright error: `element is not visible, intercepting pointer events`. | Use `locator.scroll_into_view_if_needed()`, trigger escape key to close backdrops, or supply `force=True`. |
+| **System Font Rendering Mismatches** | Visual regression snapshot diffs fail due to missing typography glyphs. | Character glyphs show empty boxes `[?]` across Linux and macOS. | Install `fonts-liberation`, `fonts-noto-color-emoji`, and `ttf-mscorefonts-installer` on test nodes. |
 
 ## Related tools / concepts
 - [Playwright MCP Server](../automation_orchestration/playwright-mcp.md) — FastMCP 3.1 browser automation server.
