@@ -42,11 +42,16 @@ As the volume of unstructured data grows, simple keyword search often fails to c
 
 | Issue Symptom | Root Cause | Diagnostic Check Command | Resolution Path |
 | :--- | :--- | :--- | :--- |
-| **Low Retrieval Precision** | Unbalanced dense vs lexical weighting in RRF | Inspect intermediate top_k BM25 vs vector recall | Adjust Reciprocal Rank Fusion (RRF) `k` parameter or re-tune dense alpha weights. |
-| **Re-ranking Latency Spike** | Passing too many candidate documents to Cross-Encoder | Measure Cohere/Cross-Encoder API round-trip | Prune initial retrieval candidate set from top_k=100 down to top_k=20 before re-ranking. |
-| **Out-Of-Memory (OOM) Vector DB**| Excessive HNSW M/efConstruction index parameters | `docker stats milvus-standalone` | Tune vector index configuration or switch to IVF-PQ quantization formats. |
-| **FastMCP Search Tool Timeout** | Concurrent query lock or network bottleneck | Check vector DB connection pool logs | Increase async connection pool limit and set query timeout guardrails to 15s. |
-| **Missing Technical Part Numbers**| Pure semantic embedding model smoothing out digits | Test BM25 keyword search directly | Force hybrid search mode with exact keyword match filters for alpha-numeric IDs. |
+| **Low Retrieval Precision** | Unbalanced dense vs lexical weighting in RRF | Inspect intermediate top_k BM25 vs vector recall scores | Adjust Reciprocal Rank Fusion (RRF) `k` parameter (standard `k=60`) or re-tune dense alpha weights. |
+| **Re-ranking Latency Spike** | Passing too many candidate documents to Cross-Encoder | Measure Cohere/Cross-Encoder API round-trip latency | Prune initial retrieval candidate set from top_k=100 down to top_k=20 before invoking cross-encoder re-ranking. |
+| **Out-Of-Memory (OOM) Vector DB**| Excessive HNSW M/efConstruction index parameters | Inspect memory limits: `docker stats milvus-standalone` | Tune vector index parameters (`M=16, efConstruction=64`) or switch to IVF-PQ/SCaNN vector quantization formats. |
+| **FastMCP Search Tool Timeout** | Concurrent query lock or database connection starvation | Check vector DB connection pool logs and active socket handles | Increase async connection pool limit (`pool_size=32`) and enforce tool query timeout guardrails (15s). |
+| **Missing Technical Part Numbers**| Pure semantic embedding model smoothing out alphanumeric tokens | Test BM25 keyword search directly on raw indexed fields | Enforce hybrid search mode with exact match filters for SKU/part numbers using BM25 tokenizers. |
+| **Pydantic ValidationError on Tool Call**| Extra schema parameters passed during LLM tool invocation | Check FastMCP stderr for `extra_forbidden` validation errors | Clean parameter schema or verify client agent respects strict `ConfigDict(extra="forbid")`. |
+| **Etcd Cluster Compaction Lag**| Etcd revisions growing unboundedly in high-churn ingestion | Inspect etcd storage metrics: `etcdctl endpoint status -w table` | Configure automatic compaction (`ETCD_AUTO_COMPACTION_MODE=revision`) and compact etcd revisions. |
+| **Stale Query Results in Cache**| Ingestion events not triggering Redis cache invalidation keys | Monitor Redis invalidation events: `redis-cli monitor | grep -i search` | Implement write-through cache eviction or configure TTL expiration window (e.g., 300s). |
+| **ColBERT Max Token Truncation**| Long query string exceeds Late-Interaction 128-token query mask | Check query token lengths with tokenizer inspect utility | Split multi-sentence query into discrete sub-queries or expand query token limit to 256. |
+| **MinIO Connection Refused on Milvus Boot**| MinIO container took longer to pass ready state than Milvus init | Inspect Milvus logs: `docker logs milvus-standalone | grep -i minio` | Ensure Docker Compose `depends_on` utilizes `condition: service_healthy` on MinIO. |
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / AI Patterns. These patterns reside in the **Retrieval and Context layer** of an application, sitting between the [Vector Database](../../tools/infrastructure/index.md) and the [Inference Engine](../../tools/infrastructure/index.md).
@@ -121,6 +126,134 @@ sudo systemctl enable --now search-mcp-router.service
 sudo systemctl status search-mcp-router.service
 ```
 
+## Production Multi-Container Docker Cluster (`compose.yaml`)
+
+Deploy an enterprise hybrid search topology with Milvus vector database, MinIO object store, Etcd coordination cluster, Redis query cache, and FastMCP 3.1 hybrid retrieval gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.14
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd-data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir=/etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - search-cluster-net
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - minio-data:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - search-cluster-net
+
+  milvus-standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.5.2
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - milvus-data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - search-cluster-net
+
+  redis-search-cache:
+    container_name: redis-search-cache
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis-search-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - search-cluster-net
+
+  search-mcp-router:
+    container_name: search-mcp-router
+    image: python:3.11-slim
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - MILVUS_URI=http://milvus-standalone:19530
+      - REDIS_URL=redis://redis-search-cache:6379/0
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - MCP_PORT=8085
+    volumes:
+      - ./router:/opt/search-mcp-router:ro
+    working_dir: /opt/search-mcp-router
+    command: python3 server.py
+    depends_on:
+      milvus-standalone:
+        condition: service_healthy
+      redis-search-cache:
+        condition: service_healthy
+    networks:
+      - search-cluster-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+
+networks:
+  search-cluster-net:
+    driver: bridge
+
+volumes:
+  etcd-data:
+  minio-data:
+  milvus-data:
+  redis-search-data:
+```
+
 ## CLI examples
 Using the [Ollama](../../services/ollama.md) CLI to generate embeddings for a local document:
 
@@ -183,6 +316,19 @@ class RankedDocument(BaseModel):
 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY", "mock-key"))
 co = cohere.ClientV2(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
+class DocumentIndexPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    id: str = Field(..., description="Document identifier")
+    text: str = Field(..., min_length=10, description="Raw document text to embed and index")
+    index_name: str = Field(..., description="Destination index name")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata tags")
+
+class IndexOperationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: str = Field(..., description="Operation outcome (e.g. success, error)")
+    document_id: str = Field(..., description="ID of indexed record")
+    indexed_tokens: int = Field(..., description="Token count of indexed body")
+
 @mcp.tool(name="hybrid_search_and_rerank", description="Executes hybrid vector + lexical search with Cohere Re-rank v3.")
 def hybrid_search_and_rerank(raw_input: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
@@ -243,6 +389,29 @@ def hybrid_search_and_rerank(raw_input: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     return ranked_docs
 
+@mcp.tool(name="index_document_snippet", description="Indexes a document passage into vector store with dense embeddings.")
+def index_document_snippet(raw_input: Dict[str, Any]) -> Dict[str, Any]:
+    """Inserts and embeds a new document record into the target search collection."""
+    try:
+        payload = DocumentIndexPayload.model_validate(raw_input)
+    except ValidationError as err:
+        raise ValueError(f"Payload validation failed: {err}")
+
+    # Generate document embeddings
+    emb = co.embed(texts=[payload.text], model="embed-english-v3.0", input_type="search_document")
+    doc_vector = emb.embeddings[0]
+
+    # Store in index
+    idx = pc.Index(payload.index_name)
+    meta = payload.metadata.copy()
+    meta["text"] = payload.text
+    idx.upsert(vectors=[(payload.id, doc_vector, meta)])
+
+    return IndexOperationResult(
+        status="success",
+        document_id=payload.id,
+        indexed_tokens=len(payload.text.split())
+    ).model_dump()
 
 if __name__ == "__main__":
     mcp.run()

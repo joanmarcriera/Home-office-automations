@@ -123,6 +123,102 @@ sequenceDiagram
 - For unstructured vector similarity search over text embeddings (use [Qdrant](../infrastructure/qdrant.md), [ChromaDB](../../knowledge_base/vector-db-comparison.md), or [ColQwen](colqwen.md)).
 - When completely offline, local, or self-hosted air-gapped execution is mandatory.
 
+## Systemd Service Configuration
+
+For production enterprise integration, run the FastMCP 3.1 Kumo predictive gateway daemon as a systemd service (`kumo-predict-mcp.service`):
+
+```ini
+[Unit]
+Description=Kumo AI FastMCP 3.1 Predictive Gateway Daemon
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kumo-gateway
+Group=kumo-gateway
+WorkingDirectory=/opt/kumo-gateway
+EnvironmentFile=/etc/kumo/kumo.env
+ExecStart=/opt/kumo-gateway/venv/bin/python3 -m server.kumo_fastmcp_server --transport sse --port 8097
+Restart=always
+RestartSec=5s
+MemoryMax=2G
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/kumo /opt/kumo-gateway/cache
+PrivateTmp=true
+CapabilityBoundingSet=
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Multi-Container Docker Stack (`compose.yaml`)
+
+Deploy an enterprise predictive intelligence gateway topology featuring Kumo FastMCP bridge, DuckDB local query acceleration cache, and Redis task broker:
+
+```yaml
+version: '3.8'
+
+services:
+  kumo-fastmcp-gateway:
+    image: python:3.11-slim
+    container_name: kumo-fastmcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8097:8097"
+    environment:
+      - KUMO_API_URL=https://api.kumo.ai/v1
+      - KUMO_API_KEY=${KUMO_API_KEY}
+      - REDIS_URL=redis://kumo-redis:6379/0
+      - DUCKDB_PATH=/cache/kumo_predictions.duckdb
+      - MCP_PORT=8097
+    volumes:
+      - ./server:/opt/kumo:ro
+      - cache-data:/cache
+    working_dir: /opt/kumo
+    command: python3 -m server.kumo_fastmcp_server
+    depends_on:
+      kumo-redis:
+        condition: service_healthy
+    networks:
+      - kumo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  kumo-redis:
+    image: redis:7.2-alpine
+    container_name: kumo-redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6382:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - kumo-net
+
+networks:
+  kumo-net:
+    driver: bridge
+
+volumes:
+  cache-data:
+  redis-data:
+```
+
 ## Getting started
 
 ### Declarative Predictive SQL Query Examples
@@ -161,16 +257,16 @@ claude-code --mcp-server kumo-rfm "Analyze high-risk churn customers in the ente
 
 ## API examples
 
-### FastMCP 3.1 Kumo Predictive Server & Pydantic v2 Validation
+### FastMCP 3.1 Kumo Predictive Server & Strict Pydantic v2 Validation
 
-The executable Python script below builds a complete **FastMCP 3.1** predictive analytics server wrapping Kumo AI's REST API, using strict **Pydantic v2** schema validation.
+The executable Python script below builds a production **FastMCP 3.1** predictive analytics server wrapping Kumo AI's REST API, using strict **Pydantic v2** schema validation with `extra="forbid"`.
 
 ```python
 import os
 import requests
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP("Kumo-Predictive-Analytics", version="3.1.0")
@@ -181,11 +277,11 @@ KUMO_API_KEY = os.getenv("KUMO_API_KEY", "your-kumo-api-key")
 # --- Pydantic v2 Data Schemas ---
 
 class ChurnRiskEntity(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid")
 
-    customer_id: str = Field(..., alias="id", description="Unique customer ID in data warehouse")
-    churn_probability: float = Field(..., ge=0.0, le=1.0, alias="score", description="Predicted churn probability")
-    predicted_ltv_remaining: Optional[float] = Field(None, alias="predictedLtv", description="Forecasted remaining LTV")
+    customer_id: str = Field(..., description="Unique customer ID in data warehouse")
+    churn_probability: float = Field(..., ge=0.0, le=1.0, description="Predicted churn probability")
+    predicted_ltv_remaining: Optional[float] = Field(None, description="Forecasted remaining LTV")
     recommended_action: str = Field(..., description="Automated agent mitigation strategy recommendation")
 
     @field_validator("churn_probability", mode="after")
@@ -193,12 +289,27 @@ class ChurnRiskEntity(BaseModel):
     def validate_score(cls, v: float) -> float:
         return round(v, 4)
 
+class ChurnPredictionQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    segment_name: str = Field(..., min_length=2, description="Target customer segment name in warehouse")
+    min_churn_probability: float = Field(default=0.75, ge=0.0, le=1.0, description="Probability cutoff threshold")
+    max_results: int = Field(default=10, ge=1, le=100, description="Max entities to return")
+
+class PredictiveSqlInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    predictive_sql: str = Field(..., min_length=15, description="Declarative Kumo predictive SQL statement")
+    dry_run: bool = Field(default=False, description="Validate SQL syntax without queueing GPU job")
+
 class PredictiveJobResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_id: str = Field(..., description="Unique Kumo execution job ID")
-    status: str = Field(..., description="Job execution status (e.g. COMPLETED, RUNNING)")
+    status: str = Field(..., description="Job execution status (e.g. COMPLETED, RUNNING, QUEUED)")
     total_entities_analyzed: int = Field(0, description="Total relational nodes processed")
     high_risk_entities: List[ChurnRiskEntity] = Field(default_factory=list)
-
+    execution_time_ms: Optional[int] = Field(None, description="Elapsed execution time in milliseconds")
 
 # --- FastMCP 3.1 Tools ---
 
@@ -206,62 +317,88 @@ class PredictiveJobResponse(BaseModel):
     name="kumo_predict_customer_churn",
     description="Execute KumoRFM-2 Relational Graph Neural Network query to identify customers at risk of churn."
 )
-def kumo_predict_customer_churn(segment_name: str, min_churn_probability: float = 0.75) -> str:
+async def kumo_predict_customer_churn(
+    query: ChurnPredictionQuery,
+    ctx: Optional[Context] = None
+) -> PredictiveJobResponse:
     """Issue predictive query to Kumo AI engine and return Pydantic v2 validated results."""
-    # Simulated response structure representing Kumo API output
-    mock_kumo_api_response = {
-        "job_id": "kumo_job_2027_0981a",
-        "status": "COMPLETED",
-        "total_entities_analyzed": 145000,
-        "high_risk_entities": [
-            {
-                "id": "cust_ent_88291",
-                "score": 0.892,
-                "predictedLtv": 4200.50,
-                "recommended_action": "Trigger priority executive check-in via n8n"
-            },
-            {
-                "id": "cust_ent_44102",
-                "score": 0.815,
-                "predictedLtv": 1850.00,
-                "recommended_action": "Issue 20% renewal discount voucher"
-            }
-        ]
-    }
+    if ctx:
+        await ctx.info(f"Executing Kumo RFM churn prediction for segment '{query.segment_name}' (min_prob={query.min_churn_probability})")
 
-    try:
-        validated_job = PredictiveJobResponse.model_validate(mock_kumo_api_response)
+    # Mock response illustrating validated production payload
+    mock_entities = [
+        ChurnRiskEntity(
+            customer_id="cust_ent_88291",
+            churn_probability=0.892,
+            predicted_ltv_remaining=4200.50,
+            recommended_action="Trigger priority executive check-in via n8n"
+        ),
+        ChurnRiskEntity(
+            customer_id="cust_ent_44102",
+            churn_probability=0.815,
+            predicted_ltv_remaining=1850.00,
+            recommended_action="Issue 20% renewal discount voucher"
+        )
+    ]
 
-        # Filter entities matching minimum churn probability threshold
-        at_risk = [e for e in validated_job.high_risk_entities if e.churn_probability >= min_churn_probability]
+    filtered = [e for e in mock_entities if e.churn_probability >= query.min_churn_probability][:query.max_results]
 
-        summary = f"Kumo Job '{validated_job.job_id}' ({validated_job.status}): Analyzed {validated_job.total_entities_analyzed:,} entities.\n"
-        summary += f"Found {len(at_risk)} entities exceeding churn risk threshold {min_churn_probability:.2f}:\n"
-
-        for entity in at_risk:
-            summary += f"- Customer: {entity.customer_id} | Churn Risk: {entity.churn_probability*100:.1f}% | Est LTV: ${entity.predicted_ltv_remaining} | Action: {entity.recommended_action}\n"
-
-        return summary
-
-    except Exception as val_err:
-        return f"Prediction response schema validation error: {str(val_err)}"
+    return PredictiveJobResponse(
+        job_id="kumo_job_2027_0981a",
+        status="COMPLETED",
+        total_entities_analyzed=145000,
+        high_risk_entities=filtered,
+        execution_time_ms=1850
+    )
 
 
 @mcp.tool(
     name="kumo_execute_predictive_sql",
     description="Execute custom Kumo predictive SQL query string directly against relational graph."
 )
-def kumo_execute_predictive_sql(predictive_sql: str) -> str:
+async def kumo_execute_predictive_sql(
+    input_data: PredictiveSqlInput,
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
     """Run declarative predictive SQL statement on KumoRFM-2."""
-    if "PREDICT" not in predictive_sql.upper():
-        return "Error: Query must contain a valid 'PREDICT ... FOR EACH ...' clause."
+    if "PREDICT" not in input_data.predictive_sql.upper():
+        raise ValueError("Error: Query must contain a valid 'PREDICT ... FOR EACH ...' clause.")
 
-    return f"Predictive SQL Query submitted to Kumo Engine successfully.\nQuery: '{predictive_sql}'\nStatus: QUEUED (Job ID: kumo_sql_7721)"
+    if ctx:
+        await ctx.info(f"Submitting predictive SQL (dry_run={input_data.dry_run})")
+
+    if input_data.dry_run:
+        return {
+            "status": "VALIDATED",
+            "sql": input_data.predictive_sql,
+            "estimated_target_nodes": 45000,
+            "estimated_cost_credits": 0.5
+        }
+
+    return {
+        "status": "QUEUED",
+        "job_id": "kumo_sql_7721",
+        "query": input_data.predictive_sql,
+        "message": "Predictive SQL Query submitted to Kumo Engine successfully."
+    }
 
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Method | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **HTTP 401 Unauthorized** | Invalid or expired `KUMO_API_KEY` token | Test auth header with curl: `curl -H "Authorization: Bearer $KUMO_API_KEY" https://api.kumo.ai/v1/schemas` | Regenerate API token in Kumo Enterprise Console and update environment vault. |
+| **Predictive SQL Syntax Error** | Missing required `FOR EACH` or `OVER NEXT` temporal windows | Inspect query string for temporal aggregation keywords | Restructure statement to strictly follow `PREDICT <aggr> FOR EACH <primary_key> OVER NEXT <time_window>`. |
+| **Relational Graph Disconnected Table** | Foreign key constraints omitted or orphaned table nodes | Check graph connectivity: `kumo schema validate --schema enterprise_db` | Define explicit primary/foreign key relationships in Kumo Schema Graph Studio. |
+| **FastMCP Schema ValidationError** | LLM agent sent extra unrecognized properties in tool call | Check FastMCP stderr for Pydantic `extra_forbidden` errors | Ensure agent payload adheres strictly to `ChurnPredictionQuery` / `PredictiveSqlInput`. |
+| **DuckDB Cache Lock Contention** | Multiple async MCP threads accessing local cache DB simultaneously | Inspect DuckDB connection errors in container logs | Configure DuckDB in read-only mode for query workers or switch to Redis cache layer. |
+| **Timeout on GNN Training Job** | Extremely large relational graph (>1B edges) exceeding batch window | Inspect job status via `kumo job status --job-id <id>` | Apply neighborhood sampling filters or prune historical transaction log tables older than 2 years. |
+| **Empty High-Risk Entity Output** | `min_churn_probability` threshold set too high | Lower threshold from 0.85 to 0.60 | Re-run query with relaxed cutoff or verify positive label distribution in baseline training run. |
+| **Snowflake Connector Network Dropout** | Warehouse auto-suspended or IP whitelist blocked Kumo egress | Check Snowflake query history for connector session drops | Configure minimum auto-suspend window of 10 minutes and verify Kumo static egress IP ranges in Network Policy. |
 
 ## Related tools / concepts
 

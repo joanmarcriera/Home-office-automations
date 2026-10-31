@@ -97,6 +97,127 @@ In enterprise and agentic environments, raw document ingestion suffers from loss
 - When serving low-level LLM model weights directly (use [vLLM](../infrastructure/vllm.md) or [SGLang](../infrastructure/sglang.md)).
 - For ultra-lightweight single-prompt completions where an LLM SDK directly suffices without context indexing.
 
+## Systemd Service Configuration
+
+For production multi-agent knowledge hosting, run LlamaIndex Workflows as a dedicated systemd service (`llamaindex-workflow.service`):
+
+```ini
+[Unit]
+Description=LlamaIndex FastMCP 3.1 Workflow Server
+After=network-online.target qdrant.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=llamaindex
+Group=llamaindex
+WorkingDirectory=/opt/llamaindex-service
+EnvironmentFile=/etc/llamaindex/environment.env
+ExecStart=/opt/llamaindex-service/venv/bin/python3 -m app.server --host 0.0.0.0 --port 8000 --transport sse
+Restart=always
+RestartSec=5s
+MemoryMax=4G
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/llamaindex-service/storage /var/log/llamaindex
+PrivateTmp=true
+CapabilityBoundingSet=
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Multi-Container Docker Stack (`compose.yaml`)
+
+Deploy an enterprise LlamaIndex knowledge pipeline featuring Qdrant vector storage, Redis query caching, and FastMCP 3.1 SSE streaming endpoints:
+
+```yaml
+version: '3.8'
+
+services:
+  llamaindex-fastmcp-server:
+    image: python:3.11-slim
+    container_name: llamaindex-fastmcp-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - REDIS_URL=redis://llamaindex-redis:6379/0
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=8000
+    volumes:
+      - ./app:/opt/app:ro
+      - ./data:/opt/data:ro
+      - storage-data:/opt/storage
+    working_dir: /opt/app
+    command: python3 -m app.mcp_workflow_server
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      llamaindex-redis:
+        condition: service_healthy
+    networks:
+      - llamaindex-net
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4096M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.0
+    container_name: llamaindex-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - llamaindex-net
+
+  llamaindex-redis:
+    image: redis:7.2-alpine
+    container_name: llamaindex-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-cache:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - llamaindex-net
+
+networks:
+  llamaindex-net:
+    driver: bridge
+
+volumes:
+  qdrant-data:
+  redis-cache:
+  storage-data:
+```
+
 ## Getting started
 
 ### Installation
@@ -230,12 +351,13 @@ if __name__ == "__main__":
 ```
 
 ### FastMCP 3.1 SSE Server Exposing LlamaIndex Workflows
-Connecting LlamaIndex event-driven workflows to FastMCP 3.1 server tools for agentic discovery:
+Connecting LlamaIndex event-driven workflows to FastMCP 3.1 server tools for agentic discovery with strict Pydantic v2 validation:
 
 ```python
 import asyncio
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from llama_index.core import VectorStoreIndex, Document
 from llama_index.llms.openai import OpenAI
 
@@ -245,35 +367,110 @@ mcp = FastMCP("llamaindex-knowledge-server", version="3.1.0")
 # In-memory document index store for demonstration
 documents = [
     Document(text="FastMCP 3.1 introduces streaming SSE transport and native task protocol execution."),
-    Document(text="LlamaIndex v0.12+ provides event-driven Workflows with step function decorators.")
+    Document(text="LlamaIndex v0.12+ provides event-driven Workflows with step function decorators."),
+    Document(text="Dynamic late chunking preserves cross-chunk semantic embeddings in frontier RAG pipelines.")
 ]
 index = VectorStoreIndex.from_documents(documents)
-query_engine = index.as_query_engine(llm=OpenAI(model="gpt-5.6"))
+query_engine = index.as_query_engine(llm=OpenAI(model="gpt-5.6", temperature=0.1))
+
+class NodeMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    node_id: str = Field(..., description="Unique node identifier.")
+    score: float = Field(..., description="Similarity relevance score.")
+    snippet: str = Field(..., description="Retrieved passage snippet.")
 
 class SearchInput(BaseModel):
-    query: str = Field(..., description="The search query string")
-    similarity_top_k: int = Field(default=3, ge=1, le=10)
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., description="The search query string to retrieve relevant context for.")
+    similarity_top_k: int = Field(default=3, ge=1, le=10, description="Top-k documents to retrieve.")
+    filters: Optional[Dict[str, str]] = Field(default=None, description="Metadata filtering key-value constraints.")
+
+    @field_validator("query")
+    @classmethod
+    def validate_query(cls, v: str) -> str:
+        cleaned = v.strip()
+        if len(cleaned) < 3:
+            raise ValueError("Query string must contain at least 3 characters.")
+        return cleaned
 
 class SearchResponse(BaseModel):
-    query: str
-    answer: str
-    source_nodes: int
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., description="Original input query.")
+    answer: str = Field(..., description="Synthesized response from LlamaIndex query engine.")
+    source_nodes: int = Field(..., description="Count of source nodes utilized.")
+    citations: List[NodeMetadata] = Field(default_factory=list, description="Extracted citation metadata.")
+
+class IngestDocumentRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    doc_id: str = Field(..., description="Document identifier.")
+    text: str = Field(..., min_length=20, description="Raw textual content to append to live index.")
+    metadata: Dict[str, str] = Field(default_factory=dict, description="Metadata tags for document.")
+
+class IngestResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = Field(..., description="Ingestion outcome status.")
+    indexed_doc_id: str = Field(..., description="ID of inserted document.")
 
 @mcp.tool(
     name="query_knowledge_base",
-    description="Query internal LlamaIndex knowledge base using hybrid vector search."
+    description="Query internal LlamaIndex knowledge base using hybrid vector search and return synthesized answer."
 )
-async def query_knowledge_base(params: SearchInput) -> SearchResponse:
+async def query_knowledge_base(params: SearchInput, ctx: Optional[Context] = None) -> SearchResponse:
+    if ctx:
+        await ctx.info(f"Querying LlamaIndex pipeline for: '{params.query}' (top_k={params.similarity_top_k})")
+
     res = await query_engine.aquery(params.query)
+    citations = []
+    for node in getattr(res, "source_nodes", []):
+        citations.append(
+            NodeMetadata(
+                node_id=str(node.node.node_id),
+                score=float(node.score if node.score is not None else 1.0),
+                snippet=str(node.node.get_content())[:150]
+            )
+        )
+
     return SearchResponse(
         query=params.query,
         answer=str(res),
-        source_nodes=len(res.source_nodes)
+        source_nodes=len(citations),
+        citations=citations
     )
+
+@mcp.tool(
+    name="insert_knowledge_document",
+    description="Dynamically indexes a new document into the running LlamaIndex vector store."
+)
+async def insert_knowledge_document(params: IngestDocumentRequest, ctx: Optional[Context] = None) -> IngestResponse:
+    if ctx:
+        await ctx.info(f"Inserting new document ID '{params.doc_id}' into live index...")
+
+    doc = Document(doc_id=params.doc_id, text=params.text, extra_info=params.metadata)
+    index.insert(doc)
+    return IngestResponse(status="success", indexed_doc_id=params.doc_id)
 
 if __name__ == "__main__":
     mcp.run(transport="sse", port=8000)
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Method | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **SSE Connection Drop / Timeout** | MCP client timeout or reverse proxy buffering SSE chunks | Check proxy logs and curl SSE stream: `curl -N -H "Accept: text/event-stream" http://localhost:8000/sse` | Configure reverse proxy (`proxy_buffering off; proxy_read_timeout 3600s;`) in NGINX. |
+| **Qdrant Connection Refused** | Vector store container down or invalid hostname in `.env` | Inspect vector database status: `docker inspect llamaindex-qdrant --format='{{.State.Health.Status}}'` | Verify Qdrant port binding `6333` and ensure `QDRANT_HOST=qdrant` is reachable via Docker bridge network. |
+| **Empty Source Nodes on Query** | Similarity threshold too strict or index empty | Run index size check: `llamaindex-cli index summary --index-path /opt/storage` | Lower similarity score threshold, verify document ingestion pipeline, or switch to hybrid BM25 + dense retrieval. |
+| **Pydantic ValidationError: Extra inputs not permitted** | Client agent passed undeclared arguments to MCP tool | Inspect MCP service stderr logs for `extra_forbidden` errors | Update client MCP schema contract or verify tool input parameters against `SearchInput`. |
+| **OpenAI / Frontier RateLimitError (429)** | Exceeded tokens-per-minute (TPM) quota on embedding or synthesis | Check API logs for HTTP 429 response codes | Introduce exponential backoff retries (`retry_on_flag=True`) or fall back to local Ollama/vLLM endpoints. |
+| **Memory Leak in Long-Running Workflow** | Circular references or unbound event queue in stateful Workflow | Check memory usage with `systemctl status llamaindex-workflow.service` or `docker stats` | Explicitly terminate completed workflows with `StopEvent`, clear temporary event listeners. |
+| **Context Window Exceeded in Synthesis** | Retrieved chunks exceed prompt context limit of destination LLM | Log combined token count of `source_nodes` before passing to prompt | Configure `SimilarityPostprocessor` or `NodePostprocessor` with max token budget (e.g., 8k tokens). |
+| **Permission Denied on Local Index Storage** | Service user does not own `/opt/llamaindex-service/storage` | Check directory permissions: `ls -ld /opt/llamaindex-service/storage` | Run `chown -R llamaindex:llamaindex /opt/llamaindex-service/storage` and set `chmod 750`. |
+| **Asyncio Event Loop Already Running** | Attempting nested `asyncio.run()` in Jupyter or fastmcp handler | Check stack trace for `RuntimeError: This event loop is already running` | Use `nest_asyncio.apply()` or await asynchronous methods natively inside workflow handlers. |
 
 ## Related tools / concepts
 - [LangChain](langchain.md) — Multi-agent and chain ecosystem.
