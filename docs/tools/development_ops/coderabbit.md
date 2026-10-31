@@ -368,6 +368,36 @@ if __name__ == "__main__":
 | **`Pydantic Validation Error`** | Client request omitted mandatory `pull_request_number` field | Enforce strict Pydantic v2 `extra="forbid"` schema validation in caller application. |
 | **`AST Parser Syntax Error`** | Language version unsupported by default AST parser | Specify explicit language parser version in `.coderabbit.yaml` configuration. |
 | **`Rate Limit Exceeded (HTTP 429)`** | Enterprise PR payload burst exceeded token pool | Configure local rate limiter proxy or increase enterprise tier concurrency allowance. |
+| **`Large Diff Truncation Warning`** | Pull request exceeds maximum AST diff token budget | Enable chunked diff ingestion or exclude vendor/generated lockfiles in `.coderabbit.yaml`. |
+| **`Webhook Ingestion Latency Spike`** | Redis Celery worker queue saturation during burst CI events | Scale worker pool replicas in Docker Compose and enable persistent queue backpressure. |
+| **`Missing GPG Signature Validation`** | Webhook payload tampering or unverified GitHub commit signatures | Enforce HMAC-SHA256 signature verification on inbound webhook ingress routes. |
+
+## Verification & Diagnostic Commands
+Verify system functionality, FastMCP tool connectivity, and gateway telemetry using the following CLI diagnostic routines:
+
+```bash
+# 1. Check systemd unit operational status and active socket
+sudo systemctl status coderabbit-mcp-gateway.service --no-pager
+
+# 2. Inspect real-time structured journal logs for audit warnings
+sudo journalctl -u coderabbit-mcp-gateway.service -f -n 50 --output=cat
+
+# 3. Test FastMCP 3.1 gateway health endpoint
+curl -s http://localhost:8096/health | jq .
+
+# 4. Perform an end-to-end synthetic code diff review request
+curl -s -X POST http://localhost:8096/tools/audit_diff \
+  -H "Content-Type: application/json" \
+  -d '{
+    "repository_id": "org/repo-demo",
+    "pull_request_number": 42,
+    "diff_content": "+ import os\n+ API_KEY = \"sk-live-secret-test-key-12345\"",
+    "focus_areas": ["security", "ast_linting"]
+  }' | jq .
+
+# 5. Verify Docker Compose cluster container status and network binding
+docker compose -f /opt/coderabbit/docker-compose.yml ps
+```
 
 ## Operational Best Practices & Guardrails
 1. **Repository Configuration Locking**: Commit `.coderabbit.yaml` to the root repository branch to ensure consistent review standards across all branches.
