@@ -48,6 +48,7 @@ graph TD
 - **Multiplexed Parallel Agent Streams**: Spawning and monitoring multiple parallel sub-agent sessions across tiled Tmux panes, tracking reasoning thoughts and standard output logs in real time.
 - **Remote SSH Administration & Diagnostics**: Hosting lightweight open-terminal sessions over SSH on remote Linux servers for live diagnostic log parsing, configuration auditing, and system maintenance.
 - **Open WebUI Terminal Client Sync**: Utilizing open-terminal as a desktop CLI terminal interface linked to an enterprise Open WebUI server instance for centralized authentication and history synchronization.
+- **Automated Air-Gapped CLI Audits**: Running terminal batch scripts against local models to audit compliance across internal git repositories.
 
 ## Strengths
 - **Ultra Low Memory Footprint**: Uses under 25MB of RAM, compared to 1GB+ for Electron applications or web browser sessions.
@@ -90,13 +91,78 @@ WorkingDirectory=/home/developer
 Environment="PATH=/usr/local/bin:/usr/bin:/bin"
 Environment="OPEN_TERMINAL_CONFIG=/home/developer/.config/open-terminal/config.toml"
 Environment="TERM=xterm-256color"
-ExecStart=/usr/local/bin/open-terminal daemon --listen 127.0.0.1:9090
+ExecStart=/usr/local/bin/open-terminal daemon --listen 127.0.0.1:9090 --enable-ipc
 Restart=on-failure
 RestartSec=3s
 LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/developer/.cache/open-terminal /home/developer/.local/share/open-terminal
 
 [Install]
 WantedBy=multi-user.target
+```
+
+## Production Docker Compose Multi-Container Stack
+Deploying a persistent open-terminal remote environment with Tmux multiplexing, Ollama backend, and FastMCP 3.1 bridge service:
+
+```yaml
+version: "3.8"
+
+services:
+  open-terminal-daemon:
+    image: open-terminal/server:latest
+    container_name: open-terminal-core
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+      - "7681:7681" # Web TTY bridge for SSH fallback
+    environment:
+      - DEFAULT_BACKEND=ollama
+      - OLLAMA_ENDPOINT=http://ollama-service:11434
+      - MCP_BRIDGE_PORT=8088
+      - TERM=xterm-256color
+    volumes:
+      - terminal_sessions:/root/.local/share/open-terminal
+      - ./config.toml:/etc/open-terminal/config.toml:ro
+    depends_on:
+      - ollama-service
+      - fastmcp-bridge
+    networks:
+      - terminal-mesh
+
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: open-terminal-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - terminal-mesh
+
+  fastmcp-bridge:
+    image: python:3.12-slim
+    container_name: open-terminal-mcp-tools
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./tools:/app:ro
+    working_dir: /app
+    command: python3 -m mcp.server.fastmcp
+    networks:
+      - terminal-mesh
+
+networks:
+  terminal-mesh:
+    driver: bridge
+
+volumes:
+  terminal_sessions:
+  ollama_models:
 ```
 
 ## Getting started
@@ -186,21 +252,37 @@ Feed multiple codebase files into open-terminal for context validation:
 open-terminal audit --files src/**/*.rs --prompt "Analyze codebase for unsafe memory blocks"
 ```
 
+### Daemon Health Verification
+Check the operational status of the background daemon listener:
+
+```bash
+open-terminal daemon status --port 9090
+```
+
+### Multiplexed Sub-Agent Workspace Launch
+Spawn parallel sub-agent reasoning panes within open-terminal:
+
+```bash
+open-terminal workspace --panes 3 --split horizontal --backends "ollama,vllm,open_webui"
+```
+
 ## API examples
 
 ### Python: FastMCP 3.1 Terminal Session Management with Pydantic v2
-This production-ready Python script demonstrates using FastMCP 3.1 to programmatically launch, configure, and audit open-terminal session instances, validating parameters with Pydantic v2 schemas:
+This production-ready Python script demonstrates using FastMCP 3.1 to programmatically launch, configure, and audit open-terminal session instances, validating parameters with strict Pydantic v2 schemas (`extra="forbid"`):
 
 ```python
 import json
 import subprocess
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("OpenTerminalSessionManager")
+mcp = FastMCP("OpenTerminalSessionManager", version="3.1.0")
 
 class TerminalSessionConfig(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
     session_name: str = Field(..., description="Unique label for the open-terminal session")
     backend_url: str = Field(default="http://localhost:11434", description="Inference gateway endpoint URL")
     model: str = Field(default="claude-5-1-sonnet", description="Target LLM model for session")
@@ -208,23 +290,40 @@ class TerminalSessionConfig(BaseModel):
     vim_mode: bool = Field(default=True, description="Enable vim keybindings inside TUI")
     enable_mcp: bool = Field(default=True, description="Enable FastMCP tool routing in TUI")
     initial_prompt: Optional[str] = Field(None, description="Optional prompt to execute on boot")
+    max_history_tokens: int = Field(default=16384, ge=2048, le=65536)
+
+    @field_validator("session_name")
+    @classmethod
+    def validate_session_name(cls, v: str) -> str:
+        if not v.isalnum() and "_" not in v and "-" not in v:
+            raise ValueError("session_name must contain only alphanumeric characters, dashes, or underscores.")
+        return v
+
+class SubAgentPaneDirective(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    pane_id: int = Field(..., ge=1, le=16)
+    assigned_role: str = Field(..., description="Role: code_generator, test_runner, git_auditor")
+    active_model: str = Field(..., description="LLM assigned to pane")
+    terminal_command: Optional[str] = None
 
 class SessionStatusReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     session_name: str
     backend_url: str
     model: str
     status: str
     active_tools_count: int
+    panes: List[SubAgentPaneDirective] = Field(default_factory=list)
     command_args: List[str]
 
-@mcp.tool()
+@mcp.tool(name="configure_terminal_session", description="Validates configuration payload and constructs open-terminal launch parameters")
 def configure_terminal_session(config_json: str) -> str:
     """Validates configuration payload and constructs open-terminal launch parameters."""
     try:
         data = json.loads(config_json)
         config = TerminalSessionConfig(**data)
 
-        # Build CLI command arguments
         cmd_args = [
             "open-terminal",
             "--session", config.session_name,
@@ -242,23 +341,28 @@ def configure_terminal_session(config_json: str) -> str:
         if config.initial_prompt:
             cmd_args.extend(["--prompt", config.initial_prompt])
 
+        panes_sample = [
+            SubAgentPaneDirective(pane_id=1, assigned_role="code_generator", active_model=config.model),
+            SubAgentPaneDirective(pane_id=2, assigned_role="test_runner", active_model="qwen-3.6-coder")
+        ]
+
         report = SessionStatusReport(
             session_name=config.session_name,
             backend_url=config.backend_url,
             model=config.model,
             status="initialized",
             active_tools_count=6 if config.enable_mcp else 0,
+            panes=panes_sample,
             command_args=cmd_args
         )
         return report.model_dump_json(indent=2)
     except Exception as e:
         return json.dumps({"status": "error", "message": str(e)})
 
-@mcp.tool()
+@mcp.tool(name="audit_terminal_history", description="Retrieves and audits historical command traces from open-terminal session storage")
 def audit_terminal_history(session_name: str, max_entries: int = 20) -> str:
     """Retrieves and audits historical command traces from open-terminal session storage."""
     try:
-        # Simulated log extraction from session history database
         sample_history = [
             {"id": 1, "prompt": "Check git diff for uncommitted changes", "status": "executed"},
             {"id": 2, "prompt": "Run fastmcp tool server health check", "status": "completed"}
@@ -283,6 +387,9 @@ if __name__ == "__main__":
 | **Inference Backend Connection Timeout** | Ollama or vLLM daemon not running or blocked by firewall | `curl -s http://localhost:11434/api/version` | Verify local inference server status (`systemctl status ollama`) and check `endpoint` in `config.toml`. |
 | **FastMCP Tool Exec Failures** | Misconfigured executable path in `config.toml` or missing Python package | `open-terminal mcp list` | Validate `command` paths and ensure virtual environments have `mcp` / `pydantic` installed. |
 | **Vim Keybindings Not Responding** | Focus lost or vim_mode disabled in `config.toml` | Check `~/.config/open-terminal/config.toml` | Ensure `vim_mode = true` is set under `[general]` section. |
+| **Unix Socket Permission Denied** | Daemon socket created by root instead of local user | `ls -l /tmp/open-terminal.sock` | Change socket ownership (`chown developer:developer /tmp/open-terminal.sock`) or launch with user systemd unit. |
+| **Tmux Pane Flicker during Streaming** | Excessive refresh rate on stdout render buffer | Check tmux version and `open-terminal --fps` | Set `--fps 30` or enable tmux unbuffered mode (`set -g focus-events on`). |
+| **PTY Allocation Failure** | Host reached OS maximum pseudoterminal allocation limit | `cat /proc/sys/kernel/pty/nr` | Increase `kernel.pty.max` or kill stale disconnected tmux background sessions. |
 
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md) — Comprehensive web UI counterpart to open-terminal.

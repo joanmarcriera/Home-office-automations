@@ -69,6 +69,7 @@ sequenceDiagram
 - **Autonomous Drone & Robotic Navigation**: Processing 60fps camera streams for spatial depth mapping and obstacle avoidance.
 - **Mobile Document & Receipt Extraction**: Extracting tabular data from camera snapshots on offline mobile devices.
 - **Edge FastMCP Tool Services**: Hosting local vision-language tools accessible by edge agents via standardized MCP protocols.
+- **Continuous Acoustic Anomaly Detection**: Processing streaming audio vibrations to anticipate industrial machinery ball-bearing failure.
 
 ## Key Features & Capabilities
 - **Continuous-Time Neural Architecture**: Exceptional state memory efficiency for continuous time-series, audio, and visual streams.
@@ -96,6 +97,8 @@ sequenceDiagram
 | **FastMCP Schema Validation Error** | Mismatched bounding box coordinate types in Pydantic payload | Review stderr logs for `ValidationError` in `inspect_edge_frame`. | Ensure coordinate attributes are normalized floats between `0.0` and `1.0`. |
 | **High Latency in Continuous Video** | Synchronous frame loading blocking ODE solver loop | Measure frame read latency vs model inference time. | Wrap frame acquisition in asynchronous queue thread (`asyncio.Queue`). |
 | **Model Output Drift** | Uncalibrated camera telemetry or missing normalization | Verify RGB channel normalization parameters in pre-processing pipeline. | Apply standard ImageNet mean/std normalization in ingestion preprocessor. |
+| **ODE Solver Stiff State Convergence** | Sudden telemetry voltage spike causes numerical instability | Check adaptive step size $\Delta t$ in solver log. | Enable Runge-Kutta 4th order adaptive stiffness clamping in engine config. |
+| **NPU Thermal Throttling** | Ambient enclosure temperature exceeds 75°C under sustained 60fps load | Run `tegrastats` or `liquid thermal-status`. | Lower video ingestion frame rate to 30fps or engage active cooling PWM fan profile. |
 
 ## Strengths
 - **Extreme Efficiency**: Unmatched parameter efficiency and memory scaling for continuous streaming data.
@@ -127,6 +130,92 @@ liquid hardware status --verbose
 
 # Compile LFM-2.5-VL-3B model weights for NVIDIA Jetson Orin NPU
 liquid compile --model lfm-2.5-vl-3b --target tensorrt-npu --precision int8 --output ./models/lfm-2.5-vl-3b-orin.engine
+```
+
+## Systemd Service Configuration
+Deploying Liquid AI Edge Engine as a systemd background service on industrial gateways and robotic host controllers:
+
+```ini
+[Unit]
+Description=Liquid AI Edge Vision Inference Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=liquid
+Group=liquid
+WorkingDirectory=/var/lib/liquid
+ExecStart=/usr/local/bin/liquid-daemon --model /var/lib/liquid/models/lfm-2.5-vl-3b-orin.engine --mcp-port 8090 --ode-precision adaptive
+Restart=always
+RestartSec=5s
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=LIQUID_LOG_LEVEL=info
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SYS_NICE
+Nice=-10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Docker Compose Multi-Container Stack
+For containerized edge inspection deployments, the following stack runs the Liquid AI inference daemon, a FastMCP 3.1 bridge, an edge camera RTSP ingestion buffer, and a local Redis state cache:
+
+```yaml
+version: "3.8"
+
+services:
+  liquid-inference-engine:
+    image: liquidai/lfm-edge-runtime:2027.1
+    container_name: liquid-edge-engine
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - LIQUID_MODEL_PATH=/models/lfm-2.5-vl-3b-orin.engine
+      - LIQUID_PRECISION=int8
+      - REDIS_CACHE_URL=redis://liquid-redis:6379/0
+      - MCP_PORT=8090
+    volumes:
+      - ./models:/models:ro
+      - /dev/video0:/dev/video0
+    devices:
+      - /dev/video0:/dev/video0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - liquid-edge-mesh
+
+  rtsp-frame-ingest:
+    image: mediamtx:latest
+    container_name: liquid-rtsp-ingest
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+    networks:
+      - liquid-edge-mesh
+
+  liquid-redis:
+    image: redis:7.4-alpine
+    container_name: liquid-edge-cache
+    restart: unless-stopped
+    volumes:
+      - redis_state:/data
+    networks:
+      - liquid-edge-mesh
+
+networks:
+  liquid-edge-mesh:
+    driver: bridge
+
+volumes:
+  redis_state:
 ```
 
 ## Getting started
@@ -164,6 +253,11 @@ liquid hardware status
 liquid stream --source /dev/video0 --model lfm-2.5-vl-3b --output-mcp 8090
 ```
 
+### 4. Benchmark Continuous ODE State Latency
+```bash
+liquid benchmark ode-solve --batch-size 1 --iterations 1000 --precision int8
+```
+
 ## API examples
 
 ### FastMCP 3.1 Multimodal Edge Inspection Server (Python)
@@ -172,7 +266,7 @@ The following Python script implements a complete FastMCP 3.1 server using Liqui
 ```python
 import base64
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
 class BoundingBox(BaseModel):
@@ -181,6 +275,22 @@ class BoundingBox(BaseModel):
     ymin: float = Field(..., ge=0.0, le=1.0, description="Normalized y min coordinate")
     xmax: float = Field(..., ge=0.0, le=1.0, description="Normalized x max coordinate")
     ymax: float = Field(..., ge=0.0, le=1.0, description="Normalized y max coordinate")
+
+    @field_validator("xmax")
+    @classmethod
+    def validate_x_bounds(cls, v: float, info) -> float:
+        xmin = info.data.get("xmin")
+        if xmin is not None and v <= xmin:
+            raise ValueError("xmax must be strictly greater than xmin")
+        return v
+
+    @field_validator("ymax")
+    @classmethod
+    def validate_y_bounds(cls, v: float, info) -> float:
+        ymin = info.data.get("ymin")
+        if ymin is not None and v <= ymin:
+            raise ValueError("ymax must be strictly greater than ymin")
+        return v
 
 class DetectedDefect(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -201,6 +311,7 @@ class EdgeInspectionReport(BaseModel):
     detected_defects: List[DetectedDefect] = Field(default_factory=list)
     telemetry: Optional[SensorTelemetrySample] = None
     has_anomaly: bool = Field(default=False, description="True if defect detected")
+    ode_solve_latency_ms: float = Field(default=7.4, description="LNN differential step compute duration")
     recommended_action: str = Field(..., description="Directive for downstream edge controller")
 
 mcp = FastMCP("Liquid-AI-Edge-Vision", version="3.1.0")
@@ -231,6 +342,7 @@ async def inspect_edge_frame(
         ],
         telemetry=telemetry_sample,
         has_anomaly=True,
+        ode_solve_latency_ms=6.8,
         recommended_action="Trigger pneumatic reject arm to divert component."
     )
     return report.model_dump_json(indent=2)
@@ -239,33 +351,39 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### Systemd Service Configuration for Liquid Edge Engine
-Deploying Liquid AI Edge Engine as a systemd background service on industrial gateways:
+### Python: Continuous ODE Dynamic State Tracker
+Using Liquid AI continuous state updates for time-series anomaly detection:
 
-```ini
-[Unit]
-Description=Liquid AI Edge Vision Inference Daemon
-After=network.target nvidia-persistenced.service
+```python
+from typing import List
+from pydantic import BaseModel, Field, ConfigDict
 
-[Service]
-Type=simple
-User=liquid
-Group=liquid
-WorkingDirectory=/var/lib/liquid
-ExecStart=/usr/local/bin/liquid-daemon --model /var/lib/liquid/models/lfm-2.5-vl-3b-orin.engine --mcp-port 8090
-Restart=always
-RestartSec=5s
-Environment=CUDA_VISIBLE_DEVICES=0
-LimitNOFILE=65536
+class DynamicODEState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    hidden_dim: int = Field(default=256)
+    state_vector: List[float] = Field(..., description="Continuous dynamical ODE hidden vector")
+    stiffness_ratio: float = Field(default=1.02, description="ODE solver numerical stability factor")
 
-[Install]
-WantedBy=multi-user.target
+def step_lnn_state(current_state: DynamicODEState, input_signal: float, dt: float = 0.016) -> DynamicODEState:
+    """Simulates an adaptive continuous-time differential equation update step."""
+    updated_vector = [val * 0.95 + input_signal * 0.05 for val in current_state.state_vector]
+    return DynamicODEState(
+        hidden_dim=current_state.hidden_dim,
+        state_vector=updated_vector,
+        stiffness_ratio=current_state.stiffness_ratio
+    )
+
+if __name__ == "__main__":
+    init_state = DynamicODEState(state_vector=[0.0] * 256)
+    next_state = step_lnn_state(init_state, 1.25)
+    print(f"LNN ODE State updated. Vector sample: {next_state.state_vector[:3]}")
 ```
 
 ## Production & Operational Guardrails
 - **Hardware Fallback Protection**: Configure automatic fallback routes to cloud endpoints if edge VRAM usage exceeds 90%.
 - **Thermal Throttling Guards**: Monitor GPU/NPU temperatures; reduce inference frame rates automatically if core temperatures exceed 80°C.
 - **Model Signature Verification**: Enforce cryptographic SHA-256 hash checks on local `.engine` weights before loading them into edge NPU memory.
+- **Continuous State Clamp**: Restrict continuous ODE hidden variables with soft ceiling limits to prevent floating point divergence during extended multi-hour streaming runs.
 
 ## Related tools / concepts
 - [vLLM](../infrastructure/vllm.md) — Local LLM serving engine.
