@@ -3,7 +3,7 @@
 ## What it is
 Tabnine is an AI code assistant that focuses on privacy, data security, and enterprise-grade code completion control. It provides AI-powered code completions, inline refactoring, and conversational chat capabilities, with a strong emphasis on local-only execution, private model hosting, air-gapped VPC deployments, and FastMCP 3.1 contextual servers to ensure source code never leaves a secure environment.
 
-As of early 2027, Tabnine's enterprise engine supports fine-tuning on custom internal code repositories, integrates with local model runners (such as [LocalAI](../infrastructure/localai.md) or vLLM), and supports frontier models like Claude 5.6 and DeepSeek-V4 in hybrid enterprise setups.
+As of early 2027, Tabnine's enterprise engine supports fine-tuning on custom internal code repositories, integrates with local model runners (such as [LocalAI](../infrastructure/localai.md), [vLLM](../infrastructure/vllm.md), or Triton Inference Server), and supports frontier models like Claude 5.6 and DeepSeek-V4 in hybrid enterprise setups.
 
 ```mermaid
 graph TD
@@ -63,6 +63,7 @@ Tabnine employs a modular client-daemon architecture. The IDE extension delegate
 - **Local LLM Inference**: Running small, optimized models directly on developer workstations without Internet connectivity.
 - **Enterprise Private Cloud Deployment**: Deploying Tabnine's infrastructure on-premises or within a private AWS/GCP/Azure VPC.
 - **Legacy & Proprietary Codebases**: Training custom models or indexing private repositories to improve completion relevance for internal frameworks.
+- **Auditable Air-Gapped Workstations**: Enforcing automated telemetry blocking and air-gapped cryptographic verification across corporate developer laptops.
 
 ## Technical Comparison Matrix
 
@@ -122,6 +123,103 @@ For users with Tabnine Pro/Enterprise, force the client binary to operate strict
 }
 ```
 
+## Systemd Service Configuration
+For centralized enterprise developer workstations and shared Linux development bastions, the Tabnine background agent daemon can be managed via systemd to guarantee high availability and automated restart upon host reboot:
+
+```ini
+[Unit]
+Description=Tabnine Enterprise Air-Gapped Completion Daemon
+After=network.target localai.service
+Wants=localai.service
+
+[Service]
+Type=simple
+User=tabnine
+Group=tabnine
+WorkingDirectory=/opt/tabnine
+Environment="TABNINE_LOCAL_ONLY=1"
+Environment="TABNINE_DISABLE_TELEMETRY=1"
+Environment="TABNINE_REMOTE_ENDPOINT=http://127.0.0.1:8080/v1"
+Environment="TABNINE_LOG_LEVEL=info"
+ExecStart=/opt/tabnine/bin/Tabnine --server --port 9870 --config /opt/tabnine/config.json
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/tabnine/logs /opt/tabnine/cache
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Docker Compose Multi-Container Stack
+Deploying an enterprise Tabnine bridge with local model caching, vector search indexing, and telemetry stripping in an air-gapped container environment:
+
+```yaml
+version: "3.8"
+
+services:
+  tabnine-gateway:
+    image: tabnine/enterprise-server:2027.1
+    container_name: tabnine-enterprise-gateway
+    restart: unless-stopped
+    ports:
+      - "9870:9870"
+    environment:
+      - TABNINE_AIR_GAPPED=true
+      - TABNINE_DISABLE_EXTERNAL_TELEMETRY=true
+      - LOCAL_MODEL_BACKEND=http://vllm-backend:8000/v1
+      - VECTOR_STORE_URL=http://qdrant-index:6333
+      - LOG_LEVEL=info
+    volumes:
+      - tabnine_config:/etc/tabnine
+      - tabnine_cache:/var/cache/tabnine
+    depends_on:
+      - vllm-backend
+      - qdrant-index
+    networks:
+      - tabnine-internal
+
+  vllm-backend:
+    image: vllm/vllm-openai:latest
+    container_name: tabnine-vllm-model
+    restart: unless-stopped
+    environment:
+      - HUGGING_FACE_HUB_OFFLINE=1
+      - MODEL_NAME=/models/tabnine-deep-v2
+    volumes:
+      - ./offline_models:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - tabnine-internal
+
+  qdrant-index:
+    image: qdrant/qdrant:v1.12.0
+    container_name: tabnine-code-vector-db
+    restart: unless-stopped
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    networks:
+      - tabnine-internal
+
+networks:
+  tabnine-internal:
+    driver: bridge
+
+volumes:
+  tabnine_config:
+  tabnine_cache:
+  qdrant_storage:
+```
+
 ## CLI examples
 
 ```bash
@@ -134,6 +232,12 @@ Tabnine --chat-only --config-file ~/.config/tabnine/tabnine.json
 # Export internal enterprise endpoint for air-gapped VPC
 export TABNINE_REMOTE_ENDPOINT="https://tabnine.internal.company.com"
 export TABNINE_DISABLE_TELEMETRY=1
+
+# Verify Tabnine local socket daemon health
+curl -s http://127.0.0.1:9870/health | jq .
+
+# Trigger offline repository re-indexing for internal symbols
+Tabnine --index-repo /workspace/enterprise-core --output-db /opt/tabnine/cache/symbols.db
 ```
 
 ## API examples
@@ -161,13 +265,14 @@ Tabnine's internal binary is consumed via JSON-RPC over a local IPC socket or st
 The following Python script implements a **FastMCP 3.1** context server that supplies local code snippets to Tabnine Chat without external cloud connectivity:
 
 ```python
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 
-mcp = FastMCP("tabnine-local-context-server", version="3.1")
+mcp = FastMCP("tabnine-local-context-server", version="3.1.0")
 
 class CodeSnippetQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     symbol_name: str = Field(..., description="Target function or class symbol")
     file_path: Optional[str] = Field(None, description="Path filter for search")
     max_results: int = Field(default=5, ge=1, le=20, description="Max snippet items")
@@ -181,30 +286,41 @@ class CodeSnippetQuery(BaseModel):
         return cleaned
 
 class CodeSnippetResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     symbol_name: str = Field(..., description="Target symbol name")
     snippet_content: str = Field(..., description="Extracted internal code context")
     file_path: str = Field(..., description="File path location")
-    confidence: float = Field(ge=0.0, le=1.0, description="Relevance match score")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Relevance match score")
+
+class EnterpriseContextResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: str = Field(default="success")
+    results: List[CodeSnippetResult]
+    total_found: int
 
 @mcp.tool(name="fetch_local_code_context", description="Retrieves internal repository context for Tabnine local engine")
 def fetch_local_code_context(symbol_name: str, file_path: Optional[str] = None, max_results: int = 5) -> str:
-    """FastMCP 3.1 tool for local RAG context retrieval."""
+    """FastMCP 3.1 tool for local air-gapped RAG context retrieval."""
     try:
         query = CodeSnippetQuery(symbol_name=symbol_name, file_path=file_path, max_results=max_results)
 
-        # Simulate local vector database lookup
-        results = [
+        # In production, query the internal local Qdrant/Chroma vector store
+        mock_results = [
             CodeSnippetResult(
                 symbol_name=query.symbol_name,
-                snippet_content=f"def {query.symbol_name}(*args, **kwargs):\n    # Internal enterprise implementation\n    pass",
+                snippet_content=f"def {query.symbol_name}(*args, **kwargs):\n    # Internal air-gapped implementation\n    return calculate_internal_metrics()",
                 file_path=query.file_path or "src/internal_core.py",
-                confidence=0.95
+                confidence=0.98
             )
         ]
 
-        return f"{[r.model_dump() for r in results]}"
+        response = EnterpriseContextResponse(
+            results=mock_results,
+            total_found=len(mock_results)
+        )
+        return response.model_dump_json(indent=2)
     except ValidationError as ve:
-        return f"Query validation error: {ve}"
+        return f'{{"status": "validation_error", "error": "{str(ve)}"}}'
 
 if __name__ == "__main__":
     mcp.run()
@@ -214,15 +330,22 @@ if __name__ == "__main__":
 Validate Tabnine local-only and enterprise settings using Pydantic v2:
 
 ```python
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import Optional
+from typing import Optional, Set
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 
 class TabnineLocalConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     model_type: str = Field(default="local", description="Inference mode: local, private_cloud, hybrid")
-    local_model_path: str = Field(..., description="Path to local weights")
+    local_model_path: str = Field(..., description="Path to local weights directory")
     cloud_inference_enabled: bool = Field(default=False, description="Disable cloud fallback")
     telemetry_enabled: bool = Field(default=False, description="Telemetry opt-out toggle")
     remote_endpoint: Optional[str] = Field(None, description="Internal Enterprise URL")
+    max_context_tokens: int = Field(default=4096, ge=1024, le=32768, description="Context window size")
+    allowed_file_extensions: Set[str] = Field(
+        default_factory=lambda: {".py", ".rs", ".go", ".ts", ".js", ".java", ".cpp"},
+        description="Whitelisted file extensions for indexing"
+    )
 
     @field_validator("model_type")
     @classmethod
@@ -232,8 +355,16 @@ class TabnineLocalConfig(BaseModel):
             raise ValueError(f"Invalid model_type '{value}'. Must be one of {valid_modes}")
         return value
 
+    @field_validator("cloud_inference_enabled")
+    @classmethod
+    def validate_air_gap_guarantee(cls, v: bool, info) -> bool:
+        model_type = info.data.get("model_type")
+        if model_type == "local" and v is True:
+            raise ValueError("Air-gap policy violation: cloud_inference_enabled cannot be true when model_type is local.")
+        return v
+
 def validate_config(raw_data: dict) -> TabnineLocalConfig:
-    """Validates Tabnine configuration dictionary against Pydantic v2 schema."""
+    """Validates Tabnine configuration dictionary against strict Pydantic v2 schema."""
     return TabnineLocalConfig.model_validate(raw_data)
 
 if __name__ == "__main__":
@@ -242,13 +373,16 @@ if __name__ == "__main__":
         "local_model_path": "/opt/tabnine/models/tabnine-local-v2",
         "cloud_inference_enabled": False,
         "telemetry_enabled": False,
-        "remote_endpoint": "https://tabnine.internal.company.com"
+        "remote_endpoint": "https://tabnine.internal.company.com",
+        "max_context_tokens": 8192,
+        "allowed_file_extensions": [".py", ".ts", ".rs"]
     }
 
     config = validate_config(config_data)
     print(f"Validated Tabnine local mode: {config.model_type}")
     print(f"Cloud inference allowed: {config.cloud_inference_enabled}")
     print(f"Internal Endpoint: {config.remote_endpoint}")
+    print(f"Max context window: {config.max_context_tokens} tokens")
 ```
 
 ## Diagnostic & Operational Troubleshooting Matrix
@@ -256,9 +390,12 @@ if __name__ == "__main__":
 | Error Code / Symptom | Root Cause | Remediation Step |
 | :--- | :--- | :--- |
 | `TabnineBinaryNotFound` | Extension failed to download client binary | Download air-gapped bundle and set `TABNINE_BINARY_PATH`. |
-| `IPC_Connection_Timeout` | Local RPC socket blocked by local SELinux / Firewall | Grant IPC communication rights to Tabnine binary. |
-| `VRAM_Exhaustion_Error` | Local model exceeds available GPU memory | Lower `max_num_results` or switch to 4-bit quantized GGML weights. |
+| `IPC_Connection_Timeout` | Local RPC socket blocked by local SELinux / Firewall | Grant IPC communication rights to Tabnine binary (`chmod +x` and adjust AppArmor/SELinux profiles). |
+| `VRAM_Exhaustion_Error` | Local model exceeds available GPU memory | Lower `max_num_results` or switch to 4-bit quantized GGML/AWQ weights. |
 | `FastMCP_Context_Error` | MCP server connection handshake failed | Verify local MCP port and check authentication token. |
+| `TelemetryLeakWarning` | Client attempted to ping external telemetry URL | Verify firewall rules blocking `api.tabnine.com` and confirm `telemetry_enabled: false`. |
+| `SymbolIndexCorrupted` | Local SQLite/RocksDB vector symbol cache damaged | Delete corrupted cache in `~/.cache/tabnine/symbols` and trigger re-index with `--index-repo`. |
+| `LicenseSyncFailure` | Offline lease token expired in air-gapped node | Upload newly generated offline enterprise license file to `/etc/tabnine/license.key`. |
 
 ## Related tools / concepts
 - [VS Code](vscode.md) — The most common platform for Tabnine extensions.

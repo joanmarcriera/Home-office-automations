@@ -51,6 +51,7 @@ The Software Factory resides in the **Orchestration and Quality Layer** of the [
 - **Digital Twin Development**: Generating high-fidelity mocks of external SaaS services (Okta, Jira, Slack) for safe, high-volume stress testing.
 - **Documentation as Code**: Maintaining perfectly synced technical documentation by having agents update docs whenever a code change is validated.
 - **Automated Validation Ingestion**: Programmatically parsing and validating incoming factory seeds using strong schema guarantees.
+- **Continuous Technical Debt Elimination**: Systematic overnight deprecation and refactoring of legacy APIs across thousands of microservices.
 
 ## Strengths
 - **Compounding Correctness**: Long-horizon workflows can self-correct when guided by strong, deterministic validation loops.
@@ -74,6 +75,99 @@ The Software Factory resides in the **Orchestration and Quality Layer** of the [
 - For small, low-complexity scripts where a human can verify the code in seconds.
 - In low-budget environments where the token cost for recursive validation is prohibitive (unless using local LLMs like Qwen 3.6 Coder).
 - For safety-critical systems where the validation harness itself cannot be 100% verified by humans.
+
+## Systemd Service Configuration
+Managing an automated software factory dispatcher daemon on Linux build servers using systemd:
+
+```ini
+[Unit]
+Description=Software Factory Autonomous Task Runner & Harness Daemon
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=factory
+Group=factory
+WorkingDirectory=/var/lib/software-factory
+Environment="FACTORY_SANDBOX=docker"
+Environment="MAX_CONCURRENT_TRAJECTORIES=4"
+Environment="MCP_PORT=8095"
+ExecStart=/usr/local/bin/python3 -m software_factory.daemon --config /etc/software-factory/config.json
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/software-factory/runs /var/lib/software-factory/logs
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Docker Compose Multi-Container Stack
+Complete isolated execution topology for autonomous software generation, testing harnesses, and scoring engines:
+
+```yaml
+version: "3.8"
+
+services:
+  factory-orchestrator:
+    image: software-factory/controller:2027.1
+    container_name: factory-controller
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - RUNNER_POOL_URL=http://factory-sandbox:9000
+      - EVALUATOR_URL=http://satisfaction-eval:5000
+      - MAX_RETRIES=5
+      - SATISFACTION_THRESHOLD=0.92
+    volumes:
+      - ./seeds:/seeds:ro
+      - factory_runs:/workspace/runs
+    networks:
+      - factory-mesh
+
+  factory-sandbox:
+    image: software-factory/runner-sandbox:latest
+    container_name: factory-sandbox
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=1g
+    volumes:
+      - factory_runs:/workspace/runs
+    networks:
+      - factory-mesh
+
+  satisfaction-eval:
+    image: software-factory/evaluator:latest
+    container_name: factory-evaluator
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - AST_STRICTNESS=high
+      - LINT_SCORE_MIN=9.0
+    networks:
+      - factory-mesh
+
+networks:
+  factory-mesh:
+    driver: bridge
+
+volumes:
+  factory_runs:
+```
 
 ## Getting started
 
@@ -109,6 +203,9 @@ jules-cli monitor --session factory_run_01
 
 # Inspect the 'Digital Twin' status in the local factory environment
 docker exec -it factory_mock_okta status
+
+# Validate trajectory satisfaction score manually
+factory-eval --trajectory-id tx_9821 --report /workspace/runs/tx_9821/report.json
 ```
 
 ## API examples
@@ -118,23 +215,38 @@ This FastMCP 3.1 tool server manages software factory job creation and validatio
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional
 
-mcp = FastMCP("Software Factory Control Plane")
+mcp = FastMCP("Software Factory Control Plane", version="3.1.0")
 
 class FactoryTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     seed_id: str = Field(..., description="Unique seed specification identifier")
     target_language: str = Field(..., description="Target programming language (python, go, rust)")
     max_iter: int = Field(10, ge=1, le=50, description="Maximum self-healing loop iterations")
+    target_satisfaction_threshold: float = Field(default=0.90, ge=0.50, le=1.0)
+    sandbox_image: str = Field(default="software-factory/runner-sandbox:latest")
+
+    @field_validator("target_language")
+    @classmethod
+    def validate_lang(cls, v: str) -> str:
+        supported = {"python", "go", "rust", "typescript", "c"}
+        if v.lower() not in supported:
+            raise ValueError(f"Language {v} not supported. Must be one of {supported}")
+        return v.lower()
 
 class FactoryTaskStatus(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_id: str
     status: str
     current_satisfaction: float
     iterations_completed: int
+    active_sandbox_id: Optional[str] = None
 
-@mcp.tool()
+@mcp.tool(name="dispatch_factory_job", description="Dispatches an autonomous software generation task into the isolated container harness")
 async def dispatch_factory_job(req: FactoryTaskRequest, ctx: Context) -> FactoryTaskStatus:
     """Dispatches an autonomous software generation task into the isolated container harness."""
     ctx.info(f"Initiating software factory run for seed '{req.seed_id}' in language '{req.target_language}'")
@@ -143,7 +255,8 @@ async def dispatch_factory_job(req: FactoryTaskRequest, ctx: Context) -> Factory
         job_id="fact_9021",
         status="RUNNING_VALIDATION_LOOP",
         current_satisfaction=0.82,
-        iterations_completed=2
+        iterations_completed=2,
+        active_sandbox_id="box_sandbox_9021"
     )
 
 if __name__ == "__main__":
@@ -155,16 +268,21 @@ The following Python script illustrates how satisfaction-based evaluations are s
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class TrajectoryMetric(BaseModel):
     """Evaluation metrics for an agent's code generation run in the factory."""
+    model_config = ConfigDict(extra="forbid")
+
     test_coverage: float = Field(..., ge=0.0, le=100.0, description="Percentage of test coverage")
     pylint_score: float = Field(..., ge=0.0, le=10.0, description="Pylint static code quality score")
     vulnerabilities_found: int = Field(default=0, ge=0, description="Number of security issues identified")
+    cyclomatic_complexity_delta: int = Field(default=0, description="Delta against baseline complexity")
 
 class SatisfactionEvaluation(BaseModel):
     """Pydantic v2 model to assess and score a completed code generation trajectory."""
+    model_config = ConfigDict(extra="forbid")
+
     trajectory_id: str = Field(..., description="Unique transaction/trajectory identifier")
     metrics: TrajectoryMetric = Field(..., description="The objective metrics achieved by the generation run")
     satisfaction_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Final satisfaction score between 0.0 and 1.0")
@@ -175,12 +293,12 @@ class SatisfactionEvaluation(BaseModel):
         """Enforces matching score boundaries based on trajectory code metrics."""
         metrics: Optional[TrajectoryMetric] = info.data.get("metrics")
         if metrics:
-            # Logic: If high test coverage, high pylint score, and 0 vulnerabilities -> high satisfaction score
             calculated = (metrics.test_coverage / 100.0) * (metrics.pylint_score / 10.0)
             if metrics.vulnerabilities_found > 0:
                 calculated *= 0.1 # penalize heavily for security concerns
+            if metrics.cyclomatic_complexity_delta > 10:
+                calculated *= 0.8 # penalize for unnecessary branching
 
-            # Bound check
             calculated = max(0.0, min(1.0, calculated))
             return round(calculated, 4)
         return score
@@ -192,7 +310,8 @@ if __name__ == "__main__":
         "metrics": {
             "test_coverage": 98.5,
             "pylint_score": 9.2,
-            "vulnerabilities_found": 0
+            "vulnerabilities_found": 0,
+            "cyclomatic_complexity_delta": 2
         }
     }
 
@@ -243,6 +362,8 @@ def enforce_factory_limits(current_iter: int, total_tokens: int):
 | **AST Parse Errors in Seed Ingestion** | Syntax errors present in generated gene-transfusion targets. | Run an initial tree-sitter or AST static syntax check before executing full integration suites. |
 | **Docker Out-Of-Memory (OOM)** | Parallel validation runners overwhelming host RAM. | Enforce strictly bounded cgroup memory limits (`--memory=2g`) per factory runner node. |
 | **Low Satisfaction Convergence** | Under-specified seed prompt or missing target environment context. | Enrich the seed prompt with dynamic RAG context from production architectural schemas. |
+| **Sandbox Network Escape Attempt** | Agent binary attempted external outbound connection during validation | Verify Docker network is bound to `internal: true` or disconnected `--net=none`. |
+| **Token Budget Overrun** | Recursive self-healing loop caught in oscillating lint fixes | Trigger early exit after 3 repeated identical AST error hashes. |
 
 ## Related tools / concepts
 - [Prompt Requests](prompt_requests.md) — Post-PR development workflows.
