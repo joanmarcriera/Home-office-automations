@@ -115,6 +115,77 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 | `Audio-Text Drift (>2.5s offset at 1h mark)` | Variable frame-rate MP3 container dropping silence frames | `ffprobe -show_entries stream=r_frame_rate audio.mp3` | Convert source audio to uncompressed 16kHz mono WAV using `ffmpeg -ac 1 -ar 16000` prior to processing. |
 | `FastMCP Tool Timeout on Chunk Indexing` | Unbounded segment batch size choking vector database connection pool | `mcp-server --log-level DEBUG` | Implement chunked stream batching (50 segments per batch) with async retry backoff in the FastMCP tool server. |
 | `Missing Chapter Summaries` | Low LLM temperature causing empty JSON output on chunking call | Check LLM completion response HTTP 200 payload | Explicitly validate chapter start/end bounds and enforce strict Pydantic return format. |
+| `CUDA OOM during Pyannote Embeddings` | Unchunked multi-hour audio files exceeding GPU VRAM allocation limits | `nvidia-smi --query-gpu=memory.used --format=csv` | Slice long audio files into 15-minute sliding chunks with 10-second overlaps prior to feeding into diarization embedding pipelines. |
+| `Character Encoding Anomaly in JSON Output` | Non-UTF-8 character encodings from multi-lingual whisper token streams | Check raw stdout with `file -i output_transcript.json` | Explicitly specify `encoding="utf-8"` in both file read/write operations and Pydantic serialization streams. |
+| `Vector Dimension Mismatch on Indexing` | Audio text chunks embedded using a model with dimensions differing from vector collection | Compare vector schema with `curl -s http://localhost:6333/collections/transcriptions` | Re-create vector collection with matching embedding dimension (e.g. 1536 for text-embedding-3-small or 1024 for BGE-large-en). |
+
+## Production Deployment & Container Orchestration
+
+### Docker Compose Stack Architecture
+
+To execute the complete audio transcription, diarization, and vector search stack in a containerized environment, use the multi-container Docker Compose specification below (`docker-compose.audio.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  whisper-worker:
+    image: onnxruntime/faster-whisper:latest
+    container_name: audio-transcription-worker
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run transcribe_worker.py --port 8097
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WHISPER_MODEL=distil-large-v3
+      - DEVICE=cuda
+      - COMPUTE_TYPE=float16
+      - HF_TOKEN=${HF_TOKEN}
+      - QDRANT_HOST=vector-db
+      - QDRANT_PORT=6333
+    volumes:
+      - /opt/homelab/audio/media:/data/audio:ro
+      - /opt/homelab/audio/transcripts:/data/transcripts:rw
+      - ./scripts/transcribe_audio.py:/opt/audio/transcribe_audio.py:ro
+    ports:
+      - "8097:8097"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      vector-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+  vector-db:
+    image: qdrant/qdrant:v1.12.0
+    container_name: audio-vector-db
+    restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  qdrant_storage:
+```
 
 ## When to use it
 - When building a local RAG (Retrieval-Augmented Generation) system over audio collections.

@@ -107,6 +107,9 @@ The table below contrasts Llama 4 Maverick against other open-weight foundation 
 | `FastMCP JSON Schema Mismatch` | Model emitted partial JSON tokens due to max token truncation | Increase `max_tokens` limit to 4096 and supply explicit Pydantic v2 JSON Schema models in tool headers. |
 | `Context Boundary Degradation (>96k)` | Rotary Positional Embedding (RoPE) scaling factor misalignment | Set `rope_scaling: {"type": "dynamic", "factor": 8.0}` in the model inference server configuration. |
 | `Over-Refusal on Pen-Testing Scripts` | High safety guardrail sensitivity triggered by shell command strings | Include explicit authorized sandbox framing in system context (`You are an authorized security auditing agent...`). |
+| `NCCL Inter-GPU Peer-to-Peer Timeout` | P2P memory access blocked across PCI-e slots without NVLink bridges | Launch with `NCCL_P2P_DISABLE=1 NCCL_IB_DISABLE=1` when running multi-GPU tensor parallelism on consumer motherboards. |
+| `FlashAttention-3 Shared Memory Bank Conflict` | Outdated CUDA Toolkit or Hopper/Blackwell PTX compilation mismatch | Recompile vLLM wheel with `TORCH_CUDA_ARCH_LIST="8.9;9.0"` matching installed Ada/Hopper microarchitectures. |
+| `FastMCP SSE Pipe Broken on Large Payloads` | Default HTTP client timeout aborting multi-tool parallel completion streams | Set `timeout=60.0` and configure keepalive ping intervals on the FastMCP client session transport. |
 
 ## Operational Best Practices & Guardrails
 - **Use FP8 or Q4_K_M Quantization**: For production local deployments where VRAM is constrained, Q4_K_M provides optimal speed and quality.
@@ -384,7 +387,72 @@ if __name__ == "__main__":
     print(f"Result: {res.response_text} (Tokens: {res.tokens_used})")
 ```
 
-## Production Deployment & Systemd Service Architecture
+## Production Deployment & Container Orchestration
+
+### Multi-GPU Container Orchestration with Docker Compose
+
+To deploy Llama 4 Maverick under vLLM with native GPU passthrough and FastMCP 3.1 gateway proxying, use the production Docker Compose setup below (`docker-compose.llama4.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  vllm-maverick:
+    image: vllm/vllm-openai:v0.6.6
+    container_name: llama4-maverick-engine
+    restart: unless-stopped
+    command: >
+      serve meta-llama/Llama-4-Maverick-70B-Instruct
+      --host 0.0.0.0
+      --port 8000
+      --max-model-len 32768
+      --tensor-parallel-size 2
+      --enable-auto-tool-choice
+      --tool-call-parser pythonic
+      --enable-prefix-caching
+      --gpu-memory-utilization 0.92
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - NCCL_P2P_DISABLE=0
+    ports:
+      - "8000:8000"
+    volumes:
+      - /opt/models/llama4:/root/.cache/huggingface:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ipc: host
+
+  maverick-mcp-gateway:
+    image: python:3.11-slim
+    container_name: llama4-maverick-mcp
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run maverick_agent_host.py --port 8099
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LLAMA4_ENDPOINT=http://vllm-maverick:8000/v1/chat/completions
+    ports:
+      - "8099:8099"
+    depends_on:
+      vllm-maverick:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  model_cache:
+```
+
+### Systemd Service Daemon Specification
 
 To run local vLLM / Ollama Llama 4 Maverick inference hosts as persistent background system services on enterprise Linux GPU nodes, use the systemd unit configuration template below:
 
