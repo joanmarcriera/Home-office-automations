@@ -6,7 +6,7 @@ hide:
 
 # Home-Office Automation & AI Hub
 
-> Operational documentation for AI-enabled home-office automation, maintained by humans and agents with explicit quality gates. Updated for early January 2027 SOTA standards (incorporating FastMCP 3.1, Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, Llama 4, and Pydantic v2 validation).
+> Operational documentation for AI-enabled home-office automation, maintained by humans and agents with explicit quality gates. Updated for current SOTA standards (incorporating FastMCP 3.1, Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, Llama 4, and Pydantic v2 validation).
 
 ## Start by Goal
 
