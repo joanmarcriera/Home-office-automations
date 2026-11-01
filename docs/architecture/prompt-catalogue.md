@@ -69,16 +69,16 @@ To use the catalogue, identify the automation type (Recurring GA, One-Shot Jules
 | **GA-2** | [Digest → Intake Bridge](#ga-2-digest-intake-bridge) | GitHub Actions + OpenRouter LLM | 2×/day | Recurring |
 | **GA-3** | [Daily Jules Maintenance](#ga-3-daily-jules-maintenance) | GitHub Actions → Jules | 2×/day | Recurring |
 | **GA-4** | [Weekly Growth Planner](#ga-4-weekly-growth-planner) | GitHub Actions → Jules | 2×/week | Recurring |
-| **J-1** | [Fill Infrastructure Category](#j-1-fill-infrastructure-category) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-2** | [Fill Frameworks Category](#j-2-fill-frameworks-category) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-3** | [Fill Providers Category](#j-3-fill-providers-category) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-4** | [Fill Agents Category](#j-4-fill-agents-category) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-5** | [Add Code Examples (Batch 1)](#j-5-add-code-examples-batch-1) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-6** | [Add Code Examples (Batch 2)](#j-6-add-code-examples-batch-2) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-7** | [Essential Reading List](#j-7-essential-reading-list) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-8** | [RAG Pattern Deep Dive](#j-8-rag-pattern-deep-dive) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-9** | [MCP & Tool-Calling Pattern](#j-9-mcp-tool-calling-pattern) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-10** | [Landscape Overview](#j-10-landscape-overview) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-1** | [Fill Infrastructure Category](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-2** | [Fill Frameworks Category](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-3** | [Fill Providers Category](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-4** | [Fill Agents Category](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-5** | [Add Code Examples (Batch 1)](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-6** | [Add Code Examples (Batch 2)](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-7** | [Essential Reading List](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-8** | [RAG Pattern Deep Dive](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-9** | [MCP & Tool-Calling Pattern](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-10** | [Landscape Overview](#j-1-to-j-10-seeding-prompts) | Jules scheduled task | Once (Day 1) | One-shot |
 | **JR-1** | [Daily Intake Processing](#jr-1-daily-intake-processing) | Jules scheduled task | Daily | Recurring |
 | **JR-2** | [Weekly Doc Deepening](#jr-2-weekly-doc-deepening) | Jules scheduled task | Weekly (Mon) | Recurring |
 | **JR-3** | [Weekly Cross-Linking](#jr-3-weekly-cross-linking) | Jules scheduled task | Weekly (Mon) | Recurring |
@@ -367,7 +367,7 @@ if __name__ == "__main__":
 - [Automated Contributions](automated_contributions.md)
 - [GitHub Actions](https://github.com/features/actions)
 - [OpenRouter](../tools/ai_knowledge/openrouter.md)
-- [Standards & Conventions](../../standards-and-conventions.md)
+- [Standards & Conventions](../standards.md)
 - [RAG Pattern](../knowledge_base/patterns/rag-pattern.md)
 - [MCP](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 

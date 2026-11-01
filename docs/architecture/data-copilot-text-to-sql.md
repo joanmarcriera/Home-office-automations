@@ -281,7 +281,7 @@ if __name__ == "__main__":
 - **Automatic Limit Injection**: Always append a default `LIMIT 100` clause in Layer 5 AST validation if no explicit row boundary is specified in the natural language query.
 
 ## Related tools / concepts
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Detailed safety playbook.
+- [Data Copilot SQL Validation](../playbooks/data-copilot-sql-validation.md) — Detailed safety playbook.
 - [Multi-Agent KnowledgeOps](./multi_agent_knowledgeops.md) — Governance for agentic pipelines.
 - [Automated Contribution System](./automated_contributions.md) — Metadata ingestion flows.
 - [LiteLLM Proxy](../services/litellm.md) — Unified inference plane for routing.

@@ -301,7 +301,7 @@ if __name__ == "__main__":
 - [Agent Framework Learning Map](agent_framework_learning_map.md)
 - [AI Tooling Landscape](ai_tooling_landscape.md)
 - [OpenBB](../tools/ai_knowledge/openbb.md)
-- [Enterprise Productivity Tools](../tools/enterprise/)
+- [Enterprise Productivity Tools](../tools/enterprise/index.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
 - [Agentic Workflows](patterns/agentic-workflows.md)
 

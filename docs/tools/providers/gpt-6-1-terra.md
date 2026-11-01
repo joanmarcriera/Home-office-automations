@@ -369,7 +369,7 @@ if __name__ == "__main__":
 5. **Implement Spatial Caching**: Cache clipped GeoJSON bounding box queries in PostGIS or Redis to reduce redundant GPT-6.1 Terra spatial model API invocations across identical geographic regions.
 
 ## Related tools / concepts
-- [OpenAI](openai.md) — Main OpenAI provider overview.
+- [OpenAI](../ai_knowledge/openai.md) — Main OpenAI provider overview.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Open tool execution framework.
 - [QGIS / GDAL](../development_ops/openclaw.md) — Open-source geographic information system engine.
 

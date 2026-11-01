@@ -4,7 +4,7 @@
 The **MATH Benchmark** (Hendrycks et al.) is a premier dataset of 12,500 challenging competition-level mathematics problems across seven subdisciplines (Algebra, Counting & Probability, Geometry, Intermediate Algebra, Number Theory, Prealgebra, and Precalculus). Each problem features a detailed, step-by-step human proof solution and a canonical LaTeX `\boxed{...}` answer. In the 2027 evaluation landscape, the MATH benchmark serves as a primary stress-test for advanced "System 2" symbolic reasoning, Chain-of-Thought (CoT) trajectory consistency, and automated theorem-proving in frontier models (Claude 3.7 Sonnet, GPT-4.5, Llama 4, Gemma 3, DeepSeek-R1) via standard **FastMCP 3.1** benchmarking pipelines.
 
 ## What problem it solves
-Elementary math benchmarks (such as [GSM8K](gsm8k.md) or [SVAMP](svamp.md)) focus on multi-step arithmetic word problems that lack ceiling height for evaluating advanced reasoning. GSM8K scores for frontier models often saturate near 95%+, rendering it incapable of differentiating superior reasoning architectures.
+Elementary math benchmarks (such as [GSM8K](gsm8k.md) or SVAMP) focus on multi-step arithmetic word problems that lack ceiling height for evaluating advanced reasoning. GSM8K scores for frontier models often saturate near 95%+, rendering it incapable of differentiating superior reasoning architectures.
 
 The MATH benchmark solves the evaluation saturation problem by presenting high-school competition problems (AMC 10, AMC 12, AIME) that require multi-stage symbolic derivations, geometric spatial transformations, modulo arithmetic proofs, and rigorous formula simplification.
 

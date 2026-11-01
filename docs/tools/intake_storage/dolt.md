@@ -48,7 +48,7 @@ Managing dataset lineage, transactional safety, and schema evolution across dist
 - **State Storage Layer**: Serves as the primary operational database storing structured facts, agent execution logs, task queues, and dynamic knowledge graphs.
 - **MCP Integration Layer**: Interfaced via FastMCP 3.1 servers, enabling agents running frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**) to branch database state prior to risky tool execution.
 - **Storage Ecosystem**: Operates alongside blob storage platforms like [MinIO](minio.md) or [S3 / S3-Compatible Storage](s3-storage.md), while relying on vector databases like [Weaviate](../infrastructure/weaviate.md) or [Qdrant](../infrastructure/qdrant.md) for semantic embeddings.
-- **Orchestration**: Frequently embedded inside [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) orchestrated by frameworks such as [Ag2](../frameworks/ag2.md), [Smolagents](../frameworks/smolagents.md), or [Temporal](../automation_orchestration/temporal.md).
+- **Orchestration**: Frequently embedded inside [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) orchestrated by frameworks such as [Ag2](../frameworks/ag2.md), [Smolagents](../frameworks/smolagents.md), or [Temporal](../orchestration/temporal.md).
 
 ## Typical use cases
 - **Agent Sandbox Branching**: An autonomous software engineer agent creates a branch `fix/issue-402`, populates local test database tables, runs unit tests, and merges the modified relational data back into `main` only if all tests pass.

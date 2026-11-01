@@ -436,7 +436,7 @@ WantedBy=multi-user.target
 ## Sources / references
 - [KnowledgeOps Manifesto](https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/architecture/multi_agent_knowledgeops.md)
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/specification)
-- [Ralph-loop Implementation Reports](../reports/)
+- [Ralph-loop Implementation Reports](../reports/index.md)
 - [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 - [FastMCP 3.1: Ultra-low Latency Execution](https://modelcontextprotocol.io/fastmcp)
 

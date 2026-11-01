@@ -50,7 +50,7 @@ Setting up cloud infrastructure for AI agents and developer workloads often intr
 ## Typical use cases
 - **Hosting Agent Workloads**: Deploying FastMCP 3.1 servers and agent runners on DigitalOcean App Platform or Droplets.
 - **Managed AI Agent Execution**: Provisioning serverless agent containers and tool routers using [DigitalOcean Managed Agents](digitalocean-managed-agents.md).
-- **GPU LLM Fine-Tuning & Inference**: Renting high-throughput NVIDIA H100 or L40S GPU Droplets for self-hosted LLM inference engines like [vLLM](../infrastructure/vllm.md) or [Ollama](../infrastructure/ollama.md).
+- **GPU LLM Fine-Tuning & Inference**: Renting high-throughput NVIDIA H100 or L40S GPU Droplets for self-hosted LLM inference engines like [vLLM](../infrastructure/vllm.md) or [Ollama](../../services/ollama.md).
 - **Persistent State Storage**: Backing vector databases and agent state with DigitalOcean Managed PostgreSQL and S3-compatible Spaces object storage.
 
 ## Strengths

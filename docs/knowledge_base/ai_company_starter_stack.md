@@ -96,10 +96,10 @@ sequenceDiagram
 - In legacy environments where self-hosted orchestration tools cannot be deployed.
 
 ## Getting started
-1. **Deploy Core Control Plane**: Set up self-hosted [n8n](../../services/n8n.md) with persistent PostgreSQL storage.
+1. **Deploy Core Control Plane**: Set up self-hosted [n8n](../services/n8n.md) with persistent PostgreSQL storage.
 2. **Establish Context Store**: Spin up [Qdrant](../tools/infrastructure/qdrant.md) and [mem0](../tools/agents/mem0.md) for long-term memory.
 3. **Configure FastMCP 3.1 Gateway**: Install the FastMCP 3.1 runtime to expose internal database tools to agent clients.
-4. **Deploy Frontier & Local Models**: Set up API access keys for frontier providers alongside a local [Ollama](../tools/infrastructure/ollama.md) instance.
+4. **Deploy Frontier & Local Models**: Set up API access keys for frontier providers alongside a local [Ollama](../services/ollama.md) instance.
 
 ## Systemd Service Management
 
