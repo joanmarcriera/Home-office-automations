@@ -73,34 +73,31 @@ flowchart TD
 - For fine-grained architectural diagrams (see the [Architecture Component Map](../architecture/component_map.md)).
 
 ## Overview
-- **Last Generated:** 2027-01-07
-- **Total Docs Documented:** 701 (including 647 tool/knowledge docs and 54 service docs)
+- **Snapshot Date:** 2026-11-01
+- **Total Docs Documented:** 607 (554 tool docs across 13 categories and 53 service docs)
 
 ## Category Breakdown
-Current tool count per category verified against `data/growth-metrics.json` and `data/all_tools.json`:
+Current tool count per category verified against `data/growth-metrics.json` (554 total tool documents across 13 canonical tool categories):
 
 | Category | Count | Summary |
 | :--- | :--- | :--- |
 | **AI Assistants & Knowledge (`ai_knowledge`)** | 111 | General-purpose chat interfaces, RAG platforms, and local knowledge bases. |
-| **Development & Ops (`development_ops`)** | 75 | Coding assistants, IDEs, agentic development tools, and CLI context servers. |
+| **Development & Ops (`development_ops`)** | 79 | Coding assistants, IDEs, agentic development tools, and CLI context servers. |
 | **Infrastructure (`infrastructure`)** | 63 | Model serving engines, inference runtimes, vector databases, and compute acceleration. |
-| **Services (`services`)** | 54 | Self-hosted services, home automation engines, and offline applications. |
+| **Providers (`providers`)** | 45 | Cloud LLM API providers, model marketplaces, and specialized model hosting. |
 | **Process & Understanding (`process_understanding`)** | 43 | Data extraction, OCR, speech recognition, telemetry, and document understanding tools. |
 | **Benchmarking (`benchmarking`)** | 42 | LLM evaluation frameworks, agentic test suites, and performance benchmark suites. |
-| **Providers (`providers`)** | 44 | Cloud LLM API providers, model marketplaces, and specialized model hosting. |
-| **Frameworks (`frameworks`)** | 38 | Development libraries and SDKs for building LLM applications and agent pipelines. |
-| **Agents (`agents`)** | 36 | Multi-agent orchestration frameworks, autonomous coding agents, and agentic skills. |
-| **Knowledge Base (`knowledge_base`)** | 36 | Architecture overviews, security guidelines, and design patterns. |
+| **Frameworks (`frameworks`)** | 41 | Development libraries and SDKs for building LLM applications and agent pipelines. |
+| **Agents (`agents`)** | 37 | Multi-agent orchestration frameworks, autonomous coding agents, and agentic skills. |
 | **Automation & Orchestration (`automation_orchestration`)** | 34 | Workflow automation engines, MCP server implementations, and integration servers. |
-| **Pattern Guides (`knowledge_base/patterns`)** | 23 | Reusable AI design patterns, fallbacks, and prompt templates. |
 | **Calendar & Tasks (`calendar_tasks`)** | 22 | Scheduling tools, task management integrations, and calendar synchronization servers. |
-| **Playbooks (`playbooks`)** | 17 | Actionable operational playbooks and migration step-by-step guides. |
 | **Enterprise AI (`enterprise`)** | 17 | Enterprise search engines, identity systems, and enterprise productivity suites. |
 | **Intake & Storage (`intake_storage`)** | 10 | Data ingestion tools, self-hosted object storage, and document stores. |
 | **Orchestration (`orchestration`)** | 10 | Advanced workflow orchestrators, data pipeline engines, and DAG runners. |
 
 ### Categories with Fewer than 8 Docs
-None. All 17 active categories currently meet or exceed the target threshold of 8 documents, ranging from **10 docs** in `orchestration` and `intake_storage` to **111 docs** in `ai_knowledge`.
+- **Canonical Tool Categories (`docs/tools/*` / `data/growth-metrics.json`):** None. All 13 active tool categories meet or exceed the target threshold of 8 documents (ranging from 10 docs in `orchestration` and `intake_storage` to 111 docs in `ai_knowledge`).
+- **Granular Raw Catalog Tags (`data/all_tools.json`):** 20 legacy or cross-cutting metadata tags contain fewer than 8 entries: Architecture (1), infrastructure (1), development_ops (1), Frameworks & Libraries (1), Model Providers & API Services (1), ai_knowledge (1), frameworks (2), Enterprise (2), Reference Implementations (3), None (3), AI & Knowledge (3), Development & Operations (3), Creative & Communication (4), Process Understanding (4), Services (4), Patterns (5), AI Knowledge (5), Knowledge Base (6), Playbooks (6), and Media & Entertainment (6).
 
 ## Top 10 Most-Connected Tools
 The top 10 most-connected tools based on the number of outgoing links in their `## Related` sections:
@@ -109,31 +106,28 @@ The top 10 most-connected tools based on the number of outgoing links in their `
 | :--- | :--- | :--- |
 | **Kestra** | 17 | `docs/tools/orchestration/kestra.md` |
 | **ZenML** | 17 | `docs/tools/orchestration/zenml.md` |
-| **Apache Hamilton** | 16 | `docs/tools/orchestration/apache-hamilton.md` |
 | **Apache Airflow** | 15 | `docs/tools/orchestration/apache-airflow.md` |
 | **Flyte** | 15 | `docs/tools/orchestration/flyte.md` |
 | **Argo Workflows** | 14 | `docs/tools/orchestration/argo-workflows.md` |
 | **Cloud Code** | 14 | `docs/tools/development_ops/cloud_code.md` |
 | **Melty** | 14 | `docs/tools/development_ops/melty.md` |
 | **RAGFlow** | 14 | `docs/tools/process_understanding/ragflow.md` |
-| **Terminus 2** | 14 | `docs/tools/development_ops/terminus-2.md` |
+| **Terminus 2 (Terminal-Bench)** | 14 | `docs/tools/development_ops/terminus-2.md` |
+| **Anti-Gravity** | 13 | `docs/tools/development_ops/anti_gravity.md` |
+
+*(Note: Anti-Gravity, Supabase, and MMLU each feature 13 related links; Anti-Gravity holds the 10th spot alphabetically.)*
 
 ## What's New This Month
-New tool documentation added under `docs/tools/` in the last 30 days (verified via `git log` creation tracking):
+New tool documentation added under `docs/tools/` in the last 30 days (verified via git creation tracking across commits in the preceding 30 days; 32 tools added):
 
-- **AI Assistants & Knowledge (`ai_knowledge`)**: Integrated **Llama 4 Maverick**, **Google Lyria**, **Inkling Small**, **Udio**, **Logseq**, **LobeHub**, **Breeze**, and **GPT-5.6**.
-- **Development & Ops (`development_ops`)**: Added **Symbolic MCP**, **Unsloth Studio**, **Free Will MCP**, **Melty**, **C89 Portability Guide**, **VS Code**, and **Ripgrep**.
-- **Infrastructure (`infrastructure`)**: Added **ExLlamaV3**, **Aphrodite Engine**, **Flash MSA**, **Ninfer 4080**, **Diagrid Catalyst**, and **OpenPipe**.
-- **Benchmarking (`benchmarking`)**: Integrated **EvalEval**, **MultiPL-E**, **LongCLI Bench**, **Terminal-Bench**, **SharpAI**, and **Giskard**.
-- **Process & Understanding (`process_understanding`)**: Added **Cloudflare Agent Tracing**, **Firecrawl**, **PageIndex**, and **Tesseract OCR**.
-- **Providers (`providers`)**: Added **Liquid AI**, **DigitalOcean Provider**, **Index-Translate**, and **Cohere**.
-- **Frameworks (`frameworks`)**: Integrated **Pydantic AI**, **Langflow**, and **Smolagents**.
-- **Agents (`agents`)**: Integrated **Letta**, **OpenHands**, and **Agency Swarm**.
-- **Automation & Orchestration (`automation_orchestration`)**: Added **Pipedream**, **Chronos MCP**, and **Atlassian Jira MCP**.
-- **Calendar & Tasks (`calendar_tasks`)**: Integrated **Todoist**, **Outlook**, and **Apple Calendar**.
-- **Enterprise AI (`enterprise`)**: Added **AmpCode** and **Bloomberg Terminal**.
-- **Intake & Storage (`intake_storage`)**: Integrated **Khoj**, **MinIO**, and **S3 Storage**.
-- **Orchestration (`orchestration`)**: Added **Argo Workflows**, **Temporal**, and **ZenML**.
+- **Agents (`agents`)** (3 tools): **OpenAPPA**, **Pizza Bot**, **RO-Crate Standard**.
+- **AI Assistants & Knowledge (`ai_knowledge`)** (6 tools): **AWS Strands Decider Model**, **Breeze**, **FrogNano 4B**, **Liquid AI FM**, **MLSubGen**, **UniFolm-WLA10**.
+- **Development & Ops (`development_ops`)** (5 tools): **CodeRabbit**, **CrossHair**, **Docker MCP**, **GitHub Copilot Computer Use**, **Hypothesis**.
+- **Enterprise AI (`enterprise`)** (1 tool): **Keycloak**.
+- **Frameworks (`frameworks`)** (5 tools): **ASTA**, **FastMCP**, **Maestro**, **Malli**, **Spotlight**.
+- **Infrastructure (`infrastructure`)** (3 tools): **Docker Sandbox for AI Agents**, **gVisor**, **Ninfer 4080**.
+- **Process & Understanding (`process_understanding`)** (2 tools): **GLiNER**, **spaCy**.
+- **Providers (`providers`)** (7 tools): **Argos Translate**, **DeepL**, **DigitalOcean Managed Agents**, **DigitalOcean Provider**, **GPT-6.1 Terra**, **Index-Translate**, **Kolibri-1**.
 
 ## Getting started
 To contribute to the landscape or audit existing docs:

@@ -33,6 +33,13 @@ architecture-beta
     anti_gravity --> git_gate: Verified PR Submission
 ```
 
+## Architectural Mechanics of Multi-Tier AI Development
+The AI-assisted engineering methodology coordinates autonomous agents and human developers across four distinct abstraction boundaries:
+1. **Context Boundary Isolation**: Specifications and repository maps (`AGENTS.md`, contract schemas) are compiled before initiating code changes. This bounds model context, eliminating hallucinated library interfaces.
+2. **Red-Green-Refactor TDD Loops**: No functional code is committed without an upfront failing unit test. Coding agents execute in sandbox subprocesses, using failing test tracebacks as execution guidance.
+3. **Deterministic Verification Gates**: Unit tests, schema checks, and repository consistency scripts must execute through deterministic CLI commands without subjective human intervention.
+4. **Autonomous Agent Handoff via FastMCP 3.1**: When handing tasks from CLI pair tools (Aider) to background agents (Jules), task state, git diffs, and verification metrics are serialized into strict Pydantic v2 data models.
+
 ## What problem it solves
 
 Traditional software engineering is frequently bottlenecked by repetitive boilerplate generation, context switching between documentation and implementation, brittle manual unit testing, and unverified AI code outputs.
@@ -78,6 +85,17 @@ This playbook solves the "engineering velocity vs. code quality" trade-off throu
 |                  (Main Git Branch / Production Release)               |
 +-----------------------------------------------------------------------+
 ```
+
+## Comparative Workflow Matrix
+
+| Feature / Metric | AI-Assisted Dev Workflow (Playbook) | Ad-Hoc LLM Copy-Paste | Pure Autonomous PR Bot | Traditional Manual Workflow |
+| :--- | :--- | :--- | :--- | :--- |
+| **Verification Gate** | Deterministic Automated Checks | Manual Developer Review | CI Pipeline Run Only | Human Manual QA / Unit Tests |
+| **Context Grounding** | Spec Markdown + Repo Map | Fragmented Chat Window | Issue Body / Git Diff | Developer Memory / Jira |
+| **TDD Enforcement** | Mandatory Upfront Failing Test | Optional / Rare | Heuristic Generated | Optional Developer Practice |
+| **Protocol Integration**| FastMCP 3.1 Structured Tasks | None (Web UI) | GitHub API Only | Git CLI / Web UI |
+| **Error Containment** | Red-Green Subprocess Isolation | High Risk of Regression | Moderate (CI Reverts) | Low Velocity, High Precision |
+| **Model Agility** | Frontier (Claude 5.6 / GPT-5.6)| Single Web Model | Fixed Agent Model | None (Human Only) |
 
 ## Typical use cases
 
@@ -159,22 +177,23 @@ python3 scripts/validate_new_sources.py
 
 ## API examples
 
-### Programmatic Dev Workflow Verification Engine with Pydantic v2 Validation
-Below is a production-grade Python script demonstrating how an agentic pipeline validates PR gate entry requirements, executes verification scripts, and logs results using Pydantic v2 schemas.
+### Programmatic Dev Workflow Verification Engine with Strict Pydantic v2
+Below is a production-grade Python script demonstrating how an agentic pipeline validates PR gate entry requirements, executes verification scripts, and logs results using strict Pydantic v2 schemas (`ConfigDict(extra="forbid", frozen=True)`).
 
 ```python
 import json
 import subprocess
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
+from fastmcp import FastMCP, Context
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP("dev-workflow-engine", version="3.1.0")
 
 class AuditTaskConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     branch_name: str = Field(..., min_length=3, description="Target feature branch name")
-    modified_files: List[str] = Field(..., min_items=1)
+    modified_files: List[str] = Field(..., min_length=1)
     require_contract_check: bool = Field(default=True)
     require_quality_audit: bool = Field(default=True)
 
@@ -182,16 +201,18 @@ class AuditTaskConfig(BaseModel):
     @classmethod
     def validate_branch(cls, v: str) -> str:
         clean = v.strip().lower()
-        if clean == "main" or clean == "master":
-            raise ValueError("Cannot run audit pipeline directly on production main/master branch")
+        if clean in {"main", "master", "release"}:
+            raise ValueError("Cannot run audit pipeline directly on production main/master/release branch")
         return clean
 
 class VerificationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     step_name: str
     passed: bool
     output_summary: str
 
 class PRGateReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     branch: str
     overall_status: str = Field(..., description="APPROVED or REJECTED")
     verification_results: List[VerificationResult] = Field(default_factory=list)
@@ -240,9 +261,11 @@ def run_dev_workflow_gate(payload: dict) -> PRGateReport:
 
 @mcp.tool(
     name="evaluate_pr_gate",
-    description="Evaluates a feature branch against dev-workflow PR gate requirements."
+    description="Evaluates a feature branch against dev-workflow PR gate requirements via FastMCP 3.1."
 )
-async def evaluate_pr_gate(config: AuditTaskConfig) -> Dict[str, Any]:
+async def evaluate_pr_gate(config: AuditTaskConfig, ctx: Optional[Context] = None) -> Dict[str, Any]:
+    if ctx:
+        await ctx.info(f"Evaluating PR readiness gate for branch '{config.branch_name}'...")
     report = run_dev_workflow_gate(config.model_dump())
     return report.model_dump()
 
@@ -259,11 +282,71 @@ if __name__ == "__main__":
     print(json.dumps(gate_report.model_dump(), indent=2))
 ```
 
-## Advanced Workflow Execution & Troubleshooting Patterns
-When scaling the AI-Assisted Dev Workflow across enterprise teams:
-1. **Repository Map Maintenance**: Regularly update the repository map (`.aider.chat.history.md` or `.cursorrules`) to keep agent attention focused on canonical components.
-2. **Deterministic Test Suites**: Ensure unit test suites run deterministically in isolated sandboxes before agent execution loops begin.
-3. **Automated Rollback Controls**: Maintain atomic Git worktrees so that failed TDD cycles can revert cleanly without corrupting working directory state.
+## Production Docker Compose Local Dev-Rig
+
+For isolated developer workflow automation and agent sandboxing, use this multi-container compose environment:
+
+```yaml
+version: '3.8'
+
+services:
+  agent-runner:
+    image: python:3.12-slim
+    container_name: dev-workflow-agent-runner
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: python -m fastmcp run /workspace/dev_workflow_engine.py
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+```
+
+## Systemd Daemon Unit (`dev-workflow-daemon.service`)
+
+For continuous autonomous background verification of incoming feature branches:
+
+```ini
+[Unit]
+Description=AI-Assisted Dev Workflow Verification Daemon
+Documentation=https://github.com/obra/superpowers
+After=network.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer/workspace
+ExecStart=/usr/bin/python3 /home/developer/workspace/dev_workflow_daemon.py
+Restart=always
+RestartSec=10s
+EnvironmentFile=/etc/dev-workflow/workflow.env
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Advanced Workflow Execution & Diagnostic Matrix
+
+| Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Agent Context Window Drift** | Unbounded conversation history without repository map truncation | Agent forgets earlier architectural decisions or hallucinates file paths | Re-initialize session with concise `.cursorrules` or filtered repository index |
+| **TDD Green False Positive** | Unit test written with empty assert statements or tautologies (`assert True`) | Test passes without verifying actual code logic | Enforce mutation testing and verify test fails before implementing code changes |
+| **Subprocess Git Merge Conflicts** | Concurrent agent executions editing shared files simultaneously | Working tree collision during background PR creation | Assign non-overlapping sub-modules to separate agents or use isolated Git worktrees |
+| **FastMCP Connection Refused** | Local FastMCP 3.1 daemon crashed or listening on wrong loopback interface | Coding agent cannot access verification tools or terminal runner | Check `systemctl status dev-workflow-daemon` and verify TCP port 8000 bindings |
+| **Pydantic Schema Validation Error** | Incomplete payload passed during agent handoff between Aider and Jules | Workflow pipeline aborts execution | Enforce strict `model_validate` checks with clear fallback logging |
+| **Git Stale Index Lock** | Previous agent crashed while holding `.git/index.lock` | Subsequent git commands fail with index lock error | Run `rm -f .git/index.lock` after verifying no background git process is active |
 
 ## Related tools / concepts
 
