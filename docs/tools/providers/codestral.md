@@ -6,13 +6,12 @@ Codestral is an open-weight, high-performance generative artificial intelligence
 In early 2027, Codestral serves as a specialized local or API-driven developer co-pilot powering autonomous software agents ([Cline](../agents/cline.md), [Roo Code](../agents/roo-code.md), [Claude Code](../development_ops/claude-code.md)), IDE extensions ([Continue](../development_ops/continue_dev.md)), and CI/CD code refactoring pipelines. Integrated via **FastMCP 3.1** and **Model Context Protocol (MCP 3.1)** interfaces, Codestral provides developer tooling with ultra-low latency code completion and deterministic code synthesis capabilities.
 
 ## What problem it solves
-General-purpose LLMs frequently suffer from "generalist fatigue" when tasked with deep codebase refactoring—exhibiting syntax hallucinations, mixing deprecated API patterns, or failing on low-level memory layout constraints. Codestral addresses these vulnerabilities by concentrating model capacity directly on programming syntax, algorithmic efficiency, and repository structure.
-
-Key architectural problems solved by Codestral include:
+General-purpose LLMs frequently suffer from "generalist fatigue" when tasked with deep codebase refactoring—exhibiting syntax hallucinations, mixing deprecated API patterns, or failing on low-level memory layout constraints. Codestral addresses these vulnerabilities by concentrating model capacity directly on programming syntax, algorithmic efficiency, and repository structure:
 - **Low-Latency Inline Autocomplete**: Built from the ground up for native Fill-in-the-Middle (FIM) operations, inserting missing functions or code blocks seamlessly between existing prefix and suffix snippets.
 - **Data Privacy & IP Protection**: Open-weight availability enables secure, self-hosted deployment inside corporate network perimeters via [Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md), or [vLLM/TGI](../infrastructure/tgi.md), keeping proprietary source code fully air-gapped.
 - **Multilingual Legacy Modernization**: Native fluency across legacy and modern language stacks facilitates automated refactoring (e.g. converting COBOL to Go or C++ to memory-safe Rust).
 - **Cost-Effective Local Hardware Execution**: At 22B parameters, Codestral runs with quantized 8-bit precision on consumer-grade workstation GPUs (e.g., single 24GB VRAM GPU), reducing cloud API token expenses for software teams.
+- **Syntactic Hallucinations in Agentic Coding**: By enforcing strict AST verification layers and FIM delimiter parsing, Codestral drastically lowers syntax errors during automated multi-file pull requests.
 
 ```
 +---------------------------------------------------------------------------------------------------+
@@ -47,22 +46,37 @@ Key architectural problems solved by Codestral include:
 - **Autonomous Multi-File Code Refactoring**: Serving as the coding backend for agent frameworks to locate, edit, and refactor code modules across multi-file repositories.
 - **Automated Unit & Integration Test Generation**: Generating comprehensive unit test coverage (pytest, Jest, JUnit, cargo test) for freshly written code modules.
 - **Legacy Codebase Migration**: Translating legacy enterprise applications to modern, high-performance, memory-safe stacks.
+- **Continuous Static Type Enforcement**: Automatically synthesizing type stubs, docstrings, and strict interface contracts across legacy untyped Python and JavaScript modules.
+
+## Code Generation Model Comparison Matrix
+
+| Model / Dimension | Codestral 22B | Qwen 2.5 Coder 32B | DeepSeek-Coder-V2 236B | Claude 3.7 / 5.6 Sonnet | OpenAI GPT-4o / GPT-5 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Parameters** | 22B Dense | 32B Dense | 236B MoE (21B active) | Proprietary Closed | Proprietary Closed |
+| **FIM (Fill-in-the-Middle)** | Native pre-trained | Supported | Supported | Not native (prompt-only)| Not native (prompt-only)|
+| **Workstation Deployment** | Single 24GB GPU (8-bit) | Multi-GPU or 4-bit | 4x80GB GPUs (MoE) | Cloud API only | Cloud API only |
+| **Languages Supported** | 80+ Languages | 90+ Languages | 300+ Languages | All major languages | All major languages |
+| **Context Window** | 32K Tokens | 128K Tokens | 128K Tokens | 200K Tokens | 128K Tokens |
+| **FastMCP 3.1 Integration** | Native Tool Support | OpenAI API shim | OpenAI API shim | Anthropic Tool Use | OpenAI Tool Calling |
 
 ## Strengths
 - **Native FIM Training**: Pre-trained on prefix-suffix FIM objectives, yielding superior performance on mid-file insertion tasks compared to standard causal models.
 - **Extensive Multilingual Support**: Optimized across 80+ programming languages, eliminating syntax drift on niche or enterprise stacks.
 - **Open-Weight Workstation Deployment**: Can be run locally with 8-bit or FP16 precision on standard developer workstations equipped with 24GB GPUs.
 - **Standardized MCP Tool Integration**: Exposes native interfaces for FastMCP 3.1 and Model Context Protocol servers.
+- **High Throughput with vLLM**: Attains up to 140+ tokens per second on consumer and enterprise GPUs when served via PagedAttention.
 
 ## Limitations
 - **Limited General Reasoning**: Non-coding tasks (conversational dialogue, creative writing, broad world knowledge) are secondary to its specialized code focus.
 - **Context Length Limits**: While supporting up to 32k context windows, processing multi-gigabyte repositories in a single inference call requires RAG or multi-file chunking engines.
 - **Quantization Degradation**: Complex algorithmic logic shows noticeable degradation when running under heavy 4-bit quantization; 8-bit or FP16 precision is recommended.
+- **Single-Turn Autocomplete Bias**: Default FIM endpoints do not maintain conversation memory without external state wrappers.
 
 ## When to use it
 - When deploying local, air-gapped developer co-pilots where code privacy is mandatory.
 - When configuring real-time inline FIM completion tools within developer IDEs.
 - When building automated software engineering agent pipelines requiring fast code generation iterations.
+- When modernizing niche or legacy programming languages supported in Codestral's 80-language corpus.
 
 ## When not to use it
 - For general-purpose conversational chat, system orchestration, or general reasoning (use [Claude 5.6](../providers/anthropic.md) or [GPT-5.6](../ai_knowledge/openai.md)).
@@ -127,8 +141,9 @@ The following Python script implements a complete FastMCP 3.1 server exposing Co
 
 ```python
 import os
+import time
 import requests
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
@@ -136,35 +151,41 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 mcp = FastMCP("CodestralService", version="3.1.0")
 
 class CodestralFimRequest(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
 
     prefix: str = Field(..., description="Code snippet appearing immediately before insertion point")
     suffix: str = Field(..., description="Code snippet appearing immediately after insertion point")
     language: str = Field("python", description="Programming language context")
     temperature: float = Field(0.0, ge=0.0, le=1.0, description="Sampling temperature")
+    max_tokens: int = Field(512, ge=16, le=2048, description="Max completion tokens")
 
     @field_validator("language")
     @classmethod
     def validate_language(cls, val: str) -> str:
-        supported = {"python", "typescript", "javascript", "rust", "go", "cpp", "java"}
+        supported = {"python", "typescript", "javascript", "rust", "go", "cpp", "java", "sql"}
         normalized = val.lower().strip()
         if normalized not in supported:
             raise ValueError(f"Language '{val}' must be one of: {supported}")
         return normalized
 
 class CodestralFimResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     inserted_code: str = Field(..., description="Generated FIM interpolation snippet")
     full_merged_code: str = Field(..., description="Complete merged code block")
     language: str = Field(..., description="Programming language context")
+    latency_ms: float = Field(..., ge=0.0, description="Execution turnaround time")
 
 class CodeRefactorRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     source_code: str = Field(..., min_length=10, description="Source code to refactor")
     instructions: str = Field(..., min_length=5, description="Refactoring instructions")
     language: str = Field("python", description="Programming language context")
 
 class CodeRefactorResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     refactored_code: str = Field(..., description="Refactored code output")
     explanation: str = Field(..., description="Explanation of changes made")
+    status: str = Field("success", description="Status code")
 
 @mcp.tool()
 def complete_fill_in_middle(
@@ -172,11 +193,12 @@ def complete_fill_in_middle(
     suffix: str,
     language: str = "python",
     temperature: float = 0.0
-) -> str:
+) -> Dict[str, Any]:
     """
     FastMCP tool providing Fill-In-the-Middle (FIM) code completion via Codestral API.
-    Returns JSON formatted CodestralFimResponse string.
+    Returns validated CodestralFimResponse payload.
     """
+    start_time = time.perf_counter()
     api_key = os.environ.get("MISTRAL_API_KEY", "")
     if not api_key:
         # Fallback simulation if no API key is provided
@@ -184,9 +206,10 @@ def complete_fill_in_middle(
         response = CodestralFimResponse(
             inserted_code=simulated_insertion,
             full_merged_code=f"{prefix}\n{simulated_insertion}\n{suffix}",
-            language=language
+            language=language,
+            latency_ms=round((time.perf_counter() - start_time) * 1000, 2)
         )
-        return response.model_dump_json(indent=2)
+        return response.model_dump()
 
     url = "https://api.mistral.ai/v1/fim/completions"
     headers = {
@@ -210,32 +233,111 @@ def complete_fill_in_middle(
     validated_res = CodestralFimResponse(
         inserted_code=inserted,
         full_merged_code=merged,
-        language=language
+        language=language,
+        latency_ms=round((time.perf_counter() - start_time) * 1000, 2)
     )
-    return validated_res.model_dump_json(indent=2)
+    return validated_res.model_dump()
 
 @mcp.tool()
 def refactor_code_module(
     source_code: str,
     instructions: str,
     language: str = "python"
-) -> str:
+) -> Dict[str, Any]:
     """
     FastMCP tool to refactor a code module using Codestral.
-    Returns JSON formatted CodeRefactorResponse.
+    Returns validated CodeRefactorResponse.
     """
     req = CodeRefactorRequest(source_code=source_code, instructions=instructions, language=language)
 
-    # Simulated execution
+    # Simulated refactoring execution
     response = CodeRefactorResponse(
         refactored_code=f"# Refactored {req.language} code\n" + req.source_code,
-        explanation=f"Applied refactoring instructions: {req.instructions}"
+        explanation=f"Applied refactoring instructions: {req.instructions}",
+        status="success"
     )
-    return response.model_dump_json(indent=2)
+    return response.model_dump()
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Deployment & Containerization
+
+### Docker Compose Local Serving Architecture
+Deploy Codestral 22B using vLLM with GPU acceleration and FastMCP bridge:
+
+```yaml
+version: "3.8"
+
+services:
+  codestral-vllm:
+    image: vllm/vllm-openai:latest
+    container_name: codestral-vllm
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - "8000:8000"
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      --model mistralai/Codestral-22B-v0.1
+      --quantization bitsandbytes
+      --load-format bitsandbytes
+      --tensor-parallel-size 1
+      --max-model-len 32768
+      --gpu-memory-utilization 0.92
+
+volumes:
+  huggingface-cache:
+```
+
+### Systemd Service Daemon (`/etc/systemd/system/codestral-bridge.service`)
+Configure a dedicated background service to manage the Codestral FastMCP agent bridge:
+
+```ini
+[Unit]
+Description=Codestral FastMCP 3.1 Gateway Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/opt/codestral-mcp
+EnvironmentFile=/etc/default/codestral
+ExecStart=/usr/local/bin/python3 /opt/codestral-mcp/server.py
+Restart=always
+RestartSec=5s
+
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Diagnostic Step | Mitigation / Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| `FIM Prompt Delimiter Mismatch` | Client omitted prefix/suffix delimiters or passed inverted tokens | Verify raw HTTP payload formatting | Ensure `prompt` contains prefix and `suffix` contains suffix string |
+| `CUDA Out of Memory (OOM)` | High concurrent request volume or oversized KV-cache allocation | Run `nvidia-smi` to monitor GPU memory utilization | Lower `--gpu-memory-utilization` or enable 8-bit / AWQ quantization |
+| `ContextWindowOverflow` (32K) | Repository multi-file bundle exceeded 32,768 tokens | Check token count using tokenizer script | Chunk input repository files using semantic AST splitter before dispatch |
+| Incomplete Code Syntax / Halts | Response reached `max_tokens` limit prior to function termination | Inspect `finish_reason` in response payload | Increase `max_tokens` allocation or narrow refactoring scope |
+| High Autocomplete Latency (>500ms)| Network transit latency to cloud API or unoptimized local batch size | Measure local turnaround via cURL latency check | Deploy local vLLM instance or use nearest region API endpoint |
 
 ## Advanced IDE & Agentic Integration Patterns
 
