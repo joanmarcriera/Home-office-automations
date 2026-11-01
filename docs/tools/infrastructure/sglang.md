@@ -28,14 +28,16 @@ graph TD
 
 ## Inference Engine Architecture Comparison
 
-| Feature / Metric | SGLang | vLLM | Text Generation Inference (TGI) |
-| :--- | :--- | :--- | :--- |
-| **Prefix Caching Engine** | RadixAttention (Dynamic Tree Matching) | Automatic Prefix Caching (APC) | Static Prefix Caching |
-| **Constrained Generation** | Compressed FSM + FlashInfer | Outlines / xGram | Grammar-guided decoding |
-| **KV Cache Sharing** | Up to 90% in multi-turn agent loops | Moderate | Basic |
-| **Multi-Turn Latency SLA** | Sub-10ms TTFT on shared prefix | Sub-25ms TTFT | Sub-50ms TTFT |
-| **Native FastMCP 3.1** | Native FastMCP tool routing support | Via external API wrappers | Via external API wrappers |
-| **VLM Multimodal Support** | Extensive (Qwen 3.6 VL / Gemma 3) | Good | Limited |
+| Feature / Metric | SGLang | vLLM | Text Generation Inference (TGI) | Aphrodite Engine |
+| :--- | :--- | :--- | :--- | :--- |
+| **Prefix Caching Engine** | RadixAttention (Dynamic Tree Matching) | Automatic Prefix Caching (APC) | Static Prefix Caching | PagedAttention v2 Cache |
+| **Constrained Generation** | Compressed FSM + FlashInfer | Outlines / xGram | Grammar-guided decoding | Outlines guidance |
+| **KV Cache Sharing** | Up to 90% in multi-turn agent loops | Moderate | Basic | Moderate |
+| **Multi-Turn Latency SLA** | Sub-10ms TTFT on shared prefix | Sub-25ms TTFT | Sub-50ms TTFT | Sub-30ms TTFT |
+| **Native FastMCP 3.1** | Native FastMCP tool routing support | Via external API wrappers | Via external API wrappers | Via external API wrappers |
+| **VLM Multimodal Support** | Extensive (Qwen 3.6 VL / Gemma 3) | Good | Limited | Experimental |
+| **Speculative Decoding** | Multi-token speculative verification | Draft model speculative | Medusa heads | Eagle speculative engine |
+| **Dynamic LoRA Swapping** | Zero-downtime hot swap | Supported | Experimental | Supported |
 
 ## What problem it solves
 LLM applications often suffer from high First Token Latency (TTFT) and reduced generation throughput during multi-turn agent conversations, repetitive prompt prefixes, and strict structured data extraction loops. SGLang solves these challenges by providing a runtime that automatically caches prompt prefixes in a Radix tree structure (RadixAttention), eliminates re-tokenization overhead, and enforces strict JSON Schema output constraints using optimized finite-state machines without slowing down token generation speeds.
@@ -49,6 +51,7 @@ LLM applications often suffer from high First Token Latency (TTFT) and reduced g
 - **Vision-Language Applications**: Serving vision models like Qwen 3.6 VL, Gemma 3 / 4, or Gemini-compatible open weights with multi-image processing.
 - **FastMCP 3.1 Agent Tool Loops**: Powering frameworks like [AG2](../../tools/frameworks/ag2.md) or [Langflow](../../tools/frameworks/langflow.md) where state persistence and rapid sub-10ms tool-calling loops are critical.
 - **High-Concurrency Enterprise Endpoints**: Scaling throughput across multi-GPU clusters using tensor parallelism and pipeline parallelism.
+- **Synthetic Data Generation Pipelines**: Rapidly synthesizing millions of domain-specific JSON training records under strict schema validation rules.
 
 ## Strengths
 - **RadixAttention**: Automatically caches and reuses the KV cache across different requests with shared prefixes, saving up to 90% of prompt processing costs for multi-turn agents.
@@ -170,11 +173,11 @@ curl http://localhost:30000/stats
 ## API examples
 
 ### FastMCP 3.1 Integration & Pydantic v2 Structured Generation
-The following complete production Python script sets up a **FastMCP 3.1** server for SGLang, executing constrained structured generation and validating inputs/outputs using **Pydantic v2**:
+The following complete production Python script sets up a **FastMCP 3.1** server for SGLang, executing constrained structured generation and validating inputs/outputs using **Pydantic v2** (`extra="forbid"`, `frozen=True`):
 
 ```python
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from fastmcp import FastMCP
 import sglang as sgl
 
@@ -185,22 +188,30 @@ mcp = FastMCP(
 )
 
 class ExtractionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     document_text: str = Field(..., min_length=20, description="Source document text for structured entity extraction")
     extract_entity_type: str = Field("person", description="Target entity type")
     max_tokens: int = Field(512, ge=64, le=4096, description="Maximum generation token budget")
 
 class TargetEntity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     entity_name: str = Field(..., description="The full name or identifier of the extracted entity")
     entity_category: str = Field(..., description="Classification category")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence score")
     attributes: Dict[str, str] = Field(default_factory=dict, description="Key-value extracted attributes")
 
 class ExtractionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     document_id: str = Field(..., description="Unique document hash or tracking ID")
     entities: List[TargetEntity] = Field(default_factory=list, description="List of recognized entities")
     summary: str = Field(..., description="Brief summary of document context")
 
 class ExtractionResultResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     status: str = Field(..., description="Execution status: 'success' or 'error'")
     extracted_data: Optional[ExtractionPayload] = Field(None, description="Validated extraction payload")
     cache_hit_ratio: float = Field(0.0, ge=0.0, le=1.0, description="RadixAttention cache hit ratio")
@@ -254,12 +265,77 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Docker Compose Deployment for Multi-GPU SGLang Cluster
+
+For clustered enterprise deployments with Prometheus telemetry and GPU metrics exporters:
+
+```yaml
+version: "3.8"
+
+services:
+  sglang-engine:
+    image: lmsysorg/sglang:v0.4.3-cu128
+    container_name: sglang-engine
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0,1
+      - SGLANG_LOG_LEVEL=INFO
+    ports:
+      - "30000:30000"
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    volumes:
+      - /opt/huggingface_cache:/root/.cache/huggingface
+    command: >
+      python3 -m sglang.launch_server
+      --model-path deepseek-ai/DeepSeek-V4-Base
+      --host 0.0.0.0
+      --port 30000
+      --tp-size 2
+      --mem-fraction-static 0.85
+      --enable-flashinfer
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:30000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  sglang-metrics-exporter:
+    image: prom/prometheus:latest
+    container_name: sglang-metrics-exporter
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: always
+
+  sglang-dashboard:
+    image: grafana/grafana:latest
+    container_name: sglang-dashboard
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - sglang-metrics-exporter
+    restart: always
+```
+
 ## Production Hardening & Operational Rules
 
 1. **Static Memory Fraction Tuning**: Set `--mem-fraction-static 0.85` or `0.90` to preserve sufficient GPU memory for dynamic RadixAttention KV cache allocations without OOM errors.
 2. **FlashInfer Integration**: Always run SGLang with FlashInfer kernels enabled (`--enable-flashinfer`) to achieve optimal throughput during constrained decoding.
 3. **KV Cache Monitoring**: Monitor `/stats` endpoint regularly to ensure RadixAttention prefix hit rates remain above 70% in production multi-agent setups.
 4. **Graceful Failover**: Fall back to vLLM or cloud API endpoints if the SGLang GPU server instance experiences hardware interrupts or unhandled CUDA errors.
+5. **Paged Memory Pressure Backoff**: When GPU KV cache usage exceeds 95%, throttle incoming long-context requests to prevent engine stalls.
+6. **Token Eviction Strategy**: Use Least-Recently-Used (LRU) radix cache policy to ensure stale multi-turn conversations are pruned before active sessions degrade.
 
 ## Troubleshooting Matrix
 
@@ -271,6 +347,9 @@ if __name__ == "__main__":
 | **`Connection Refused on Port 30000`** | SGLang server process crashed during model loading or initial handshake | Check server stderr logs for missing model weight files or CUDA driver version mismatch. |
 | **`FlashInfer Kernel Launch Failure`** | PyTorch / CUDA toolkit ABI mismatch or unsupported GPU architecture | Ensure CUDA 12.8 drivers match FlashInfer wheel requirements (`torch2.5+cu128`). |
 | **`NCCL Timeout During TP Init`** | P2P communication blocked between multi-GPU sockets | Pass `--enable-p2p-check` or set `NCCL_IGNORE_DISABLED_P2P=1` in service environment. |
+| **`Radix Tree Lock Contention`** | Extreme request concurrency (>500 rps) on single controller process | Deploy multiple SGLang server worker instances behind an Envoy or Nginx reverse proxy. |
+| **`VLM Image Preprocessing Bottleneck`** | CPU PIL decoding overhead on multi-frame video inputs | Offload image decoding to GPU via TorchVision CUDA transforms before invoking server. |
+| **`Speculative Decoding Divergence`** | Draft model vocabulary discrepancy with target model tokenizer | Verify base and draft tokenizers share identical byte-fallback and vocabulary tokens. |
 
 ## Related tools / concepts
 - [vLLM](vllm.md) — High-throughput PagedAttention inference engine.

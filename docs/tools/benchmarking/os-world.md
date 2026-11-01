@@ -1,7 +1,7 @@
 # OSWorld
 
 ## What it is
-OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. As of early 2027, OSWorld is the premier environment for testing 'Computer Use', FastMCP 3.1 OS-level tool execution, and desktop control capabilities of frontier models.
+OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. As of early 2027, OSWorld is the premier environment for testing 'Computer Use', FastMCP 3.1 OS-level tool execution, and desktop control capabilities of frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## Architecture & Computer Use Agent Loop
 
@@ -28,7 +28,7 @@ sequenceDiagram
 Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise and FastMCP 3.1 Task Protocol multi-step execution.
 
 ## Where it fits in the stack
-**Eval / Environment**. It provides benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
+**Eval / Environment**. It provides benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware, KVM/QEMU) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
 
 ## Typical use cases
 - **Desktop Agent Evaluation**: Benchmarking autonomous agents interacting with native OS elements (e.g., system menus, file managers, desktop configurations).
@@ -43,7 +43,7 @@ Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OS
 - **Comprehensive GUI Event Tracking**: Captures drag-and-drop, right-clicks, keyboard shortcuts, and complex mouse maneuvers.
 
 ## Limitations
-- **Heavy Infrastructure Demands**: Running full virtualization software (VMware/VirtualBox) requires significant local CPU, RAM, and disk resources.
+- **Heavy Infrastructure Demands**: Running full virtualization software (VMware/VirtualBox/KVM) requires significant local CPU, RAM, and disk resources.
 - **High Setup Friction**: Initial VM image installation, snapshot configuration, and display server configuration can be complex.
 - **Inference Latency**: Incorporating multimodal screenshots into the agent loop can create execution and billing overhead due to massive visual token usage.
 
@@ -58,7 +58,7 @@ Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OS
 - For testing pure text-based reasoning models that do not have visual processing (VLM) inputs.
 
 ## Getting started
-OSWorld is run by cloning its repository, configuring the hypervisor backend (Docker, VMware, or VirtualBox), and loading the target OS virtual machine images.
+OSWorld is run by cloning its repository, configuring the hypervisor backend (Docker, VMware, VirtualBox, or QEMU), and loading the target OS virtual machine images.
 
 ### 1. Installation
 Clone the repository and install standard dependencies:
@@ -103,29 +103,35 @@ python run_task.py \
 ## API examples
 
 ### Programmatic Environment Setup with FastMCP 3.1 & Pydantic v2 Validation
-To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models integrated into a **FastMCP 3.1 Task Protocol** tool server:
+To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models (`extra="forbid"`, `frozen=True`) integrated into a **FastMCP 3.1 Task Protocol** tool server:
 
 ```python
 import json
 from typing import Dict, Any, Union, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for OSWorld Control
 mcp = FastMCP("OSWorld-ComputerUse-Server", version="3.1")
 
 class FastMCPTaskState(BaseModel):
-    task_id: str
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    task_id: str = Field(..., description="Unique OSWorld task run identifier")
     protocol_version: str = Field("3.1", pattern=r"^3\.1$")
     current_step: int = Field(0, ge=0)
 
 class OSWorldObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     screenshot_path: str = Field(..., description="VLM-compatible screenshot frame file path")
     instruction: str = Field(..., description="Task objective or user prompt to achieve")
     task_state: Optional[FastMCPTaskState] = None
 
 class OSWorldAction(BaseModel):
-    action_type: str = Field(..., description="The primitive action type (e.g., click, key_type, scroll)")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    action_type: str = Field(..., description="The primitive action type (e.g., click, key_type, scroll, drag)")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Coordinates, keyboard keys, or dynamic options")
 
 @mcp.tool(name="execute_os_action", description="Validates and executes a primitive computer-use action in OSWorld.")
@@ -165,7 +171,7 @@ import os
 import json
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
     name="OSWorld Evaluation Runner",
@@ -174,13 +180,17 @@ mcp = FastMCP(
 )
 
 class EvaluationRunConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(..., description="Unique OSWorld task ID (e.g. 'ubuntu-123' or 'windows-456')")
     model_identifier: str = Field("anthropic/claude-5.6", description="Frontier model used for visual computer use")
-    env_backend: str = Field("docker", description="VM hypervisor backend ('docker', 'vmware', 'virtualbox')")
+    env_backend: str = Field("docker", description="VM hypervisor backend ('docker', 'vmware', 'virtualbox', 'qemu')")
     record_video: bool = Field(True, description="Record MP4 desktop video for trajectory diagnostic audit")
     max_steps: int = Field(15, ge=1, le=100, description="Maximum GUI actions allowed per task run")
 
 class TaskEvaluationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str
     model_identifier: str
     success: bool
@@ -225,6 +235,102 @@ def verify_task_completion():
     return False
 ```
 
+## Docker Compose Deployment for Sandboxed OSWorld Harness
+
+For headless continuous integration and evaluation of multimodal computer use agents, deploy OSWorld in isolated Docker containers with Xvfb virtual framebuffer and noVNC web streaming:
+
+```yaml
+version: "3.8"
+
+services:
+  osworld-desktop:
+    image: osworld-eval/ubuntu-desktop:2027.1
+    container_name: osworld-desktop
+    privileged: true
+    shm_size: "4gb"
+    environment:
+      - DISPLAY=:1
+      - RESOLUTION=1920x1080x24
+      - NOVNC_PORT=6080
+      - VNC_PASSWORD=osworldsecure
+    ports:
+      - "5901:5901"   # RFB / VNC port
+      - "6080:6080"   # noVNC browser inspector
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - osworld-trajectories:/var/log/osworld
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep Xvfb || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - osworld-net
+
+  osworld-eval-runner:
+    image: osworld-eval/runner:latest
+    container_name: osworld-eval-runner
+    depends_on:
+      osworld-desktop:
+        condition: service_healthy
+    environment:
+      - MCP_SERVER_ENDPOINT=http://osworld-desktop:6080/mcp
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EVAL_ENV_TYPE=docker
+    volumes:
+      - ./tasks:/opt/osworld/tasks:ro
+      - osworld-trajectories:/opt/osworld/recordings
+    command: ["python", "run_benchmark.py", "--config", "configs/ci_regression.json"]
+    networks:
+      - osworld-net
+
+volumes:
+  osworld-trajectories:
+    driver: local
+
+networks:
+  osworld-net:
+    driver: bridge
+```
+
+## Systemd Service Configuration (Automated OSWorld Evaluation Worker)
+
+To maintain a continuous benchmarking daemon that consumes evaluation queues across VM snapshots, create `/etc/systemd/system/osworld-worker.service`:
+
+```ini
+[Unit]
+Description=OSWorld Benchmark Evaluation Worker Daemon
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=simple
+User=benchmark-runner
+Group=benchmark-runner
+WorkingDirectory=/opt/osworld
+Environment="PYTHONUNBUFFERED=1"
+Environment="PATH=/opt/osworld/venv/bin:/usr/local/bin:/usr/bin"
+Environment="DISPLAY=:99"
+Environment="OSWORLD_SANDBOX_ISOLATION=strict"
+ExecStartPre=/usr/bin/python3 -c "import shutil, os; os.makedirs('/opt/osworld/recordings', exist_ok=True)"
+ExecStart=/opt/osworld/venv/bin/python3 run_worker.py --concurrency 4 --queue redis://127.0.0.1:6379/2
+Restart=on-failure
+RestartSec=15s
+LimitNOFILE=65536
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and activate the evaluation worker:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now osworld-worker.service
+sudo systemctl status osworld-worker.service
+```
+
 ## Benchmark Comparison Matrix
 
 | Benchmark | Scope & Environment | Action Space | Evaluation Metric | FastMCP 3.1 Support | Primary Focus |
@@ -235,19 +341,22 @@ def verify_task_completion():
 | **TerminalBench** | Linux CLI Terminals | Bash commands, stdin | Shell return code & file state validation | Terminal MCP | Direct Command-line sysadmin and script generation |
 
 ## Operational Hardening & VM Sandbox Rules
-- **Snapshot Reset Policy**: Revert guest virtual machines to clean baseline snapshots (`vmrun revertToSnapshot`) prior to every evaluation run to prevent task state contamination.
-- **Network Isolation**: Restrict OSWorld guest OS internet access via host iptables/firewall rules to prevent evaluated agents from executing unintended external web transactions or leaking sensitive API tokens.
+- **Snapshot Reset Policy**: Revert guest virtual machines to clean baseline snapshots (`vmrun revertToSnapshot` or `virsh snapshot-revert`) prior to every evaluation run to prevent task state contamination.
+- **Network Isolation**: Restrict OSWorld guest OS internet access via host iptables/firewall rules or internal bridge networks to prevent evaluated agents from executing unintended external web transactions or leaking sensitive API tokens.
 - **Resource Limits**: Cap VM hypervisor resource usage to 4 vCPUs and 8GB RAM per guest instance to avoid host memory starvation during multi-worker parallel benchmark evaluations.
 - **Coordinate Normalization**: Scale screenshot frame buffers to fixed standard resolutions (e.g. 1920x1080) to ensure accurate VLM visual coordinate mapping across heterogeneous host displays.
+- **Privilege Separation**: Never execute OSWorld test runners as root on the host machine. Mount test guest disks read-only where state mutation is verified using ephemeral overlayfs layers.
 
 ## Diagnostic & Troubleshooting Guide
 
-| Issue / Symptom | Root Cause | Resolution Strategy |
-| :--- | :--- | :--- |
-| `VMWareException: Unable to connect to host` | VMware Workstation / Fusion API background service not running | Start the `vmware-rest` service or check hypervisor path permissions on host system. |
-| `Coordinate Mapping Offset Error` | High-DPI scaling active on host display manager | Disable OS display scaling (set to 100% / 1:1 pixel rendering) on host monitor before launching OSWorld. |
-| Evaluation script timeout on guest OS | Verification script hanging on interactive prompts | Ensure guest verification scripts pass `--batch` or `-y` flags to bypass interactive stdin blocks. |
-| High visual token billing during task runs | Sending uncompressed high-FPS PNG frames to VLM endpoints | Implement frame-difference filtering to only send screenshot frames when desktop pixels actually change. |
+| Issue / Symptom | Root Cause | Diagnostic Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| `VMWareException: Unable to connect to host` | VMware Workstation / Fusion API background service not running | `systemctl status vmware-workstation-server` | Start the `vmware-rest` service or check hypervisor path permissions on host system. |
+| `Coordinate Mapping Offset Error` | High-DPI scaling active on host display manager (e.g. Wayland 200%) | `xdpyinfo \| grep -B 2 resolution` | Disable OS display scaling (set to 100% / 1:1 pixel rendering) on host monitor before launching OSWorld. |
+| Evaluation script timeout on guest OS | Verification script hanging on interactive prompts | `journalctl -u osworld-worker.service -n 50` | Ensure guest verification scripts pass `--batch` or `-y` flags to bypass interactive stdin blocks. |
+| High visual token billing during task runs | Sending uncompressed high-FPS PNG frames to VLM endpoints | `ls -lh /tmp/osworld/frames/` | Implement frame-difference filtering to only send screenshot frames when desktop pixels actually change. |
+| `X11 connection refused` in container mode | Virtual Xvfb display server crashed or DISPLAY socket missing | `netstat -tlpn \| grep 5901` | Ensure Xvfb and x11vnc are initialized before starting the FastMCP agent controller process. |
+| Flaky state verification on file write tasks | Asynchronous filesystem cache flushes delaying file availability on disk | `sync && test -f /path/to/expected` | Add explicit `sync` or 1-second grace period inside guest state assertion scripts. |
 
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web navigation benchmark.

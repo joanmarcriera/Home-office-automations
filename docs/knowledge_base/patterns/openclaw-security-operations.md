@@ -42,7 +42,7 @@ OpenClaw combines messaging channels, browser automation, shell-capable skills, 
                    v                                         v
 +------------------------------------+    +------------------------------------+
 | High-Risk Execution Gate           |    | Low-Risk Sandbox Execution         |
-| (Human-in-the-Loop Approval / n8n) |    | (Isolated Container / gVisor Environment)
+| (Human-in-the-Loop Approval / n8n) |    | (Isolated Container / gVisor Env)  |
 +------------------+-----------------+    +------------------+-----------------+
                    |                                         |
                    +--------------------+--------------------+
@@ -68,12 +68,14 @@ OpenClaw combines messaging channels, browser automation, shell-capable skills, 
 | **Credential Exfiltration** | Critical | Static Env Variables | Ephemeral Vault Tokens + Ephemeral KMS Injection | Zero-Trust Tool Parameter Masking |
 | **Unbounded Shell Command** | Critical | Restricted User Accounts | Mandatory Human-in-the-Loop (HITL) Gate | Task Correlator (`taskId`) Approval Tracking |
 | **Data Poisoning in RAG** | High | Keyword Scoring | Multi-Stage Agent Consensus & Verification | Structured Result Pydantic Validation |
+| **SSRF via Browser Automation** | High | Blacklist IP Lists | gVisor Sandbox + Ephemeral Egress Proxy Filters | Sandboxed Browser Session Lifecycle |
 
 ## Typical use cases
 - **Always-on Personal Assistant**: Hardening an agent that has access to your real accounts (Email, Calendar, Slack).
 - **Autonomous Research Agents**: Safely browsing the web where content may contain adversarial prompts.
 - **Enterprise Agent Orchestration**: Managing a fleet of agents with varying levels of privilege.
 - **CI/CD Automation**: Gating shell-access agents that perform infrastructure updates.
+- **Incident Response Investigation**: Running autonomous log analysis without granting unmonitored write access to production clusters.
 
 ## Strengths
 - **Least Privilege**: Ensures agents only have the access they need for a specific task.
@@ -121,7 +123,7 @@ Configure a middleware layer that pauses execution for high-risk tools.
         "tool": "shell_execute",
         "action": "pause_and_request_approval",
         "criteria": {
-          "contains_keywords": ["sudo", "rm -rf", "chmod", "curl", "wget", "eval"],
+          "contains_keywords": ["sudo", "rm -rf", "chmod", "curl", "wget", "eval", "dd if="],
           "user_id": "openclaw-worker-01"
         }
       }
@@ -147,16 +149,20 @@ Trust Boundary:
 ```python
 import re
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP("OpenClaw Security Gateway", version="3.1.0")
 
 class AuditRequestPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(..., description="FastMCP 3.1 task identifier")
     action_type: str = Field(..., description="Action category (e.g. SHELL_EXEC, WEB_FETCH)")
     command_str: str = Field(..., description="Target command string to inspect")
 
 class AuditResultResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str
     approved: bool
     risk_level: str
@@ -165,7 +171,7 @@ class AuditResultResponse(BaseModel):
 @mcp.tool()
 def inspect_tool_call(payload: AuditRequestPayload) -> AuditResultResponse:
     """FastMCP 3.1 security tool for inspecting commands prior to execution."""
-    forbidden = ["rm -rf", "sudo", "curl -s | sh", "eval"]
+    forbidden = ["rm -rf", "sudo", "curl -s | sh", "eval", "dd if=", "mkfs"]
     for pattern in forbidden:
         if pattern in payload.command_str:
             return AuditResultResponse(
@@ -187,20 +193,22 @@ if __name__ == "__main__":
 ```
 
 ### 4. Programmatic Trust Validation & Security Hook Evaluation (Python API)
-A Python wrapper using strict **Pydantic v2** validation to evaluate security hooks and validate prompt payloads before submission to frontier models:
+A Python wrapper using strict **Pydantic v2** validation (`extra="forbid"`, `frozen=True`) to evaluate security hooks and validate prompt payloads before submission to frontier models:
 
 ```python
 import re
 from typing import Any, Dict, List
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 class SecurityHookEvaluation(BaseModel):
     """Pydantic v2 model for auditing and evaluating OpenClaw tool call permissions under FastMCP 3.1."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     tool_name: str = Field(..., description="Target tool name requested by agent")
     tool_args: Dict[str, Any] = Field(default_factory=dict, description="Arguments passed to tool call")
     user_id: str = Field(..., description="Identifier of worker or user triggering tool")
     high_risk_keywords: List[str] = Field(
-        default=["sudo", "rm -rf", "chmod", "curl", "wget", "DROP TABLE", "eval"],
+        default=["sudo", "rm -rf", "chmod", "curl", "wget", "DROP TABLE", "eval", "dd if="],
         description="Forbidden/gated terms"
     )
 
@@ -211,6 +219,8 @@ class SecurityHookEvaluation(BaseModel):
 
 class SecurityPayload(BaseModel):
     """Pydantic v2 model for sanitizing and wrapping untrusted inputs."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     untrusted_data: str = Field(..., description="Raw untrusted input text")
     system_prompt: str = Field(default="You are an OpenClaw security-hardened assistant.", description="System instruction")
 
@@ -239,6 +249,85 @@ if __name__ == "__main__":
         user_id="openclaw-worker-01"
     )
     print(validate_and_execute_payload(payload, eval_hook))
+```
+
+## Docker Compose Sandboxing Deployment (gVisor & Rootless OpenClaw)
+
+Deploy OpenClaw in a hardened sandbox using the gVisor (`runsc`) container runtime to isolate shell tool execution from the host operating system:
+
+```yaml
+version: "3.8"
+
+services:
+  openclaw-security-proxy:
+    image: openclaw/security-gateway:2027.1
+    container_name: openclaw-security-proxy
+    ports:
+      - "8080:8080"
+    environment:
+      - GATEWAY_BIND=0.0.0.0
+      - HITL_WEBHOOK_URL=http://n8n-approval:5678/webhook/hitl-gate
+      - TOKEN_EXPIRY_HOURS=24
+    restart: always
+    networks:
+      - openclaw-internal
+
+  openclaw-agent-worker:
+    image: openclaw/runtime-agent:2027.1
+    container_name: openclaw-agent-worker
+    runtime: runsc  # Enforce gVisor kernel sandboxing
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    environment:
+      - FASTMCP_GATEWAY_URL=http://openclaw-security-proxy:8080
+      - OPENCLAW_ISOLATION_TIER=strict
+    depends_on:
+      - openclaw-security-proxy
+    networks:
+      - openclaw-internal
+
+networks:
+  openclaw-internal:
+    driver: bridge
+    internal: true
+```
+
+## Systemd Service Configuration (OpenClaw Security Gateway Daemon)
+
+Deploy the OpenClaw Security Gateway as an isolated systemd daemon:
+
+```ini
+[Unit]
+Description=OpenClaw FastMCP 3.1 Security Gateway & PreToolUse Inspector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openclaw-sec
+Group=openclaw-sec
+WorkingDirectory=/opt/openclaw
+Environment="PYTHONUNBUFFERED=1"
+Environment="PATH=/opt/openclaw/venv/bin:/usr/bin"
+Environment="OPENCLAW_CONFIG=/etc/openclaw/security-rules.json"
+ExecStart=/opt/openclaw/venv/bin/python3 -m openclaw.gateway --port 8080 --enforce-hitl
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -290,6 +379,17 @@ Use a webhook to confirm or deny an agent's requested action under FastMCP 3.1.
 1. **Immediate Agent Freeze**: Issue `openclaw agent kill-all` to immediately stop active loops.
 2. **Revoke API Tokens**: Invalidate model provider API keys and local gateway tokens.
 3. **Audit Trajectory Logs**: Inspect `/var/log/openclaw/trajectory.jsonl` for exact tool call history and inputs.
+4. **Isolate Compromised Containers**: Execute `docker network disconnect openclaw-internal openclaw-agent-worker` to isolate rogue processes.
+
+## Systematic Incident Troubleshooting Matrix
+
+| Incident Symptom | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Silent Prompt Injection Bypass** | Malicious input contained malformed XML tags escaping boundary | `grep -i "untrusted_content" /var/log/openclaw/prompts.log` | Enforce recursive XML sanitization via `SecurityPayload.sanitize_xml` validator. |
+| **HITL Approval Webhook Timeout** | n8n approval webhook endpoint unreachable or down | `curl -Iv http://n8n-approval:5678/healthz` | Configure fallback fail-closed rule: reject tool invocation if webhook exceeds 10s timeout. |
+| **Excessive False Positive Tool Blocks** | Regex pattern matching innocent file path strings | `journalctl -u openclaw-sec.service -n 50` | Refine keyword matchers to check command tokens rather than raw substring searching. |
+| **gVisor (runsc) Sandbox Failure** | Kernel version mismatch or missing `/dev/kvm` node | `runsc --version` | Verify host Linux kernel supports user namespaces and reinstall latest `runsc` binary. |
+| **Gateway Token Expiration In-Flight** | 24-hour token rotated while multi-step agent mission was running | `openclaw auth status` | Grant active agent tasks ephemeral session leases that auto-renew until task conclusion. |
 
 ## Related tools / concepts
 - [OpenClaw](../../tools/development_ops/openclaw.md)
