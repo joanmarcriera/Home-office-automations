@@ -131,6 +131,105 @@ firebase deploy --only functions,firestore:rules
 firebase studio:mcp-proxy --port 8080
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Configuration: `firebase-emulator.service`
+
+For automated headless testing, continuous integration runners, or dedicated background dev servers, Firebase Studio workspaces can run the full emulator suite as a managed systemd unit:
+
+```ini
+[Unit]
+Description=Firebase Studio Emulators Suite Daemon
+After=network.target local-fs.target
+Documentation=https://firebase.googleblog.com/2026/05/firebase-studio-ai-powered-dev.html
+
+[Service]
+Type=simple
+User=firebase
+Group=firebase
+WorkingDirectory=/opt/firebase-studio-workspace
+Environment="NODE_ENV=development"
+Environment="FIREBASE_PROJECT_ID=studio-project-2027"
+Environment="FIRESTORE_EMULATOR_HOST=0.0.0.0:8080"
+Environment="FIREBASE_AUTH_EMULATOR_HOST=0.0.0.0:9099"
+Environment="FIREBASE_STORAGE_EMULATOR_HOST=0.0.0.0:9199"
+ExecStartPre=/usr/local/bin/firebase setup:emulators:firestore
+ExecStart=/usr/local/bin/firebase emulators:start --only auth,firestore,functions,storage --project studio-project-2027 --export-on-exit=/var/lib/firebase/emulator-export
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=firebase-emulator
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Multi-Container Docker Compose Stack (`docker-compose.emulator.yml`)
+
+The following containerized configuration provides local parity with the cloud-hosted Firebase Studio environment:
+
+```yaml
+version: "3.8"
+
+services:
+  firebase-studio-emulator:
+    image: node:22-bookworm-slim
+    container_name: firebase_studio_emulator
+    restart: unless-stopped
+    working_dir: /workspace
+    environment:
+      - NODE_ENV=development
+      - FIREBASE_PROJECT_ID=studio-project-2027
+      - GCP_PROJECT=studio-project-2027
+      - FIRESTORE_EMULATOR_HOST=0.0.0.0:8080
+      - FIREBASE_AUTH_EMULATOR_HOST=0.0.0.0:9099
+    volumes:
+      - ./workspace:/workspace
+      - ./data/emulator-cache:/root/.cache/firebase/emulators
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "8080:8080"   # Firestore Emulator
+      - "9099:9099"   # Auth Emulator
+      - "5001:5001"   # Functions Emulator
+      - "9199:9199"   # Storage Emulator
+    command: >
+      bash -c "npm install -g firebase-tools &&
+               firebase emulators:start --only auth,firestore,functions,storage --project studio-project-2027"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - studio-net
+
+  fastmcp-studio-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastmcp
+    container_name: fastmcp_studio_bridge
+    restart: unless-stopped
+    depends_on:
+      firebase-studio-emulator:
+        condition: service_healthy
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firebase-studio-emulator:8080
+      - FIREBASE_AUTH_EMULATOR_HOST=firebase-studio-emulator:9099
+      - MCP_PORT=8000
+    ports:
+      - "8000:8000"
+    command: ["python3", "-m", "server"]
+    networks:
+      - studio-net
+
+networks:
+  studio-net:
+    driver: bridge
+```
+
 ## API examples
 
 ### Python FastMCP 3.1 Tool Registration for Firebase Studio
@@ -156,7 +255,7 @@ mcp = FastMCP(
 )
 
 class TaskPayload(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     task_id: str = Field(..., alias="taskId", description="Unique Firestore task document ID")
     title: str = Field(..., min_length=3, max_length=120, description="Title of the task")
@@ -170,6 +269,8 @@ class TaskPayload(BaseModel):
     )
 
 class TaskResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     message: str
     task: Optional[TaskPayload] = None
@@ -269,6 +370,16 @@ export const onStudioTaskCreated = onDocumentCreated("tasks/{taskId}", (event) =
     });
 });
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution Procedure |
+|:---|:---|:---|:---|
+| **Emulator Port Conflict (EADDRINUSE)** | Another local service or stale emulator process is listening on `8080` (Firestore) or `9099` (Auth). | Run `lsof -i :8080 -i :9099` to identify rogue processes holding open ports. | Kill stale processes using `kill -9 <PID>` or modify `firebase.json` emulator section to bind alternate available ports. |
+| **FastMCP Schema Validation Error** | Input payload contains unexpected parameters rejected by strict Pydantic v2 `extra="forbid"`. | Inspect MCP agent call arguments against `TaskPayload` schema definitions. | Ensure tool callers conform exactly to declared field names (`taskId`, `title`, `priority`, `assignedAgent`). |
+| **GCP Auth Token Expired in Studio** | User or service account refresh token expired during extended idle sessions. | Run `gcloud auth print-access-token` and check for `Reauthentication Required` errors. | Execute `firebase login --reauth` or refresh service account ADC JSON via `gcloud auth application-default login`. |
+| **Cloud Function Deployment Timeout** | Cloud Run v2 container build step exceeding default 120s timeout due to bloated node_modules or large model assets. | Examine Cloud Build logs: `gcloud builds log <build-id>`. | Add non-runtime files to `.gcloudignore`, prune dependency tree, or increment timeout via `deploy --timeout=300s`. |
+| **Firestore Security Rules Simulation Failure** | Unauthenticated mock requests failing RBAC rules requiring valid JWT auth context. | Check Studio Rule Simulator output in the emulator console (`http://localhost:4000/firestore`). | Provide explicit mock auth claims (e.g., `{ "uid": "agent_alpha", "token": { "role": "admin" } }`) in test payload. |
 
 ## Related tools / concepts
 - [Google AI Studio](../ai_knowledge/gemini.md)
