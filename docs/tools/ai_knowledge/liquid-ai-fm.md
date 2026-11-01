@@ -54,6 +54,8 @@ Unlike traditional Transformer-based encoders (such as BERT or RoBERTa) that sca
 - **Ultra-Fast Dense RAG Embeddings**: Generating 1024-dimensional dense vector embeddings for million-document collections in batch ingestion pipelines.
 - **Edge Voice & Audio Processing**: Performing low-latency keyword spotting, speaker identification, and audio classification directly on battery-powered microcontrollers and single-board computers.
 - **FastMCP 3.1 Telemetry Classification**: Analyzing real-time agent execution traces to detect loops, token consumption spikes, or tool execution errors.
+- **Industrial Condition Monitoring**: Continuous acoustic emission monitoring on turbine bearings and rotating machinery with real-time state-space inference.
+- **Biometric Time-Series Processing**: High-frequency streaming analysis of ECG, PPG, and EEG bio-signals for wearable health monitoring devices.
 
 ## Strengths
 - **Linear Complexity $O(N)$**: Processes infinite sequence lengths without quadratic RAM or VRAM allocation degradation.
@@ -65,6 +67,18 @@ Unlike traditional Transformer-based encoders (such as BERT or RoBERTa) that sca
 - **Different Tuning Dynamics**: Training and fine-tuning liquid neural state-space models requires adapting to non-Transformer hyperparameter configurations.
 - **Ecosystem Maturity**: Fewer pre-built domain-specific checkpoints compared to decades of Bert/Transformer open releases.
 - **Requires Continuous Formats**: Maximum efficiency gains occur when handling sequential streaming or large document batches rather than isolated single-word queries.
+
+## Architecture & Model Comparison (Early 2027)
+
+| Feature / Metric | Liquid AI LFM-2.5 (350M) | BGE-M3 (560M) | ModernBERT (149M) | Nomic Embed v1.5 (137M) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Model Type** | Continuous State-Space (LFM) | Dense/Sparse/ColBERT Transformer | Modernized Transformer | RoBERTa Transformer |
+| **Context Complexity** | $O(N)$ linear time, $O(1)$ memory | $O(N^2)$ quadratic | $O(N \log N)$ FlashAttention-2 | $O(N^2)$ quadratic |
+| **Max Context Window** | 1,000,000+ tokens continuous | 8,192 tokens | 8,192 tokens | 8,192 tokens |
+| **Embedding Speed** | ~4,200 docs/sec (CPU/ONNX) | ~650 docs/sec | ~1,800 docs/sec | ~1,200 docs/sec |
+| **Streaming Latency** | < 1.2ms per step | N/A (batch only) | N/A (batch only) | N/A (batch only) |
+| **Memory at 64k Tokens** | Fixed ~450 MB | Out-of-Memory on CPU | ~3.8 GB RAM | Out-of-Memory on CPU |
+| **Continuous Integration** | Native ODE/SSM recurrent step | Re-encode full sequence | Re-encode full sequence | Re-encode full sequence |
 
 ## When to use it
 - When processing ultra-long contexts, continuous sensor telemetry, or real-time audio streams.
@@ -142,11 +156,11 @@ This example builds a FastMCP 3.1 tool server using Liquid AI LFM-2.5 Encoder to
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import torch
 from transformers import AutoTokenizer, AutoModel
 
-mcp = FastMCP("Liquid-AI-Telemetry-Analyzer")
+mcp = FastMCP("Liquid-AI-Telemetry-Analyzer", version="3.1.0")
 
 # Initialize Liquid AI LFM 250M Encoder
 MODEL_ID = "liquidai/lfm-2.5-encoder-250m"
@@ -154,10 +168,14 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
 model = AutoModel.from_pretrained(MODEL_ID, trust_remote_code=True)
 
 class MetricPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     hostname: str = Field(..., description="Target server hostname")
     metric_log: str = Field(..., description="Raw server log or telemetry string")
 
 class AnomalyResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     hostname: str = Field(..., description="Target server hostname")
     is_anomaly: bool = Field(..., description="Whether telemetry indicates an anomaly")
     confidence: float = Field(..., description="Model confidence score")
@@ -188,9 +206,11 @@ if __name__ == "__main__":
 ### Pydantic v2 Embedding Vector Schema Validation
 ```python
 from typing import List
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
 
 class LiquidEmbeddingVector(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_version: str = Field(..., description="Liquid AI model version string")
     dimensions: int = Field(..., description="Number of vector dimensions")
     values: List[float] = Field(..., description="Float vector values")
@@ -216,6 +236,51 @@ except ValidationError as e:
     print("Validation Error:", e.json())
 ```
 
+## Docker Compose Deployment for Liquid AI FM Encoder & Qdrant Vector Pipeline
+
+To deploy a continuous streaming embedding service alongside a high-performance vector search engine (Qdrant), use this multi-container configuration:
+
+```yaml
+version: "3.8"
+
+services:
+  liquid-encoder-service:
+    image: liquidai/lfm-encoder-runtime:2.5
+    container_name: liquid-encoder-service
+    environment:
+      - MODEL_IDENTIFIER=liquidai/lfm-2.5-encoder-350m
+      - PORT=8095
+      - BATCH_SIZE=64
+      - DEVICE=cpu
+      - TORCH_NUM_THREADS=4
+    ports:
+      - "8095:8095"
+    volumes:
+      - lfm-model-cache:/root/.cache/huggingface
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  qdrant-vectordb:
+    image: qdrant/qdrant:v1.12.0
+    container_name: qdrant-vectordb
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-storage:/qdrant/storage
+    restart: always
+
+volumes:
+  lfm-model-cache:
+    driver: local
+  qdrant-storage:
+    driver: local
+```
+
 ## Diagnostic Troubleshooting Matrix
 
 | Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
@@ -224,6 +289,9 @@ except ValidationError as e:
 | **Embedding Normalization Shift on Short Tokens** | Evaluating single-word queries without sequence context in continuous state-space models. | Reduced vector cosine similarity accuracy on short phrases. | Prepend task context prompts (e.g. `search query: ...`) or batch queries into sequential blocks. |
 | **State Space Memory Leakage in Long Loops** | Persisting state hidden vectors across non-sequential input streams without explicit state resets. | Accumulated state noise degrades embedding quality over time. | Reset hidden state tensors between unrelated document streams (`model.reset_state()`). |
 | **Quantization Precision Loss in INT8 ONNX Export** | Naive post-training INT8 quantization of continuous-time differential weights. | Loss of fine-grained precision in vector embedding space. | Use FP16 or INT8 with dynamic range quantization calibrated on domain-specific telemetry logs. |
+| **CPU Thread Contention During Batch Streaming** | PyTorch default OpenMP thread oversubscription across CPU cores. | CPU latency spikes and throttling during high-concurrency ingestion. | Export `TORCH_NUM_THREADS=4` and `OMP_NUM_THREADS=4` in environment before launching encoder. |
+| **NaNs in Continuous State-Space Integration** | Unchecked delta-time step spikes in non-uniform sensor streams. | Exploding activations in dynamic state vectors. | Clamp input sampling intervals $\Delta t$ to range $[10^{-4}, 1.0]$ before passing to state transition kernel. |
+| **Dimension Mismatch on ChromaDB Upsert** | FastMCP output emitting 768 dimensions instead of target 1024 vector schema. | Vector database rejects insert transaction. | Verify encoder checkpoint variant (`250m` emits 768d, `350m` emits 1024d) and match collection settings. |
 
 ## Systemd Service Configuration (LFM-2.5 Streaming Encoder Worker)
 
@@ -255,6 +323,7 @@ WantedBy=multi-user.target
 1. **Explicit State Resets**: Always clear intermediate hidden states when transitioning between distinct document domains or independent user chat sessions.
 2. **Context Padding Optimization**: Unlike Transformers where padding tokens consume quadratic compute, state-space models bypass padding; strip unnecessary trailing pad tokens before passing inputs.
 3. **Security Auditing on Custom Model Code**: Since Liquid models currently require `trust_remote_code=True`, audit checkpoint repository commits and freeze SHA hashes in production environments.
+4. **Drift Detection on Dynamic Embeddings**: Monitor cosine similarity centroids across hourly telemetry batches to detect distribution shifts in underlying physical systems.
 
 ## Related tools / concepts
 - [Liquid AI Provider](../providers/liquid-ai.md) — Company and provider profile for Liquid AI.
