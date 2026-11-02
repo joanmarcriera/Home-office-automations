@@ -111,7 +111,7 @@ The most effective way to "consume" these signals is via RSS or Atom feeds.
 - **Monthly**: Refresh canonical docs and [Tool Access Matrix](ai_tool_access_matrix.md) based on what changed materially.
 
 ## CLI examples
-Interacting with signal sources via terminal-based tools:
+Interacting with signal sources via terminal-based tools. The last command is a sketch: the `scripts.ingest_signals` module does not ship in this repository.
 
 ```bash
 # Fetch latest entries from Simon Willison's feed using curl
@@ -123,7 +123,7 @@ mcp task create --name "Monitor OpenAI" --url "https://openai.com/research/" --i
 # Archive a high-signal article to Linkwarden
 linkwarden-cli add --url "https://openai.com/research/gpt-5-6-multi-agent-scaling" --tag "ai-signal"
 
-# Run signal ingestion validation manually
+# Sketch only: scripts.ingest_signals is not in this repository
 python3 -m scripts.ingest_signals --source-file docs/knowledge_base/ai_signal_sources.md
 ```
 
@@ -209,7 +209,9 @@ if __name__ == "__main__":
 
 ## Production systemd Service Unit
 
-To run the automated AI Signal Ingestion Daemon continuously on Linux systems, deploy the following unit file:
+> **Status: design sketch.** The unit below starts a `scripts.ingest_signals` module that does not ship in this repository; there is no signal-ingestion script under `scripts/`. Use it as a template for your own daemon.
+
+To run an AI signal ingestion daemon continuously on Linux systems, a unit file could look like this:
 
 ```ini
 [Unit]

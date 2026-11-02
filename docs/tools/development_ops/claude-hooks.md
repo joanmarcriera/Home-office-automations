@@ -111,7 +111,7 @@ WantedBy=multi-user.target
 
 | Issue / Error Symptom | Root Cause | Remediation Procedure |
 | :--- | :--- | :--- |
-| `PreToolUse hook script not found` | Relative path in `.claude/hooks.json` cannot be resolved | Use repo-relative pathing (`scripts/scan.sh`) or add script to system `$PATH`. |
+| `PreToolUse hook script not found` | Relative path in `.claude/hooks.json` cannot be resolved | Use repo-relative pathing (e.g. `scripts/scan_secrets.sh` from [Getting started](#getting-started)) or add script to system `$PATH`. |
 | Agent loop hanging on `write_file` tool call | Hook script waiting indefinitely on interactive `stdin` | Ensure all hook scripts are non-interactive (`set -e`, pass `--non-interactive` flags). |
 | `Permission denied (exit code 126)` | Executable bit not set on target hook shell script | Run `chmod +x scripts/*.sh` before executing agent session. |
 | False-positive secret blocks on sample test files | Gitleaks rule matching mock API key fixtures | Configure `.gitleaksignore` or exclude test directories in `hooks.json`. |
@@ -119,7 +119,7 @@ WantedBy=multi-user.target
 ## Getting started
 
 ### Repository Setup
-Create the `.claude/` directory inside your repository root and initialize `hooks.json`:
+Create the `.claude/` directory inside your repository root and initialize `hooks.json`. Every path in this section (including `scripts/scan_secrets.sh`) lives in **your own** repository; none of these files ship in this knowledge base.
 
 ```bash
 # Create configuration directory

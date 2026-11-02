@@ -173,7 +173,7 @@ gh pr checkout 108
 ## API examples
 
 ### FastMCP 3.1 Python Integration for Sweep Pipelines
-Sweep tasks can execute custom FastMCP 3.1 tools to validate code before PR submission. Below is a complete Python FastMCP server (`scripts/sweep_task_tools.py`) providing repository inspection and verification tools to Sweep workers:
+Sweep tasks can execute custom FastMCP 3.1 tools to validate code before PR submission. Below is an example FastMCP server (save it in your own project, e.g. as `sweep_task_tools.py`; it does not ship in this repository) providing repository inspection and verification tools to Sweep workers:
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -319,7 +319,7 @@ WantedBy=multi-user.target
 | **Sweep Webhook Fails to Trigger** | GitHub App permission revoked or invalid secret | `gh api /repos/:owner/:repo/hooks` | Re-authenticate GitHub App and verify webhook URL accessibility |
 | **FastMCP Verification Timeout** | Pre-PR test suite execution exceeded timeout | `journalctl -u sweep-worker.service -e` | Increase timeout in `sweep_task_tools.py` or optimize test suite execution |
 | **Infinite Review Comment Loop** | Vague reviewer feedback causing repeating diffs | `gh pr view --comments` | Provide specific code lines in review comments or manually merge PR |
-| **YAML Schema Validation Failure** | Missing required `rules` field in `.sweep.yaml` | `python3 scripts/validate_sweep_config.py` | Add required coding rules array to `.sweep.yaml` |
+| **YAML Schema Validation Failure** | Missing required `rules` field in `.sweep.yaml` | `python3 -c "import yaml; print(yaml.safe_load(open('.sweep.yaml')).get('rules'))"` | Add required coding rules array to `.sweep.yaml` |
 
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-native pair programmer for developer-led editing.
