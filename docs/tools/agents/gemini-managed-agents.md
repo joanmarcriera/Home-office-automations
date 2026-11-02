@@ -257,7 +257,9 @@ if __name__ == "__main__":
 
 ## Production Systemd Service Configuration
 
-Deploy the Gemini Managed Agent gateway orchestrator as a background `systemd` user service unit to maintain high availability and automatic restart capabilities.
+Deploy a Gemini Managed Agent gateway orchestrator as a background `systemd` user service unit to maintain high availability and automatic restart capabilities.
+
+> **Status: design sketch.** The unit below starts a `scripts.gemini_managed_agent_daemon` module that does not ship in this repository; supply your own daemon.
 
 ```ini
 # ~/.config/systemd/user/gemini-managed-agent.service

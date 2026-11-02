@@ -120,6 +120,9 @@ llama-index-cli query \
 ```
 
 ### 2. Streaming Audio Overview Generation via Gemini API CLI Tool
+
+> **Status: design sketch.** `scripts.generate_podcast_script` is not shipped in this repository; the command shows the shape of a script you would write yourself.
+
 ```bash
 # Generate synthetic podcast dialogue draft from markdown documents
 cat research_summary.md | python3 -m scripts.generate_podcast_script \

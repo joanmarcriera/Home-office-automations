@@ -187,7 +187,7 @@ claude status --json
 ## API examples
 
 ### FastMCP 3.1 Python Integration for Claude Code
-Claude Code can interact directly with custom local FastMCP 3.1 servers. Below is a complete Python FastMCP server script (`scripts/claude_mcp_bridge.py`) that exposes project health checks and syntax auditing tools to Claude Code sessions:
+Claude Code can interact directly with custom local FastMCP 3.1 servers. Below is an example FastMCP server (save it in your own project, e.g. as `claude_mcp_bridge.py`; it does not ship in this repository) that exposes project health checks and syntax auditing tools to Claude Code sessions:
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -362,7 +362,7 @@ WantedBy=multi-user.target
 | **`preToolUse` Hook Hangs** | Non-terminating bash command in hook definition | `claude /doctor` | Ensure hook scripts specify explicit subshell timeout flags |
 | **FastMCP Connection Refused** | Local MCP bridge server not running or port blocked | `claude mcp list` | Verify local FastMCP Python server status and `$PATH` configuration |
 | **OAuth Auth Failure** | Stale session token in `~/.claude/auth.json` | `claude auth login --force` | Force re-authentication and re-issue OAuth token |
-| **Pydantic Model Error** | Non-Claude 5 model defined in `settings.json` | `python3 scripts/validate_settings.py` | Update `preferredModel` to `claude-5-6-20270105` in `.claude/settings.json` |
+| **Pydantic Model Error** | Non-Claude 5 model defined in `settings.json` | `jq '.model' .claude/settings.json` | Update `preferredModel` to `claude-5-6-20270105` in `.claude/settings.json` |
 
 ## Related tools / concepts
 - [Claude Code Router](./claude-code-router.md) — Multi-model routing engine for Claude Code.
