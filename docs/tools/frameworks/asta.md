@@ -32,6 +32,48 @@ While general-purpose developer agents excel at software engineering or web sear
 +-----------------------------------------------------------------------------------+
 ```
 
+## Detailed Internal Reasoning & Execution Pipeline
+
+The execution life cycle of an ASTA scientific task operates through a strict multi-stage verification loop:
+
+1. **Task Decomposition & Domain Routing**: User queries (e.g., small molecule binding affinity, enzymatic reaction kinetics) are analyzed by the task planner to determine required domain libraries (RDKit, Biopython, ASE).
+2. **Semantic Scholar Paper Graph Retrieval**: The agent queries the Semantic Scholar API using dense embedding vectors and citation graph walks to surface peer-reviewed literature, establishing grounding context.
+3. **Hypothesis Formulation & Protocol Synthesis**: The reasoning model structures a formal scientific hypothesis accompanied by expected quantitative benchmarks and chemical/biological validation constraints.
+4. **Sandboxed Code Synthesis & Execution**: ASTA generates executable Python scripts within an ephemeral Docker container or gVisor sandbox. The code utilizes FastMCP 3.1 tool calls to compute molecular descriptors, 3D conformers, or sequence alignments.
+5. **Schema Verification & Provenance Reporting**: Final outputs are validated against strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), compiling citation links, execution logs, and data artifacts into a structured Markdown or PDF report.
+
+```
++-----------------------------------------------------------------------------------+
+|                       ASTA REASONING & EXECUTION PIPELINE                         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [Scientific Query / Hypothesis]                                                  |
+|                  |                                                                |
+|                  v                                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | Task Decomposition & Domain Routing (Biomedical, Chemistry, Materials)     |  |
+|  +-----------------------------------------------------------------------------+  |
+|                  |                                                                |
+|                  v                                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | Semantic Scholar Citation Graph Walk & Literature Grounding                  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                  |                                                                |
+|                  v                                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | Ephemeral Sandbox Execution (RDKit, Biopython, PyTorch Geometric)           |  |
+|  +-----------------------------------------------------------------------------+  |
+|                  |                                                                |
+|                  v                                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Tool Results & Schema Contract Verification (Pydantic v2)        |  |
+|  +-----------------------------------------------------------------------------+  |
+|                  |                                                                |
+|                  v                                                                |
+|  [Validated Scientific Synthesis Report / Code Artifacts]                         |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 - **Scientific Literature Fragmentation**: Connects millions of research papers, preprints, and citation graphs (Semantic Scholar) directly into agent reasoning context without manual keyword searching.
 - **Domain-Specific Tool Integration**: Automates execution of specialized scientific libraries (RDKit for chemical structures, Biopython for genomic sequences, PyG for molecular graphs) without requiring manual script assembly.
@@ -90,7 +132,7 @@ While general-purpose developer agents excel at software engineering or web sear
 
 ### Installation via Pip
 ```bash
-# Install ASTA research framework
+# Install ASTA research framework and scientific dependencies
 pip install asta-ai rdkit biopython fastmcp pydantic
 ```
 
@@ -108,6 +150,49 @@ response = agent.run(
 
 print("Research Summary:\n", response.summary)
 print("Generated Code:\n", response.generated_code)
+```
+
+### Production Docker Compose Stack
+
+Run ASTA alongside an isolated scientific execution sandbox container:
+
+```yaml
+version: "3.9"
+
+services:
+  asta-server:
+    image: allenai/asta:latest
+    container_name: asta-daemon
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - ASTA_ENV=production
+      - S2_API_KEY=${S2_API_KEY}
+      - SANDBOX_HOST=asta-sandbox
+      - SANDBOX_PORT=8888
+    volumes:
+      - ./asta_config:/etc/asta:ro
+      - ./research_data:/var/lib/asta/data
+    depends_on:
+      - asta-sandbox
+    networks:
+      - science-net
+
+  asta-sandbox:
+    image: allenai/asta-sandbox-scipy:latest
+    container_name: asta-sandbox
+    restart: unless-stopped
+    mem_limit: 8g
+    cpus: 4.0
+    network_mode: none
+    volumes:
+      - ./sandbox_tmp:/tmp/sandbox:rw
+    command: python3 -m asta.sandbox_server --port 8888
+
+networks:
+  science-net:
+    driver: bridge
 ```
 
 ### Production systemd Service Unit (`asta-daemon.service`)
@@ -147,9 +232,10 @@ WantedBy=multi-user.target
 | :--- | :--- | :--- | :--- |
 | `Semantic Scholar 429` | Rate limit exceeded on paper graph queries | `python3 -m asta.verify_api_key` | Configure `S2_API_KEY` in environment variables to access high-throughput partner endpoints. |
 | `RDKit ModuleNotFoundError` | Python scientific sandbox environment missing C-extension dependencies | `python3 -c "import rdkit"` | Re-build sandbox container or install `rdkit` wheel via system package manager. |
-| `Sandbox Memory Limit Exceeded` | PyTorch Geometric matrix multiplication allocating excessive RAM | `journalctl -u asta-daemon -n 50 | grep -i oom` | Set `sandbox_memory_limit_gb: 16` in `/etc/asta/agent.yaml` or reduce mini-batch size. |
+| `Sandbox Memory Limit Exceeded` | PyTorch Geometric matrix multiplication allocating excessive RAM | `journalctl -u asta-daemon -n 50 \| grep -i oom` | Set `sandbox_memory_limit_gb: 16` in `/etc/asta/agent.yaml` or reduce mini-batch size. |
 | `FastMCP Tool Timeout (>30s)` | Molecular docking or SMILES parsing pipeline blocking async event loop | `asta sandbox run --code "..."` | Wrap long-running C-extensions in non-blocking threadpool executors within FastMCP tool handlers. |
 | `Invalid Hypothesis Schema` | Pydantic v2 validation error on generated research plan | `python3 -m asta.validate_schema --input plan.json` | Ensure hypothesis text satisfies minimum string length requirements (>20 chars) before passing to downstream agents. |
+| `PDB Coordinate Parsing Crash` | Malformed atom record line in downloaded protein structure file | `python3 -c "from Bio.PDB import PDBParser; PDBParser(QUIET=True).get_structure('t', 'test.pdb')"` | Catch `Bio.PDB.PDBExceptions.PDBConstructionException` and enable `QUIET=True` in parsing routines. |
 
 ## CLI examples
 
@@ -169,6 +255,12 @@ asta sandbox run \
   --code "from rdkit import Chem; mol = Chem.MolFromSmiles('CC(=O)OC1=CC=CC=C1C(=O)O'); print('Aspirin MW:', Chem.Descriptors.ExactMolWt(mol))"
 ```
 
+### Checking Daemon Health
+```bash
+# Verify daemon status via HTTP endpoint
+curl -s http://localhost:8095/health | jq .
+```
+
 ## API examples
 
 ### FastMCP 3.1 Scientific Tool Server Integration
@@ -176,16 +268,20 @@ This example demonstrates a FastMCP 3.1 tool server providing ASTA agents with a
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
-mcp = FastMCP("ASTA-Chemical-Analysis-Server")
+mcp = FastMCP("ASTA-Chemical-Analysis-Server", version="3.1.0")
 
 class ChemicalAnalysisRequest(BaseModel):
-    smiles_string: str = Field(..., description="SMILES representation of chemical structure (e.g. Aspirin: 'CC(=O)OC1=CC=CC=C1C(=O)O')")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    smiles_string: str = Field(..., min_length=1, max_length=500, description="SMILES representation of chemical structure (e.g. Aspirin: 'CC(=O)OC1=CC=CC=C1C(=O)O')")
     calculate_descriptors: bool = Field(default=True, description="Calculate molecular weight and logP")
 
 class ChemicalAnalysisResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     is_valid: bool = Field(..., description="Whether SMILES string is valid")
     molecular_weight: Optional[float] = Field(default=None, description="Exact molecular weight in g/mol")
     log_p: Optional[float] = Field(default=None, description="Calculated Partition Coefficient (LogP)")
@@ -222,15 +318,19 @@ if __name__ == "__main__":
 ### Pydantic v2 Scientific Research Plan Schema
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class PaperCitation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     paper_id: str = Field(..., description="Semantic Scholar Paper ID or DOI")
-    title: str = Field(...)
+    title: str = Field(..., min_length=5)
     year: int = Field(..., ge=1900, le=2030)
-    primary_author: str = Field(...)
+    primary_author: str = Field(..., min_length=2)
 
 class ResearchPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     hypothesis: str = Field(..., description="Core scientific hypothesis being tested")
     key_citations: List[PaperCitation] = Field(default_factory=list)
     required_libraries: List[str] = Field(default_factory=lambda: ["rdkit", "biopython"])
