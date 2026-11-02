@@ -185,8 +185,12 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("PaperlessTaxonomyServer", version="3.1.0")
 
+from pydantic import ConfigDict
+
 class PaperlessTagCreate(BaseModel):
     """Pydantic v2 model for validating Paperless tag creation payloads."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     name: str = Field(..., description="Tag name (e.g., 'Finance/Bill' or 'needs-action')")
     color: str = Field(default="#008080", description="Hex color code for tag UI badge")
     matching_algorithm: int = Field(default=1, ge=0, le=6, description="Matching algorithm (1 = Auto, 6 = Exact)")
@@ -201,6 +205,8 @@ class PaperlessTagCreate(BaseModel):
 
 class TagSyncConfig(BaseModel):
     """Pydantic v2 config model for taxonomy synchronization."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     api_url: str = Field(..., description="Paperless REST API endpoint base URL")
     token: str = Field(..., description="Paperless REST API authorization token")
     tag_mapping: Dict[str, str] = Field(..., description="Mapping of tag names to hex colors")
@@ -238,6 +244,8 @@ def sync_taxonomy_tags(config_dict: dict) -> dict:
         return {"status": "error", "message": str(e)}
 
 class TaxonomyValidationRule(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     required_namespaces: List[str] = Field(default_factory=lambda: ["Finance", "Medical", "Housing", "Vehicle", "Legal", "Personal"])
     disallowed_unqualified_tags: List[str] = Field(default_factory=lambda: ["tax", "invoice", "receipt", "doc"])
 
@@ -257,6 +265,8 @@ def validate_taxonomy_hierarchy(tags_list: List[str]) -> dict:
     }
 
 class TagOrphanAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     total_documents_scanned: int = Field(..., ge=0)
     untagged_documents_count: int = Field(..., ge=0)
     orphan_tags_count: int = Field(..., ge=0)
@@ -274,6 +284,8 @@ def audit_paperless_orphan_tags(document_count: int, untagged_count: int) -> str
     return report.model_dump_json(indent=2)
 
 class RetentionCalculationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     category: str
     retention_tag: str
     expiration_year: int
@@ -292,6 +304,8 @@ def calculate_retention_expiry(category: str, document_year: int) -> str:
     return result.model_dump_json(indent=2)
 
 class StoragePathEvaluationRule(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     category_tag: str
     correspondent: str
     year: int
@@ -319,7 +333,85 @@ if __name__ == "__main__":
     print("FastMCP Paperless Taxonomy Server initialized successfully.")
 ```
 
-## Production Deployment & Systemd Worker Architecture
+## Production Deployment & Container Orchestration
+
+### Containerized Deployment with Docker Compose
+
+To deploy the Paperless Taxonomy FastMCP 3.1 Server alongside Paperless-ngx, PostgreSQL, and Redis, use the production Docker Compose architecture below (`docker-compose.taxonomy.yml`):
+
+```yaml
+version: "3.8"
+
+services:
+  paperless-webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-webserver
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+    ports:
+      - "8000:8000"
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: paperless
+      PAPERLESS_DBPASS: paperless
+      PAPERLESS_OCR_LANGUAGE: eng+spa
+      PAPERLESS_POST_CONSUME_SCRIPT: /opt/scripts/post-consume.sh
+    volumes:
+      - /opt/paperless/data:/usr/src/paperless/data
+      - /opt/paperless/media:/usr/src/paperless/media
+      - /opt/paperless/export:/usr/src/paperless/export
+      - /opt/paperless/consume:/usr/src/paperless/consume
+      - ./scripts:/opt/scripts:ro
+
+  taxonomy-mcp-server:
+    image: python:3.11-slim
+    container_name: paperless-taxonomy-mcp
+    restart: unless-stopped
+    command: python3 -m mcp.server.fastmcp run paperless_taxonomy_server.py --port 8098
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PAPERLESS_API_URL=http://paperless-webserver:8000/api
+      - PAPERLESS_API_TOKEN=${PAPERLESS_API_TOKEN}
+    ports:
+      - "8098:8098"
+    depends_on:
+      - paperless-webserver
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  broker:
+    image: docker.io/library/redis:7-alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  db:
+    image: docker.io/library/postgres:15-alpine
+    container_name: paperless-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  pgdata:
+```
+
+### Systemd Worker Service Specification
 
 To execute taxonomy maintenance scripts and FastMCP 3.1 background sync daemons on Linux hosts managing Paperless-ngx instances, use the systemd unit template below:
 

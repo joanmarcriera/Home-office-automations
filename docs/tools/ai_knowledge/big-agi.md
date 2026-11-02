@@ -79,50 +79,95 @@ graph TD
                 [Side-by-Side Unified Output & Local Persistence]
 ```
 
+## Multi-Model Synthesis Pipeline Mechanics
+
+The core differentiating capability of big-AGI lies in its **Beam 2** multi-model orchestration engine. Rather than basic split-screen viewing, Beam 2 executes a formal multi-stage fusion pipeline:
+
+1. **Scatter Phase**: Dispatches identical structured system instructions and user prompts simultaneously across $N$ configured frontier models (e.g., Anthropic Claude 5.6, OpenAI GPT-5.6, Google Gemini 4.0 Ultra, DeepSeek-V4).
+2. **Chain-of-Thought (CoT) Extraction**: Parses hidden reasoning traces, self-corrections, and confidence assertions from each response candidate.
+3. **Cross-Model Evaluation & Scoring**: Each model output is cross-evaluated against criteria including algorithmic correctness, edge-case coverage, runtime complexity, and hallucination indicators.
+4. **Gather & Fusion Synthesis**: A designated synthesis model (or local rule-based aggregator) digests all candidate perspectives, resolves conflicting assertions via majority vote or weighted confidence scoring, and produces a single unified response that retains code diffs, citations, and verified logic.
+
+```
+                    +-----------------------------+
+                    |      User Prompt Input      |
+                    +--------------+--------------+
+                                   |
+         +-------------------------+-------------------------+
+         |                         |                         |
+         v                         v                         v
+  [Candidate A: Claude]     [Candidate B: GPT]       [Candidate C: DeepSeek]
+         |                         |                         |
+         +-------------------------+-------------------------+
+                                   |
+                                   v
+                    +-----------------------------+
+                    |    Cross-Model Evaluation   |
+                    |   (Critique, Diff, Score)   |
+                    +--------------+--------------+
+                                   |
+                                   v
+                    +-----------------------------+
+                    |      Beam 2 Fusion Pass     |
+                    |   (Consensus Synthesis)     |
+                    +--------------+--------------+
+                                   |
+                                   v
+                    +-----------------------------+
+                    |   Sandbox Execution Verify  |
+                    +--------------+--------------+
+```
+
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Professional AI Workspaces. Operating at the **Interface & Orchestration Layer**, big-AGI serves as a local-first control center connecting user browsers, FastMCP 3.1 tool servers, cloud API gateways ([OpenRouter](openrouter.md)), and local inference engines ([ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
 
 ## Key Features & Functional Modules
 - **Beam 2 Multi-Model Synthesis**: Query up to 4 models concurrently, apply multi-perspective Chain-of-Thought (CoT) program pipelines, and merge optimal responses into a single authoritative answer.
-- **FastMCP 3.1 Native Integration**: Connect local filesystems, SQL databases, and custom FastMCP servers directly into chat sessions with full parameter inspection.
-- **Persistent Code Sandboxing**: Built-in container support for safe, stateful execution of Python, JavaScript, and Bash scripts across conversation turns.
-- **Persona & System Prompt Library**: Pre-configured system prompts for specialized engineering personas (e.g., Senior Systems Architect, Security Auditor, Code Optimizer).
-- **Interactive Markdown & Diagramming**: Native rendering of Mermaid.js architecture diagrams, LaTeX mathematical formulas, interactive tables, and code diff views.
+- **FastMCP 3.1 Native Integration**: Connect local filesystems, SQL databases, and custom FastMCP servers directly into chat sessions with full parameter inspection and capability discovery.
+- **Persistent Code Sandboxing**: Built-in container support for safe, stateful execution of Python, JavaScript, and Bash scripts across conversation turns with automated output capture.
+- **Persona & System Prompt Library**: Pre-configured system prompts for specialized engineering personas (e.g., Senior Systems Architect, Security Auditor, Code Optimizer, Site Reliability Engineer).
+- **Interactive Markdown & Diagramming**: Native rendering of Mermaid.js architecture diagrams, LaTeX mathematical formulas, interactive tables, and code diff views with syntax coloring.
+- **Client-Side Encryption & Key Vault**: Complete data sovereignty with zero telemetry, zero proxy hops, and client-side AES-GCM credential encryption.
 
 ## Typical use cases
-- **Multi-Model Architecture Consensus**: Querying Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra in parallel to evaluate complex system design tradeoffs.
-- **Interactive Code Debugging & Execution**: Executing generated Python scripts within stateful sandboxes to catch runtime errors immediately.
-- **Local RAG & Knowledge Retrieval**: Connecting local vector databases via FastMCP 3.1 to answer queries using private document repositories.
-- **Deep Technical Web Research**: Launching multi-step web searches with live URL citations and automated summary extraction.
+- **Multi-Model Architecture Consensus**: Querying Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra in parallel to evaluate complex system design tradeoffs, race conditions, and scalability bottlenecks.
+- **Interactive Code Debugging & Execution**: Executing generated Python scripts within stateful sandboxes to catch runtime errors immediately without leaving the conversation thread.
+- **Local RAG & Knowledge Retrieval**: Connecting local vector databases via FastMCP 3.1 to answer queries using private document repositories and internal codebase indices.
+- **Deep Technical Web Research**: Launching multi-step web searches with live URL citations and automated summary extraction via tool-augmented search agents.
 
 ## Strengths
 - **Zero Lock-In & Local-First**: API keys and session histories remain under user control in local browser storage or encrypted volumes.
 - **High Information Density**: UI designed specifically for power users, developers, and researchers who require low latency and high context throughput.
 - **Beam 2 Synthesis Engine**: Advanced program-based model reasoning and voting synthesis far superior to simple side-by-side chats.
 - **Comprehensive Provider Support**: Direct native compatibility with over 20 commercial and open-source model backends.
+- **Enterprise-Ready Self-Hosting**: Containerized deployment with Docker Compose, systemd unit definitions, and reverse proxy compatibility.
 
 ## Limitations
 - **Power User UI Complexity**: The feature-rich, high-density UI can present a steep learning curve for non-technical casual users.
 - **Browser-Bound Cache Management**: Relying on local browser storage requires regular JSON backup exports to avoid loss if browser data is cleared.
+- **Token Multipliers**: Parallel multi-model dispatching multiplies input/output token consumption linearly with the number of queried models.
 
 ## When to use it
 - When verifying mission-critical architectural designs or debugging complex code across multiple frontier models simultaneously.
 - When seeking a self-hostable workspace with persistent execution sandboxes and FastMCP 3.1 tool calling built into the UI.
-- When requiring complete control over sampling parameters, system prompts, and model routing.
+- When requiring complete control over sampling parameters, system prompts, and model routing without cloud vendor lock-in.
 
 ## When not to use it
 - For basic, low-density conversational chats on mobile devices where lightweight apps suffice.
-- In strict enterprise environments that forbid direct client-to-API outbound internet connectivity without an enterprise proxy.
+- In strict enterprise environments that forbid direct client-to-API outbound internet connectivity without an enterprise proxy gateway.
+- When single-tenant team collaboration requires simultaneous multi-user real-time shared typing on a single chat turn.
 
 ## Feature & Parameter Comparison Matrix
 
-| Capability / Module | Standard Web Chat Clients | big-AGI Workspace | Technical Benefit |
-| :--- | :--- | :--- | :--- |
-| Model Execution Mode | Single Model Sequential | Beam 2 Concurrent Multi-Model | Eliminates single-model hallucinations through multi-model consensus |
-| Code Execution | Static Syntax Highlighting | Stateful Docker Sandbox Container | Live runtime debugging directly within chat turns |
-| Tool Integration | Closed Vendor Tools | FastMCP 3.1 Open Protocol | Seamless integration with local filesystems, DBs, and APIs |
-| Data Privacy & Keys | Remote SaaS Cloud Storage | Local-First Browser Storage / Self-Hosted | Complete credential sovereignty and zero vendor logging |
-| System Prompts | Fixed System Instructions | Dynamic Persona Presets & System Overrides | Fine-grained control over model behavior and output formatting |
+| Capability / Module | Standard Web Chat Clients | Open-WebUI | LibreChat | big-AGI Workspace |
+| :--- | :--- | :--- | :--- | :--- |
+| **Model Execution Mode** | Single Model Sequential | Single / Split Chat | Split Model Dual | Beam 2 Concurrent Multi-Model Fusion |
+| **Code Execution** | Static Syntax Highlighting | Web Sandbox | Sandboxed Container | Stateful Docker Sandbox Container |
+| **Tool Protocol** | Closed Vendor Tools | Python Functions | MCP Tools | FastMCP 3.1 Open Protocol Gateway |
+| **Data Privacy & Keys** | Remote SaaS Cloud Storage | Self-Hosted PostgreSQL | Self-Hosted MongoDB | Local-First Browser Storage / Self-Hosted |
+| **System Prompts** | Fixed System Instructions | Presets & Modelfiles | Presets Library | Dynamic Persona Presets & System Overrides |
+| **Architecture Footprint** | Cloud SaaS | Multi-service Docker | Multi-service Docker | Single Container / Lightweight Node.js |
+| **Consensus Synthesis** | None | Manual Comparison | Side-by-side View | Automated CoT Cross-Evaluation & Voting |
 
 ## Getting started
 
@@ -141,6 +186,63 @@ docker run -d \
 ```
 
 Open `http://localhost:3000` to access your self-hosted workspace.
+
+### 3. Production Docker Compose Stack with Sandbox & Vector Gateway
+
+```yaml
+version: "3.9"
+
+services:
+  big-agi:
+    image: ghcr.io/enricoros/big-agi:latest
+    container_name: big-agi-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SHOW_BENCHMARKS=true
+      - NEXT_PUBLIC_DEFAULT_SYSTEM_PROMPT=You are a senior systems architect and software engineer.
+      - MCP_GATEWAY_URL=http://fastmcp-gateway:8000/mcp
+    depends_on:
+      fastmcp-gateway:
+        condition: service_healthy
+    networks:
+      - ai-mesh
+
+  fastmcp-gateway:
+    image: python:3.11-slim
+    container_name: fastmcp-gateway
+    restart: unless-stopped
+    volumes:
+      - ./mcp_servers:/opt/mcp:ro
+    working_dir: /opt/mcp
+    command: >
+      sh -c "pip install --no-cache-dir fastmcp pydantic uvicorn httpx &&
+             python -m uvicorn server:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ai-mesh
+
+  code-sandbox:
+    image: python:3.11-alpine
+    container_name: big-agi-sandbox
+    restart: unless-stopped
+    network_mode: none
+    mem_limit: 2g
+    cpus: 2.0
+    command: sleep infinity
+
+networks:
+  ai-mesh:
+    driver: bridge
+```
 
 ## CLI examples
 
@@ -163,6 +265,15 @@ docker run -d --name big-agi -p 3000:3000 ghcr.io/enricoros/big-agi:latest
 npx vercel --prod
 ```
 
+### 4. Health and Model Endpoint Probing
+```bash
+# Verify local instance response
+curl -s http://localhost:3000/api/health | jq .
+
+# Inspect local Ollama models reachable by big-AGI
+curl -s http://localhost:11434/api/tags | jq '.models[].name'
+```
+
 ## API examples
 
 ### Production FastMCP 3.1 Implementation & FastMCP Server
@@ -171,7 +282,7 @@ npx vercel --prod
 import asyncio
 from typing import List, Dict, Any, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
     name="big-AGI Knowledge Gateway",
@@ -180,29 +291,39 @@ mcp = FastMCP(
 )
 
 class SearchQuery(BaseModel):
-    query: str = Field(..., min_length=3, description="Search query string")
-    top_k: int = Field(default=3, ge=1, le=10)
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str = Field(..., min_length=3, max_length=500, description="Semantic search query string")
+    top_k: int = Field(default=3, ge=1, le=10, description="Maximum number of context chunks to retrieve")
+    filter_tag: Optional[str] = Field(default=None, description="Optional tag filter for document indexing")
 
 class SearchHit(BaseModel):
-    doc_id: str
-    content: str
-    relevance_score: float
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str = Field(..., description="Unique document chunk identifier")
+    content: str = Field(..., description="Extracted content text")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Cosine relevance score")
 
 class SearchResponse(BaseModel):
-    status: str = Field(default="success")
-    results: List[SearchHit]
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(default="success", description="Status of the search query")
+    results: List[SearchHit] = Field(..., description="Ranked list of matching hits")
+    query_processed: str = Field(..., description="Normalized query processed")
 
 @mcp.tool(
     name="search_knowledge_base",
     description="Executes semantic vector search across local homelab documents for big-AGI sessions"
 )
-def search_knowledge_base_tool(query: str, top_k: int = 3) -> dict:
-    req = SearchQuery(query=query, top_k=top_k)
+def search_knowledge_base_tool(query: str, top_k: int = 3, filter_tag: Optional[str] = None) -> dict:
+    req = SearchQuery(query=query, top_k=top_k, filter_tag=filter_tag)
     hits = [
         SearchHit(doc_id="arch-001", content="big-AGI local storage uses IndexedDB and browser storage.", relevance_score=0.95),
-        SearchHit(doc_id="arch-002", content="Beam 2 multi-model synthesis applies CoT consensus voting.", relevance_score=0.89)
+        SearchHit(doc_id="arch-002", content="Beam 2 multi-model synthesis applies CoT consensus voting.", relevance_score=0.89),
+        SearchHit(doc_id="arch-003", content="FastMCP 3.1 gateway enables zero-proxy tool invocation.", relevance_score=0.82)
     ][:req.top_k]
-    return SearchResponse(results=hits).model_dump(mode="json")
+    response = SearchResponse(status="success", results=hits, query_processed=req.query)
+    return response.model_dump(mode="json")
 
 if __name__ == "__main__":
     mcp.run()
@@ -213,13 +334,17 @@ if __name__ == "__main__":
 ```python
 import asyncio
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class ModelWeight(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_id: str = Field(..., alias="modelId", description="Target model API identifier")
     weight: float = Field(default=1.0, ge=0.0, le=1.0, description="Voting weight")
 
 class Beam2Config(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+
     synthesis_mode: str = Field("cot-merge", alias="synthesisMode")
     candidate_models: List[ModelWeight] = Field(..., alias="candidateModels")
     max_tokens: int = Field(2048, alias="maxTokens", ge=256, le=16384)
@@ -244,6 +369,8 @@ async def validate_beam_orchestration():
         print("Beam 2 Orchestration Config Validated Successfully:")
         print(f"Mode: {beam_cfg.synthesis_mode}")
         print(f"Active Candidate Models: {len(beam_cfg.candidate_models)}")
+        for model in beam_cfg.candidate_models:
+            print(f" - {model.model_id}: weight={model.weight}")
         return beam_cfg
     except ValidationError as e:
         print("Validation error in Beam config:", e)
@@ -266,7 +393,7 @@ Wants=network-online.target
 Type=simple
 User=homelab
 WorkingDirectory=/opt/big-agi
-ExecStart=/usr/bin/docker run --rm --name big-agi-service -p 3000:3000 ghcr.io/enricoros/big-agi:latest
+ExecStart=/usr/bin/docker run --rm --name big-agi-service -p 3000:3000 -e NEXT_PUBLIC_SHOW_BENCHMARKS=false ghcr.io/enricoros/big-agi:latest
 ExecStop=/usr/bin/docker stop big-agi-service
 Restart=always
 RestartSec=10
@@ -274,6 +401,8 @@ RestartSec=10
 # Security Hardening Guardrails
 ProtectSystem=full
 PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 
 [Install]
 WantedBy=multi-user.target
@@ -281,18 +410,21 @@ WantedBy=multi-user.target
 
 ## Diagnostic & Troubleshooting Matrix
 
-| Issue / Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| **`HTTP 401 Unauthorized` on Model Calls** | Missing or invalid API keys in big-AGI browser settings. | Open settings drawer, re-enter model API keys (e.g. Anthropic/OpenAI), and verify network connectivity. |
-| **FastMCP 3.1 Gateway Connection Failed** | Target MCP server offline or blocked by browser CORS policy. | Ensure local FastMCP server running on localhost port with CORS origin `http://localhost:3000` enabled. |
-| **Docker Code Sandbox Timeouts** | Code execution container lacking allocated CPU/memory resources or hanging script. | Adjust Docker runtime limits (`--memory=2g --cpus=2.0`) in sandbox deployment configuration. |
-| **IndexedDB Quota Exceeded** | Browser storage quota reached due to hundreds of cached multi-model sessions. | Export chat sessions to JSON backup file via big-AGI settings, then clear old chat histories in browser. |
+| Issue / Symptom | Root Cause | Verification Command | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| **`HTTP 401 Unauthorized` on Model Calls** | Missing or invalid API keys in big-AGI browser settings. | Check browser network tab for failed `/api/llms` POST requests. | Open settings drawer, re-enter model API keys (e.g. Anthropic/OpenAI), and verify network connectivity. |
+| **FastMCP 3.1 Gateway Connection Failed** | Target MCP server offline or blocked by browser CORS policy. | `curl -s http://localhost:8000/health` | Ensure local FastMCP server is running on localhost port with CORS origin `http://localhost:3000` enabled. |
+| **Docker Code Sandbox Timeouts** | Code execution container lacking allocated CPU/memory resources or hanging script. | `docker stats big-agi-sandbox` | Adjust Docker runtime limits (`--memory=2g --cpus=2.0`) in sandbox deployment configuration. |
+| **IndexedDB Quota Exceeded** | Browser storage quota reached due to hundreds of cached multi-model sessions. | Check storage usage via Chrome DevTools > Application > Storage. | Export chat sessions to JSON backup file via big-AGI settings, then clear old chat histories in browser. |
+| **High Latency in Beam 2 Synthesis** | Slowest candidate model delaying the gather phase. | Inspect individual stream chunk timers in big-AGI execution stats. | Set per-model timeout constraints or exclude high-latency endpoints from synchronous fusion passes. |
+| **CORS Errors on Local LLMs** | Local inference server (Ollama/vLLM) rejecting origins. | `curl -H "Origin: http://localhost:3000" -v http://localhost:11434/api/tags` | Configure `OLLAMA_ORIGINS="*"` or `vllm --allowed-origins "*"` on the inference server. |
 
 ## Operational Guardrails & Security Best Practices
 
 - **Local Key Storage Isolation**: API keys entered into big-AGI remain in local browser storage. Avoid syncing browser state across unsecured public machines.
 - **Docker Sandbox Isolation**: Always execute untrusted LLM-generated Python or Bash code within isolated Docker container sandboxes with network access disabled (`--network none`).
 - **Beam 2 Token Cost Control**: Running 4 frontier models simultaneously (e.g. Claude 5.6 + GPT-5.6) increases API usage by 4x. Configure `maxTokens` limits in Beam settings to control expense.
+- **Automated Backup Regimen**: Periodically trigger JSON export dumps of workspace sessions to local filesystem backup stores to guard against browser cookie/cache clearing.
 
 ## Related tools / concepts
 - [LobeHub](lobehub.md) — Visual multi-agent chat interface.

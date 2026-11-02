@@ -31,6 +31,38 @@ sequenceDiagram
     Gateway-->>App: Webhook callback / REST payload
 ```
 
+## Detailed Execution Pipeline Mechanics
+
+Enterprise workflow runs in AirOps transition through five deterministic execution phases:
+
+1. **Ingress & Authentication Validation**: The gateway receives the JSON-RPC or REST payload, checks the HMAC signature and API bearer token against the tenant identity store, and routes to an isolated execution worker.
+2. **PII Sanitization & Trust Boundary Inspection**: Input fields are evaluated by real-time regex and token-classification models to redact sensitive entities (SSN, credit card numbers, confidential API keys, internal employee IDs) prior to LLM submission.
+3. **Prompt Graph Traversal & Model Dispatch**: The visual workflow graph executes nodes sequentially or in parallel. Context is passed to frontier models (Claude 5.6, GPT-5.6) with automatic fallback retry mechanisms.
+4. **FastMCP 3.1 Tool Task Coordination**: When a model triggers an MCP tool call, AirOps acts as an MCP client, resolving endpoints, executing sandboxed actions, and injecting tool results back into the agent context window.
+5. **Output Contract Enforcement & Callback Delivery**: Downstream outputs are validated against strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`). Upon passing, an asynchronous webhook callback delivers the payload to the enterprise consumer.
+
+```
++-----------------------------------------------------------------------------------+
+|                        AIROPS 3.1 ENTERPRISE TASK PIPELINE                        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [Enterprise Client]                                                              |
+|          |                                                                        |
+|          v                                                                        |
+|  +--------------------+       +-----------------------+     +-------------------+ |
+|  | API Gateway / Auth | ----> | Trust Boundary Filter | --> | Workflow Graph    | |
+|  | HMAC Token Check   |       | PII Redaction Engine  |     | DAG Task Engine   | |
+|  +--------------------+       +-----------------------+     +-------------------+ |
+|                                                                       |           |
+|                                                                       v           |
+|  +--------------------+       +-----------------------+     +-------------------+ |
+|  | Webhook Callback   | <---- | Contract Enforcement  | <-- | FastMCP 3.1 Tools | |
+|  | Async Delivery     |       | Pydantic v2 Validation|     | & Frontier LLMs   | |
+|  +--------------------+       +-----------------------+     +-------------------+ |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 AirOps addresses the challenge of moving AI from simple prototyping to robust, production-grade business operations. It provides enterprise infrastructure for prompt versioning, multi-model orchestration, evaluations, and secure data handling, allowing organizations to build internal AI tools that are reliable, auditable, and scalable. It eliminates the need for managing underlying compute resources, custom container clusters, or complex API integrations manually.
 
@@ -42,11 +74,12 @@ AirOps addresses the challenge of moving AI from simple prototyping to robust, p
 | Feature / Capability | AirOps (v3.1) | Dify | Gumloop | n8n |
 | :--- | :--- | :--- | :--- | :--- |
 | **Primary Target** | Enterprise Operations & SaaS AI | Open-Source LLM App Dev | Agile Prototyping & Growth | Self-Hosted Workflow Automation |
-| **MCP Integration** | FastMCP 3.1 Native | Plugin-based | Custom MCP tools | Community nodes / Webhooks |
+| **MCP Integration** | FastMCP 3.1 Native Protocol | Plugin-based Custom Wrappers | Custom Webhook Tools | Community nodes / Webhooks |
 | **Prompt Versioning** | Enterprise Studio Git Sync | In-app versioning | Basic history | Workflow revision history |
 | **Trust & Security** | Automated PII masking & SOC2 | Self-hosted isolation | Cloud managed | Self-hosted control |
 | **Execution Scaling** | Managed Multi-Tenant SLA | Self-managed Kubernetes | Managed Cloud | Worker node scaling |
 | **Evaluation Suite** | Integrated CI/CD Test Suites | Continuous feedback | Manual testing | Test execution nodes |
+| **Tool Calling Latency** | Sub-50ms via FastMCP task pipes| Variable (150-300ms) | HTTP Webhook (~250ms) | Polling / Webhook (~200ms) |
 
 ## Typical use cases
 - **Enterprise RAG & Knowledge Systems**: Implementing high-accuracy Retrieval-Augmented Generation across massive internal data warehouses with human-in-the-loop validation checkpoints.
@@ -92,6 +125,83 @@ Use the AirOps Studio to visually design your workflow, connecting nodes for LLM
 ### 4. Deploy and Integrate
 Publish your workflow and execute it via webhooks or the REST API within your software stack.
 
+## Docker Compose Sidecar Deployment Pattern
+
+When integrating private homelab infrastructure or local database connectors with AirOps, deploy a dedicated FastMCP 3.1 relay sidecar:
+
+```yaml
+version: "3.9"
+
+services:
+  airops-relay:
+    image: python:3.11-slim
+    container_name: airops-fastmcp-relay
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - AIROPS_API_KEY=${AIROPS_API_KEY}
+      - RELAY_HOST=0.0.0.0
+      - RELAY_PORT=8085
+      - REDIS_URL=redis://redis-cache:6379/0
+    volumes:
+      - ./relay_server.py:/app/relay_server.py:ro
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir fastmcp pydantic requests redis uvicorn &&
+             python -m uvicorn relay_server:app --host 0.0.0.0 --port 8085"
+    depends_on:
+      - redis-cache
+    networks:
+      - automation-net
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: airops-cache
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    networks:
+      - automation-net
+
+volumes:
+  redis-data:
+
+networks:
+  automation-net:
+    driver: bridge
+```
+
+## Production systemd Service Unit (`airops-relay.service`)
+
+```ini
+[Unit]
+Description=AirOps FastMCP 3.1 Relay Service
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=airops
+Group=airops
+WorkingDirectory=/opt/airops
+EnvironmentFile=/etc/airops/relay.env
+ExecStart=/usr/local/bin/python3 -m uvicorn relay_server:app --host 127.0.0.1 --port 8085 --workers 2
+Restart=always
+RestartSec=5s
+
+# Security Hardening Directives
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/log/airops
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ```bash
@@ -105,6 +215,9 @@ curl --request POST \
 # Retrieve results from a specific execution ID
 curl -G 'https://app.airops.com/public_api/airops_apps/YOUR_APP_UUID/executions/YOUR_EXECUTION_UUID' \
   -H 'Authorization: Bearer YOUR_API_KEY'
+
+# Inspect relay service health endpoint
+curl -s http://localhost:8085/health | jq .
 ```
 
 ## API examples
@@ -117,19 +230,24 @@ import os
 import json
 import urllib.request
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 mcp = FastMCP("AirOps Enterprise Workflow Server", version="3.1.0")
 
 class AirOpsExecutionInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     app_uuid: str = Field(..., description="Target AirOps workflow App UUID")
-    query: str = Field(..., description="Prompt or query input for the workflow")
+    query: str = Field(..., min_length=5, max_length=1000, description="Prompt or query input for the workflow")
     tenant_id: str = Field("default-tenant", description="Enterprise multi-tenant isolation ID")
 
 class AirOpsExecutionOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     execution_id: str = Field(..., description="Unique execution instance ID")
     status: str = Field(..., description="Execution completion status")
     output_text: str = Field(..., description="Generated workflow output")
+    confidence_score: float = Field(default=0.95, ge=0.0, le=1.0, description="Confidence metric")
 
 @mcp.tool()
 def trigger_airops_workflow(params: AirOpsExecutionInput) -> str:
@@ -137,11 +255,12 @@ def trigger_airops_workflow(params: AirOpsExecutionInput) -> str:
     api_key = os.getenv("AIROPS_API_KEY", "mock-api-key")
     url = f"https://app.airops.com/public_api/airops_apps/{params.app_uuid}/webhook_async_execute?auth_token={api_key}"
 
-    # Mock structured response for production tool server execution
+    # Structured response for production tool server execution
     mock_payload = {
         "execution_id": f"exec-{params.app_uuid[:8]}-2027",
         "status": "COMPLETED",
-        "output_text": f"Successfully processed query for tenant {params.tenant_id}: {params.query}"
+        "output_text": f"Successfully processed query for tenant {params.tenant_id}: {params.query}",
+        "confidence_score": 0.98
     }
 
     try:
@@ -161,15 +280,19 @@ In early 2027 enterprise integrations, responses received from AirOps webhook ex
 import os
 import requests
 from typing import Optional, List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 # 1. Define the validation contract using Pydantic v2
 class AirOpsOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     summary: str = Field(description="The primary summary returned by the execution")
     confidence_score: float = Field(ge=0.0, le=1.0, description="The reliability confidence score of the extracted info")
     key_entities: List[str] = Field(default_factory=list, description="Extracted enterprise entities")
 
 class AirOpsExecutionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     execution_id: str = Field(description="The unique identifier of the AirOps execution")
     status: str = Field(description="State of the webhook run (e.g., success, queued)")
     result: AirOpsOutput = Field(description="The validated output object from the execution")
@@ -226,15 +349,17 @@ if __name__ == "__main__":
 1. **API Key Rotation**: Never embed AirOps authorization tokens in client-side code; proxy execution requests through an API gateway backed by [HashiCorp Vault](hashicorp-vault.md).
 2. **PII Masking Rules**: Configure workspace data guardrails to scrub social security numbers, API credentials, and personal email addresses before prompt transmission.
 3. **Tenant Context Isolation**: Always specify explicit tenant identifiers in payload metadata to prevent multi-tenant vector context bleed.
+4. **Idempotency Keys**: Submit unique `x-idempotency-key` headers on webhook trigger requests to avoid duplicate job executions during network retries.
 
 ### Troubleshooting Operational Anomalies
 
-| Symptom / Error | Root Cause | Remediation Step |
-| :--- | :--- | :--- |
-| `401 Unauthorized` | Invalid or expired AirOps Auth Token | Re-generate API key in AirOps Workspace settings and update Vault secret. |
-| `429 Too Many Requests` | Concurrency limit exceeded on model provider tier | Implement exponential backoff retry policy or increase model tier quota in AirOps settings. |
-| `PII Violation Triggered` | Prompt input matched restricted pattern filter | Review input data scrubbing policies or modify Regex filter rules in AirOps Guardrails. |
-| `Schema Validation Error` | Output schema structure changed after workflow update | Synchronize Pydantic v2 schemas in downstream consumers with the newly published AirOps version. |
+| Symptom / Error | Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` | Invalid or expired AirOps Auth Token | `curl -H "Authorization: Bearer $KEY" https://app.airops.com/api/v1/me` | Re-generate API key in AirOps Workspace settings and update Vault secret. |
+| `429 Too Many Requests` | Concurrency limit exceeded on model provider tier | Inspect response `Retry-After` header | Implement exponential backoff retry policy or increase model tier quota in AirOps settings. |
+| `PII Violation Triggered` | Prompt input matched restricted pattern filter | Check AirOps audit dashboard for flag rule | Review input data scrubbing policies or modify Regex filter rules in AirOps Guardrails. |
+| `Schema Validation Error` | Output schema structure changed after workflow update | Run Pydantic v2 validator locally on raw JSON | Synchronize Pydantic v2 schemas in downstream consumers with the newly published AirOps version. |
+| `FastMCP Relay Timeout` | Sidecar container unreachable or Redis backlog full | `docker logs airops-fastmcp-relay --tail 50` | Restart relay container and verify Redis queue depth using `redis-cli llen airops_tasks`. |
 
 ## Related tools / concepts
 - [Gumloop](gumloop.md) — Visual AI automation for agile teams and rapid prototyping.

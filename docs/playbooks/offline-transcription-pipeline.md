@@ -57,14 +57,23 @@ It solves the "Leaky Audio & Voice Privacy" vulnerability where sensitive record
 
 ## Comparison Matrix
 
-| Feature / Metric | Offline Transcription Pipeline | Cloud Speech APIs (Whisper/AssemblyAI) | Standard Local Whisper Script |
-| :--- | :--- | :--- | :--- |
-| **Data Privacy** | 100% On-Premises / Air-gapped | Remote Server Payload Exposure | 100% On-Premises |
-| **Speaker Diarization** | Native PyAnnote Integration | Managed Cloud API Feature | Manual Python Scripting |
-| **Throughput** | High (CTranslate2 TensorRT/CUDA) | Variable API Rate Limits | Slow (Standard PyTorch CPU/GPU) |
-| **FastMCP 3.1 Native** | Full Native Tool Server Support | Custom REST Adapters Needed | None |
-| **Automated Storage Pipeline** | Direct Paperless / Vikunja / Obsidian | Manual API Payload Glue | CLI Scripting Required |
-| **Operational Cost** | $0 per Minute (Local Compute) | $0.006 - $0.015 per Minute | $0 per Minute |
+| Feature / Metric | Offline Transcription Pipeline | Cloud Speech APIs (Whisper/AssemblyAI) | Standard Local Whisper Script | Whisper.cpp Edge Runtime |
+| :--- | :--- | :--- | :--- | :--- |
+| **Data Privacy** | 100% On-Premises / Air-gapped | Remote Server Payload Exposure | 100% On-Premises | 100% On-Premises (CPU / Metal)|
+| **Speaker Diarization** | Native PyAnnote Integration | Managed Cloud API Feature | Manual Python Scripting | Limited Custom Extensions |
+| **Throughput** | High (CTranslate2 TensorRT/CUDA) | Variable API Rate Limits | Slow (Standard PyTorch CPU/GPU) | Medium (Quantized CPU SIMD) |
+| **FastMCP 3.1 Native** | Full Native Tool Server Support | Custom REST Adapters Needed | None | Minimal CLI Wrapper |
+| **Automated Storage Pipeline** | Direct Paperless / Vikunja / Obsidian | Manual API Payload Glue | CLI Scripting Required | File Output Only |
+| **Operational Cost** | $0 per Minute (Local Compute) | $0.006 - $0.015 per Minute | $0 per Minute | $0 per Minute |
+
+## Operational Service Level Agreements (SLAs)
+
+| Recording Duration | Pipeline Stage | Target Latency (RTX 4090 / 24GB) | Fallback CPU Mode (Xeon / 32 Threads) | Alert Threshold |
+| :--- | :--- | :--- | :--- | :--- |
+| **15-Min Voice Note** | VAD + Diarization + Whisper | < 30 seconds | < 180 seconds | > 5 minutes |
+| **60-Min Team Meeting**| VAD + Diarization + Whisper | < 2.5 minutes | < 12 minutes | > 20 minutes |
+| **180-Min Lecture / Conference**| VAD + Chunked Diarization | < 8.0 minutes | < 45 minutes | > 75 minutes |
+| **Semantic Entity Extraction** | Local LLM Pydantic Synthesis| < 10 seconds | < 45 seconds | > 2 minutes |
 
 ## Where it fits in the stack
 **Category**: Playbook / Information Processing. It serves as the **voice ingestion, normalization, speaker identification, and semantic extraction layer**, bridging local audio capture hardware directly into downstream knowledge management (`docs/tools/ai_knowledge/`), document archival (`docs/services/`), and task execution engines (`docs/services/`).
@@ -74,6 +83,7 @@ It solves the "Leaky Audio & Voice Privacy" vulnerability where sensitive record
 - **Confidential Meeting Archival**: Transcribing local video conference recordings, separating speakers, and pushing formatted Markdown notes into Paperless-ngx and Obsidian.
 - **Private Medical & Legal Dictation**: Transcribing sensitive patient or client consultations with zero cloud transmission risk.
 - **Local Podcast & Video Indexing**: Transcribing technical lectures and indexing transcript text in vector databases for local RAG retrieval.
+- **Continuous Homelab Voice Auditing**: Monitoring local smart home intercom feeds to log voice events without third-party audio transmission.
 
 ## Strengths
 - **SOTA Local Accuracy & Speed**: `faster-whisper` with CTranslate2 delivers up to 4x speedups over standard PyTorch Whisper models on NVIDIA hardware.
@@ -85,15 +95,136 @@ It solves the "Leaky Audio & Voice Privacy" vulnerability where sensitive record
 - **VRAM Hardware Requirements**: High-accuracy `large-v3` transcription combined with speaker diarization requires at least 8GB VRAM (or Apple Silicon Unified Memory).
 - **Speaker Diarization Complexity**: PyAnnote requires initial model weight retrieval and CUDA runtime tuning for minimal latency.
 - **Pipeline Wiring**: Requires coordinating FFmpeg, PyAnnote, Whisper, and downstream REST webhooks.
+- **Audio Overlap Ambiguity**: Simultaneous speech across multiple active speakers can slightly degrade speaker attribution boundaries.
 
 ## When to use it
 - Processing confidential audio, medical intake notes, or proprietary corporate strategy discussions.
 - Operating in air-gapped homelabs or low-bandwidth environments where uploading large media files to cloud services is impossible.
 - Automating productivity workflows from voice input without recurring API subscriptions.
+- Archiving long-term audio libraries with searchable full-text transcripts.
 
 ## When not to use it
 - Processing non-sensitive, low-volume public audio when local GPU acceleration is completely unavailable.
 - Single-use, ad-hoc transcription where installing local CUDA/PyTorch runtimes is disproportionately high overhead.
+- When ultra-low latency real-time streaming captions (<500ms) over live broadcast video are required.
+
+## Production Multi-Container Audio Pipeline (Docker Compose)
+
+Deploy the offline transcription worker topology alongside Paperless-ngx and Redis queue brokers using Docker Compose:
+
+```yaml
+version: '3.8'
+
+services:
+  audio-queue:
+    image: redis:7.2-alpine
+    container_name: audio-redis-queue
+    restart: always
+    volumes:
+      - redis_queue:/data
+    networks:
+      - audio-mesh
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  whisper-worker:
+    image: ghcr.io/systran/faster-whisper:latest
+    container_name: faster-whisper-runner
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /storage/ingest/audio:/input:ro
+      - /storage/transcripts:/output:rw
+      - whisper_models:/root/.cache/huggingface
+    networks:
+      - audio-mesh
+    environment:
+      - MODEL_NAME=large-v3
+      - COMPUTE_TYPE=float16
+      - DEVICE=cuda
+    command: >
+      python -m faster_whisper.server --port 9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  transcription-fastmcp:
+    image: python:3.11-slim
+    container_name: transcription-fastmcp-gateway
+    restart: always
+    depends_on:
+      whisper-worker:
+        condition: service_healthy
+      audio-queue:
+        condition: service_healthy
+    networks:
+      - audio-mesh
+    ports:
+      - "8095:8095"
+    volumes:
+      - ./pipeline:/app:ro
+      - /storage/ingest/audio:/data/audio:ro
+      - /storage/transcripts:/data/transcripts:rw
+    working_dir: /app
+    command: >
+      bash -c "pip install --no-cache-dir fastmcp pydantic redis requests &&
+               python /app/server.py"
+
+networks:
+  audio-mesh:
+    driver: bridge
+
+volumes:
+  redis_queue:
+  whisper_models:
+```
+
+## Production Systemd Service Unit (`offline-transcription-pipeline.service`)
+
+The following systemd service unit runs a persistent audio directory watcher and batch orchestrator daemon:
+
+```ini
+[Unit]
+Description=Offline Audio Transcription Pipeline Watcher Daemon
+After=network.target local-fs.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=transcribe
+Group=transcribe
+WorkingDirectory=/opt/offline-transcription
+Environment="PYTHONUNBUFFERED=1"
+Environment="WATCH_DIR=/storage/ingest/audio"
+Environment="FAST_WHISPER_ENDPOINT=http://localhost:9000"
+Environment="PAPERLESS_TOKEN=sec-paperless-key"
+ExecStart=/opt/offline-transcription/venv/bin/python watcher_daemon.py
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+# Security Sandbox
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/storage/transcripts /var/log/transcription
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -138,26 +269,30 @@ curl -X POST -H "Authorization: Token $PAPERLESS_API_TOKEN" \
 
 ## API examples
 
-### Python: Production FastMCP 3.1 Server with Pydantic v2 Schema
-This complete FastMCP 3.1 service exposes an offline audio transcription and task extraction endpoint with strict Pydantic v2 validation.
+### Python: Production FastMCP 3.1 Server with Strict Pydantic v2 Schema
+This complete FastMCP 3.1 service exposes an offline audio transcription and task extraction endpoint with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`).
 
 ```python
 import json
 import os
 from typing import List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("offline-transcription-pipeline")
+mcp = FastMCP("offline-transcription-pipeline", version="3.1.0")
 
 class ExtractedTask(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_title: str = Field(..., min_length=3, description="Summary of the action item.")
     assignee: Optional[str] = Field(default="Unassigned", description="Assigned individual.")
     priority: int = Field(default=3, ge=1, le=5, description="1=Urgent, 5=Low priority.")
     due_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 
 class DiarizedSegment(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     start_sec: float = Field(..., ge=0.0)
     end_sec: float = Field(..., ge=0.0)
     speaker_id: str = Field(default="Speaker_0")
@@ -173,12 +308,15 @@ class DiarizedSegment(BaseModel):
         return v
 
 class AudioPipelineResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     filepath: str
     engine: str = Field(default="faster-whisper-large-v3")
     language: str = Field(default="en")
     full_transcript: str
     segments: List[DiarizedSegment]
     extracted_tasks: List[ExtractedTask]
+    processing_duration_sec: float
 
 @mcp.tool()
 def process_offline_audio(
@@ -196,7 +334,7 @@ def process_offline_audio(
     if not os.path.exists(audio_path):
         return json.dumps({"status": "ERROR", "message": f"File not found: {audio_path}"})
 
-    # Simulated processing pipeline output verified with Pydantic v2
+    # Simulated processing pipeline output verified with strict Pydantic v2
     sample_payload = {
         "filepath": audio_path,
         "engine": "faster-whisper-large-v3",
@@ -222,7 +360,8 @@ def process_offline_audio(
             {
                 "task_title": "Complete Headscale security audit",
                 "assignee": "Security Team",
-                "priority": 1
+                "priority": 1,
+                "due_date": None
             },
             {
                 "task_title": "Deploy Vikunja sync",
@@ -230,7 +369,8 @@ def process_offline_audio(
                 "priority": 2,
                 "due_date": "2027-01-12"
             }
-        ]
+        ],
+        "processing_duration_sec": 12.4
     }
 
     try:
@@ -242,6 +382,18 @@ def process_offline_audio(
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **CUDA OOM on Diarization Run** | PyAnnote and Whisper exceed GPU memory on single device. | Run Diarization sequentially after Whisper completes, or use INT8. |
+| **Whisper Hallucination on Silence** | Long pauses without VAD filtering trigger repetitive phrase loops.| Pre-filter audio with Silero VAD before calling Whisper. |
+| **Incorrect Speaker Turn Splitting** | High ambient room reverberation corrupts speaker embeddings. | Apply FFmpeg high-pass audio filter (`afftdn`) prior to PyAnnote. |
+| **Paperless Webhook 401 Unauthorized**| Expired or revoked Paperless REST API auth token. | Regenerate token in Paperless admin UI and update `.env` file. |
+| **Vikunja Due Date Parsing Error** | LLM outputs relative date string (e.g. "next Friday"). | Enforce ISO-8601 regex pattern in Pydantic schema validation. |
+| **Audio Watcher Misses Ingested Files**| Samba / SMB copy in progress while watcher initiates processing.| Wait for write lock release using `lsof` or inotify `IN_CLOSE_WRITE`. |
+| **Foreign Language Misdetection** | Initial greeting in different dialect confuses language model. | Force language parameter (`language="en"`) in transcription request. |
 
 ## Operational Best Practices & Recovery
 
@@ -256,6 +408,9 @@ If long audio files cause PyTorch CUDA OOM errors during diarization, automatica
 ```bash
 ffmpeg -i input_long.m4a -f segment -segment_time 900 -c copy chunks/output_%03d.m4a
 ```
+
+### 4. Continuous Model Weight Caching
+Pre-download HuggingFace model checkpoints (`large-v3`, `pyannote/speaker-diarization-3.1`) onto local NVMe volumes to guarantee 100% offline startup even after host power cycles or gateway restarts.
 
 ## Related tools / concepts
 - [faster-whisper](../tools/process_understanding/faster-whisper.md) — Accelerated CTranslate2 Whisper runtime.

@@ -146,26 +146,161 @@ curl -s "http://searxng.local:8080/stats" | jq '.engines[] | select(.reliability
 curl -s "http://searxng.local:8080/search?q=FastMCP+specification&categories=files&format=json"
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service & Timer Configuration
+
+Automating periodic health audits and upstream engine failover ensures production agent pipelines are not stalled by unresponsive external search providers:
+
+#### Service Unit: `/etc/systemd/system/searxng-rotator.service`
+```ini
+[Unit]
+Description=SearXNG Upstream Engine Health Evaluator and Proxy Rotator
+After=network.target docker.service
+Documentation=https://docs.searxng.org/
+
+[Service]
+Type=oneshot
+User=searxng
+Group=searxng
+WorkingDirectory=/opt/searxng-automation
+Environment="SEARXNG_URL=http://127.0.0.1:8080"
+Environment="HEALTH_THRESHOLD_RELIABILITY=75"
+ExecStart=/opt/searxng-automation/bin/python3 -m scripts.rotate_engines
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=searxng-rotator
+```
+
+#### Timer Unit: `/etc/systemd/system/searxng-rotator.timer`
+```ini
+[Unit]
+Description=Run SearXNG Upstream Engine Health Evaluator every 15 minutes
+Requires=searxng-rotator.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+### Multi-Container Docker Compose Stack (`docker-compose.searxng.yml`)
+
+The following Compose specification deploys SearXNG alongside a Redis cache, Caddy TLS reverse proxy, and a FastMCP 3.1 gateway:
+
+```yaml
+version: "3.8"
+
+services:
+  searxng-redis:
+    image: redis:7.2-alpine
+    container_name: searxng_redis
+    command: redis-server --save "" --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    networks:
+      - searxng-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng_instance
+    restart: unless-stopped
+    depends_on:
+      searxng-redis:
+        condition: service_healthy
+    volumes:
+      - ./searxng:/etc/searxng:ro
+    environment:
+      - SEARXNG_BASE_URL=https://search.internal.net/
+      - SEARXNG_REDIS_URL=redis://searxng-redis:6379/0
+      - UWSGI_WORKERS=4
+      - UWSGI_THREADS=4
+    networks:
+      - searxng-net
+
+  fastmcp-searxng-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: fastmcp_searxng_gateway
+    restart: unless-stopped
+    depends_on:
+      - searxng
+    environment:
+      - SEARXNG_INTERNAL_URL=http://searxng:8080
+      - MCP_PORT=8010
+    ports:
+      - "8010:8010"
+    networks:
+      - searxng-net
+
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: searxng_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - searxng
+    networks:
+      - searxng-net
+
+volumes:
+  caddy_data:
+
+networks:
+  searxng-net:
+    driver: bridge
+```
+
 ## API examples
 
 ### FastMCP 3.1 Search Tool (Python)
-Exposing SearXNG to autonomous AI agents via FastMCP 3.1:
+Exposing SearXNG to autonomous AI agents via FastMCP 3.1 with strict Pydantic v2 schemas:
 
 ```python
 import httpx
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
 from fastmcp import FastMCP
 
 mcp = FastMCP("SearXNG-Automation-Server", version="3.1.0")
 
 SEARXNG_URL = "http://localhost:8080/search"
 
+class SearchItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    title: str = Field(..., description="Title of the returned webpage")
+    url: str = Field(..., description="Direct hyperlink to the source")
+    content: str = Field(..., description="Extracted content snippet or summary")
+    engine: str = Field(..., description="Upstream search engine identifier")
+    score: Optional[float] = Field(None, description="SearXNG score metric")
+
+class SearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    query: str = Field(..., description="Processed query string")
+    category: str = Field(..., description="SearXNG category searched")
+    count: int = Field(..., description="Total items returned")
+    results: List[SearchItem] = Field(default_factory=list)
+
 @mcp.tool()
-async def search_web(query: str, category: str = "general", count: int = 5) -> str:
-    """Performs an aggregated web search using self-hosted SearXNG.
+async def search_web(query: str, category: str = "general", count: int = 5) -> Dict[str, Any]:
+    """Performs an aggregated web search using self-hosted SearXNG with strict schema validation.
 
     Args:
         query: Search query string.
-        category: Search category ('general', 'it', 'science', 'news').
+        category: Search category ('general', 'it', 'science', 'news', 'files').
         count: Number of results to return (max 10).
     """
     params = {
@@ -180,21 +315,28 @@ async def search_web(query: str, category: str = "general", count: int = 5) -> s
             res.raise_for_status()
             data = res.json()
 
-            results = data.get("results", [])[:count]
-            if not results:
-                return "No search results returned."
+            raw_results = data.get("results", [])[:count]
+            validated_items: List[SearchItem] = []
+            for item in raw_results:
+                validated_items.append(
+                    SearchItem(
+                        title=item.get("title", "Untitled"),
+                        url=item.get("url", ""),
+                        content=item.get("content", ""),
+                        engine=item.get("engine", "unknown"),
+                        score=item.get("score")
+                    )
+                )
 
-            snippets = []
-            for item in results:
-                title = item.get("title", "")
-                url = item.get("url", "")
-                content = item.get("content", "")
-                engine = item.get("engine", "")
-                snippets.append(f"Title: {title}\nURL: {url}\nEngine: {engine}\nSnippet: {content}\n")
-
-            return "\n---\n".join(snippets)
+            response = SearchResponse(
+                query=query,
+                category=category,
+                count=len(validated_items),
+                results=validated_items
+            )
+            return response.model_dump()
         except Exception as e:
-            return f"Search execution error: {str(e)}"
+            return {"error": f"Search execution failed: {str(e)}", "query": query, "results": []}
 
 if __name__ == "__main__":
     mcp.run()
@@ -207,9 +349,10 @@ Fetching and validating SearXNG responses asynchronously:
 import asyncio
 import httpx
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, ValidationError, ConfigDict
 
 class SearchResultModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     title: str = Field(..., description="Title of the search result")
     url: HttpUrl = Field(..., description="Validated destination URL")
     content: Optional[str] = Field("", description="Text snippet of the search result")
@@ -217,6 +360,7 @@ class SearchResultModel(BaseModel):
     score: Optional[float] = Field(0.0, description="SearXNG internal relevance score")
 
 class SearXNGAPIResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     query: str = Field(..., description="Original search query")
     results: List[SearchResultModel] = Field(default_factory=list)
     unresponsive_engines: List[str] = Field(default_factory=list)
@@ -246,17 +390,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Operational Best Practices & Troubleshooting
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution Procedure |
+|:---|:---|:---|:---|
+| **JSON Response Disabled Error (403/HTML returned)** | `formats: [json]` missing or commented out in `settings.yml`. | Inspect raw HTTP headers and body: `curl -v "http://localhost:8080/search?q=test&format=json"`. | Add `- json` under the `search.formats` array in `settings.yml` and restart container. |
+| **Upstream 429 Rate Limit (Too Many Requests)** | Source engines (e.g., Google/Bing) detect frequent queries originating from single server IP. | Query `http://localhost:8080/stats` to identify engines returning 0% reliability or HTTP 429. | Route SearXNG outbound traffic through rotating residential SOCKS5 proxies or enable engine rotation in `settings.yml`. |
+| **Engine Timeout During Multi-Engine Aggregation** | Remote upstream engine taking longer than default timeout (3.0s). | Check SearXNG container logs for `searx.engines: ERROR: <engine> timeout`. | Increase `engine_timeout: 6.0` in `settings.yml` and set client `httpx` timeout to 10.0s. |
+| **Redis Cache Socket Connection Refused** | SearXNG cannot reach internal Redis instance for caching rate limits and session states. | Check Redis container status: `docker ps --filter name=searxng_redis` and `nc -zv 127.0.0.1 6379`. | Verify `SEARXNG_REDIS_URL` matches Docker service name (`redis://searxng-redis:6379/0`) and network configuration. |
+| **FastMCP Extra Parameter Forbidden Error** | Tool client passing unstructured metadata forbidden by strict Pydantic v2 `extra="forbid"`. | Inspect MCP server stdout/stderr logs for Pydantic `ValidationError`. | Align client tool parameters strictly to `query`, `category`, and `count` arguments. |
+
+## Operational Best Practices
 
 ### Egress IP Management & Proxy Pools
 High-frequency agent queries can trigger upstream search engine blockades if routed from a single cloud server IP.
 1. **Rotating Egress Proxies**: Configure SearXNG to route outbound requests through rotating residential proxies or wireguard VPN tunnels.
 2. **Category Isolation**: Assign developer research tasks specifically to the `it` category to avoid sending code queries to general search engines.
 3. **Engine Reliability Audits**: Periodically query `http://searxng.local:8080/stats` to detect and temporarily disable failing upstream search providers.
-
-### Common Error Resolutions
-- **`JSON Response Disabled Error`**: Verify that `formats: [html, json]` is defined in `settings.yml`.
-- **`Timeout Errors under Agent Load`**: Increase `engine_timeout: 8.0` and configure asynchronous connection pooling in HTTPX clients.
 
 ## Related tools / concepts
 - [SearXNG](searXNG.md) — The underlying self-hosted search engine container.

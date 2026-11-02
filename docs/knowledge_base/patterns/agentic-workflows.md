@@ -62,6 +62,131 @@ Monitoring agents detect Prometheus alerts, query system logs via Loki, identify
 ### 4. Enterprise Process Automation
 Finance and operations agents ingest unstructured invoices via OCR/LlamaParse, validate tax fields against ERP databases, request HITL manager approval via Slack/Email for transactions over thresholds, and submit entries.
 
+### 5. Multi-Agent KnowledgeOps Maintenance
+Autonomous documentation agents (e.g., Ralph-loops) continuously audit canonical knowledge bases, detect schema drift, run contract checks, and deepen technical documentation without human intervention.
+
+## Agentic Architectural Patterns Comparison
+
+| Pattern Type | Control Flow | Error Recovery | Token Cost Overhead | Ideal Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Linear Prompt Chain** | Static Sequential DAG | None / Fail-Stop | Minimal (1x) | Deterministic text transformation |
+| **Evaluator-Optimizer Loop** | Dual-Agent Review Loop | Iterative Reflection | Moderate (2x - 4x) | High-precision code generation |
+| **Tool-Augmented ReAct** | Interleaved Thought-Action | Observation Feedback | Moderate (3x - 5x) | Database querying & web research |
+| **Multi-Agent Orchestrator** | Hierarchical Delegation | Peer Critique & Retries | High (5x - 15x) | Complex software engineering |
+| **Autonomous Swarm (Async)** | Event-Driven Bus (FastMCP) | Gossip / Consensus | Very High (10x - 30x) | Open-ended security red-teaming |
+
+## 5-Phase Agentic Execution Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Ingestion: User Objective Received
+    Ingestion --> Planning: Parse Context & Constraints
+    Planning --> ToolExecution: Emit FastMCP 3.1 Payload
+    ToolExecution --> Observation: Inspect Runtime Result
+    Observation --> Reflection: Critique Intermediate Output
+    Reflection --> ToolExecution: Quality Check Failed (Retry)
+    Reflection --> Completion: Quality Standard Satisfied
+    Completion --> [*]: Return Validated Artifact
+```
+
+## Production Multi-Agent Environment Architecture (Docker Compose)
+
+The following `docker-compose.yml` manifest deploys a complete multi-agent orchestration substrate with persistent state, message broker, and FastMCP 3.1 tool gateways:
+
+```yaml
+version: '3.8'
+
+services:
+  agent-postgres:
+    image: postgres:16-alpine
+    container_name: agent-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: agent_state
+      POSTGRES_USER: orchestrator
+      POSTGRES_PASSWORD: state-secret-password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orchestrator -d agent_state"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  agent-redis:
+    image: redis:7.2-alpine
+    container_name: agent-redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  fastmcp-gateway:
+    image: python:3.11-slim
+    container_name: fastmcp-agent-gateway
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./mcp_servers:/app:ro
+    working_dir: /app
+    environment:
+      - REDIS_URL=redis://agent-redis:6379/0
+      - DATABASE_URL=postgresql://orchestrator:state-secret-password@agent-postgres:5432/agent_state
+    command: >
+      bash -c "pip install --no-cache-dir fastmcp pydantic redis asyncpg httpx &&
+               python /app/agentic_gateway.py"
+    depends_on:
+      agent-postgres:
+        condition: service_healthy
+      agent-redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+```
+
+## Production Systemd Supervisor Unit (`agentic-supervisor.service`)
+
+The following systemd service unit runs an autonomous agentic supervisor daemon responsible for managing task queue transitions, heartbeat monitoring, and timeout handling:
+
+```ini
+[Unit]
+Description=Autonomous Agentic Workflow Supervisor Daemon
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=agentops
+Group=agentops
+WorkingDirectory=/opt/agentic-supervisor
+Environment="PYTHONUNBUFFERED=1"
+Environment="MAX_AGENT_TURNS=15"
+Environment="AGENT_STATE_DB=postgresql://orchestrator:state-secret-password@localhost:5432/agent_state"
+ExecStart=/opt/agentic-supervisor/venv/bin/python supervisor.py --loop-interval=5
+Restart=on-failure
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+# Sandboxing
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/agentic-supervisor
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Strengths
 - **Goal-Oriented Autonomy**: Transforms high-level goals into executable actions without requiring precise step-by-step human prompts.
 - **Robustness through Reflection**: Evaluates intermediate outputs (e.g., compiler errors or API validation failures) and self-corrects in real-time.
@@ -78,6 +203,7 @@ Finance and operations agents ingest unstructured invoices via OCR/LlamaParse, v
 - When tasks require non-linear decision making, multi-step tool execution, or dynamic research.
 - When output quality can be automatically verified using deterministic tests (e.g., unit tests, linters, JSON schemas, SQL execution checks).
 - When automating complex end-to-end workflows that previously required significant manual supervision.
+- When continuous monitoring and self-healing systems must adapt to unforeseen operational alerts.
 
 ## When not to use it
 - For simple static transformations, language translation, or direct Q&A where a single LLM call is fast, cheap, and reliable.
@@ -126,19 +252,19 @@ langgraph run --config ./agent_graph.json --input "Audit AWS security group rule
 ## API examples
 
 ### Multi-Agent State Machine & Reflection Loop with FastMCP 3.1
-The following Python implementation demonstrates a production-grade multi-agent reflection and execution loop using FastMCP 3.1 and Pydantic v2 schemas:
+The following Python implementation demonstrates a production-grade multi-agent reflection and execution loop using FastMCP 3.1 and strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`):
 
 ```python
 #!/usr/bin/env python3
 """
 Agentic Workflow Orchestrator featuring FastMCP 3.1 Tool Integration,
-State Machine Reflection, and Pydantic v2 Validation Contracts.
+State Machine Reflection, and Strict Pydantic v2 Validation Contracts.
 """
 
 import os
 import json
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP Server for Agentic Tools
@@ -149,10 +275,12 @@ mcp = FastMCP(
 )
 
 # ---------------------------------------------------------------------------
-# Pydantic v2 Contract Schemas
+# Strict Pydantic v2 Contract Schemas
 # ---------------------------------------------------------------------------
 
 class AgentTaskState(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(..., description="Unique task identifier")
     objective: str = Field(..., min_length=5, description="High-level goal statement")
     current_step: int = Field(default=1, ge=1, le=10, description="Execution step index")
@@ -169,6 +297,8 @@ class AgentTaskState(BaseModel):
         return v
 
 class ToolExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     tool_name: str
     status: str = Field(..., pattern="^(success|error|fallback)$")
     output_data: Dict[str, Any]
@@ -191,25 +321,46 @@ def execute_system_audit(target_component: str) -> Dict[str, Any]:
 def generator_agent(state: AgentTaskState) -> AgentTaskState:
     """Simulates Generator Agent synthesizing solution draft."""
     print(f"[Generator] Executing Step {state.current_step} for objective: '{state.objective}'")
-    state.draft_output = (
-        f"Generated architecture proposal for {state.objective}. "
-        f"Includes FastMCP 3.1 endpoints and Pydantic v2 contracts."
+    new_tools = list(state.tool_calls_made) + ["generate_architecture"]
+    return AgentTaskState(
+        task_id=state.task_id,
+        objective=state.objective,
+        current_step=state.current_step,
+        draft_output=(
+            f"Generated architecture proposal for {state.objective}. "
+            f"Includes FastMCP 3.1 endpoints and strict Pydantic v2 contracts."
+        ),
+        reflection_critique=state.reflection_critique,
+        is_completed=state.is_completed,
+        tool_calls_made=new_tools
     )
-    state.tool_calls_made.append("generate_architecture")
-    return state
 
 def evaluator_agent(state: AgentTaskState) -> AgentTaskState:
     """Simulates Evaluator Agent critiquing Generator draft."""
     print(f"[Evaluator] Reviewing draft output for task {state.task_id}...")
     if "Pydantic v2" in (state.draft_output or "") and state.current_step >= 2:
-        state.is_completed = True
-        state.reflection_critique = "Draft meets all architectural standards and safety bounds."
         print("[Evaluator] Quality check PASSED.")
+        return AgentTaskState(
+            task_id=state.task_id,
+            objective=state.objective,
+            current_step=state.current_step,
+            draft_output=state.draft_output,
+            reflection_critique="Draft meets all architectural standards and safety bounds.",
+            is_completed=True,
+            tool_calls_made=state.tool_calls_made
+        )
     else:
-        state.reflection_critique = "Missing explicit edge case handling for FastMCP token expiration."
-        state.current_step += 1
-        print(f"[Evaluator] Quality check REJECTED. Critique: {state.reflection_critique}")
-    return state
+        critique = "Missing explicit edge case handling for FastMCP token expiration."
+        print(f"[Evaluator] Quality check REJECTED. Critique: {critique}")
+        return AgentTaskState(
+            task_id=state.task_id,
+            objective=state.objective,
+            current_step=state.current_step + 1,
+            draft_output=state.draft_output,
+            reflection_critique=critique,
+            is_completed=False,
+            tool_calls_made=state.tool_calls_made
+        )
 
 # ---------------------------------------------------------------------------
 # Execution Orchestrator
@@ -217,14 +368,12 @@ def evaluator_agent(state: AgentTaskState) -> AgentTaskState:
 
 def run_agentic_loop(task_id: str, objective: str) -> AgentTaskState:
     """Main Orchestrator loop enforcing reflection iterations and state validation."""
-    raw_state = {
-        "task_id": task_id,
-        "objective": objective,
-        "current_step": 1,
-        "is_completed": False
-    }
-
-    state = AgentTaskState.model_validate(raw_state)
+    state = AgentTaskState(
+        task_id=task_id,
+        objective=objective,
+        current_step=1,
+        is_completed=False
+    )
 
     while not state.is_completed:
         # Step 1: Generator Agent
@@ -232,9 +381,6 @@ def run_agentic_loop(task_id: str, objective: str) -> AgentTaskState:
 
         # Step 2: Evaluator Agent (Reflection Loop)
         state = evaluator_agent(state)
-
-        # Step 3: State Re-validation
-        state = AgentTaskState.model_validate(state.model_dump())
 
     return state
 
@@ -250,6 +396,18 @@ if __name__ == "__main__":
     except ValidationError as err:
         print(f"Orchestration Safety Gate Tripped: {err}")
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **Agent Reasoning Deadlock** | Ambiguous stopping condition causes cyclic generator-evaluator loops. | Enforce hard max turn counter (e.g., `le=10`) in Pydantic schema. |
+| **Context Window Saturation** | Cumulative conversation history exceeds LLM context limit. | Summarize previous turns or delegate sub-tasks to child ephemeral agents. |
+| **Hallucinatory Tool Invocations**| Model attempts to call imaginary or deprecated FastMCP functions. | Pass strict JSON Schema validation tools with `extra="forbid"` models. |
+| **Slow Turnaround Latency (>30s)**| Complex CoT generation compounded across multiple reflection turns. | Route initial drafting to faster high-TPS model (e.g., Haiku 4.5 / Qwen 2.5). |
+| **Unintended Destructive Action**| Agent executes shell command without sandboxing or HITL approval. | Enforce read-only containers and require explicit interactive confirmation tokens. |
+| **State Deserialization Failure**| Schema drift between agent revisions and Redis serialized task state. | Implement semantic versioning in task states and migration adapters. |
+| **Premature Goal Completion** | Evaluator accepts superficial draft lacking thorough edge testing. | Introduce automated unit test runner execution into the evaluation gate. |
 
 ## Related tools / concepts
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)

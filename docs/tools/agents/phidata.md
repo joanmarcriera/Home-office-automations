@@ -37,6 +37,12 @@ graph TD
     end
 ```
 
+## Architectural Mechanics & Team Topologies
+Agno organizes multi-agent intelligence through three primary structural patterns:
+1. **Hierarchical Orchestration (Leader-Delegate)**: A supervisor agent receives complex user goals, decomposes them into domain-specific sub-queries, delegates execution to specialized subordinate agents (e.g., Code Reviewer, SQL Generator, Web Investigator), and reconciles results before returning output.
+2. **Sequential & Consensus Swarms**: Agents execute sequentially where intermediate state and tool outputs flow through strict Pydantic v2 pipeline contracts. In consensus modes, multi-agent debates validate outputs before committing state changes.
+3. **Hybrid RAG & Memory Synchronization**: Agno combines user-level semantic memory (stored in `pgvector` or Qdrant) with relational conversation state (PostgreSQL tables), dynamically pruning and summarizing long contexts to avoid exceeding model context ceilings.
+
 ## What problem it solves
 Agno (Phidata) directly eliminates the core challenges that hinder the deployment of autonomous AI agents in enterprise production:
 
@@ -53,6 +59,17 @@ Agno (Phidata) operates at the **Agentic Orchestration & Application Layer**:
 - **Protocol Interface**: Native **FastMCP 3.1** host and client, allowing seamless integration with external Model Context Protocol tool servers.
 - **Data & Storage Layer**: Directly manages session state and vector embeddings in relational (PostgreSQL, SQLite, MySQL) and vector databases (pgvector, Qdrant, Pinecone, Milvus).
 - **Observability Layer**: Exports standard OpenTelemetry traces, execution graphs, and token metrics to [AgentOps](../process_understanding/agentops.md), LangSmith, or ClickHouse.
+
+## Feature Matrix & Framework Comparison
+
+| Feature / Metric | Agno (Phidata v3) | CrewAI | LangGraph | AutoGen (v0.4+) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Abstraction** | Object-Oriented Agent & Team | Role-Playing Task Crews | State Machine DAGs | Conversable Event Actors |
+| **FastMCP 3.1 Support** | Native Protocol Integration | Custom Adapter Required | Custom Adapter Required | Third-Party Adapter |
+| **Response Validation** | Strict Pydantic v2 Schemas | Pydantic v1/v2 Output | Custom Node Validation | JSON Schema / Pydantic |
+| **State Storage** | Unified PostgreSQL + pgvector| Memory File / SQLite | Postgres / Checkpointer | In-Memory / CosmosDB |
+| **Execution Latency** | Low (Python Native Loop) | Moderate (Role Prompts) | Low (Compiled State Graph)| Moderate (Event Broker) |
+| **Local Model Tuning** | Optimized (Gemma 4 / Ollama) | Standard Chat Completion | Standard Chat Completion | Standard Chat Completion |
 
 ## Typical use cases
 - **Enterprise Knowledge & SQL Assistants**: Agents that query internal PostgreSQL databases, execute safe SQL queries, and synthesize answers backed by internal PDF documentation.
@@ -90,7 +107,7 @@ Agno (Phidata) operates at the **Agentic Orchestration & Application Layer**:
 Install Agno (Phidata v3) along with required provider drivers and Pydantic v2:
 
 ```bash
-pip install agno openai pydantic fastmcp duckduckgo-search
+pip install agno openai pydantic fastmcp duckduckgo-search psycopg[binary]
 ```
 
 ### 2. Environment Setup
@@ -149,7 +166,7 @@ This script demonstrates constructing a team of specialized agents coordinated b
 ```python
 import os
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.storage.agent.postgres import PostgresAgentStorage
@@ -199,13 +216,14 @@ if __name__ == "__main__":
     )
 ```
 
-### 2. FastMCP 3.1 Tool Registration with Agno
-The following Python snippet demonstrates registering custom FastMCP 3.1 server tools directly into an Agno Agent:
+### 2. FastMCP 3.1 Tool Registration & Server Script
+The following Python snippet demonstrates registering custom FastMCP 3.1 server tools directly into an Agno Agent with strict Pydantic v2 schemas (`ConfigDict(extra="forbid", frozen=True)`):
 
 ```python
 import asyncio
-from pydantic import BaseModel, Field
-from fastmcp import FastMCP
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
+from fastmcp import FastMCP, Context
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 
@@ -213,19 +231,29 @@ from agno.models.openai import OpenAIChat
 mcp_server = FastMCP("SystemMetricsServer", version="3.1.0")
 
 class SystemHealthReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     cpu_usage_pct: float = Field(..., ge=0.0, le=100.0)
     memory_available_gb: float = Field(..., ge=0.0)
     active_containers: int = Field(..., ge=0)
+    cluster_status: str = Field(default="healthy")
+
+class MetricsQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    cluster_id: str = Field(..., description="Target cluster identifier")
+    include_gpu_metrics: bool = Field(default=False)
 
 @mcp_server.tool()
-async def fetch_system_metrics() -> str:
+async def fetch_system_metrics(query: MetricsQuery, ctx: Optional[Context] = None) -> Dict[str, Any]:
     """Returns real-time system metrics for infrastructure monitoring."""
+    if ctx:
+        await ctx.info(f"Gathering telemetry for cluster: {query.cluster_id}")
     report = SystemHealthReport(
         cpu_usage_pct=14.2,
         memory_available_gb=32.5,
-        active_containers=18
+        active_containers=18,
+        cluster_status="operational"
     )
-    return report.model_dump_json()
+    return report.model_dump()
 
 # Create Agno agent that executes FastMCP tool
 agent = Agent(
@@ -236,7 +264,6 @@ agent = Agent(
 
 if __name__ == "__main__":
     print("Executing FastMCP 3.1 tool invocation via Agno...")
-    # Simulated execution call
     response = agent.run("Check active system metrics and report memory status.")
     print(response.content)
 ```
@@ -246,18 +273,20 @@ Agno guarantees that agent responses strictly match user-defined Pydantic v2 sch
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 
 # Define Pydantic v2 Structured Output Schema
 class RiskFactor(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     risk_id: str = Field(..., description="Unique risk identifier (e.g., RISK-01)")
     severity: str = Field(..., pattern="^(HIGH|MEDIUM|LOW)$")
     description: str = Field(..., description="Detailed description of the architectural risk")
     mitigation_strategy: str = Field(..., description="Recommended mitigation action")
 
 class TechnicalAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     system_name: str = Field(..., description="Target system evaluated")
     overall_score: float = Field(..., ge=0.0, le=100.0, description="Health score out of 100")
     identified_risks: List[RiskFactor] = Field(default_factory=list)
@@ -273,8 +302,6 @@ audit_agent = Agent(
 def run_structured_audit() -> TechnicalAuditReport:
     prompt = "Audit an agentic deployment using unencrypted HTTP endpoints for FastMCP 3.1 tool communications."
     response = audit_agent.run(prompt)
-
-    # Agno returns validated Pydantic v2 instance directly in response.content
     report: TechnicalAuditReport = response.content
     return report
 
@@ -289,6 +316,95 @@ if __name__ == "__main__":
     except ValidationError as err:
         print(f"Schema Validation Error: {err}")
 ```
+
+## Production Docker Compose Multi-Agent Deployment
+
+Deploy Agno multi-agent microservices with PostgreSQL + pgvector and Redis session caching:
+
+```yaml
+version: '3.8'
+
+services:
+  agno-orchestrator:
+    image: python:3.12-slim
+    container_name: agno-orchestrator
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: python /app/team_leader.py
+    environment:
+      - DB_URL=postgresql+psycopg://agno_user:agno_pass@agno-postgres:5432/agno_db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      agno-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  agno-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: agno-postgres
+    environment:
+      - POSTGRES_USER=agno_user
+      - POSTGRES_PASSWORD=agno_pass
+      - POSTGRES_DB=agno_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - agno-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agno_user -d agno_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  agno-pgdata:
+```
+
+## Systemd Service Unit (`agno-agent.service`)
+
+For production background daemon hosting of autonomous Agno multi-agent services:
+
+```ini
+[Unit]
+Description=Agno Multi-Agent Orchestration Daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=agno
+Group=agno
+WorkingDirectory=/opt/agno-service
+ExecStart=/opt/agno-service/venv/bin/python /opt/agno-service/orchestrator.py
+Restart=always
+RestartSec=10s
+EnvironmentFile=/etc/agno/agno.env
+Environment=PYTHONUNBUFFERED=1
+
+# Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **ImportError: No module named 'phi'** | Rebranding migration from legacy Phidata to Agno v3.x | `grep -r "import phi" .` | Replace `import phi` statements with `import agno` and reinstall `pip install agno` |
+| **Context Window Overflow** | Unbounded tool output and chat history accumulation | Check `response.metrics.input_tokens` | Configure `num_history_responses=5` and enable context summarizer in Agent definition |
+| **PostgreSQL Connection Exhaustion** | Storage pool unclosed connections in concurrent tasks | `psql -c "SELECT count(*) FROM pg_stat_activity;"` | Enable connection pooling (`pool_size=20, max_overflow=10`) in SQLAlchemy/psycopg engine |
+| **Pydantic ValidationError on Output** | LLM omitted required field in structured response schema | Inspect raw completion JSON in debug logs | Mark missing fields as `Optional[...]` or add system prompt clarification on required properties |
+| **FastMCP Tool Timeout** | Remote MCP server unresponsive or network socket dropped | Run `curl -v http://localhost:8000/sse` | Increase timeout parameter in `FastMCPClient` and verify reverse proxy SSE streaming buffer |
+| **PgVector HNSW Index Build Failure** | Insufficient maintenance work memory for vector indexing | Inspect PostgreSQL error log | Set `SET maintenance_work_mem = '512MB';` before executing `CREATE INDEX USING hnsw` |
 
 ## Related tools / concepts
 - [Agno](agno.md) — The official rebranded repository of Phidata (v3.x).

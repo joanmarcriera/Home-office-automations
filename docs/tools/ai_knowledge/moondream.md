@@ -29,6 +29,41 @@ It bridges the gap between massive, resource-heavy vision models and the need fo
 ## Where it fits in the stack
 **Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a **FastMCP 3.1** ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md), **Qwen 3.6**, or **Gemini 4.0 Pro/Ultra/Flash** can act upon.
 
+## MoE Vision Architecture & Attention Mechanics
+
+Moondream 3.1 achieves its remarkable speed and resource efficiency through an asymmetric Sparse Mixture-of-Experts (MoE) vision-language architecture:
+
+1. **Vision Encoding via High-Resolution SigLIP**: Incoming images are dynamically tiled into $384 \times 384$ sub-patches alongside a global thumbnail, processed by an optimized SigLIP vision transformer encoder to yield patch embeddings.
+2. **Cross-Attention Projection Layer**: Visual patch tokens are projected through a lightweight multi-layer perceptron (MLP) into the shared language embedding manifold.
+3. **Sparse MoE Decoder Routing**: The language-vision decoder comprises 9 billion total parameters, but a dynamic top-2 gating router activates only 2 billion parameters per decoding token. Specialized expert feed-forward networks (FFNs) process distinct visual features (spatial geometry, optical characters, natural scenes, color distributions).
+4. **Coordinate Head Specialization**: Rather than predicting normalized coordinates as plain text tokens, Moondream features a specialized continuous coordinate head that outputs exact $(x, y)$ floating-point vectors directly, dramatically speeding up pointing and bounding box predictions to sub-15ms latencies.
+
+```
++-----------------------------------------------------------------------------------+
+|                        MOONDREAM 3.1 DECODER ROUTING                              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [SigLIP Visual Tokens] + [Text Query Embeddings]                                 |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Cross-Attention Layer (Shared Latent Space)                                 |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Dynamic Top-2 MoE Router                                                    |  |
+|  |  +---------------+  +---------------+  +---------------+  +---------------+ |  |
+|  |  | Expert 1 (OCR)|  | Expert 2 (Geo)|  | Expert 3 (UI) |  | Expert 4 (Nat) | |  |
+|  |  +---------------+  +---------------+  +---------------+  +---------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
+|            |                                                    |                 |
+|            v                                                    v                 |
+|  [Autoregressive Text Stream]                         [Continuous Coordinate Head]|
+|  ("Login submit button")                              ([0.45, 0.20, 0.48, 0.35])  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Computer Use Agents**: Identifying UI elements (buttons, fields) for robotic process automation (RPA).
 - **Home Security**: Real-time scene tagging and anomaly detection (e.g., "Is there a package on the porch?").
@@ -65,17 +100,78 @@ It bridges the gap between massive, resource-heavy vision models and the need fo
 The official Python client is the recommended way to interact with Moondream.
 
 ```bash
-pip install moondream
+pip install moondream fastmcp pydantic
 ```
 
-### Local Deployment (Photon)
+### Local Deployment (Photon Engine)
 To run Moondream locally with high performance, use the Photon inference engine:
 1. Download the Moondream weights from Hugging Face.
 2. Run the Photon server (requires NVIDIA GPU or Apple Silicon).
 
 ```bash
 # Example starting the local server
-python -m moondream.server --model ./moondream-3b.photon
+python -m moondream.server --model ./moondream-3b.photon --port 8090
+```
+
+### Production Docker Compose Stack
+
+Deploy a dedicated, self-contained Moondream inference service sidecar:
+
+```yaml
+version: "3.9"
+
+services:
+  moondream:
+    image: ghcr.io/m87-labs/moondream:3.1
+    container_name: moondream-vlm
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - MOONDREAM_MODEL_PATH=/models/moondream-3b.photon
+      - WORKERS=2
+      - QUANTIZATION=q4
+    volumes:
+      - ./models:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - vision-net
+
+networks:
+  vision-net:
+    driver: bridge
+```
+
+### Production systemd Service Unit (`moondream.service`)
+
+```ini
+[Unit]
+Description=Moondream 3.1 Edge Vision-Language Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=homelab
+Group=homelab
+WorkingDirectory=/opt/moondream
+ExecStart=/opt/moondream/venv/bin/python -m moondream.server --model /opt/moondream/models/moondream-3b.photon --port 8090
+Restart=always
+RestartSec=5s
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -93,6 +189,9 @@ moondream detect --image ./street.jpg --prompt "pedestrians"
 
 # Pointing (returns x,y coordinates)
 moondream point --image ./desktop.png --prompt "the close window button"
+
+# Probing server health via curl
+curl -s http://localhost:8090/health | jq .
 ```
 
 ## API examples
@@ -101,24 +200,30 @@ moondream point --image ./desktop.png --prompt "the close window button"
 Expose Moondream visual analysis endpoints directly as FastMCP 3.1 tool calls for local autonomous agents:
 
 ```python
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Tuple
 import moondream as md
 
-mcp = FastMCP("Moondream Vision Service")
+mcp = FastMCP("Moondream Vision Service", version="3.1.0")
 model = md.vl(model_path="./moondream-3b.photon")
 
 class PointingRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     image_path: str = Field(..., description="Local path or URI to screenshot/frame")
-    target_object: str = Field(..., description="Description of UI element or target object to locate")
+    target_object: str = Field(..., min_length=2, max_length=100, description="Description of UI element or target object to locate")
 
 class PointCoordinate(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     label: str
     x: float = Field(..., ge=0.0, le=1.0)
     y: float = Field(..., ge=0.0, le=1.0)
 
 class PointingResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     image_path: str
     target_object: str
     points: List[PointCoordinate]
@@ -144,14 +249,16 @@ if __name__ == "__main__":
 ```
 
 ### Advanced Visual Processing with Pydantic v2 Validation
-This example demonstrates programmatically querying Moondream for object detection and pointing, utilizing **Pydantic v2** validation to model coordinate and boundary data strictly for agent consumption:
+This example demonstrates programmatically querying Moondream for object detection and pointing, utilizing strict **Pydantic v2** validation to model coordinate and boundary data for agent consumption:
 
 ```python
 import asyncio
 from typing import List, Tuple, Dict, Any
-from pydantic import BaseModel, Field, conlist
+from pydantic import BaseModel, Field, ConfigDict
 
 class BoundingBox(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     label: str = Field(..., description="The name or label of the detected object")
     box_coords: Tuple[float, float, float, float] = Field(
         ...,
@@ -159,11 +266,15 @@ class BoundingBox(BaseModel):
     )
 
 class PointCoordinate(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     label: str = Field(..., description="The name or target description pointed to")
     x: float = Field(..., ge=0.0, le=1.0, description="Normalized X coordinate")
     y: float = Field(..., ge=0.0, le=1.0, description="Normalized Y coordinate")
 
 class MoondreamVisionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     image_name: str = Field(..., description="The source image file analyzed")
     caption: str = Field(default="", description="Generated image caption")
     detections: List[BoundingBox] = Field(default_factory=list, description="List of detected objects and their boxes")
@@ -171,7 +282,7 @@ class MoondreamVisionPayload(BaseModel):
 
 async def process_moondream_visuals(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Validate visual schema utilizing strict Pydantic v2 validation
-    validated = MoondreamVisionPayload(**payload)
+    validated = MoondreamVisionPayload.model_validate(payload)
     print(f"Validated Moondream response for: {validated.image_name}")
 
     for detection in validated.detections:
@@ -209,10 +320,12 @@ Extract visual tags from continuous video frames using Moondream in an asynchron
 ```python
 import asyncio
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import moondream as md
 
 class SceneAnalysisReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     frame_id: int
     timestamp_ms: float
     detected_objects: List[str]
@@ -259,6 +372,7 @@ if __name__ == "__main__":
 | **Edge Hardware Compatibility** | Raspberry Pi 5 / Apple NPU | High-end GPU required | NVIDIA RTX 3090+ | N/A (Requires Internet) |
 | **FastMCP 3.1 Integration** | Native local tool wrapper | Manual API wrapper | Manual API wrapper | Remote Cloud MCP |
 | **Per-query Cost** | $0.00 | $0.00 | $0.00 | $0.01 - $0.05 per call |
+| **Active Inference Latency** | ~18 ms (GPU) / ~310 ms (CPU)| ~85 ms (GPU) | ~140 ms (GPU) | ~600 - 1500 ms (Network) |
 
 ## Edge VLM Deployment Benchmarks
 
@@ -270,6 +384,7 @@ Performance metrics compiled across local edge devices running Moondream 3.1 wit
 | **NVIDIA RTX 4090 (24GB VRAM)** | 18 ms | 12 ms | 2.4 GB VRAM | ~65 W |
 | **Raspberry Pi 5 (8GB RAM, CPU)** | 480 ms | 310 ms | 2.3 GB System RAM | ~7.5 W |
 | **NVIDIA Jetson Orin Nano (8GB)** | 110 ms | 85 ms | 2.5 GB Unified | ~15 W |
+| **Intel N100 Mini PC (CPU-only)**| 620 ms | 410 ms | 2.2 GB System RAM | ~12 W |
 
 ## Troubleshooting & Edge Tuning
 
@@ -286,6 +401,10 @@ Performance metrics compiled across local edge devices running Moondream 3.1 wit
 #### 3. Low Precision on Small Text Extraction
 - **Symptom**: Small fonts or dense table headers are missed during point queries.
 - **Resolution**: Pre-crop target UI regions or high-density document sections before passing image tiles to Moondream, or crop via bounding boxes returned by a first pass.
+
+#### 4. High Latency on Quantized CPU Inferences
+- **Symptom**: Frame processing exceeding 1 second on embedded ARM64 boards.
+- **Resolution**: Verify that AVX2 / NEON vector acceleration flags are enabled in the Photon runtime build, and restrict input image dimensions to 384x384 maximum.
 
 ## Related tools / concepts
 - [Vision Models Research](../../knowledge_base/vision-models-research.md) — Comprehensive VLM landscape.

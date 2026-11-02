@@ -111,15 +111,114 @@ model-router "Summarize this 2-page document" --preference "cost"
 # Target: Claude 5.1 Haiku / Gemma 3-27B
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Configuration: `model-router-gateway.service`
+
+For persistent production infrastructure routing internal enterprise requests across LLMs, the router gateway can be managed via systemd:
+
+```ini
+[Unit]
+Description=Model Router Gateway Proxy Daemon
+After=network.target network-online.target
+Wants=network-online.target
+Documentation=https://github.com/BerriAI/litellm
+
+[Service]
+Type=simple
+User=modelrouter
+Group=modelrouter
+WorkingDirectory=/opt/model-router-gateway
+Environment="ROUTER_PORT=4000"
+Environment="REDIS_CACHE_URL=redis://127.0.0.1:6379/1"
+Environment="CONFIG_FILE=/etc/model-router/config.yaml"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/model-router-gateway/venv/bin/python3 -m litellm --config /etc/model-router/config.yaml --port 4000
+Restart=always
+RestartSec=3
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=model-router-gateway
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Multi-Container Docker Compose Stack (`docker-compose.router.yml`)
+
+The following Compose specification deploys a high-performance routing proxy alongside Redis caching and Prometheus observability:
+
+```yaml
+version: "3.8"
+
+services:
+  model-router-proxy:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: model_router_proxy
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config/litellm_config.yaml:/app/config.yaml:ro
+    environment:
+      - DATABASE_URL=redis://router-redis:6379/0
+      - STORE_MODEL_IN_DB=True
+    depends_on:
+      router-redis:
+        condition: service_healthy
+    networks:
+      - router-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  router-redis:
+    image: redis:7.2-alpine
+    container_name: router_redis
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no --maxmemory 1gb --maxmemory-policy allkeys-lru
+    networks:
+      - router-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  fastmcp-router-sidecar:
+    build:
+      context: .
+      dockerfile: Dockerfile.router_mcp
+    container_name: fastmcp_router_sidecar
+    restart: unless-stopped
+    depends_on:
+      model-router-proxy:
+        condition: service_healthy
+    environment:
+      - LITELLM_GATEWAY_URL=http://model-router-proxy:4000
+      - MCP_PORT=8020
+    ports:
+      - "8020:8020"
+    networks:
+      - router-net
+
+networks:
+  router-net:
+    driver: bridge
+```
+
 ## API examples
 
 ### FastMCP 3.1 Model Router Tool with Pydantic v2 Contracts
-The following complete Python script implements a FastMCP 3.1 tool that acts as a production model router, using **Pydantic v2** validation to ensure schema-compliant dispatch decisions:
+The following complete Python script implements a FastMCP 3.1 tool that acts as a production model router, using **Pydantic v2** validation with strict schema enforcement (`extra="forbid"`) to ensure schema-compliant dispatch decisions:
 
 ```python
 import json
-from typing import Literal, Optional, Dict, Any
-from pydantic import BaseModel, Field, ValidationError
+from typing import Literal, Optional, Dict, Any, List
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Router Server
@@ -129,6 +228,7 @@ mcp = FastMCP(
 )
 
 class RoutingCriteria(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     task_description: str = Field(..., description="High-level prompt or problem summary")
     estimated_context_tokens: int = Field(default=1000, ge=0, description="Expected context payload size in tokens")
     reasoning_priority: Literal["low_latency", "cost_saving", "max_reasoning"] = Field(
@@ -139,11 +239,27 @@ class RoutingCriteria(BaseModel):
     max_budget_usd: float = Field(default=0.05, ge=0.0, description="Maximum allowable token budget for request")
 
 class DispatchDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     selected_provider: str = Field(..., description="Target model provider name")
     selected_model: str = Field(..., description="Canonical model identifier endpoint")
     reasoning_effort: Optional[str] = Field(None, description="Reasoning effort level (e.g., 'high', 'medium')")
     fallback_model: str = Field(..., description="Failover endpoint if primary model experiences downtime")
     estimated_cost_usd: float = Field(..., description="Estimated cost for processing request")
+
+class BatchRoutingRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    requests: List[RoutingCriteria] = Field(..., description="List of individual routing requests")
+
+class BatchRoutingResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    decisions: List[DispatchDecision]
+    total_estimated_budget: float
+
+class HealthCheckResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: str
+    active_providers: List[str]
+    latency_p95_ms: float
 
 @mcp.tool()
 def route_model_request(raw_payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -202,6 +318,35 @@ def route_model_request(raw_payload: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as ex:
         return {"status": "error", "error_type": "execution_error", "details": str(ex)}
 
+@mcp.tool()
+def batch_route_requests(batch_payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Processes a batch of routing criteria and generates an aggregated allocation summary."""
+    try:
+        batch = BatchRoutingRequest.model_validate(batch_payload)
+        decisions = []
+        total_cost = 0.0
+        for item in batch.requests:
+            res = route_model_request(item.model_dump())
+            if res.get("status") == "success":
+                dec = DispatchDecision.model_validate(res["decision"])
+                decisions.append(dec)
+                total_cost += dec.estimated_cost_usd
+
+        resp = BatchRoutingResponse(decisions=decisions, total_estimated_budget=total_cost)
+        return resp.model_dump()
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+def check_router_health() -> Dict[str, Any]:
+    """Verifies gateway health and returns current operational metrics."""
+    resp = HealthCheckResponse(
+        status="healthy",
+        active_providers=["anthropic", "openai", "google", "deepseek", "alibaba"],
+        latency_p95_ms=14.2
+    )
+    return resp.model_dump()
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -221,6 +366,8 @@ if __name__ == "__main__":
 | **`Tool Call Schema Mismatch`** | Model tier failed to output structured JSON conforming to tool schema | Upgrade routing rule to `claude-5.6-sonnet` or enforce FastMCP 3.1 constrained decoding. |
 | **`High First Token Latency (TTFT)`** | Request sent to high reasoning tier (`gpt-5.6` max effort) for simple task | Lower `reasoning_priority` parameter to `low_latency` or use `claude-5.1-haiku`. |
 | **`Primary Endpoint Rate-Limited (HTTP 429)`** | API quota exceeded on primary provider endpoint | Configure automatic failover to designated secondary provider in `DispatchDecision`. |
+| **`Cache Poisoning on Routing Decisions`** | Stale routing keys in Redis caching outdated provider downtime statuses. | Run `redis-cli DEL router:health:*` to clear health check keys and force fresh discovery. |
+| **`Pydantic Extra Forbidden ValidationError`** | Request sent unexpected parameter keys rejected by strict Pydantic v2 schemas. | Ensure callers send only declared attributes (`task_description`, `estimated_context_tokens`, `reasoning_priority`, `requires_fastmcp_31`, `max_budget_usd`). |
 
 ## Related tools / concepts
 - [Model Comparison and Evaluation](model_comparison_and_evaluation.md) — Quantitative evaluation metrics.

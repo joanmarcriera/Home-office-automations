@@ -85,7 +85,7 @@ Zilliz Cloud solves these operational burdens by offering a fully managed, auto-
 Install the official PyMilvus SDK (fully compatible with Zilliz Cloud instances):
 
 ```bash
-pip install pymilvus pydantic mcp
+pip install pymilvus pydantic mcp fastmcp
 ```
 
 ### Collection Initialization Example
@@ -136,20 +136,107 @@ milvus-cli show collection stats -c enterprise_knowledge_base
 milvus-cli benchmark -c enterprise_knowledge_base --dim 1536 --qps 50
 ```
 
+## Production Deployment & Orchestration
+
+### Systemd Service Configuration: `zilliz-ingest-worker.service`
+
+For persistent ingestion pipelines, real-time embedding workers, or vector synchronization bridges connecting message queues (Kafka, Redis) to Zilliz Cloud:
+
+```ini
+[Unit]
+Description=Zilliz Cloud High-Throughput Vector Ingest Worker
+After=network.target network-online.target
+Wants=network-online.target
+Documentation=https://docs.zilliz.com/
+
+[Service]
+Type=simple
+User=zillizworker
+Group=zillizworker
+WorkingDirectory=/opt/zilliz-worker
+Environment="ZILLIZ_URI=https://in01-123456789.api.gcp-us-west1.zillizcloud.com"
+Environment="ZILLIZ_TOKEN=your-service-account-token"
+Environment="REDIS_QUEUE_URL=redis://127.0.0.1:6379/2"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/zilliz-worker/venv/bin/python3 -m worker.ingest_daemon
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=zilliz-ingest-worker
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Multi-Container Docker Compose Stack (`docker-compose.zilliz.yml`)
+
+The following Compose specification deploys a hybrid vector pipeline featuring local standalone Milvus for dev parity, Redis queueing, and a FastMCP 3.1 gateway communicating with Zilliz Cloud:
+
+```yaml
+version: "3.8"
+
+services:
+  zilliz-proxy-cache:
+    image: redis:7.2-alpine
+    container_name: zilliz_proxy_cache
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no --maxmemory 1gb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    networks:
+      - vector-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  fastmcp-zilliz-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.zilliz_mcp
+    container_name: fastmcp_zilliz_gateway
+    restart: unless-stopped
+    depends_on:
+      zilliz-proxy-cache:
+        condition: service_healthy
+    environment:
+      - ZILLIZ_URI=https://in01-123456789.api.gcp-us-west1.zillizcloud.com
+      - ZILLIZ_TOKEN=mock-zilliz-token
+      - REDIS_HOST=zilliz-proxy-cache
+      - MCP_PORT=8030
+    ports:
+      - "8030:8030"
+    networks:
+      - vector-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+networks:
+  vector-net:
+    driver: bridge
+```
+
 ## API examples
 
 ### FastMCP 3.1 & Pydantic v2 Zilliz Search Tool
-The following production snippet demonstrates integrating Zilliz Cloud into a FastMCP 3.1 server with strict Pydantic v2 validation schemas:
+The following production snippet demonstrates integrating Zilliz Cloud into a FastMCP 3.1 server with strict Pydantic v2 validation schemas (`extra="forbid"`):
 
 ```python
 import os
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from pymilvus import MilvusClient
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Define Pydantic v2 schemas for Zilliz search requests and responses
 class VectorSearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     collection_name: str = Field(..., description="Target Zilliz vector collection name.")
     vector: List[float] = Field(..., description="High-dimensional query embedding vector.")
     limit: int = Field(default=5, ge=1, le=100, description="Top-K nearest neighbors to retrieve.")
@@ -166,14 +253,26 @@ class VectorSearchRequest(BaseModel):
         return v
 
 class SearchResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     id: Any = Field(..., description="Unique entity ID in Zilliz.")
     distance: float = Field(..., description="Vector similarity distance score.")
     entity: Dict[str, Any] = Field(default_factory=dict, description="Retrieved metadata fields.")
 
 class VectorSearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     collection_name: str = Field(..., description="Collection searched.")
     match_count: int = Field(..., description="Number of matching vector entities returned.")
     results: List[SearchResultItem] = Field(default_factory=list, description="List of matching vector entities.")
+
+class CollectionStatsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    collection_name: str = Field(..., description="Target collection name.")
+
+class CollectionStatsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    collection_name: str
+    row_count: int
+    is_loaded: bool
 
 # Initialize FastMCP 3.1 server
 mcp = FastMCP("zilliz-vector-search-server")
@@ -182,7 +281,7 @@ ZILLIZ_URI = os.getenv("ZILLIZ_URI", "https://in01-123456789.api.gcp-us-west1.zi
 ZILLIZ_TOKEN = os.getenv("ZILLIZ_TOKEN", "YOUR_ZILLIZ_API_KEY")
 
 @mcp.tool()
-async def search_zilliz_vectors(request: VectorSearchRequest) -> VectorSearchResponse:
+async def search_zilliz_vectors(request: VectorSearchRequest) -> Dict[str, Any]:
     """Executes a similarity search against a managed Zilliz Cloud vector database collection."""
     client = MilvusClient(uri=ZILLIZ_URI, token=ZILLIZ_TOKEN)
 
@@ -205,11 +304,25 @@ async def search_zilliz_vectors(request: VectorSearchRequest) -> VectorSearchRes
                 entity=hit.get("entity", {})
             ))
 
-    return VectorSearchResponse(
+    response = VectorSearchResponse(
         collection_name=request.collection_name,
         match_count=len(items),
         results=items
     )
+    return response.model_dump()
+
+@mcp.tool()
+async def get_collection_statistics(request: CollectionStatsRequest) -> Dict[str, Any]:
+    """Retrieves operational stats for a specific Zilliz collection."""
+    client = MilvusClient(uri=ZILLIZ_URI, token=ZILLIZ_TOKEN)
+    stats = client.get_collection_stats(collection_name=request.collection_name)
+    row_count = int(stats.get("row_count", 0))
+    resp = CollectionStatsResponse(
+        collection_name=request.collection_name,
+        row_count=row_count,
+        is_loaded=True
+    )
+    return resp.model_dump()
 
 if __name__ == "__main__":
     mcp.run()
@@ -232,15 +345,15 @@ def insert_hybrid_documents(client: MilvusClient, collection: str, docs: List[Di
     return res
 ```
 
-## Troubleshooting & Best Practices
+## Diagnostic & Troubleshooting Matrix
 
-### High Latency on Filtered Vector Search
-- **Cause**: Filtering on non-indexed scalar metadata fields forcing expensive full-collection post-filtering scans.
-- **Solution**: Explicitly add scalar indexes on high-cardinality metadata fields (e.g., `category`, `tenant_id`) to enable pre-filtering during Cardinal auto-indexing.
-
-### Connection Timeout During Bulk Ingestion
-- **Cause**: Single insertion RPC payload exceeding maximum gRPC message size limit (64MB).
-- **Solution**: Batch document insertion into chunks of 1,000 to 5,000 entities per `client.insert()` call.
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution Procedure |
+|:---|:---|:---|:---|
+| **Dimension Mismatch Error (`DimMismatchException`)** | Vector input length does not match collection schema definition (e.g. 768 vs 1536). | Inspect collection schema: `client.describe_collection(collection_name)` and check query vector `len(vector)`. | Match the embedding model to the collection dimensions or re-embed inputs using the model specified in schema. |
+| **High Latency on Filtered Vector Search** | Filtering on non-indexed scalar metadata fields forcing expensive full-collection post-filtering scans. | Check query execution time without scalar filter; examine collection index descriptions. | Create scalar index on filtered attributes (e.g., `client.create_index(field_name="category", index_type="INVERTED")`). |
+| **Connection Timeout During Bulk Ingestion** | Single insertion RPC payload exceeding maximum gRPC message size limit (64MB) or gateway timeout. | Check client logs for `grpc._channel._InactiveRpcError: StatusCode.RESOURCE_EXHAUSTED`. | Batch document insertion into chunks of 1,000 to 5,000 entities per `client.insert()` call. |
+| **Collection Not Loaded (`CollectionNotLoadedException`)** | Query sent to a collection that hasn't been loaded into query node memory. | Run `client.get_load_state(collection_name)`. | Execute `client.load_collection(collection_name)` before initiating query requests. |
+| **Pydantic ValidationError on Tool Request** | Agent passed unexpected attributes violating `extra="forbid"` rule. | Review FastMCP tool server stderr logs for Pydantic error details. | Restrict tool calling invocation payload strictly to schema attributes (`collection_name`, `vector`, `limit`, `filter_expression`). |
 
 ## Related tools / concepts
 - [Milvus](milvus.md) — Open-source distributed vector database engine.

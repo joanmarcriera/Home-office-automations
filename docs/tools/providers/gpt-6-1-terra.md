@@ -360,6 +360,47 @@ if __name__ == "__main__":
 | **`Spectral Band Dimension Mismatch`** | Multi-band COG layers have mismatched raster array dimensions or resolutions | Resample NIR and SWIR bands to match base Red/Green resolution via GDAL Warp or Rasterio prior to tool dispatch. |
 | **`STAC Ingest 404 Asset Not Found`** | Requested Sentinel/Landsat band key does not exist in target STAC Catalog | Validate asset keys via `stac_item.assets.keys()` prior to calling `ingest_stac_catalog_item`. |
 | **`Nodata Mask Bleed Failure`** | Zero or NoData ocean/cloud values polluting multi-spectral index calculation | Apply explicit valid-data bitmasks (e.g. SCL Scene Classification in Sentinel-2) before computing NDVI/NDWI. |
+| **`HTTP 429 Bandwidth Throttling`** | Concurrent high-resolution COG range queries saturating object storage egress | Implement distributed token-bucket rate limiters and regional edge CDN proxies (Cloudflare R2 / AWS CloudFront). |
+| **`EPSG Coordinate Inversion (Lat/Lon vs Lon/Lat)`** | GIS client flipped coordinate order adhering to EPSG:4326 axis order standards | Explicitly enforce `[longitude, latitude]` array notation compliant with RFC 7946 GeoJSON specification. |
+| **`Raster Bit Depth Overflow (Float32 to UInt8)`** | Direct downcasting of 16-bit radiometric reflectance values into 8-bit web rasters | Normalize surface reflectance values (`[0, 10000]` to `[0.0, 1.0]`) prior to computing radiometric band math indices. |
+| **`GDAL Worker OOM Crash`** | Raster decompression buffering full uncompressed multiband scenes in volatile RAM | Configure GDAL block caching limits (`GDAL_CACHEMAX=512MB`) and enable windowed chunk reading via Rasterio. |
+
+## End-to-End CLI Diagnostic Verification Procedures
+
+Verify local FastMCP Terra Gateway operation, health probes, and STAC ingestion endpoints with targeted shell sequences:
+
+```bash
+# 1. Inspect active local FastMCP Terra Gateway service responsiveness
+curl -s -f http://localhost:8095/health | jq .
+
+# 2. Test spatial boundary validation with strict Pydantic v2 schemas
+curl -s -X POST http://localhost:8095/tools/execute_terra_spatial_analysis \
+  -H "Content-Type: application/json" \
+  -d '{
+    "request": {
+      "bbox": {
+        "min_lat": 37.70,
+        "min_lon": -122.45,
+        "max_lat": 37.80,
+        "max_lon": -122.35
+      },
+      "analysis_type": "ndvi",
+      "cloud_cover_max": 5.0,
+      "target_epsg": 4326
+    }
+  }' | jq '.mean_index_score, .status'
+
+# 3. Verify STAC item metadata resolution and band mapping
+curl -s -X POST http://localhost:8095/tools/ingest_stac_catalog_item \
+  -H "Content-Type: application/json" \
+  -d '{
+    "request": {
+      "stac_item_id": "S2A_MSIL2A_20270107T103021",
+      "catalog_url": "https://earth-search.aws.element84.com/v1",
+      "bands": ["B04", "B08"]
+    }
+  }' | jq '.asset_urls, .calculated_index'
+```
 
 ## Operational Best Practices & Guardrails
 1. **Always Use COGs (Cloud Optimized GeoTIFFs)**: Stream multi-band rasters via HTTP range requests rather than uploading massive raw binary GeoTIFF files.
@@ -367,6 +408,8 @@ if __name__ == "__main__":
 3. **Set Token Caps on Tile Queries**: Limit maximum context tokens per tile request to manage per-invocation API expenditure.
 4. **Automate STAC Item Validation**: Validate STAC item asset catalog keys (e.g., `B04`, `B08`) against remote catalog metadata before requesting multi-band GeoTIFF downloads.
 5. **Implement Spatial Caching**: Cache clipped GeoJSON bounding box queries in PostGIS or Redis to reduce redundant GPT-6.1 Terra spatial model API invocations across identical geographic regions.
+6. **Windowed Array Streaming**: Prevent GDAL/Rasterio out-of-memory errors by streaming raster blocks in 256x256 or 512x512 windows rather than loading uncompressed multi-gigabyte scenes.
+7. **Strict Coordinate Ordering**: Ensure ingestion adapters explicitly enforce `[x, y]` / `[lon, lat]` GeoJSON arrays, mitigating coordinate inversion issues common in GIS legacy stacks.
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — Main OpenAI provider overview.

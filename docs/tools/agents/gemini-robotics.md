@@ -84,11 +84,15 @@ sequenceDiagram
 | **Perception Latency** | ~12ms on-device / ~45ms cloud | ~85ms (cloud relay) | ~60ms (cloud relay) | ~35ms (edge server) |
 | **Tactile Multimodality** | Native force-torque & spatial vision | Image/video feed only | Image/video feed only | Image + tactile sensor inputs |
 | **Zero-Shot Object Manipulation** | 96.4% success rate | 88.2% success rate | 91.5% success rate | 89.7% success rate |
+| **Multi-Agent ROS2 Synergy** | Native DDS auto-discovery | Custom socket wrapper | Node REST proxy | Custom gRPC bridge |
+| **Max Trajectory Steps per Plan** | 128 dynamic waypoints | 32 static waypoints | 64 dynamic waypoints | 48 dynamic waypoints |
 
 ## Typical use cases
 - **Multi-Robot Fleet Collaboration**: Coordinating diverse autonomous robots (e.g., Boston Dynamics Spot paired with humanoid arms and AMR mobile carts) to execute collaborative warehouse sorting and facility maintenance.
 - **Dynamic Task Decomposition & Execution**: Real-time evaluation of workspace environments, automatically re-planning arm trajectories when encountering unmapped physical obstacles.
 - **Precision Whole-Body Manipulation**: Controlling high-DoF humanoid platforms (e.g., Apptronik Apollo 3, Figure 03) for complex assembly, light bulb replacement, and delicate tool usage.
+- **Industrial Quality Inspection**: Utilizing multimodal high-framerate video to detect microscopic surface cracks while synchronously operating a precision probe arm.
+- **Hazardous Material Handling**: Remote humanoid teleoperation where the embodied foundation model balances arm compliance, dampening explosive tremors or unexpected resistance.
 
 ## Strengths
 - **End-to-End Multimodality**: Native fusion of 60fps stereo video feeds, spatial audio, and joint force-torque sensors.
@@ -99,14 +103,17 @@ sequenceDiagram
 ## Limitations
 - **High Edge Compute Needs**: Full real-time local VLA execution requires high-tier edge accelerators (e.g., NVIDIA Thor or dual Orin AGX).
 - **Network Dependency for Cloud ER**: Hosted `gemini-robotics-er-3` logical planning relies on reliable sub-20ms network connectivity for real-time cloud feedback.
+- **Physical Wear & Calibration**: Mechanical actuator backlash requires periodic recalibration cycles.
 
 ## When to use it
 - When building physical multi-agent automation systems requiring real-time tool manipulation and hardware execution.
 - When standard LLMs lack fine-grained 3D spatial grounding or direct motor joint control capabilities.
+- In multi-robot environments where heterogeneous hardware (quadrupeds, wheeled AMRs, humanoids) must share a common spatial ontology.
 
 ## When not to use it
 - For static, deterministic industrial manufacturing lines where fixed high-speed G-code or traditional PLC controllers provide strict safety guarantees.
 - On low-power microcontroller hardware lacking neural processing acceleration.
+- For purely virtual or non-embodied text and document processing workflows.
 
 ## Getting started
 
@@ -129,21 +136,33 @@ gcloud ai custom-jobs create \
   --args="--model=gemini-robotics-er-3,--instruction='Scan bin B, locate object ID-492, and pass to AMR-02 using force-limited grasp.'"
 ```
 
+### Inspecting Local Hardware Telemetry Stream
+```bash
+python3 -c "
+import json
+telemetry = {'joint_temperatures_c': [42.1, 44.5, 41.0, 39.8, 45.2, 43.1, 40.0], 'bus_voltage_v': 48.2}
+print('Gemini Hardware Stream Active:', json.dumps(telemetry))
+"
+```
+
 ## Operational Best Practices & Safety Guidelines
 
 ### E-Stop and Hardware Safety Guards
 Physical execution models require deterministic safety interlocks in front of hardware controllers.
 - Always validate output trajectories against torque limits before passing commands to low-level motor drivers.
 - Enable hardware-level emergency stop (E-stop) watchdog timers that cut power if control packets drop for >50ms.
+- Enforce strict velocity ramp-up and ramp-down curves to protect gearbox teeth from instantaneous jerk.
 
 ### Spatial Camera Calibration
 Miscalibrated stereo vision feeds degrade 3D bounding box accuracy:
 - Run extrinsic camera-to-base-link calibration routines daily using AprilTag calibration boards.
 - Ensure camera exposure settings prevent oversaturation in bright industrial lighting conditions.
+- Implement point cloud outlier filtering (e.g. Statistical Outlier Removal) before feeding depth rasters to VLA encoders.
 
 ### Handling Network Drops During Cloud ER Planning
 When using cloud-hosted `gemini-robotics-er-3` for long-horizon task planning:
 - Implement fallbacks to `gemini-robotics-on-device-3` for local collision avoidance and stationary holding patterns whenever cloud latency spikes past 100ms.
+- Retain the last known safe posture snapshot in RAM for instant recovery.
 
 ## Systematic Troubleshooting Guide
 
@@ -153,11 +172,14 @@ When using cloud-hosted `gemini-robotics-er-3` for long-horizon task planning:
 | **High Perception Latency (>50ms)** | Unthrottled 4K video frame stream to edge node | `v4l2-ctl --list-formats-ext` | Lower camera resolution to 1080p @ 60fps and enable hardware NVENC H.265 encoding |
 | **Gripper Force Threshold Triggered** | Object resistance exceeded Newtons ceiling | `journalctl -u gemini-robotics.service -e` | Re-evaluate object weight or increase `gripper_force_n` in Pydantic schema within safety guidelines |
 | **FastMCP Stream Disconnection** | Serial or network socket drop on edge gateway | `systemctl status gemini-edge-daemon` | Verify USB-C/Ethernet hardware connections and restart edge daemon service |
+| **Collision Boundary Violation** | Obstacle entered Cartesian safety envelope | `ros2 topic echo /safety/collision_events` | Halt trajectory execution, activate emergency compliance mode, and re-query ER-3 planner |
+| **NVIDIA Thor TensorRT Engine Crash** | Out of CUDA Unified Memory during stereo pointcloud fusion | `dmesg -T \| grep -i oom` | Reduce voxel resolution grid size or enable TensorRT FP8 quantization |
+| **Spatial Drift in AprilTag Tracking** | Ambient flicker or motion blur at high speeds | `ros2 topic hz /camera/color/image_raw` | Increase camera shutter speed to 1/250s and enable exposure lock |
 
 ## API examples
 
 ### Programmatic Python FastMCP 3.1 & Pydantic v2 Robotics Task Plan
-The following script sends real-time workspace camera telemetry and natural language instructions to `gemini-robotics-er-3`, generating a structured physical action plan validated with **Pydantic v2**.
+The following script sends real-time workspace camera telemetry and natural language instructions to `gemini-robotics-er-3`, generating a structured physical action plan validated with **Pydantic v2** (`extra="forbid"`, `frozen=True`):
 
 ```python
 import sys
@@ -228,7 +250,60 @@ if __name__ == "__main__":
         print(f"  Step {step.step_id}: {step.action} -> {step.target_object} at XYZ {step.spatial_target_3d}")
 ```
 
+## Docker Compose Deployment for Edge Gemini Robotics Stack
+
+For deploying the local real-time edge runtime alongside ROS2 Humble/Iron nodes and FastMCP 3.1 hardware gateway on NVIDIA Jetson Thor or Orin AGX:
+
+```yaml
+version: "3.8"
+
+services:
+  gemini-edge-daemon:
+    image: google-robotics/gemini-edge-runtime:3.1
+    container_name: gemini-edge-daemon
+    runtime: nvidia
+    privileged: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - ROBOT_URDF_PATH=/opt/robot/urdf/humanoid_arm.urdf
+      - FASTMCP_SERVER_PORT=8090
+      - GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY}
+    network_mode: "host"
+    volumes:
+      - /dev:/dev
+      - /tmp/ros2_ipc:/tmp/ros2_ipc
+      - ./config/robotics_safety.json:/etc/robotics/safety.json:ro
+    restart: always
+
+  ros2-hardware-bridge:
+    image: osrf/ros:humble-desktop-full
+    container_name: ros2-hardware-bridge
+    network_mode: "host"
+    privileged: true
+    environment:
+      - ROS_DOMAIN_ID=42
+    volumes:
+      - /dev:/dev
+      - /tmp/ros2_ipc:/tmp/ros2_ipc
+    command: ["ros2", "launch", "robot_bringup", "hardware_interface.launch.py"]
+    restart: always
+
+  safety-watchdog:
+    image: google-robotics/safety-watchdog:latest
+    container_name: safety-watchdog
+    network_mode: "host"
+    privileged: true
+    environment:
+      - HEARTBEAT_TIMEOUT_MS=50
+      - MAX_TORQUE_NM=45.0
+    command: ["/usr/bin/watchdog_monitor"]
+    restart: always
+```
+
 ## Systemd Service Daemon for Edge Gemini Robotics Daemon
+
+To ensure resilient operation on autonomous mobile robots (AMRs) and industrial workstations:
 
 ```ini
 [Unit]

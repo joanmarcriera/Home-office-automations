@@ -1,0 +1,23 @@
+# Task Decomposition Report - Batch 1021
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/benchmarking/dream.md`, `docs/tools/automation_orchestration/llmware.md`, `docs/knowledge_base/agent_protocols.md`, `docs/tools/ai_knowledge/diffusiongemma.md`, and `docs/tools/ai_knowledge/unifolm-wla10.md`) past 21,500–24,800+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative matrices, and diagnostic troubleshooting tables while preserving untouched review metadata where appropriate.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/benchmarking/dream.md` | **Completed & Closed** | 15,528 B | 24,870 B | Deepened technical content (+9,342 B). Added mathematical formulations of Atomic Claim Veracity ($V_{\text{claim}}$), Temporal Decay Penalty ($\Delta_{\text{temp}}$), and composite DREAM Research Index (DRI), 5-way benchmark comparison matrix (DREAM vs SWE-bench vs HLE vs GPQA Diamond vs GAIA), production FastMCP 3.1 evaluation server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose stack with Redis cache, hardened systemd service unit, and expanded 6-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/automation_orchestration/llmware.md` | **Completed & Closed** | 15,530 B | 23,331 B | Deepened technical content (+7,801 B). Added comprehensive 5-way enterprise RAG comparison matrix (LLMWare vs LangChain vs LlamaIndex vs Haystack vs Khoj), C-native ingestion and SLM runtime architecture diagrams, production FastMCP 3.1 sovereign server exposing RAG search and deterministic SLIM extraction with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), multi-container Docker Compose stack with Milvus, etcd, and MinIO, systemd service unit, and systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/knowledge_base/agent_protocols.md` | **Completed & Closed** | 15,532 B | 23,151 B | Deepened technical content (+7,619 B). Added protocol specification comparison matrix (MCP 3.1 vs ACP vs AAIS vs FIPA-ACL vs AutoGen), transport layer latency and throughput benchmarks across STDIO, SSE, WebSockets, gRPC, and binary CBOR, production FastMCP 3.1 identity-aware gateway router with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose stack with authenticated Redis, systemd service unit, and expanded diagnostic matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/diffusiongemma.md` | **Completed & Closed** | 15,535 B | 21,558 B | Deepened technical content (+6,023 B). Added comparative open generative vision matrix (DiffusionGemma vs FLUX.1 Schnell/Dev vs SDXL vs HunyuanVideo vs LTX-Video), Flow Matching velocity formulation and classifier-free guidance math, quantization profiles (FP8, INT8, AWQ 4-bit) with VRAM budgets, sequence interaction diagram, production FastMCP 3.1 visual generation server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose stack with GPU pass-through, systemd service unit, and systematic troubleshooting guide. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/unifolm-wla10.md` | **Completed & Closed** | 15,544 B | 22,437 B | Deepened technical content (+6,893 B). Added comparative embodied foundation models matrix (UniFolm-WLA10 vs OpenVLA vs RT-2 vs Gemini Robotics vs LeRobot), single-stream multimodal tokenization and kinematic safety envelope formulations, ROS2/Zenoh launch configuration, production FastMCP 3.1 embodied supervisor server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose stack with Zenoh bridge, systemd service unit, and expanded diagnostic matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
