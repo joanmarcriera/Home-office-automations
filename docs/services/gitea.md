@@ -30,6 +30,46 @@ In early January 2027, it specifically addresses the need for local, air-gapped 
 +------------------+           +------------------+    +-----------------------+
 ```
 
+## Detailed Internal Architecture & Git Engine
+
+Gitea's lightweight execution model stems from its compiled Go architecture:
+
+1. **Routing and Middleware Engine**: Powered by the Macaron/Chi HTTP router, handling high-concurrency REST endpoints and Git Smart HTTP protocol handshakes.
+2. **Repository Storage & Git Plumbing**: Interacts directly with Git CLI binaries and internal libgit2/custom Go-Git implementations, ensuring low memory consumption during large commits or binary patch operations.
+3. **ORM & Database Layer**: XORM abstraction layer providing database neutrality across SQLite3, PostgreSQL 16+, MySQL/MariaDB, and MSSQL.
+4. **Queue & Background Worker Subsystem**: Redis, Disk-backed LevelDB, or in-memory channel queues manage asynchronous email notifications, webhook broadcasts, repository indexing, and commit graph caching.
+5. **Gitea Actions Architecture**: Built-in runner orchestrator compatible with GitHub Actions syntax via containerized `act_runner` daemons communicating over gRPC.
+
+```
++-----------------------------------------------------------------------------------+
+|                         GITEA SUBSYSTEM ARCHITECTURE                              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [Clients / Git CLI / Web UI / AI Agents via FastMCP 3.1]                         |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Reverse Proxy / TLS Termination / SSH Port 2222                             |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Gitea Core Go Binary (v1.27+)                                               |  |
+|  |  +--------------------+   +---------------------+   +---------------------+ |  |
+|  |  | HTTP / REST API    |   | SSH Daemon (Internal)|   | Webhook Dispatcher  | |  |
+|  |  +--------------------+   +---------------------+   +---------------------+ |  |
+|  |  | XORM Engine        |   | Git Command Wrapper |   | Act Runner Gateway  | |  |
+|  |  +--------------------+   +---------------------+   +---------------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
+|            |                                |                       |             |
+|            v                                v                       v             |
+|  +--------------------+           +--------------------+  +--------------------+  |
+|  | PostgreSQL 16+ DB  |           | Git Repos & LFS    |  | act_runner Docker  |  |
+|  | (Metadata / Users) |           | (/data/git/repos)  |  | (CI/CD Pipelines)  |  |
+|  +--------------------+           +--------------------+  +--------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Where it fits in the stack
 Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
 
@@ -42,6 +82,8 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 | **FastMCP 3.1 Support** | Native API / Webhooks | Native API / Webhooks | Via API Gateways | Via API Gateways |
 | **Database Backend** | SQLite / Postgres / MariaDB | SQLite / Postgres | Proprietary DB | PostgreSQL |
 | **SSO / OIDC** | Native OIDC / LDAP | Native OIDC / LDAP | SAML / SSO (Enterprise) | Native OIDC / LDAP |
+| **Package Registries** | Docker, PyPI, NPM, Generic | Docker, PyPI, NPM | Container Registry | Container & Dependency Registry |
+| **Self-Hosting Complexity** | Extremely Low (Single Binary) | Extremely Low | N/A | Complex Omnibus / Helm |
 
 ## Diagnostic Troubleshooting Matrix
 
@@ -49,9 +91,10 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 | :--- | :--- | :--- | :--- |
 | **HTTP 500 Database Locked** | SQLite concurrent write lock during heavy CI/CD | `grep "database is locked" /data/gitea/log/gitea.log` | Migrate SQLite backend to PostgreSQL 16+ or enable WAL mode in `app.ini`. |
 | **Gitea Actions Runner Offline**| Secret registration token mismatch or network error | `docker logs act_runner` | Re-register the runner using `act_runner register` with a fresh admin token. |
-| **SSH Permission Denied** | Port collision with host SSH or missing SSH key | `ssh -T -p 222 git@localhost` | Remap Gitea SSH port to `2222` and verify public keys in Gitea user settings. |
+| **SSH Permission Denied** | Port collision with host SSH or missing SSH key | `ssh -T -p 2222 git@localhost` | Remap Gitea SSH port to `2222` and verify public keys in Gitea user settings. |
 | **OIDC Redirect Loop** | Mismatched redirect URI in Authentik configuration | Inspect browser network headers on OAuth callback | Align `REDIRECT_URL` in `app.ini` with Authentik OAuth application settings. |
 | **LFS Push Rejection** | Exceeded local disk storage or bad authorization | `git lfs push origin main --verbose` | Verify `[lfs]` endpoint settings in `app.ini` or switch LFS backend to MinIO S3 bucket. |
+| **High Memory during Repo Indexing** | Code search indexer allocating unbounded heap | `top -p $(pgrep gitea)` | In `app.ini`, set `[indexer] REPO_INDEXER_ENABLED = true` with `MAX_FILE_SIZE = 1048576`. |
 
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
@@ -88,25 +131,69 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 
 ## Getting started
 
-### Docker Compose
-To run Gitea using Docker Compose:
+### Docker Compose with PostgreSQL & act_runner
+To run Gitea with a PostgreSQL database and an Actions runner using Docker Compose:
 
 ```yaml
+version: "3.9"
+
 services:
   server:
     image: gitea/gitea:1.27.0
-    container_name: gitea
+    container_name: gitea-server
+    restart: always
     environment:
       - USER_UID=1000
       - USER_GID=1000
-    restart: always
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=gitea_secret_password
     volumes:
-      - ./gitea:/data
+      - ./gitea-data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
-      - "222:22"
+      - "2222:22"
+    depends_on:
+      - db
+    networks:
+      - gitea-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: gitea-db
+    restart: always
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=gitea_secret_password
+      - POSTGRES_DB=gitea
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - gitea-net
+
+  runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-act-runner
+    restart: always
+    environment:
+      - GITEA_INSTANCE_URL=http://server:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=your_registration_token_here
+      - GITEA_RUNNER_NAME=homelab-act-runner
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./runner-data:/data
+    depends_on:
+      - server
+    networks:
+      - gitea-net
+
+networks:
+  gitea-net:
+    driver: bridge
 ```
 
 ### SSO & OIDC Integration (Authentik)
@@ -125,9 +212,10 @@ services:
 ```ini
 [actions]
 ENABLED = true
+DEFAULT_ACTIONS_URL = https://github.com
 ```
-2. **Set up a Runner**: Gitea Actions requires a separate "Gitea Runner" (formerly `act_runner`).
-3. **Registration**: Registration tokens are managed via the administrative UI or CLI.
+2. **Set up a Runner**: Gitea Actions requires a separate "Gitea Runner" (`act_runner`).
+3. **Registration**: Registration tokens are managed via the administrative UI or CLI (`act_runner register`).
 
 ## Systemd Service Unit Configuration
 
@@ -139,6 +227,7 @@ Description=Gitea (Painless Self-Hosted Git Service)
 After=syslog.target
 After=network.target
 After=postgresql.service
+Wants=postgresql.service
 
 [Service]
 RestartSec=2s
@@ -177,22 +266,22 @@ The `gitea` binary inside the container can be used for administrative tasks:
 
 ```bash
 # Create an admin user
-docker exec -u 1000 -it gitea gitea admin user create --username admin --password secret --email admin@example.com --admin
+docker exec -u 1000 -it gitea-server gitea admin user create --username admin --password secret --email admin@example.com --admin
 
 # Dump database and configuration for backup
-docker exec -u 1000 -it gitea gitea dump
+docker exec -u 1000 -it gitea-server gitea dump -c /data/gitea/conf/app.ini
 
 # List all repositories on the instance
-docker exec -u 1000 -it gitea gitea admin repo list
+docker exec -u 1000 -it gitea-server gitea admin repo list
 
 # Check server health via HTTP API
-curl -s http://localhost:3000/api/v1/version
+curl -s http://localhost:3000/api/v1/version | jq .
 ```
 
 ## API examples
 
 ### Programmatic Webhook & Issue Validation with FastMCP 3.1 (Python & Pydantic v2)
-Defining and validating Gitea webhook and issue payloads using modern FastMCP 3.1 and Pydantic v2 syntax.
+Defining and validating Gitea webhook and issue payloads using modern FastMCP 3.1 and strict Pydantic v2 syntax.
 
 ```python
 import os
@@ -205,7 +294,7 @@ from fastmcp import FastMCP
 mcp = FastMCP("Gitea-Agentic-Server", version="3.1.0")
 
 class GiteaIssueCreatePayload(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     title: str = Field(..., min_length=3, max_length=200, description="Title of the issue.")
     body: str = Field(..., min_length=5, description="Markdown body content of the issue.")
@@ -213,7 +302,7 @@ class GiteaIssueCreatePayload(BaseModel):
     labels: List[int] = Field(default_factory=list, description="List of label IDs to attach.")
 
 class GiteaWebhookPayload(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     webhook_id: int = Field(..., alias="id", description="Unique identifier of the webhook", ge=1)
     type: str = Field(..., description="Webhook payload format type (e.g. gitea, slack)")
@@ -256,15 +345,24 @@ if __name__ == "__main__":
 Trigger a local LLM to review a pull request diff programmatically.
 
 ```python
-# Simulated automated PR reviewer
+# Automated PR reviewer script
 import json
 import urllib.request
+from pydantic import BaseModel, Field, ConfigDict
+
+class CodeReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    model: str = Field(default="qwen36", description="Local LLM model name")
+    diff_text: str = Field(..., min_length=10, description="Git unified diff text")
 
 def run_local_pr_review():
     code_diff = "diff --git a/main.py b/main.py\n+print('Hello, January 2027!')"
+    review_req = CodeReviewRequest(model="qwen36", diff_text=code_diff)
+
     payload = {
-        "model": "qwen36",
-        "prompt": f"Review this Git diff and suggest improvements:\n\n{code_diff}",
+        "model": review_req.model,
+        "prompt": f"Review this Git diff and suggest improvements:\n\n{review_req.diff_text}",
         "stream": False
     }
 
@@ -276,7 +374,7 @@ def run_local_pr_review():
     )
 
     try:
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:
             res_data = json.loads(response.read().decode())
             print("Local LLM Review:\n", res_data.get("response"))
     except Exception as e:
