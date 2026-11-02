@@ -10,10 +10,13 @@ graph TD
     A[Benchmarker / Load Generator] -->|Distributes Tasks| B[Ray Cluster Master]
     B -->|Parallel Worker Actors| C1[Ray Worker Node 1]
     B -->|Parallel Worker Actors| C2[Ray Worker Node 2]
-    C1 -->|Concurrent Streaming Requests| D[Model Serving Endpoint / vLLM]
+    B -->|Parallel Worker Actors| C3[Ray Worker Node 3]
+    C1 -->|Concurrent Streaming Requests| D[Model Serving Endpoint / vLLM Cluster]
     C2 -->|Concurrent Streaming Requests| D
+    C3 -->|Concurrent Streaming Requests| D
     D -->|Stream Responses & Timings| E[TTFT & Inter-Token Latency Collector]
     E -->|Pydantic v2 Aggregation| F[SLA Compliance Analysis Report]
+    E -->|Prometheus Metrics Export| G[Grafana Telemetry Dashboard]
 ```
 
 ## What problem it solves
@@ -47,16 +50,40 @@ Raw reasoning benchmarks (e.g., Humanity's Last Exam) measure intellectual accur
 | **ITL (Inter-Token Latency)** | < 25 ms / token | 8 ms - 18 ms / token | 12 ms - 22 ms / token | > 60 ms / token (Stuttering) |
 | **Output Throughput** | > 50 tokens / sec / user | 65 - 120 tokens / sec | 45 - 85 tokens / sec | < 20 tokens / sec |
 | **Concurrency Ceiling** | 50 parallel agents | ~ 40 parallel (8x H100) | ~ 250 parallel (Quota bound) | > 5% HTTP 429 RateLimit |
+| **P99 Tail Latency** | < 850 ms | 420 ms - 780 ms | 650 ms - 1450 ms | > 2500 ms (Agent Timeout) |
+| **GPU KV Cache Utilization** | < 85% steady state | 60% - 80% (PagedAttention)| Managed Cloud Internal | > 95% (Eviction Stalls) |
 
 ## Concurrency Scaling & Load Profile Analysis
 
-| Concurrent Users | Mean TTFT (Local vLLM) | Mean TTFT (Cloud API) | Mean ITL (Local vLLM) | Token Throughput (Total) | Success Rate |
+| Concurrent Users | Mean TTFT (Local vLLM) | Mean TTFT (Cloud API) | Mean ITL (Local vLLM) | Token Throughput (Total) | Success Rate | Operational Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1 User** | 120 ms | 220 ms | 8.5 ms | 118 tok/s | 100.0% | Optimal Single-Stream |
+| **10 Users** | 165 ms | 280 ms | 11.2 ms | 890 tok/s | 100.0% | Scaled Linear Batch |
+| **25 Users** | 240 ms | 380 ms | 16.8 ms | 1,840 tok/s | 100.0% | Normal Agent Workload |
+| **50 Users** | 410 ms | 520 ms | 24.1 ms | 2,950 tok/s | 99.5% | Near Saturation Knee |
+| **100 Users** | 890 ms | 980 ms | 48.5 ms | 3,800 tok/s | 96.2% | Preemption & Retries |
+| **250 Users** | 2,450 ms | 1,850 ms | 92.4 ms | 4,200 tok/s | 88.4% | Severe Thrashing / 429 |
+
+## Agentic Workload Characterization Matrix
+
+In multi-agent architectures, query profiles differ markedly between coordinator reasoning, code generation, and fast classification tasks. LLMPerf load tests must be configured to emulate these distinct profile archetypes:
+
+| Workload Archetype | Input Tokens | Output Tokens | Stream Mode | Concurrency Profile | Target P95 TTFT | Critical Bottleneck |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Agentic Planning / COT** | 4,096 - 16,384 | 1,024 - 4,096 | Streaming SSE | 10 - 30 actors | < 600 ms | KV Cache Capacity & Memory Bandwidth |
+| **Tool Routing / JSON Dispatch** | 1,024 - 2,048 | 64 - 128 | Non-streaming | 50 - 150 actors | < 180 ms | Prefill Engine Throughput |
+| **Autonomous Coding / Refactoring**| 8,192 - 32,768 | 2,048 - 8,192 | Streaming SSE | 5 - 15 actors | < 1,200 ms | Context Attention & Chunked Prefill |
+| **Voice / Conversational Audio** | 256 - 512 | 128 - 256 | Streaming SSE | 25 - 75 actors | < 150 ms | Low Inter-Token Latency (ITL < 15ms) |
+| **Document Summarization / RAG** | 16,384 - 65,536 | 512 - 1,024 | Streaming SSE | 15 - 40 actors | < 950 ms | Memory Prefill Latency & Prompt Caching |
+
+## Benchmarking Tool Comparison Matrix
+
+| Framework | Core Engine | Primary Focus | Concurrency Scalability | Streaming Token Timers | FastMCP 3.1 Integration |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1 User** | 120 ms | 220 ms | 8.5 ms | 118 tok/s | 100.0% |
-| **10 Users** | 165 ms | 280 ms | 11.2 ms | 890 tok/s | 100.0% |
-| **25 Users** | 240 ms | 380 ms | 16.8 ms | 1,840 tok/s | 100.0% |
-| **50 Users** | 410 ms | 520 ms | 24.1 ms | 2,950 tok/s | 99.5% |
-| **100 Users** | 890 ms | 980 ms | 48.5 ms | 3,800 tok/s | 96.2% |
+| **LLMPerf** | Ray Distributed Core | High Concurrency Load Testing | Thousands of parallel actors | Sub-millisecond TTFT & ITL | Native Tool Server |
+| **Ollama Benchmark** | Go CLI Client | Local hardware throughput | Single to low concurrency | Basic token rate calculation | None |
+| **LM Evaluation Harness**| PyTorch / vLLM | Intellectual accuracy & reasoning | Batch evaluation | Offline token generation | External wrapper |
+| **Locust + Custom SSE**| Python Gevent | HTTP endpoint stress testing | Moderate concurrency | Custom manual token parser | Custom MCP bridge |
 
 ## When to use it
 - When evaluating and comparing cloud API performance under peak load.
@@ -66,6 +93,77 @@ Raw reasoning benchmarks (e.g., Humanity's Last Exam) measure intellectual accur
 ## When not to use it
 - When you only want to measure reasoning or math capability (use [Humanity's Last Exam](humanitys-last-exam.md) instead).
 - When benchmarking local model speed on a single thread/user with direct hardware access (use [Ollama Benchmark](ollama-benchmark-cli.md) instead).
+
+## Production Multi-Container Load Cluster (Docker Compose)
+
+The following `docker-compose.yml` deploys a distributed Ray benchmark generator cluster integrated with Prometheus metrics export and a LiteLLM proxy gateway:
+
+```yaml
+version: '3.8'
+
+services:
+  ray-head:
+    image: rayproject/ray:2.35.0-py310
+    container_name: ray-head
+    restart: unless-stopped
+    ports:
+      - "6379:6379"   # Redis GCS
+      - "8265:8265"   # Ray Dashboard
+      - "10001:10001" # Ray Client Server
+    environment:
+      - RAY_ENABLE_RECORD_ACTOR_TASK_LOGGING=1
+    command: >
+      ray start --head --port=6379 --dashboard-host=0.0.0.0
+      --dashboard-port=8265 --num-cpus=4 --block
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import ray; ray.init(address='auto')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  ray-worker:
+    image: rayproject/ray:2.35.0-py310
+    depends_on:
+      ray-head:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+    command: >
+      ray start --address=ray-head:6379 --num-cpus=8 --block
+    restart: unless-stopped
+
+  llmperf-collector:
+    image: python:3.11-slim
+    container_name: llmperf-collector
+    depends_on:
+      ray-head:
+        condition: service_healthy
+    volumes:
+      - ./benchmarks:/opt/llmperf/benchmarks
+      - ./results:/opt/llmperf/results
+    working_dir: /opt/llmperf
+    environment:
+      - RAY_ADDRESS=ray-head:6379
+      - OPENAI_API_BASE=http://litellm:4000/v1
+      - OPENAI_API_KEY=sk-local-benchmark-token
+    command: >
+      bash -c "pip install --no-cache-dir llmperf pydantic fastmcp requests &&
+               tail -f /dev/null"
+    restart: unless-stopped
+
+  prometheus-exporter:
+    image: prom/prometheus:v2.52.0
+    container_name: llmperf-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+networks:
+  default:
+    name: llmperf-network
+```
 
 ## Systemd Service Unit Configuration
 
@@ -158,31 +256,38 @@ python token_benchmark_ray.py \
 
 ### FastMCP 3.1 Server Tools & Workflow Integration
 
-Exposing LLMPerf load testing runs over FastMCP 3.1 Task Protocol with Pydantic v2 validation:
+Exposing LLMPerf load testing runs over FastMCP 3.1 Task Protocol with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 import json
 import asyncio
 from typing import List, Optional, Dict, Any
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field, conint, confloat, HttpUrl
+from pydantic import BaseModel, Field, conint, confloat, ConfigDict
 
 mcp = FastMCP("LLMPerf Load Orchestrator", version="3.1")
 
 class LoadTestConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_endpoint: str = Field("https://api.openai.com/v1", description="Target model URL / base API")
     model_name: str = Field(..., description="Target model string ID")
     concurrent_users: int = Field(20, ge=1, le=500, description="Parallel client actors to spin up")
     total_requests: int = Field(200, ge=10, description="Total completed requests for run")
     mean_input_tokens: int = Field(1024, ge=16, le=128000, description="Average prompt token count")
     mean_output_tokens: int = Field(256, ge=16, le=16384, description="Average completion token count")
+    timeout_seconds: float = Field(120.0, ge=5.0, le=3600.0, description="Timeout ceiling for test run")
 
 class LatencyPercentiles(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     p50: float = Field(..., description="P50 latency in seconds")
     p90: float = Field(..., description="P90 latency in seconds")
     p99: float = Field(..., description="P99 latency in seconds")
 
 class LoadTestResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_name: str
     tokens_per_sec: float
     mean_ttft_sec: float
@@ -190,10 +295,11 @@ class LoadTestResult(BaseModel):
     latency_percentiles: LatencyPercentiles
     meets_sla: bool
     error_rate: float
+    ray_actors_dispatched: int
 
 @mcp.tool()
 async def execute_load_test(config: LoadTestConfig, ctx: Context) -> str:
-    """Triggers an LLMPerf benchmark run via FastMCP 3.1."""
+    """Triggers an LLMPerf benchmark run via FastMCP 3.1 with strict Pydantic v2 schemas."""
     ctx.info(f"Triggering Ray LLMPerf load run against {config.target_endpoint} with {config.concurrent_users} users.")
 
     # Simulated load execution output
@@ -206,7 +312,8 @@ async def execute_load_test(config: LoadTestConfig, ctx: Context) -> str:
         mean_itl_sec=0.018,
         latency_percentiles=LatencyPercentiles(p50=0.35, p90=0.48, p99=0.62),
         meets_sla=True,
-        error_rate=0.00
+        error_rate=0.00,
+        ray_actors_dispatched=config.concurrent_users
     )
     return result.model_dump_json(indent=2)
 
@@ -216,24 +323,31 @@ if __name__ == "__main__":
 
 ## Python Validation Engine with Pydantic v2
 
-This script demonstrates how to parse and validate LLMPerf output logs using Pydantic v2 to programmatically enforce quality gates on model performance:
+This script demonstrates how to parse and validate LLMPerf output logs using Pydantic v2 with strict immutability to programmatically enforce quality gates on model performance:
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, conint, confloat
+from pydantic import BaseModel, Field, conint, confloat, ConfigDict
 
-# 1. Define LLMPerf output schema using Pydantic v2
+# 1. Define LLMPerf output schema using Pydantic v2 with strict forbid/frozen checks
 class LatencyPercentiles(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     p50: confloat(gt=0.0) = Field(..., alias="P50")
     p90: confloat(gt=0.0) = Field(..., alias="P90")
     p99: confloat(gt=0.0) = Field(..., alias="P99")
 
 class BenchmarkMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_name: str = Field(..., description="Canonical ID of the benchmarked model")
     concurrency: conint(gt=0) = Field(..., description="Number of parallel clients simulated")
     total_requests: int = Field(..., description="Total completed requests in this run")
+    hardware_target: str = Field(default="8x-H100-SXM5", description="Serving hardware cluster")
 
 class LLMPerfMetrics(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     metadata: BenchmarkMetadata
     mean_ttft_seconds: confloat(gt=0.0) = Field(..., description="Mean time-to-first-token in seconds")
     mean_itl_seconds: confloat(gt=0.0) = Field(..., description="Mean inter-token latency in seconds")
@@ -247,7 +361,7 @@ def evaluate_serving_sla(metrics: LLMPerfMetrics) -> bool:
     print(f"Throughput: {metrics.tokens_per_second:.2f} tok/s | Mean TTFT: {metrics.mean_ttft_seconds:.3f}s")
 
     # SLA threshold assertions:
-    # Let's say we require TTFT < 0.6 seconds and ITL < 0.05 seconds under load.
+    # Requires TTFT < 0.6 seconds, ITL < 0.05 seconds, and Error Rate < 1% under load.
     sla_ttft_ok = metrics.mean_ttft_seconds < 0.6
     sla_itl_ok = metrics.mean_itl_seconds < 0.05
     sla_errors_ok = metrics.error_rate < 0.01
@@ -266,7 +380,8 @@ if __name__ == "__main__":
         "metadata": {
             "model_name": "claude-5.6-sonnet",
             "concurrency": 25,
-            "total_requests": 200
+            "total_requests": 200,
+            "hardware_target": "AWS-Bedrock-US-East"
         },
         "mean_ttft_seconds": 0.421,
         "mean_itl_seconds": 0.032,
@@ -295,11 +410,17 @@ if __name__ == "__main__":
 | **Ray Cluster OOM (Out of Memory)** | Ray workers buffer excessive streaming response logs in memory. | Increase worker node RAM or decrease `--max-num-completed-requests`. |
 | **Unusually High TTFT Spikes** | Cold start or KV cache eviction on the target engine (e.g., vLLM). | Pre-warm model endpoints with dummy queries before starting the benchmark. |
 | **Broken SSE Stream Token Parsing** | Custom API gateway or proxy returns non-standard JSON stream lines. | Custom adapter function needed in LLMPerf client parser. |
+| **P99 Latency Divergence (>3s)** | Head-of-line blocking or token queue starvation on inference node. | Enable chunked prefill (`--enable-chunked-prefill`) in vLLM serving configuration. |
+| **Ray Actor Deadlock on Connect** | GCS Redis socket connection dropped between head and workers. | Verify firewall port 6379 connectivity and check `ray status` logs. |
+| **Incomplete JSON Chunk Streaming** | Reverse proxy buffer cuts SSE frames prematurely before delimiter. | Configure NGINX / Caddy with `proxy_buffering off;` and `proxy_cache off;`. |
+| **CUDA OOM on Target Server** | Max batch size exceeds available GPU VRAM allocation. | Lower `--max-model-len` or limit continuous batching slots in serving flags. |
 
 ## Operational Hardening & Guardrails
 - **Isolated Testing Network**: Run benchmarks from within the same VPC or K8s cluster as the serving engine to isolate network noise.
 - **Ray Actor Limits**: Set clear CPU/GPU resource bounds on Ray actor tasks to prevent starvation of the host server.
 - **Automated SLA Regression Gates**: Integrate LLMPerf validation with CI/CD pipelines to fail model deployments that exceed latency thresholds.
+- **Prometheus Metric Aggregation**: Export raw token generation timestamps directly to Prometheus counters to correlate concurrency spikes with GPU temperature and power throttling.
+- **Stateless Client Instances**: Avoid sharing client session state across parallel Ray worker instances to avoid memory leaks during multi-hour soak tests.
 
 ## Related tools / concepts
 - [Ollama Benchmark](ollama-benchmark-cli.md) — Fast local-only hardware benchmarking utility.
