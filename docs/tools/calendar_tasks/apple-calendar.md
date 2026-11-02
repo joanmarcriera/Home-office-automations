@@ -60,6 +60,31 @@ Provides a seamless, synchronized scheduling experience for users within the App
 | **FastMCP 3.1 Protocol** | Native (via Chronos/PyObjC) | Via Custom Wrapper | Web API Gateway | Native Desktop Adapter | MS Graph FastMCP Server |
 | **Cost Model** | Free (Included in OS) | $4.99/mo subscription | Free / Workspace Tier | $9.00/mo subscription | Free / Microsoft 365 |
 | **End-to-End Encryption** | Supported (iCloud ADP) | Account-dependent | TLS in transit | TLS in transit | Enterprise KMS |
+| **Local File Caching** | Native CoreData Cache | SQLite Local Storage | IndexedDB / Memory | Local SQLite Cache | SQLite / OST Store |
+| **Offline Modification** | Full Instant Local Sync | Full Local Cache | Read Only Offline | Full Local Cache | Cached Exchange Mode |
+
+## Operational SLA & Performance Benchmarking Matrix
+
+| Operation Category | Target Response Latency | Execution Context | Resource Ceiling | Target Availability SLA |
+| :--- | :--- | :--- | :--- | :--- |
+| **EventKit Query via PyObjC** | < 45 ms | Local CoreData Cache | < 40 MB RAM | 99.99% |
+| **Natural Language QuickAdd** | < 250 ms | Apple Intelligence LLM | < 150 MB RAM | 99.95% |
+| **CalDAV Background Delta Sync**| < 1,200 ms | iCloud CalDAV Daemon | Network I/O Bound | 99.90% |
+| **Bulk Event Export (ICS)** | < 600 ms (1,000 events) | System File API | < 80 MB RAM | 99.99% |
+| **Event Search Across All Calendars**| < 90 ms (3-year range) | Indexed Predicate Search| < 65 MB RAM | 99.95% |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`User refused permission`** | macOS TCC privacy restriction blocking binary | `tccutil status Calendar` | Grant permission in System Settings > Privacy & Security > Calendars |
+| **`CalDAV 401 Unauthorized`** | Expired iCloud session or missing App-Specific Password | Check CalDAV HTTP auth response | Generate new 16-character App-Specific Password on appleid.apple.com |
+| **EventKit Lock Contention** | Multiple threads accessing `EKEventStore` simultaneously | Inspect macOS CrashReporter logs | Dispatch all write operations to dedicated serial GCD queue |
+| **iCloud Sync Stalled** | macOS `caldavd` or `accountsd` daemon desynchronized | Run `log stream --predicate 'subsystem == "com.apple.calendar"'` | Restart daemon via `killall CalendarAgent` or toggle iCloud Calendar switch |
+| **Timezone Offset Distortion** | Floating event timezone created without explicit Olson ID | Inspect `.ics` payload for `TZID` parameter | Specify explicit timezone (e.g., `America/New_York` or `UTC`) on event insertion |
+| **FastMCP JSON-RPC Failure** | Payload keys violating strict Pydantic v2 validation | Inspect stderr output from FastMCP bridge | Validate input dictionaries against `AppleCalendarEventSchema` schema |
+| **Duplicate Events in External Sync**| Recurring event expansion desynchronized across CalDAV | Query events using unique `UID` property | Deduplicate events by filtering against `event.calendarItemExternalIdentifier` |
+| **Reminders Missing in Calendar**| Reminders sync detached in macOS Sonoma / Sequoia settings | Check `defaults read com.apple.iCal` | Enable "Show Reminders Calendar" checkbox in Calendar preferences |
 
 ## Strengths
 - **Native Integration**: Deeply embedded in Apple's operating systems (widgets, lock screen, Focus modes).
@@ -138,6 +163,129 @@ icalBuddy -includeCals "Work" eventsFrom:(current date) to:((current date) + 7*8
 icalBuddy -ea -nc -b "" -ps "/|/" eventsToday
 ```
 
+## Production launchd Agent Configuration (`com.applecalendar.mcp.plist`)
+
+On macOS workstations operating as local agent servers, schedule the FastMCP EventKit bridge daemon using native `launchd`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.applecalendar.mcp</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/python3</string>
+        <string>/opt/apple-calendar-mcp/server.py</string>
+        <string>--port</string>
+        <string>8095</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/var/log/apple_calendar_mcp.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/apple_calendar_mcp_err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+        <key>FAST_MCP_VERSION</key>
+        <string>3.1.0</string>
+    </dict>
+</dict>
+</plist>
+```
+
+Load and start the launchd daemon:
+```bash
+launchctl load ~/Library/LaunchAgents/com.applecalendar.mcp.plist
+launchctl start com.applecalendar.mcp
+```
+
+## Production Linux systemd Service Unit (`apple-caldav-bridge.service`)
+
+For Linux bridge servers connecting to Apple iCloud CalDAV endpoints:
+
+```ini
+[Unit]
+Description=Apple iCloud CalDAV FastMCP 3.1 Bridge Daemon
+Documentation=https://github.com/democratize-technology/chronos-mcp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=caldavbridge
+Group=caldavbridge
+WorkingDirectory=/opt/apple-caldav-bridge
+ExecStart=/opt/apple-caldav-bridge/venv/bin/python3 /opt/apple-caldav-bridge/server.py --port 8097
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=FAST_MCP_VERSION=3.1.0
+Environment=CALDAV_URL=https://caldav.icloud.com
+EnvironmentFile=/etc/default/apple-caldav-bridge
+
+# Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Docker Compose CalDAV Bridge Topology (`docker-compose.yml`)
+
+For Linux environments and headless container stacks interfacing with iCloud / CalDAV calendars, deploy the following containerized bridge stack:
+
+```yaml
+version: "3.8"
+
+services:
+  caldav-mcp-gateway:
+    build:
+      context: ./caldav-mcp
+      dockerfile: Dockerfile
+    container_name: caldav_mcp_gateway
+    restart: unless-stopped
+    environment:
+      - CALDAV_URL=https://caldav.icloud.com
+      - CALDAV_USER=${ICLOUD_APPLE_ID}
+      - CALDAV_PASS=${ICLOUD_APP_SPECIFIC_PW}
+      - REDIS_CACHE_URL=redis://caldav-cache:6379/0
+      - MCP_PORT=8096
+      - FAST_MCP_VERSION=3.1.0
+    ports:
+      - "8096:8096"
+    depends_on:
+      - caldav-cache
+    networks:
+      - caldav-net
+
+  caldav-cache:
+    image: redis:7.4-alpine
+    container_name: caldav_cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "SecureCalDAVSecret2027"
+    volumes:
+      - caldav_data:/data
+    networks:
+      - caldav-net
+
+networks:
+  caldav-net:
+    driver: bridge
+
+volumes:
+  caldav_data:
+```
+
 ## API examples
 
 ### EventKit Schema & Validation Model (Python via PyObjC + Pydantic v2)
@@ -147,7 +295,7 @@ This pattern is used by local agents like [Claude Code](../development_ops/claud
 import datetime
 from enum import Enum
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class EventRecurrenceRule(str, Enum):
     DAILY = "daily"
@@ -158,6 +306,8 @@ class EventRecurrenceRule(str, Enum):
 
 class AppleCalendarEventSchema(BaseModel):
     """Schema representing validated configuration for an EventKit/iCloud calendar event."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     summary: str = Field(..., min_length=3, max_length=255, description="Event title or summary.")
     calendar_name: str = Field(default="Calendar", description="Target calendar name.")
     start_time: datetime.datetime = Field(..., description="Event start date and time with UTC timezone.")
@@ -175,6 +325,7 @@ class AppleCalendarEventSchema(BaseModel):
         return v
 
 class EventKitSyncResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     status: str
     event_id: str
     summary: str
@@ -220,16 +371,18 @@ if __name__ == "__main__":
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import datetime
 
 mcp = FastMCP("Apple Calendar EventKit Server", version="3.1.0")
 
 class QuickAddInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     natural_language_prompt: str = Field(..., description="Raw text describing the event (e.g. 'Coffee with Alex tomorrow at 3pm')")
     calendar_name: str = Field(default="Personal", description="Target calendar")
 
 class QuickAddResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     success: bool
     parsed_summary: str
     parsed_time: str

@@ -53,13 +53,54 @@ It bridges the gap between digital autonomous scheduling and human physical real
 
 ## Calendar Engine Comparison Matrix
 
-| Capability | Google Calendar | Nextcloud Calendar | Vikunja | Radicale |
+| Capability | Google Calendar | Nextcloud Calendar | Vikunja | Radicale | Apple Calendar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Public SaaS Cloud | Self-Hosted | Self-Hosted | Self-Hosted | Client / iCloud Cloud |
+| **Protocol Support** | Google REST API v3 / FastMCP 3.1 | CalDAV / WebDAV / OIDC | REST API / CalDAV | CalDAV / CardDAV | EventKit / CalDAV |
+| **Multi-Agent Sync** | FastMCP 3.1 Task Protocol | CalDAV Polling / Webhooks | Native Kanban / Tasks | File-based sync | Native EventKit FastMCP |
+| **Offline Operations** | Mobile cache only | Full local storage | Full local storage | Full local storage | Full local storage |
+| **Ecosystem Depth** | High (Android/iOS/Gmail) | High (Nextcloud Hub) | Medium (Task-focused) | Minimal (Lightweight) | High (Apple Hardware) |
+| **Free/Busy Resolution**| Native `freeBusy.query` API | CalDAV FreeBusy Report | Task Due-Date Query | Basic VFREEBUSY parser | EventKit Predicate Query |
+
+## Operational SLA & Performance Benchmarking Matrix
+
+| Operation Category | Target P95 Latency | API Quota Consumption | In-Memory Cache Strategy | Target Availability SLA |
 | :--- | :--- | :--- | :--- | :--- |
-| **Deployment Model** | Public SaaS Cloud | Self-Hosted | Self-Hosted | Self-Hosted |
-| **Protocol Support** | Google REST API v3 / FastMCP 3.1 | CalDAV / WebDAV / OIDC | REST API / CalDAV | CalDAV / CardDAV |
-| **Multi-Agent Sync** | FastMCP 3.1 Task Protocol | CalDAV Polling / Webhooks | Native Kanban / Tasks | File-based sync |
-| **Offline Operations** | Mobile cache only | Full local storage | Full local storage | Full local storage |
-| **Ecosystem Depth** | High (Android/iOS/Gmail) | High (Nextcloud Hub) | Medium (Task-focused) | Minimal (Lightweight) |
+| **Event Insertion (`events.insert`)** | < 420 ms | 1 write credit | Invalidate day-view cache | 99.99% |
+| **FreeBusy Batch Query (`freeBusy.query`)**| < 650 ms | 1 read credit | Redis Cache (3 min TTL) | 99.95% |
+| **Incremental Sync (`syncToken` polling)**| < 280 ms | 1 sync credit | Retain client sync token | 99.99% |
+| **Push Webhook Receipt & Processing** | < 180 ms | Zero API credits | Async Redis job push | 99.95% |
+| **Recurring Event Series Expansion** | < 850 ms | 1 read credit per batch | Expand on demand | 99.90% |
+| **Batch Event Retrieval (`batch.execute`)**| < 720 ms | 1 credit per batched call| Ephemeral RAM cache | 99.95% |
+
+## Multi-Calendar Conflict Resolution Lifecycle
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous FastMCP 3.1 Agent
+    participant Gateway as FastMCP GCal Gateway
+    participant Cache as Redis Availability Cache
+    participant Google as Google Calendar API v3
+    participant Slack as Notification Surface
+
+    Agent->>Gateway: Request Slot Reservation (duration=60m, priority=HIGH)
+    Gateway->>Cache: Check Cached Free/Busy Slots
+    Cache-->>Gateway: Return Known Conflicts
+    Gateway->>Google: Query freeBusy.query (Work, Family, On-Call)
+    Google-->>Gateway: Return Busy Intervals
+    Gateway->>Gateway: Compute Intersection & Detect Overlaps
+    alt No Conflicts Found
+        Gateway->>Google: events().insert(sendUpdates="all")
+        Google-->>Gateway: Return Created Event Payload
+        Gateway-->>Agent: Confirm Event Scheduled
+    else Conflict with Lower Priority Event
+        Gateway->>Google: events().patch(reschedule lower priority)
+        Gateway->>Google: events().insert(high priority event)
+        Gateway->>Slack: Notify Human of Rescheduled Conflict
+        Gateway-->>Agent: Confirm Event Placed with Preemption
+    end
+```
 
 ## When to use it
 - When you require seamless cross-platform syncing with mobile clients.
@@ -90,6 +131,7 @@ To maintain automated background synchronization, refresh expired OAuth tokens, 
 ```ini
 [Unit]
 Description=Google Calendar OAuth Sync & Event Listener Daemon
+Documentation=https://developers.google.com/calendar/api/v3/reference
 After=network-online.target
 Wants=network-online.target
 
@@ -102,6 +144,8 @@ ExecStart=/usr/bin/python3 -m gcal_sync.daemon --config /etc/gcal_sync/config.js
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=15s
+Environment=PYTHONUNBUFFERED=1
+Environment=FAST_MCP_VERSION=3.1.0
 
 # Security hardening directives
 ProtectSystem=full
@@ -114,6 +158,66 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Production Docker Compose FastMCP Gateway Stack (`docker-compose.yml`)
+
+The following Docker Compose architecture deploys an enterprise-grade Google Calendar FastMCP 3.1 gateway with automated OAuth token rotation, a Redis cache, and a webhook ingress receiver:
+
+```yaml
+version: "3.8"
+
+services:
+  gcal-fastmcp-gateway:
+    build:
+      context: ./gcal-mcp
+      dockerfile: Dockerfile
+    container_name: gcal_fastmcp_gateway
+    restart: unless-stopped
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/credentials.json
+      - REDIS_CACHE_URL=redis://gcal-cache:6379/0
+      - MCP_PORT=8098
+      - FAST_MCP_VERSION=3.1.0
+    ports:
+      - "8098:8098"
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on:
+      - gcal-cache
+    networks:
+      - gcal-net
+
+  gcal-cache:
+    image: redis:7.4-alpine
+    container_name: gcal_cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "SecureGoogleCalendarToken2027"
+    volumes:
+      - gcal_cache_data:/data
+    networks:
+      - gcal-net
+
+  gcal-webhook-worker:
+    build:
+      context: ./webhook-handler
+      dockerfile: Dockerfile
+    container_name: gcal_webhook_worker
+    restart: unless-stopped
+    environment:
+      - REDIS_URL=redis://:SecureGoogleCalendarToken2027@gcal-cache:6379/0
+      - WEBHOOK_PORT=8099
+    ports:
+      - "8099:8099"
+    networks:
+      - gcal-net
+
+networks:
+  gcal-net:
+    driver: bridge
+
+volumes:
+  gcal_cache_data:
+```
+
 ## Production Diagnostic & Troubleshooting Matrix
 
 | Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
@@ -123,6 +227,11 @@ WantedBy=multi-user.target
 | `409 Resource Conflict` | Simultaneous event updates on the same `eventId` without matching `etag` | `python3 -m gcal_sync.check_etag --event-id EVT_ID` | Retrieve latest event state via `events().get()` to extract updated `etag` before retrying `events().patch()`. |
 | `400 Invalid Time Format` | Missing ISO 8601 offset or incorrect timeZone identifier string | `python3 -m gcal_sync.validate_iso --iso STAMP` | Validate event start/end timestamps through Pydantic v2 `EventDateTime` model prior to sending request. |
 | `Push Notification Drop` | Expired Webhook channel subscription (`X-Goog-Channel-Expiration`) | `curl -i -X POST https://api.example.com/gcal-webhook/` | Implement scheduled systemd timer to renew channel watch subscriptions every 24 hours. |
+| `404 Not Found (Resource Deleted)`| Event already canceled or calendar unsubscribed | Query event status with `showDeleted=true` | Verify if event was soft-deleted and purge cached ID references in agent state. |
+| `Recurring Event Expansion Timeout`| Querying unconstrained date interval across multi-year recurring rule | Inspect request URL query parameters | Add `timeMin` and `timeMax` parameters to strictly bound recurring instances. |
+| `FastMCP JSON-RPC Validation Error`| Client payload contained forbidden extra parameters | Inspect FastMCP server debug logs | Cleanse incoming dictionary to conform with strict `CalendarEventSchema`. |
+| `SyncToken Expired (HTTP 410)` | Sync token invalidated due to extended inactivity or calendar clear | Inspect sync error status code | Clear stored `syncToken` and trigger full calendar initial crawl. |
+| `Cross-Domain Permission Blocked` | Workspace admin policy restricts sharing with external accounts | Check GCP Admin Audit Logs | Enable external Free/Busy sharing in Google Workspace Admin console. |
 
 ## CLI examples
 
@@ -146,22 +255,24 @@ This script utilizes Pydantic v2 to validate calendar event payloads before prog
 ```python
 from datetime import datetime, timezone
 from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
 # 1. Define the validated event schema using Pydantic v2
 class EventDateTime(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     date_time: datetime = Field(..., alias="dateTime")
     time_zone: str = Field(default="UTC", alias="timeZone")
 
 class CalendarEventSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     summary: str = Field(..., min_length=3, max_length=100, description="Title of the calendar event")
     description: Optional[str] = Field(None, description="Detailed notes for the meeting")
     start: EventDateTime
     end: EventDateTime
     location: Optional[str] = Field(None, description="Physical address or meeting URL")
-    attendees: Optional[List[str]] = Field(default_factory=list, description="List of participant emails")
+    attendees: List[str] = Field(default_factory=list, description="List of participant emails")
 
     @model_validator(mode="after")
     def validate_time_order(self) -> "CalendarEventSchema":
@@ -240,37 +351,44 @@ Using FastMCP 3.1 to expose Google Calendar operations directly to autonomous ag
 ```python
 from fastmcp import FastMCP, Context
 from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
 
-mcp = FastMCP("Google-Calendar-FastMCP-Server")
+mcp = FastMCP("Google-Calendar-FastMCP-Server", version="3.1.0")
+
+class TimeBlockRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    task_id: str = Field(..., description="Unique task identifier")
+    summary: str = Field(..., min_length=2, max_length=120, description="Meeting title")
+    start_iso: str = Field(..., description="Start ISO 8601 timestamp")
+    end_iso: str = Field(..., description="End ISO 8601 timestamp")
+
+class TimeBlockResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    task_id: str
+    status: str
+    calendar_provider: str
+    start_time: str
+    end_time: str
 
 @mcp.tool()
-async def schedule_time_block(
-    task_id: str,
-    summary: str,
-    start_iso: str,
-    end_iso: str,
-    ctx: Context
-) -> dict:
+async def schedule_time_block(params: TimeBlockRequest, ctx: Context) -> TimeBlockResponse:
     """Schedule a dedicated deep-work time block via FastMCP 3.1 Task Protocol."""
-    ctx.info(f"Scheduling time block '{summary}' for Task {task_id}")
+    ctx.info(f"Scheduling time block '{params.summary}' for Task {params.task_id}")
 
     # Process event times
-    start_dt = datetime.fromisoformat(start_iso)
-    end_dt = datetime.fromisoformat(end_iso)
+    start_dt = datetime.fromisoformat(params.start_iso)
+    end_dt = datetime.fromisoformat(params.end_iso)
 
     if end_dt <= start_dt:
-        return {"status": "error", "message": "End time must follow start time"}
+        raise ValueError("End time must follow start time")
 
-    return {
-        "task_id": task_id,
-        "status": "scheduled",
-        "event": {
-            "summary": summary,
-            "start": start_iso,
-            "end": end_iso,
-            "provider": "Google Calendar"
-        }
-    }
+    return TimeBlockResponse(
+        task_id=params.task_id,
+        status="scheduled",
+        calendar_provider="Google Calendar",
+        start_time=params.start_iso,
+        end_time=params.end_iso
+    )
 
 if __name__ == "__main__":
     mcp.run()
