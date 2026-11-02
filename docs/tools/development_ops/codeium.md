@@ -3,37 +3,37 @@
 ## What it is
 Codeium is an enterprise-grade, high-performance, AI-native developer productivity platform providing real-time autocomplete, intelligent codebase search, and agentic chat across 70+ programming languages and all major IDEs. As of early 2027, Codeium serves as a core orchestrator of the "Agentic IDE" paradigm. It powers the inference and reasoning backend for the **Windsurf** editor and its advanced **Cascade** workflow model, featuring deep integration with frontier reasoning models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 4**, and **Qwen 3.6 VL**. It natively implements **MCP 3.1 / FastMCP 3.1** protocol schemas to hook external tools and terminal hosts directly into local workspace execution loops.
 
-## What problem it solves
-It solves the context mismatch, low accuracy, and extreme latency of traditional generalist LLMs performing software engineering tasks. Standard LLM integrations lack repository-level index awareness, operating mostly file-by-file with high cognitive load on the developer to manage context. Codeium bridges this gap by continuously indexing the workspace in the background using a highly optimized, low-latency semantic search engine. This translates passive text suggestions into active, multi-file agentic execution, allowing local agents to locate, edit, build, and verify complex applications with sub-100ms response rates.
-
-## Where it fits in the stack
-**Category**: Tool / Development & Ops / AI-assisted Coding. Codeium functions as the local or VPC-hosted "Inference, Context, and Semantic Reasoning Plane" for IDE environments such as VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf.
-
-## Architecture Diagram & Cascade Workflow
 ```
-+-----------------------------------------------------------------------------------+
-|                        Codeium & Windsurf Cascade Architecture                    |
-|                                                                                   |
-|  +-----------------------------------------------------------------------------+  |
-|  | Developer Interaction Surface (Windsurf IDE / VS Code / Neovim plugin)      |  |
-|  +-----------------------------------------------------------------------------+  |
-|                                        ||                                         |
-|                                        \/                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | Cascade Agent Engine (Context Weaver, Plan Generator, Tool Invoker)         |  |
-|  +-----------------------------------------------------------------------------+  |
-|                     ||                                    ||                      |
-|                     \/                                    \/                      |
-|  +--------------------------------------+  +-----------------------------------+  |
-|  | Exafunction Semantic Indexing Engine |  | FastMCP 3.1 External Tool Gateway |  |
-|  | (AST Parser, Vector Embeddings)      |  | (PostgreSQL, Terminal, GitHub)    |  |
-|  +--------------------------------------+  +-----------------------------------+  |
-|                                        ||                                         |
-|                                        \/                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | Reasoning Plane (Claude 5.6, GPT-5.6, DeepSeek-V4, Enterprise Air-Gapped)    |  |
-|  +-----------------------------------------------------------------------------+  |
-+-----------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------+
+|                           CODEIUM & WINDSURF CASCADE ARCHITECTURE                                 |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |             DEVELOPER INTERACTION SURFACE (Windsurf IDE / VS Code / Neovim Plugin)          |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|                                                 v  User Intent / Prompt / Interactive Edits       |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |                 CASCADE AGENT ENGINE (Multi-File Orchestration & Planning)                   |  |
+|  | - Context Weaver & Dependency Tracer        - Stepwise Plan Generation & Loop Guard         |  |
+|  | - Diff Synthesizer & Patch Verifier         - Real-Time Terminal Execution Monitor          |  |
+|  +----------------------+-----------------------------------------------+----------------------+  |
+|                         |                                               |                         |
+|                         v                                               v                         |
+|  +---------------------------------------------+ +---------------------------------------------+  |
+|  |       EXAFUNCTION SEMANTIC INDEXER          | |       FASTMCP 3.1 TOOL INTERFACE GATEWAY    |  |
+|  | (Tree-sitter AST Slicing, Low-Latency RAG)  | | (PostgreSQL, Git, Container, Custom Tools)  |  |
+|  +----------------------+----------------------+ +----------------------+----------------------+  |
+|                         |                                               |                         |
+|                         +-----------------------+-----------------------+                         |
+|                                                 |                                                 |
+|                                                 v                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |                  REASONING & INFERENCE PLANE (Self-Hosted VPC / Secure Cloud)               |  |
+|  |         (Claude 5.6 / GPT-5.6 / DeepSeek-V4 / Local Quantized Qwen 3.6 / Llama 4)           |  |
+|  +---------------------------------------------------------------------------------------------+  |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
 ```
 
 ```mermaid
@@ -57,23 +57,55 @@ sequenceDiagram
     Cascade-->>Dev: Present Final Diffs & Tests Verified
 ```
 
+## What problem it solves
+It solves the context mismatch, low accuracy, and extreme latency of traditional generalist LLMs performing software engineering tasks. Standard LLM integrations lack repository-level index awareness, operating mostly file-by-file with high cognitive load on the developer to manage context:
+- **Fragmented Workspace Awareness**: Most AI coding tools evaluate only the current active file or recent tabs, missing cross-file class hierarchies, shared type definitions, and library utility functions.
+- **High Completion Latency**: General-purpose foundation models served across public APIs often suffer 800ms–2000ms latency, making in-line keystroke autocomplete unusable.
+- **Disconnected Agent Tool Loops**: Basic chat assistants generate markdown code snippets that must be manually copied, pasted, and debugged in terminal windows.
+- **Enterprise Intellectual Property Exposure**: Public SaaS copilots risk training on proprietary source code or leaking sensitive API tokens embedded in private codebases.
+
+Codeium bridges this gap through a custom-built Exafunction semantic indexer that parses abstract syntax trees (ASTs) in the background with sub-100ms response times, coupled with the Cascade autonomous agent loop that directly compiles, tests, and verifies code edits using FastMCP 3.1 tool hooks.
+
+## Where it fits in the stack
+**Category**: Tool / Development & Ops / AI-assisted Coding. Codeium functions as the local or VPC-hosted "Inference, Context, and Semantic Reasoning Plane" for IDE environments such as VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf.
+
+```
++-----------------------------------------------------------------------+
+|                       Developer Interaction Surface                   |
+|  [Windsurf IDE / VS Code / JetBrains / Neovim Codeium Plugin]         |
++-----------------------------------+-----------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                    Cascade Autonomous Execution Plane                 |
+|  [Context Weaver] <-> [FastMCP 3.1 Tool Gateway] <-> [Exafunction RAG]|
++-----------------------------------+-----------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                     Underlying Compute & Tooling                      |
+|  [Local Language Server / AST Engine] <-> [Self-Hosted Enterprise VPC]|
++-----------------------------------------------------------------------+
+```
+
+## Comprehensive Comparison Matrix: AI Coding Assistants
+
+| Capability / Metric | Codeium (Windsurf/Cascade) | GitHub Copilot | Cursor | Sourcegraph Cody | Claude Code CLI | Continue.dev |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Windsurf Editor / Multi-IDE | VS Code / JetBrains / CLI | Custom VS Code Fork | VS Code / JetBrains | Terminal CLI | VS Code / JetBrains |
+| **Agentic Mode** | Cascade (Plan + Tool + Terminal) | Copilot Workspace / Edits | Composer / Agent Mode | Agentic Chat | CLI Loop Execution | Inline Custom Agents |
+| **Model Ecosystem** | Claude 5.6, GPT-5.6, DeepSeek | Claude 3.5, GPT-4o | Claude 3.5, GPT-4o | Claude 3.5, Gemini 1.5 | Claude 3.5 / 5.6 | Any via Ollama/LiteLLM|
+| **Protocol Standards**| FastMCP 3.1 / MCP 3.1 Native | Proprietary JSON | Native MCP Protocol | OpenCTX / Custom | FastMCP 3.1 Tools | MCP Protocol Client |
+| **Indexing Latency** | Sub-100ms Exafunction Engine | Cloud Vector Ingestion | Local SQLite / Vector | Multi-Repo Graph | Tree-sitter AST | Local Chroma/LanceDB |
+| **On-Premise / VPC** | Full Air-Gapped Enterprise VPC | Azure Enterprise Cloud | Limited Self-Serve | Enterprise On-Premise | Bring Your Own Key | Fully Local Supported |
+| **Terminal Tooling** | Direct Native Terminal Loop | Sandboxed CLI Inline | Background Terminal | Non-Interactive | Direct Shell Execution | Shell Assistant Node |
+| **Language Coverage** | 70+ Languages & Frameworks | 50+ Languages | 50+ Languages | 40+ Languages | All via AST/Shell | All via Tree-sitter |
+
 ## Typical use cases
 - **Multi-File Agentic Engineering**: Empowering the Cascade engine in Windsurf to autonomously navigate, edit, execute terminal commands, and run tests locally to solve complex issues.
 - **Enterprise Repo Onboarding**: Utilizing natural language chat to ask deep questions about large, unfamiliar codebases and trace intricate call graphs.
 - **Latency-Sensitive Autocomplete**: Serving ultra-fast, multi-line tab completions in network-constrained or terminal environments like Neovim/Emacs.
 - **VPC-Isolated Safe Coding**: Deploying completely air-gapped, self-hosted developer intelligence clusters for secure finance, healthcare, or government environments.
-
-## Comprehensive Comparison Matrix: AI Coding Assistants
-
-| Capability / Feature | Codeium (Windsurf/Cascade) | GitHub Copilot | Cursor | Aider |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Interface** | Windsurf Editor / Extensions | Extension for VS Code/JetBrains | Forked VS Code Editor | Terminal CLI |
-| **Agentic Mode** | Cascade (Multi-file & Terminal) | Copilot Workspace / Edits | Agent Mode / Composer | Git-integrated CLI Agent |
-| **Model Selection** | Claude 5.6, GPT-5.6, DeepSeek-V4 | Claude 3.5, GPT-4o | Claude 3.5, GPT-4o | Any via LiteLLM / API keys |
-| **Protocol Standards** | FastMCP 3.1 / MCP 3.1 | Proprietary Extensions | MCP Protocol Support | Direct Function Calling |
-| **Indexing Latency** | Sub-100ms Exafunction Engine | Cloud-side Vector Indexing | Local RAG / Vector DB | Tree-sitter AST Graph |
-| **Air-Gapped VPC Setup** | Supported (Enterprise Tier) | Enterprise Cloud Only | Limited Local Modes | Fully Supported (Self-Hosted) |
-| **Terminal Integration** | Deep native CLI execution | Limited inline commands | Native terminal execution | Terminal is primary UI |
 
 ## Strengths
 - **Windsurf & Cascade Agent Model**: Seamless transition from chat to fully autonomous agentic mode, carrying perfect state and context without manual file attachment.
@@ -96,6 +128,108 @@ sequenceDiagram
 - In environments where absolute data isolation is required and budgeting does not allow for a dedicated Enterprise VPC license.
 - If you rely purely on open-source, open-weight models and want to self-host the entire inference chain locally on personal GPUs.
 - For simple, isolated single-file scripts where deep codebase indexing represents unnecessary overhead.
+
+## Containerized Multi-Node Indexing Runner (Docker Compose)
+
+For enterprise self-hosted setups, deploying a local indexing and FastMCP tool runner ensures all telemetry, symbol extraction, and AST operations remain behind the corporate perimeter:
+
+```yaml
+version: "3.8"
+
+services:
+  codeium-indexer:
+    image: ghcr.io/exafunction/codeium-enterprise-indexer:2027.1
+    container_name: codeium-workspace-indexer
+    restart: unless-stopped
+    environment:
+      - WORKSPACE_ROOT=/repos
+      - INDEX_CACHE_DIR=/cache
+      - MAX_INDEXING_WORKERS=8
+      - EMBEDDING_BATCH_SIZE=64
+      - EXCLUDE_PATTERNS=**/node_modules/**,**/dist/**,**/.git/**,**/vendor/**
+    volumes:
+      - /mnt/fast/code/repositories:/repos:ro
+      - /mnt/fast/cache/codeium:/cache:rw
+    networks:
+      - dev-internal
+    security_opt:
+      - no-new-privileges:true
+
+  codeium-fastmcp-bridge:
+    image: ghcr.io/exafunction/codeium-fastmcp-bridge:3.1
+    container_name: codeium-fastmcp-bridge
+    restart: unless-stopped
+    depends_on:
+      - codeium-indexer
+    environment:
+      - INDEXER_ENDPOINT=http://codeium-indexer:8081
+      - MCP_PORT=8095
+      - AUTH_TOKEN_FILE=/run/secrets/codeium_mcp_token
+    volumes:
+      - /mnt/fast/code/repositories:/repos:rw
+    secrets:
+      - codeium_mcp_token
+    networks:
+      - dev-internal
+      - internal-management
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/healthz')"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  codeium_mcp_token:
+    file: /opt/homelab/secrets/codeium_mcp_token.txt
+
+networks:
+  dev-internal:
+    internal: true
+  internal-management:
+    external: true
+```
+
+## Systemd Headless LSP & Indexing Service
+
+On remote development workstations and continuous build nodes, the Codeium background language server can run under systemd:
+
+```ini
+[Unit]
+Description=Codeium Headless Language Server & Workspace Indexer
+Documentation=https://docs.codeium.com/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer/workspace
+Environment="PYTHONUNBUFFERED=1"
+Environment="CODEIUM_PORT=8096"
+Environment="HOME=/home/developer"
+ExecStart=/usr/local/bin/codeium_bin server --port 8096 --workspace /home/developer/workspace
+Restart=always
+RestartSec=5s
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/developer/.codeium /home/developer/workspace/.cache
+ProtectKernelTunables=true
+ProtectControlGroups=true
+PrivateTmp=true
+NoNewPrivileges=true
+LimitNOFILE=65535
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -136,65 +270,98 @@ chmod +x codeium_bin
 ```
 
 ### Pre-indexing Monorepos Headlessly
-Accelerate the onboarding time for remote developer instances by pre-indexing massive repositories before launching IDE workspaces:
+Accelerate onboarding time for remote developer instances by pre-indexing massive repositories before launching IDE workspaces:
 ```bash
 ./codeium_bin index --path /home/workspace/monorepo --exclude-git-ignored --output-dir /var/cache/codeium
 ```
 
 ## API examples
 
-### Pydantic v2 Configuration and Policy Validator
-Use the following Python script to programmatically construct, validate, and write Codeium Enterprise policy configurations. This enforces data leakage prevention rules and verified FastMCP 3.1 tool integrations prior to workspace deployment.
+### Production FastMCP 3.1 Workspace Query Server (Python + Pydantic v2)
+The following script exposes codebase semantic search, active file context resolution, and Cascade trajectory tracking via FastMCP 3.1 using strict Pydantic v2 validation:
 
 ```python
+import asyncio
+import json
+from pathlib import Path
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError, ConfigDict
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict, field_validator
 from fastmcp import FastMCP
 
-# Initialize FastMCP 3.1 server for Codeium plugin extension
-mcp = FastMCP(name="codeium-enterprise-validator", version="3.1")
+mcp = FastMCP("Codeium-Enterprise-Context-MCP", version="3.1.0")
 
-# Define modern Pydantic v2 schemas for Codeium tool integrations
-class McpServerSchema(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+class SemanticSearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    command: str = Field(..., description="The main executable command for the MCP server")
-    args: List[str] = Field(default_factory=list, description="Command line arguments for the server")
-    env: Dict[str, str] = Field(default_factory=dict, description="Custom environment variables injected into the server process")
+    query: str = Field(..., min_length=2, max_length=512, description="Natural language or symbol query")
+    repository_path: str = Field(..., description="Root path of target repository")
+    top_k: int = Field(default=5, ge=1, le=50, description="Maximum number of semantic snippets to return")
+    filter_extensions: List[str] = Field(default_factory=list, description="Target file extensions (e.g., ['.py', '.ts'])")
 
-class CodeiumPolicyConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    @field_validator("repository_path")
+    @classmethod
+    def validate_repo_path(cls, v: str) -> str:
+        p = Path(v)
+        if not p.is_dir():
+            raise ValueError(f"Repository path is not a valid directory: {v}")
+        return str(p.resolve())
 
-    enterprise_portal: HttpUrl = Field(..., description="Secure URL to the self-hosted Codeium enterprise portal")
-    enable_local_indexing: bool = Field(True, description="Enables deep repository semantic index extraction")
-    telemetry_opt_out: bool = Field(True, description="Strict opt-out for remote analytics transmission")
-    ignored_paths: List[str] = Field(
-        default_factory=lambda: ["**/secrets/**", "**/*.pem", "**/*.key", "**/node_modules/**"],
-        description="Glob patterns of directories to block from being indexed"
+class SearchMatchSnippet(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    file_path: str
+    line_start: int
+    line_end: int
+    similarity_score: float
+    snippet: str
+
+class SemanticSearchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str
+    total_matches: int
+    query: str
+    matches: List[SearchMatchSnippet]
+
+class CascadeTrajectoryLog(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    step_number: int = Field(..., ge=1)
+    tool_invoked: str = Field(..., min_length=1)
+    target_file: Optional[str] = None
+    exit_code: int = Field(default=0)
+    observation_summary: str = Field(..., max_length=1024)
+
+@mcp.tool()
+async def search_codebase_semantics(request: SemanticSearchQuery) -> SemanticSearchResult:
+    """Executes low-latency semantic codebase search across indexed workspace ASTs."""
+    # Simulated high-performance AST search response
+    sample_match = SearchMatchSnippet(
+        file_path=f"{request.repository_path}/src/auth/jwt_handler.py",
+        line_start=45,
+        line_end=82,
+        similarity_score=0.942,
+        snippet="def verify_bearer_token(auth_header: str) -> TokenPayload:\n    ..."
     )
-    mcp_servers: Dict[str, McpServerSchema] = Field(default_factory=dict, description="Authorized FastMCP 3.1 tool servers")
+    return SemanticSearchResult(
+        status="success",
+        total_matches=1,
+        query=request.query,
+        matches=[sample_match]
+    )
 
-# Validate an incoming deployment payload programmatically
-raw_payload = {
-    "enterprise_portal": "https://codeium.internal.corp",
-    "enable_local_indexing": True,
-    "telemetry_opt_out": True,
-    "mcp_servers": {
-        "local-db-executor": {
-            "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/devdb"],
-            "env": {"PGPASSWORD": "secret_password"}
-        }
+@mcp.tool()
+async def record_cascade_step(log: CascadeTrajectoryLog) -> Dict[str, str]:
+    """Records an execution step from the Cascade agent loop for auditability."""
+    return {
+        "status": "recorded",
+        "step": str(log.step_number),
+        "tool": log.tool_invoked,
+        "summary": log.observation_summary
     }
-}
 
-try:
-    config = CodeiumPolicyConfig(**raw_payload)
-    print("Configuration validated successfully!")
-    print(f"Enterprise Portal: {config.enterprise_portal}")
-    print(f"Configured MCP Servers: {list(config.mcp_servers.keys())}")
-except ValidationError as e:
-    print(f"Validation failed: {e.json(indent=2)}")
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Context Isolation Configuration (`.codeiumignore`)
@@ -214,14 +381,16 @@ To restrict specific credentials or directories from ever being parsed by the in
 .git/
 ```
 
-## Troubleshooting Guide
+## Diagnostic & Operational Troubleshooting Matrix
 
-| Issue / Symptom | Probable Cause | Corrective Action |
-| :--- | :--- | :--- |
-| `Indexing Process Stalled` | High CPU usage or recursive symlinks in workspace | Create a `.codeiumignore` file excluding heavy build directories like `node_modules` and `dist`. |
-| `Cascade Agent Execution Error` | FastMCP 3.1 server command failed or environment variable missing | Check MCP server logs and ensure all required credentials (e.g. `PGPASSWORD`) are exported in runtime. |
-| `Neovim Autocomplete Disconnected` | `codeium_bin` binary missing or blocked by firewall | Re-run `./codeium_bin auth` and check port connectivity to `codeium.com`. |
-| `VPC Portal Sync Fail` | SSL Certificate validation failure on private enterprise URL | Export private CA bundle or specify `CA_BUNDLE_PATH` in environment configuration. |
+| Symptom / Failure Mode | Root Cause Analysis | Diagnostic Verification Command | Remediation Action Plan |
+| :--- | :--- | :--- | :--- |
+| `Indexing Process Stalled` | Infinite symlink loop or parsing un-ignored minified JS bundles. | `top -b -n 1 \| grep codeium` | Create `.codeiumignore` excluding `node_modules`, `dist`, and binary build trees. |
+| `Cascade Agent Execution Error` | FastMCP 3.1 tool server timed out or environment credentials absent. | `docker logs codeium-fastmcp-bridge --tail 50` | Verify tool environment variables (e.g. `PGPASSWORD`) and test MCP port reachability. |
+| `Neovim Autocomplete Disconnected` | `codeium_bin` process crashed or outbound port 443 blocked. | `./codeium_bin status` | Re-run `./codeium_bin auth` and verify proxy / firewall rules to `codeium.com`. |
+| `VPC Portal Sync Fail` | Private enterprise SSL certificate validation failed. | `openssl s_client -connect codeium.internal.corp:443` | Export CA bundle into runtime environment (`export CA_BUNDLE_PATH=/etc/ssl/certs/ca-bundle.crt`). |
+| `Context Budget Overflow` | Multi-file prompt inclusion exceeded model context window. | Check Cascade token usage HUD in Windsurf | Adjust Cascade retrieval parameter `top_k` to lower snippet count; enable AST slicing. |
+| `LSP Sync Desynchronization` | High-frequency git rebase corrupted local symbol graph cache. | `rm -rf ~/.codeium/cache && ./codeium_bin status` | Wipe stale cache directory and trigger re-index via `./codeium_bin index`. |
 
 ## Related tools / concepts
 - [Windsurf](./windsurf.md) — The primary agentic IDE powered by Codeium.

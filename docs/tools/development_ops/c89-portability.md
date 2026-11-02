@@ -3,33 +3,40 @@
 ## What it is
 The C89 Portability Guide defines software engineering practices, coding standards, memory safety abstractions, and cross-compilation idioms for writing strictly conforming ANSI C (C89 / ISO C90) source code. Standardized by ANSI in 1989 and ISO in 1990, standard C89 serves as the universal baseline language standard natively supported by every C compiler, embedded RTOS toolchain, micro-controller SDK, and legacy Unix architecture ever deployed.
 
-In early 2027, within agentic software engineering pipelines and AI-assisted low-level code generation (utilizing frontier reasoning models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**), targeting strict C89 compliance guarantees maximum portability. It allows generated code, native extensions, and cryptographic or low-level primitives to compile cleanly without modification across constrained microcontrollers (AVR, PIC, ARM Cortex-M), air-gapped legacy systems, POSIX environments, and modern WebAssembly/LLVM runtimes.
-
-## What problem it solves
-Developing low-level software for heterogeneous platforms frequently fails due to compiler-specific extensions, non-portable memory alignment, endianness assumptions, mid-block variable declarations introduced in C99, and missing standard headers (`stdint.h`, `stdbool.h`). These issues cause compilation breaks or silent runtime corruption when moving code between modern x86_64/ARM64 servers and 8-bit or 32-bit embedded targets.
-
-Following strict C89 portability guidelines eliminates compiler ambiguity. By enforcing top-of-block variable declarations, explicit byte-order management, standard block comments (`/* ... */`), and portable header guards, standard C89 code builds warning-free across GCC, Clang, MSVC, and proprietary vendor toolchains without requiring modern language runtime abstractions.
-
-## Where it fits in the stack
-**Development & Ops / Low-Level Runtimes & Portability Standards** — functions as the foundational code quality, compliance, and cross-compilation standard for embedded firmware, native language extensions, system CLI utilities, and ultra-portable edge runtimes.
+In early 2027, within agentic software engineering pipelines and AI-assisted low-level code generation (utilizing frontier reasoning models such as **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra**), targeting strict C89 compliance guarantees maximum portability. It allows generated code, native extensions, and cryptographic or low-level primitives to compile cleanly without modification across constrained microcontrollers (AVR, PIC, ARM Cortex-M), air-gapped legacy systems, POSIX environments, and modern WebAssembly/LLVM runtimes.
 
 ```
-+-----------------------------------------------------------------------+
-|                 Agentic / High-Level Design Layer                     |
-|  [AI Coding Agents: Claude 5.1 / GPT-5.5] --> [C89 Source Generation]  |
-+-----------------------------------+-----------------------------------+
-                                    |
-                                    v
-+-----------------------------------------------------------------------+
-|                 C89 Portability Compliance Pipeline                   |
-|  [gcc -std=c89 -pedantic -Werror] <-> [Clang Static Analyzer / Cppcheck]
-+-----------------------------------+-----------------------------------+
-                                    |
-                                    v
-+-----------------------------------------------------------------------+
-|                     Target Execution Platforms                        |
-|  [8/16/32-bit Microcontrollers]  [Legacy Unix / POSIX]  [Wasm / LLVM] |
-+-----------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------+
+|                           C89 COMPLIANCE & CROSS-COMPILATION PIPELINE                             |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |                AGENTIC / HIGH-LEVEL DESIGN LAYER (Claude 5.6 / GPT-5.6 / DeepSeek-V4)       |  |
+|  |                 - C89 Idiom Prompting & Top-of-Block Declaration Constraints                 |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|                                                 v  Strict C89 Source Code Generation              |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |                 FASTMCP 3.1 C89 COMPILATION & STATIC AUDIT ORCHESTRATOR                     |  |
+|  | - AST Grammar Validation                    - Single-Line Comment / Mid-Block Scope Check   |  |
+|  | - Fixed-Width Type Shim Enforcement         - Memory Alignment & Endianness Audit           |  |
+|  +----------------------+-----------------------------------------------+----------------------+  |
+|                         |                                               |                         |
+|                         v                                               v                         |
+|  +---------------------------------------------+ +---------------------------------------------+  |
+|  |         MULTI-COMPILER TEST HARNESS         | |          STATIC ANALYSIS RUNTIMES           |  |
+|  |  (GCC / Clang / MSVC / TCC / SDCC Targets)  | |  (Cppcheck --std=c89 / Clang-Tidy / Infer)  |  |
+|  +----------------------+----------------------+ +----------------------+----------------------+  |
+|                         |                                               |                         |
+|                         +-----------------------+-----------------------+                         |
+|                                                 |                                                 |
+|                                                 v                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  |                         TARGET HETEROGENEOUS HARDWARE & RUNTIMES                            |  |
+|  |    [8/16-bit Microcontrollers]  [Bare-Metal ARM Cortex-M]  [POSIX/Unix]  [WASM Edge Engine] |  |
+|  +---------------------------------------------------------------------------------------------+  |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
 ```
 
 ## System architecture
@@ -38,7 +45,7 @@ The software validation and cross-compilation lifecycle for C89 portable code fo
 ```mermaid
 graph TD
     subgraph Agentic Code Generation
-        A[Architecture Spec / Prompts] --> B[AI Engineer: Claude 5.1 / GPT-5.5]
+        A[Architecture Spec / Prompts] --> B[AI Engineer: Claude 5.6 / GPT-5.6]
         B --> C[ANSI C89 Source Code]
     end
 
@@ -59,6 +66,47 @@ graph TD
         G -- Zero Violations --> K[WebAssembly Runtime: Wasm / Emscripten]
     end
 ```
+
+## What problem it solves
+Developing low-level software for heterogeneous platforms frequently fails due to compiler-specific extensions, non-portable memory alignment, endianness assumptions, mid-block variable declarations introduced in C99, and missing standard headers (`stdint.h`, `stdbool.h`):
+- **Mid-Block Declaration Breakage**: Modern C compilers allow declarations anywhere; legacy and strict embedded compilers fail immediately with syntax errors upon encountering non-block-initial declarations.
+- **Incompatible Integer Assumptions**: Assuming `sizeof(int) == 4` or `sizeof(long) == 8` causes memory truncation and buffer overflow vulnerabilities when compiled on 8-bit, 16-bit, or DSP architectures.
+- **Header Deprecation on Embedded Targets**: Bare-metal embedded toolchains frequently lack `<stdint.h>`, `<inttypes.h>`, or `<stdbool.h>`, leading to missing symbol panics.
+- **Pointer Alignment Faults**: Modern x86 processors silently tolerate unaligned memory reads; compiling the same unaligned pointer casts on ARM Cortex-M or SPARC architectures triggers hardware bus faults.
+
+Following strict C89 portability guidelines eliminates compiler ambiguity. By enforcing top-of-block variable declarations, explicit byte-order management, standard block comments (`/* ... */`), and portable header guards, standard C89 code builds warning-free across GCC, Clang, MSVC, and proprietary vendor toolchains without requiring modern language runtime abstractions.
+
+## Where it fits in the stack
+**Development & Ops / Low-Level Runtimes & Portability Standards** — functions as the foundational code quality, compliance, and cross-compilation standard for embedded firmware, native language extensions, system CLI utilities, and ultra-portable edge runtimes.
+
+```
++-----------------------------------------------------------------------+
+|                 Agentic / High-Level Design Layer                     |
+|  [AI Coding Agents: Claude 5.6 / GPT-5.6] --> [C89 Source Generation] |
++-----------------------------------+-----------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                 C89 Portability Compliance Pipeline                   |
+|  [gcc -std=c89 -pedantic -Werror] <-> [Clang Static Analyzer/Cppcheck]|
++-----------------------------------+-----------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                     Target Execution Platforms                        |
+|  [8/16/32-bit Microcontrollers]  [Legacy Unix / POSIX]  [Wasm / LLVM] |
++-----------------------------------------------------------------------+
+```
+
+## Cross-Compiler Compatibility Matrix
+
+| Compiler / Toolchain | Target Architectures | C89 Pedantic Flag | Single-Line Comments (`//`) | Variable Declaration Scope | Inline Keyword Support |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **GCC (4.x – 14.x)** | x86_64, AArch64, ARM, RISC-V | `-std=c89 -pedantic -Werror` | Rejected under `-pedantic` | Block-top only | Requires `__inline__` |
+| **Clang / LLVM** | x86_64, ARM64, WebAssembly | `-std=c89 -pedantic -Werror` | Rejected under `-pedantic` | Block-top only | Requires `__inline` |
+| **MSVC (VS 2010+)**| x86, x64, ARM64 | `/Za` or `/permissive-` | Supported as extension | Block-top only (prior to 2013) | Requires `__inline` |
+| **TinyCC (TCC)** | x86, ARM, RISC-V | `-std=c89` | Allowed by default | Permissive | Supported |
+| **SDCC (Small Device)**| 8051, Z80, STM8, PIC | `--std-c89` | Rejected | Block-top only | Not supported |
 
 ## Typical use cases
 - **Cross-Platform Native C Extensions**: Writing ultra-portable C bindings for high-level language runtimes (Python C-API, Node.js N-API, Rust FFI) that compile cleanly on Windows, Linux, macOS, and BSD.
@@ -85,6 +133,80 @@ graph TD
 ## When not to use it
 - When developing modern enterprise server applications where modern C11/C17/C23 features (such as standard threads, generic selections, atomic operations) are required.
 - When working strictly in high-level managed memory environments (Python, TypeScript, Go) where C compilation is unnecessary.
+
+## Multi-Compiler Containerized Testing Stack (Docker Compose)
+
+The following `docker-compose.yml` orchestrates automated cross-compilation testing across GCC, Clang, and embedded cross-toolchains:
+
+```yaml
+version: "3.8"
+
+services:
+  c89-test-gcc:
+    image: gcc:14.2
+    container_name: c89-builder-gcc
+    restart: "no"
+    command: make -f /workspace/Makefile CC=gcc CFLAGS="-std=c89 -pedantic -Wall -Wextra -Werror -O2"
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+
+  c89-test-clang:
+    image: silkeh/clang:18
+    container_name: c89-builder-clang
+    restart: "no"
+    command: make -f /workspace/Makefile CC=clang CFLAGS="-std=c89 -pedantic -Wall -Wextra -Werror -O2"
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+
+  c89-static-analysis:
+    image: factcat/cppcheck:2.14
+    container_name: c89-cppcheck-audit
+    restart: "no"
+    command: cppcheck --enable=all --std=c89 --error-exitcode=1 /workspace/src
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+```
+
+## Systemd Automated C89 Verification Unit
+
+For continuous integration servers and bare-metal compilation test nodes, the following systemd service runs the automated C89 compliance daemon:
+
+```ini
+[Unit]
+Description=C89 Strict Compliance Audit & Build Worker
+Documentation=file:///opt/homelab/docs/tools/development_ops/c89-portability.md
+After=network.target
+
+[Service]
+Type=simple
+User=builder
+Group=builder
+WorkingDirectory=/opt/c89-auditor
+Environment="PYTHONUNBUFFERED=1"
+Environment="AUDIT_PORT=8097"
+ExecStart=/opt/c89-auditor/venv/bin/python -m auditor.server
+Restart=always
+RestartSec=5s
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/c89-auditor/src
+ReadWritePaths=/opt/c89-auditor/build /var/log/c89-auditor
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -155,7 +277,7 @@ arm-none-eabi-gcc -std=c89 -pedantic -Wall -c src/ansigpt_core.c -o build/ansigp
 
 ## API examples
 
-### Complete Portable C89 String Processing Engine
+### Complete Portable C89 String & Memory Processing Engine
 The following fully conforming C89 code demonstrates top-of-block variable declarations, safe pointer arithmetic, and portable memory management:
 
 ```c
@@ -220,38 +342,46 @@ import re
 import sys
 from pathlib import Path
 from typing import List, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class C89Violation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     file_path: str = Field(..., description="Path to C source file")
     line_number: int = Field(..., description="Line number where violation occurred")
     violation_type: str = Field(..., description="Type of C89 violation (e.g. C99_COMMENT)")
     line_content: str = Field(..., description="Raw text of the offending line")
 
 class AuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     scanned_files: int = Field(default=0)
     violations: List[C89Violation] = Field(default_factory=list)
     is_compliant: bool = Field(default=True)
 
 def audit_c89_compliance(source_dir: str) -> AuditReport:
-    report = AuditReport()
+    violations: List[C89Violation] = []
+    scanned_count = 0
     path = Path(source_dir)
     c99_comment_regex = re.compile(r"^\s*//")
 
     for file_p in path.glob("**/*.[ch]"):
-        report.scanned_files += 1
+        scanned_count += 1
         with open(file_p, "r", encoding="utf-8", errors="ignore") as f:
             for idx, line in enumerate(f, 1):
                 if c99_comment_regex.search(line):
-                    report.violations.append(C89Violation(
+                    violations.append(C89Violation(
                         file_path=str(file_p),
                         line_number=idx,
                         violation_type="C99_SINGLE_LINE_COMMENT",
                         line_content=line.strip()
                     ))
-                    report.is_compliant = False
 
-    return report
+    return AuditReport(
+        scanned_files=scanned_count,
+        violations=violations,
+        is_compliant=len(violations) == 0
+    )
 
 if __name__ == "__main__":
     report = audit_c89_compliance("src")
@@ -262,68 +392,87 @@ if __name__ == "__main__":
 
 ## FastMCP 3.1 & Model Context Protocol Integration
 
-The following FastMCP 3.1 server exposes an automated C89 compliance checker tool directly to coding agents (**Claude 5.1**, **GPT-5.5**), enabling agentic refactoring pipelines to verify standard C89 conformance during code generation sessions:
+The following FastMCP 3.1 server exposes an automated C89 compliance checker tool directly to coding agents (**Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**), enabling agentic refactoring pipelines to verify standard C89 conformance during code generation sessions:
 
 ```python
 import subprocess
 from pathlib import Path
-from typing import List, Dict, Any
-from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from fastmcp import FastMCP
 
-mcp = FastMCP("C89PortabilityChecker")
+mcp = FastMCP("C89PortabilityChecker-MCP", version="3.1.0")
+
+class C89CheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    file_path: str = Field(..., description="Path to target C source file")
+    strict_pedantic: bool = Field(default=True, description="Enforce strict ANSI pedantic warnings as errors")
+    target_arch: Optional[str] = Field(default="native", description="Target compilation architecture")
 
 class C89CheckResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     filename: str
     passed: bool
     compiler_output: str
     error_count: int
+    protocol_version: str
 
 @mcp.tool()
-async def verify_c89_code(file_path: str, ctx: Context = None) -> C89CheckResult:
-    """
-    Compiles a C source file using strict GCC C89 flags to verify standard ANSI C compliance.
-
-    Args:
-        file_path: Relative path to the C file to verify.
-    """
-    path = Path(file_path)
+async def verify_c89_code(request: C89CheckRequest) -> C89CheckResult:
+    """Compiles a C source file using strict GCC C89 flags to verify standard ANSI C compliance."""
+    path = Path(request.file_path)
     if not path.exists():
         return C89CheckResult(
-            filename=file_path,
+            filename=request.file_path,
             passed=False,
-            compiler_output=f"File not found: {file_path}",
-            error_count=1
+            compiler_output=f"File not found: {request.file_path}",
+            error_count=1,
+            protocol_version="FastMCP 3.1"
         )
 
-    if ctx:
-        await ctx.info(f"Running GCC -std=c89 -pedantic against {file_path}")
-
-    cmd = ["gcc", "-std=c89", "-pedantic", "-Wall", "-Wextra", "-Werror", "-c", str(path), "-o", "/dev/null"]
+    cmd = ["gcc", "-std=c89"]
+    if request.strict_pedantic:
+        cmd.extend(["-pedantic", "-Wall", "-Wextra", "-Werror"])
+    cmd.extend(["-c", str(path), "-o", "/dev/null"])
 
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         passed = (proc.returncode == 0)
         output = proc.stdout + proc.stderr
         error_count = 0 if passed else output.count("error:")
 
         return C89CheckResult(
-            filename=file_path,
+            filename=request.file_path,
             passed=passed,
             compiler_output=output if output else "Compilation successful with zero errors/warnings.",
-            error_count=error_count
+            error_count=error_count,
+            protocol_version="FastMCP 3.1"
         )
     except Exception as err:
         return C89CheckResult(
-            filename=file_path,
+            filename=request.file_path,
             passed=False,
             compiler_output=str(err),
-            error_count=1
+            error_count=1,
+            protocol_version="FastMCP 3.1"
         )
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Error Message / Symptom | Root Cause Analysis | Diagnostic Verification | Remediation Action Plan |
+| :--- | :--- | :--- | :--- |
+| `error: ISO C90 forbids mixed declarations and code` | Variable declared after an executable statement in a code block. | `gcc -std=c89 -pedantic -c file.c` | Relocate all variable definitions to the very top of the enclosing `{ ... }` scope. |
+| `error: C++ style comments are not allowed in ISO C90` | Single-line comment `//` used instead of ANSI block comment `/* ... */`. | `grep -rn "^[[:space:]]*//" src/` | Convert all single-line comments to standard C-style `/* comment */` blocks. |
+| `error: unknown type name 'uint32_t'` | `<stdint.h>` included in strict C89 mode where header is unavailable. | Inspect compiler preprocessor definitions | Include `c89_portable.h` boilerplate with `typedef unsigned long c89_uint32;`. |
+| `error: 'for' loop initial declarations are only allowed in C99` | Variable declared inside loop header: `for (int i=0; ...)` | `grep -rn "for (int " src/` | Declare iterator variable at block top: `int i; for (i = 0; ...)`. |
+| Bus Fault / Unaligned Memory Access | Casting `char*` buffer directly to `long*` on ARM Cortex-M or SPARC. | Execute under QEMU or embedded emulator | Use `memcpy()` to transfer raw bytes into properly aligned local variables. |
+| `error: conflicting types for inline function` | Modern `inline` keyword unsupported in strict ANSI C89 mode. | Run build with `-pedantic` | Replace `inline` with `static __inline__` or conditional macro `#define C89_INLINE`. |
 
 ## Operational Build Integration & Playbooks
 
