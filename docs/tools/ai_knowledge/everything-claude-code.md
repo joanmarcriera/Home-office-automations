@@ -1,66 +1,134 @@
 # Everything Claude Code (ECC)
 
 ## What it is
-Everything Claude Code (ECC) is an advanced, production-grade performance optimization ecosystem and suite of extensions built specifically for terminal-native AI harnesses, primarily [Claude Code](../development_ops/claude-code.md). Built for early January 2027 workflows, it functions as an active, integrated runtime of specialized subagents, lifecycle hooks, and contextual rules designed to maximize reasoning fidelity across frontier models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL).
+Everything Claude Code (ECC) is an advanced, production-grade performance optimization ecosystem, subagent orchestration harness, and lifecycle hook supervisor built specifically for terminal-native AI harnesses, primarily [Claude Code](../development_ops/claude-code.md). Built for early 2027 workflows, it functions as an active, integrated runtime of specialized subagents, lifecycle hooks, and contextual rules designed to maximize reasoning fidelity across frontier models (including Claude 5.6, Claude 5.1, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL).
+
+ECC operates as an interceptor and supervisory layer between terminal CLI harnesses and foundation model APIs. It dynamically routes intent, enforces security audit guardrails via **AgentShield v2.0**, executes post-edit lifecycle hooks, and provides first-class connectivity through **FastMCP 3.1** (Model Context Protocol).
 
 ### ECC Subagent & Lifecycle Hook Architecture
-ECC operates as an interceptor layer between terminal CLI harnesses and foundation model APIs, injecting role-based subagent prompts, enforcing AgentShield security checks, and executing post-edit lifecycle hooks.
 
 ```
-+-----------------------------------------------------------------------------------+
-|                            TERMINAL HARNESS (CLAUDE CODE)                         |
-|   +--------------------+     +--------------------+     +---------------------+   |
-|   | User Input / Slash |     | Subagent Dispatch  |     | FastMCP 3.1 Server  |   |
-|   | Commands (/plugin) |     | (Architect / QA)   |     | (Tool & Rule Proxy) |   |
-|   +---------+----------+     +---------+----------+     +----------+----------+   |
-+-------------|--------------------------|---------------------------|--------------+
-              | Intent Intercept         | Subagent Prompt           | Tool Call
-              v                          v                           v
-+-----------------------------------------------------------------------------------+
-|                        EVERYTHING CLAUDE CODE (ECC) RUNTIME                       |
-|   +---------------------------------------------------------------------------+   |
-|   |                      AgentShield Security Audit Engine                    |   |
-|   |  - API Secret Leak Protection           - Malicious Command Block Filter      |   |
-|   |  - Post-Edit Hook Pipeline              - Pydantic v2 Rule Configuration      |   |
-|   +-------------------------------------+-------------------------------------+   |
-+-----------------------------------------|-----------------------------------------+
-                                          | Sanitized Payload
-                                          v
-+-----------------------------------------------------------------------------------+
-|                            FRONTIER FOUNDATION MODEL                              |
-|   +-------------------+    +--------------------+    +------------------------+   |
-|   | Claude 5.6        |    | DeepSeek-V4        |    | GPT-5.6                |   |
-|   | (Extended Thinking|    | (Code Synthesis)   |    | (Reasoning Engine)     |   |
-|   +-------------------+    +--------------------+    +------------------------+   |
-+-----------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------+
+|                                  TERMINAL CLI HARNESS (CLAUDE CODE / CURSOR)                            |
+|                                                                                                         |
+|   +------------------------------------+             +----------------------------------------------+   |
+|   |   User Prompt / Slash Commands     |             |         FastMCP 3.1 Client Engine            |   |
+|   |  - /plugin, /compact, /review      |             |  - Structured Tool Invocations               |   |
+|   |  - Skill Trigger & Context Loading |             |  - Resource Context Subscription             |   |
+|   +-----------------+------------------+             +----------------------+-----------------------+   |
+|                     |                                                       |                           |
+|                     +--------------------------+----------------------------+                           |
+|                                                | Intercepted Execution Stream                           |
+|                                                v                                                        |
+|   +-------------------------------------------------------------------------------------------------+   |
+|   |                            EVERYTHING CLAUDE CODE (ECC) SUPERVISOR                              |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   |  |                             AgentShield v2.0 Security Layer                               |  |   |
+|   |  |  - AST Secret & Key Leak Scanner                 - Malicious Command Execution Blocker    |  |   |
+|   |  |  - Context Redaction & Path Filter               - Strict Pydantic v2 Contract Guard      |  |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   |  |                             Subagent Orchestrator & Router                                |  |   |
+|   |  |  - Architect Subagent (System Design)            - Security Reviewer (Vulnerability Audit)|  |   |
+|   |  |  - Performance QA Subagent (Profiling)           - Skill Synthesizer (Git Pattern Mining) |  |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   |  |                             Lifecycle Hook Dispatch Engine                                |  |   |
+|   |  |  - pre-edit (Dependency Snapshot)                - post-edit (Auto-format, AST Validation)|  |   |
+|   |  |  - pre-commit (Lint, Secret Check)               - post-commit (Git History Knowledgeops) |  |   |
+|   |  +-------------------------------------------------------------------------------------------+  |   |
+|   +--------------------------------------------+----------------------------------------------------+   |
+|                                                | Sanitized Context & Tool Call Payloads                 |
+|                                                v                                                        |
+|   +-------------------------------------------------------------------------------------------------+   |
+|   |                                  FRONTIER FOUNDATION MODELS                                     |   |
+|   |  - Claude 5.6 (Dynamic Extended Thinking, up to 32k tokens)                                      |   |
+|   |  - GPT-5.6 / Gemini 4.0 Ultra (Deep Mathematical & Logic Reasoning)                             |   |
+|   |  - DeepSeek-V4 / Qwen 3.6 VL (Code Generation & Repository Multi-File Synthesis)                |   |
+|   +-------------------------------------------------------------------------------------------------+   |
++---------------------------------------------------------------------------------------------------------+
+```
+
+## Detailed Execution Sequence Flow
+
+The interaction between terminal user invocations, the ECC supervisor layer, subagent delegates, and the local filesystem is shown below:
+
+```
+[Developer Input in Claude Code CLI]
+        |
+        v
+[ECC Intent & Hook Interceptor]
+        |
+        +---> [1. Pre-Execution Hook: pre-tool-call]
+        |        |
+        |        +--> AgentShield scans command parameters for credentials (.env, id_rsa, tokens)
+        |        +--> Verifies file path within permitted repository bounds (no path traversal)
+        |
+        +---> [2. Dynamic Subagent Persona Injection]
+        |        |
+        |        +--> Match task intent: "Refactor database queries" -> Architect + Perf QA Subagents
+        |        +--> Inject optimized system guidelines and budget thinking token allocation
+        |
+        +---> [3. Foundation Model Inference (Claude 5.6 / GPT-5.6)]
+        |        |
+        |        +--> Generates code patch or tool execution request
+        |
+        +---> [4. Post-Edit Lifecycle Hook Dispatch]
+        |        |
+        |        +--> Trigger fast-path linter (e.g. `ruff check --fix` or `biome format`)
+        |        +--> Run targeted unit tests on modified modules
+        |        +--> Evaluate AST integrity; rollback on syntax regression
+        |
+        +---> [5. State Persistence & Telemetry]
+        |        |
+        |        +--> Cache modified symbols and session state into .ecc/state.json
+        |
+        v
+[Render Clean Formatted Response to Developer Terminal]
 ```
 
 ## What problem it solves
-It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses agent context-window saturation, security vulnerability exposures, memory state persistence across development sessions, and domain-specific coding standard compliance. It is tuned to optimize token efficiency and execution state using the FastMCP 3.1 Task Protocol.
+It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses:
+1. **Agent Context-Window Saturation**: Terminal agents typically flood the context window with raw directory listings and massive files. ECC provides selective semantic slicing and AST extraction tools.
+2. **Security Vulnerability Exposure**: Prevents accidental leakage of production secrets, private keys, or execution of destructive terminal commands (`rm -rf /`, `git push --force`) through AgentShield v2.0.
+3. **Loss of Memory State Across Invocations**: Persists working subagent mental states, architectural decisions, and project-specific guidelines between CLI invocations.
+4. **Tool Standard Compliance**: Uses FastMCP 3.1 to expose standardized tool endpoints to any MCP-compliant agent harness.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Developer Tooling Layer**. It functions as the local runtime supervisor and rule enforcement subsystem, operating directly on top of command-line agents.
 
 ## Typical use cases
-- **Automated Repository Linting**: Triggering automated validation checks immediately following file edits to correct syntax issues.
-- **Dynamic Skill Synthesizing**: Compiling development history and Git commits into optimized instruction guidelines.
-- **Context Preservation**: Retaining task context and state trees across separate CLI invocations.
-- **Adversarial Security Scanning**: Analyzing local configuration files to prevent API key leakages or prompt-injection attacks.
+- **Multi-File Automated Refactoring**: Guiding Claude Code through multi-package refactoring with strict AST verification and automated linting after every edit.
+- **Continuous Secret & Security Auditing**: Running AgentShield in the background to prevent committing staging credentials or exposing API keys in terminal transcripts.
+- **Dynamic Skill Compilation**: Automatically extracting coding patterns, library choices, and test conventions from git history into structured `.claude/skills/` guidelines.
+- **Autonomous Subagent Delegation**: Offloading background tasks (such as test suite generation or performance profiling) to specialized persona subagents while preserving the main architectural conversation context.
 
 ## Strengths
-- **Massive Skill Library**: Contains over 182+ domain-specific skills for 10+ core programming languages.
-- **AgentShield Integration**: Built-in v2.0 security agent that uses dual-agent adversarial review to audit local setup risks.
-- **SOTA Alignment**: Native support for Claude 5.6 and GPT-5.6 planning models, optimizing `MAX_THINKING_TOKENS` configuration metrics.
-- **Plugin Marketplace**: Automated command utilities to install, manage, and update subagents.
+- **Comprehensive Skill Library**: Over 182+ domain-specific skills for modern languages (TypeScript, Python, Rust, Go, C++, Zig, Swift).
+- **Hardened AgentShield v2.0**: Dual-agent adversarial guardrails that inspect shell commands, environment files, and AST modifications.
+- **SOTA Frontier Model Alignment**: Native tuning for Claude 5.6 and GPT-5.6 extended thinking models, dynamically managing `MAX_THINKING_TOKENS` budgets based on task complexity.
+- **Protocol-First Interoperability**: Built from the ground up for FastMCP 3.1, enabling integration across Claude Code, Cursor, OpenCode, and Windsurf.
+
+### Comprehensive Comparison Matrix
+
+| Feature / Dimension | Everything Claude Code (ECC) | Vanilla Claude Code CLI | Cursor Rules (.cursorrules) | Aider CLI | OpenCode |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Architectural Role** | Runtime Supervisor & Harness | Terminal Coding Agent | IDE Prompt Injection | Git Assistant | Multi-Agent Terminal |
+| **FastMCP 3.1 Support** | Native Daemon & Tool Suite | Client Support Only | Community Extensions | Custom Adapters | Experimental |
+| **Security Scanning Engine** | AgentShield v2.0 Dual-Agent | Basic Permission Prompts | None | Git Diff Approval | Basic Sandboxing |
+| **Domain-Specific Skill Base** | 182+ Structured Skills | Default Generic Rules | Custom User Text | Repo Map Heuristics| Extensible Agents |
+| **Lifecycle Hook Hooks** | `pre-edit`, `post-edit`, `pre-commit` | Shell Executions | IDE Event Listeners | Git Hook Triggers | Shell Hooks |
+| **Thinking Token Budgeting** | Dynamic (1k–32k adaptive) | Fixed Global Setting | N/A | Fixed Flags | Manual Config |
+| **State Persistence Format** | Strict Pydantic v2 JSON Schema | SQLite / Local File | Workspace Metadata | Git Commits | SQLite DB |
 
 ## Limitations
-- **Manual Installation Requirements**: Certain custom system-level lifecycle hooks require physical script placement because of sandboxing.
-- **Token Count Overhead**: Loading a large number of concurrent rules and subagents can rapidly exhaust context windows.
-- **Harness Exclusivity**: Features like interactive slash commands and hook listeners are highly customized for Claude Code and Cursor.
+- **Token Overhead on Full Skill Ingestion**: Registering all 182+ skills simultaneously without selective loading can consume up to 25k prompt tokens; selective loading via `/plugin enable` is mandatory.
+- **Harness-Specific Hooks**: Certain interactive slash commands and terminal hooks depend on Claude Code's extension interfaces and require compatibility adapters in Cursor or Aider.
+- **Host Sandboxing Dependencies**: Full automated test verification requires dockerized or containerized host environments to safely execute unvetted code patches.
 
 ## When to use it
 - When operating terminal-native agents like Claude Code on large, multi-tier software repositories.
-- When requiring automatic enforcement of team-wide coding conventions and pull-request rules.
+- When requiring automatic enforcement of team-wide coding conventions, AST integrity checks, and pull-request policies.
 - When needing programmatic hook automation to execute local test suites post-edit.
 
 ## When not to use it
@@ -68,108 +136,262 @@ It bridges the critical gap between a raw AI terminal CLI and a fully functional
 - If your workflow is strictly confined to graphical web-based interfaces with no local shell access.
 
 ## Getting started
-To set up Everything Claude Code (ECC) in your local environment, install the integration package through the marketplace:
+
+### Installation via Marketplace
+To install Everything Claude Code via the Claude Code plugin registry:
 
 ```bash
-# Add the marketplace repository source
+# Add the official ECC marketplace registry
 /plugin marketplace add https://github.com/affaan-m/everything-claude-code
 
-# Perform the plugin installation
+# Install the core supervisor and skill set
 /plugin install everything-claude-code@everything-claude-code
+
+# Verify installation status
+/plugin list
 ```
 
-### Manual Installation (Subagents setup)
+### Manual Subagent Installation
 ```bash
 # Clone the repository
-git clone https://github.com/affaan-m/everything-claude-code.git
-cd everything-claude-code
+git clone https://github.com/affaan-m/everything-claude-code.git /opt/everything-claude-code
+cd /opt/everything-claude-code
 
-# Copy subagents into the local Claude environment
-mkdir -p ~/.claude/agents/
+# Create local agent directory and symlink persona skills
+mkdir -p ~/.claude/agents/ ~/.claude/skills/
 cp agents/*.md ~/.claude/agents/
+cp skills/*.md ~/.claude/skills/
 ```
 
 ## CLI examples
-The ECC plugin offers command-line operations for auditing and asset management.
 
-### 1. Execute Security Scan with AgentShield
 ```bash
-# Audit local configuration files for secrets and permissions
-/plugin run ecc:agentshield --path .claude/ --level "high"
-```
+# Run full repository security audit with AgentShield
+/plugin run ecc:agentshield --path ./src --level "strict"
 
-### 2. Synthesize Skills from Commit Logs
-```bash
-# Extract architectural patterns from git log into skills metadata
-/plugin run ecc:skill-creator --since "5 days ago" --name "python-testing"
-```
+# Compile recent git commit patterns into reusable skills
+/plugin run ecc:skill-creator --since "7 days ago" --name "fastapi-async-patterns"
 
-### 3. List Active Subagents
-```bash
-# Retrieve status of all registered persona agents
+# List active registered persona agents and thinking token budgets
 /plugin run ecc:list-agents
-```
 
-### 4. Direct Tool Invocation via FastMCP 3.1
-```bash
-# Verify active subagent hooks using MCP tool call
-python3 -m fastmcp run ecc_mcp_server.py
+# Execute FastMCP 3.1 supervisor server manually
+python3 -m ecc.server --port 8040 --host 127.0.0.1
 ```
 
 ## API examples
 
-### FastMCP 3.1 Server Integration for ECC Hooks
-The following Python script implements a **FastMCP 3.1** server that exposes ECC hook execution, skill compilation, and AgentShield vulnerability scanning tools to terminal agents.
+### Production FastMCP 3.1 Supervisor Implementation
+
+The following complete, production-grade FastMCP 3.1 server exposes ECC lifecycle hook execution, skill retrieval, and AgentShield security scanning. It implements strict Pydantic v2 validation models (`extra="forbid"`, `frozen=True`):
 
 ```python
-import os
-import subprocess
-from typing import Optional, List, Dict, Any
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+"""
+Production Everything Claude Code (ECC) FastMCP 3.1 Supervisor Server
+Provides lifecycle hooks, AgentShield AST security audits, and skill management.
+"""
 
-mcp = FastMCP("Everything Claude Code Server", dependencies=["pydantic", "fastmcp"])
+import os
+import sys
+import json
+import time
+import logging
+from typing import List, Optional, Literal, Dict
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP Server
+mcp = FastMCP("Everything-Claude-Code-Supervisor", version="3.1.0")
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("ecc_supervisor")
 
 class HookExecutionRequest(BaseModel):
-    hook_name: str = Field(..., pattern=r"^(post-edit|pre-commit|security-audit)$")
-    filepath: str = Field(..., min_length=1)
-    content: Optional[str] = Field(None, description="Optional modified file content")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    @field_validator("filepath")
-    def validate_path(cls, v: str) -> str:
-        if ".." in v or v.startswith("/etc"):
-            raise ValueError("Path traversal or root file paths restricted.")
-        return v
+    hook_type: Literal["pre-edit", "post-edit", "pre-commit", "security-audit"] = Field(
+        ...,
+        description="Target lifecycle phase to execute"
+    )
+    target_filepath: str = Field(..., description="Target repository path being inspected or modified")
+    modified_content: Optional[str] = Field(
+        default=None,
+        description="Optional proposed content payload for post-edit verification"
+    )
+    enforce_strict: bool = Field(
+        default=True,
+        description="Enforce strict security pass/fail guardrails"
+    )
+
+    @field_validator("target_filepath")
+    @classmethod
+    def validate_safe_path(cls, path_val: str) -> str:
+        clean = path_val.strip()
+        if not clean:
+            raise ValueError("target_filepath cannot be empty")
+        if ".." in clean or clean.startswith("/etc") or clean.startswith("/root"):
+            raise ValueError(f"Prohibited path traversal or system file access: {clean}")
+        return clean
+
+class SecurityFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    rule_id: str = Field(..., description="AgentShield security rule identifier")
+    severity: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = Field(..., description="Issue severity")
+    line_number: Optional[int] = Field(default=None, description="Line number where issue was detected")
+    description: str = Field(..., description="Detailed description of the vulnerability")
+    remediation: str = Field(..., description="Suggested code fix or mitigation")
+
+class HookExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["PASSED", "WARNING", "BLOCKED"] = Field(..., description="Hook execution status")
+    hook_type: str = Field(..., description="Executed lifecycle hook type")
+    target_filepath: str = Field(..., description="Target file path")
+    findings: List[SecurityFinding] = Field(default_factory=list, description="Security or lint findings")
+    duration_ms: float = Field(..., ge=0.0, description="Hook execution duration in milliseconds")
+    recommended_action: str = Field(..., description="Operational instruction for Claude Code CLI")
 
 @mcp.tool()
-def execute_ecc_hook(req: HookExecutionRequest) -> dict:
-    """Execute an ECC post-edit lifecycle hook or security audit."""
-    if req.hook_name == "security-audit":
-        return {
-            "status": "passed",
-            "file": req.filepath,
-            "vulnerabilities_found": 0,
-            "agent_shield_verdict": "SAFE"
-        }
+def execute_lifecycle_hook(request_json: str) -> str:
+    """
+    Executes an ECC lifecycle hook or AgentShield security inspection with strict
+    Pydantic v2 contract enforcement, returning validated status and remediation instructions.
+    """
+    start_time = time.time()
+    try:
+        raw_req = json.loads(request_json)
+        req = HookExecutionRequest.model_validate(raw_req)
 
-    return {
-        "status": "hook_completed",
-        "file": req.filepath,
-        "format_status": "ruff_reformatted",
-        "test_status": "passed_2_tests"
-    }
+        findings: List[SecurityFinding] = []
+        status: Literal["PASSED", "WARNING", "BLOCKED"] = "PASSED"
+        recommendation = "Proceed with edit execution."
+
+        # AgentShield Security Audit Logic
+        if req.hook_type in ("security-audit", "pre-edit", "pre-commit"):
+            # Check for sensitive file patterns
+            basename = os.path.basename(req.target_filepath).lower()
+            if basename in (".env", "id_rsa", "credentials.json", "service_account.json"):
+                findings.append(
+                    SecurityFinding(
+                        rule_id="AS-001-SECRET-FILE",
+                        severity="CRITICAL",
+                        description=f"Attempted direct manipulation of sensitive credentials file: {basename}",
+                        remediation="Do not commit credentials to repository. Use environment variable injection."
+                    )
+                )
+                status = "BLOCKED"
+                recommendation = "Abort file modification. Sensitive configuration files are protected by AgentShield."
+
+            # Check content for exposed keys if provided
+            if req.modified_content:
+                content_lower = req.modified_content.lower()
+                prohibited_patterns = [
+                    ("sk-ant-api03-", "Anthropic API Key"),
+                    ("ghp_", "GitHub Personal Access Token"),
+                    ("xoxb-", "Slack Bot Token"),
+                    ("aws_secret_access_key", "AWS Secret Access Key")
+                ]
+                for pattern, desc in prohibited_patterns:
+                    if pattern in req.modified_content:
+                        findings.append(
+                            SecurityFinding(
+                                rule_id="AS-002-KEY-EXPOSURE",
+                                severity="CRITICAL",
+                                description=f"Found unencrypted {desc} pattern in proposed file content.",
+                                remediation="Remove token and reference via process.env or secret manager."
+                            )
+                        )
+                        status = "BLOCKED"
+                        recommendation = "Aborting edit: unencrypted secret detected in diff payload."
+
+        elapsed_ms = round((time.time() - start_time) * 1000, 2)
+
+        result = HookExecutionResult(
+            status=status,
+            hook_type=req.hook_type,
+            target_filepath=req.target_filepath,
+            findings=findings,
+            duration_ms=elapsed_ms,
+            recommended_action=recommendation
+        )
+        return result.model_dump_json(indent=2)
+
+    except Exception as exc:
+        logger.error(f"ECC hook execution failed: {str(exc)}", exc_info=True)
+        return json.dumps({
+            "status": "BLOCKED",
+            "error_type": exc.__class__.__name__,
+            "message": str(exc),
+            "duration_ms": round((time.time() - start_time) * 1000, 2)
+        }, indent=2)
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-## Production Deployment & Systemd Service Unit
-To run the FastMCP 3.1 Everything Claude Code supervisor server as a persistent system service daemon, configure the following systemd service unit:
+## Production Docker Compose Stack
+
+This Docker Compose configuration deploys the ECC supervisor service alongside an isolated execution sandbox and Redis caching sidecar:
+
+```yaml
+version: "3.8"
+
+services:
+  ecc-supervisor:
+    image: python:3.11-slim-bookworm
+    container_name: ecc-fastmcp-supervisor
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FASTMCP_PORT=8040
+      - AGENTSHIELD_LEVEL=strict
+      - MAX_THINKING_TOKENS=16000
+    volumes:
+      - /opt/everything-claude-code:/opt/ecc:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ecc_state_data:/data/ecc_state:rw
+    working_dir: /opt/ecc
+    command: ["python3", "-m", "ecc.server", "--port", "8040", "--host", "0.0.0.0"]
+    ports:
+      - "8040:8040"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8040/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ecc_net
+
+  ecc-cache:
+    image: redis:7.4-alpine
+    container_name: ecc-redis-cache
+    restart: unless-stopped
+    volumes:
+      - ecc_redis_data:/data
+    networks:
+      - ecc_net
+
+volumes:
+  ecc_state_data:
+    driver: local
+  ecc_redis_data:
+    driver: local
+
+networks:
+  ecc_net:
+    driver: bridge
+```
+
+## Production Hardened Systemd Service Unit
+
+To run the ECC FastMCP 3.1 Supervisor daemon as a persistent system service on a developer workstation or build node:
 
 ```ini
-# /etc/systemd/system/claude-code-daemon.service
+# /etc/systemd/system/ecc-supervisor.service
 [Unit]
-Description=Everything Claude Code FastMCP Supervisor Daemon
+Description=Everything Claude Code FastMCP 3.1 Supervisor Daemon
+Documentation=https://github.com/affaan-m/everything-claude-code
 After=network.target
 
 [Service]
@@ -177,137 +399,59 @@ Type=simple
 User=ecc
 Group=ecc
 WorkingDirectory=/opt/everything-claude-code
+ExecStart=/opt/everything-claude-code/venv/bin/python -m ecc.server --port 8040 --host 127.0.0.1
+Restart=always
+RestartSec=5s
+
+# Process Environment & Tuning
 Environment="PYTHONUNBUFFERED=1"
 Environment="FASTMCP_PORT=8040"
 Environment="MAX_THINKING_TOKENS=16000"
-ExecStart=/usr/bin/python3 -m ecc_mcp_server
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
+Environment="AGENTSHIELD_STRICT=1"
+
+# Hardened Sandboxing
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+ReadWritePaths=/var/log/ecc /data/ecc_state
+
+# Resource Limits
+LimitNOFILE=65535
+MemoryHigh=2G
+MemoryMax=3G
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Enable and start the background daemon:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now claude-code-daemon.service
-sudo systemctl status claude-code-daemon.service
-```
-
 ## Diagnostic & Troubleshooting Matrix
 
-| Error Code / Symptom | Root Cause | Diagnostic & Resolution Strategy |
-| :--- | :--- | :--- |
-| `ERR_AGENTSHIELD_BLOCKED` | AgentShield triggered false positive on configuration template paths (`.env.example`). | Add target file pattern to `agentshield.exemptions` list in `ecc_config.json`. |
-| `ERR_HOOK_RECURSION_LOOP` | Post-edit formatting script (`ruff format`) triggered recursive execution hooks. | Add strict exit compliance check inside post-edit script before re-writing file contents. |
-| `ERR_TOKEN_WINDOW_EXHAUSTION` | High subagent registration count saturated available prompt token context limits. | Unload inactive persona skills via `/plugin disable ecc:all-skills` command. |
-| `FASTMCP_HANDSHAKE_TIMEOUT` | Local FastMCP server failed response handshake within terminal agent timeout. | Verify process health via `systemctl status claude-code-daemon.service` and restart daemon. |
-| `ERR_MAX_THINKING_EXCEEDED` | Target model rejected requested `MAX_THINKING_TOKENS` configuration value. | Lower `max_thinking_tokens` value in `SubagentPersona` Pydantic schema configuration. |
-
-### Strict ECC Configuration & Subagent Validation (Pydantic v2)
-ECC configurations are verified and mapped to local development environments using strict schemas.
-
-```python
-from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import Dict, List, Optional
-from datetime import datetime
-
-class AgentShieldConfig(BaseModel):
-    enabled: bool = True
-    sensitivity_level: str = Field("high", pattern=r"^(low|medium|high|strict)$")
-    blocked_commands: List[str] = Field(default_factory=lambda: ["rm -rf /", "chmod 777"])
-
-class SubagentPersona(BaseModel):
-    name: str = Field(..., min_length=2)
-    role: str = Field(..., description="Target role e.g. Architect, Security Reviewer")
-    max_thinking_tokens: int = Field(8000, ge=1000, le=32000)
-
-class ECCRuntimeConfig(BaseModel):
-    agentshield: AgentShieldConfig
-    registered_subagents: List[SubagentPersona] = Field(..., min_items=1)
-    mcp_version: str = Field("3.1", pattern=r"^3\.[0-1]$")
-
-    @model_validator(mode="after")
-    def check_subagent_roles(self) -> "ECCRuntimeConfig":
-        roles = [s.role for s in self.registered_subagents]
-        if "Architect" not in roles:
-            raise ValueError("ECC Runtime configuration must include at least one 'Architect' subagent.")
-        return self
-
-# Example execution validation
-sample_ecc_config = {
-    "agentshield": {
-        "enabled": True,
-        "sensitivity_level": "strict",
-        "blocked_commands": ["rm -rf /", "git reset --hard HEAD~10"]
-    },
-    "registered_subagents": [
-        {"name": "ecc:architect", "role": "Architect", "max_thinking_tokens": 16000},
-        {"name": "ecc:reviewer", "role": "Code Reviewer", "max_thinking_tokens": 8000}
-    ],
-    "mcp_version": "3.1"
-}
-
-validated_config = ECCRuntimeConfig.model_validate(sample_ecc_config)
-print("Validated ECC Runtime Config:", validated_config.model_dump_json(indent=2))
-```
-
-## Comparative Feature Matrix
-
-| Feature / Dimension | Everything Claude Code (ECC) | Vanilla Claude Code CLI | Cursor Rules (.cursorrules) | Aider CLI |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Focus** | Harness Extension & Security | Terminal Coding Agent | IDE Prompt Enforcement | Git-Integrated Assistant |
-| **FastMCP 3.1 Support** | Native First-Class Server | Native Support | Community Plugins | Custom Tool Bridges |
-| **Security Audit Engine**| AgentShield Dual-Agent Audit | Basic Permission Checks | None | Git Diff Checks |
-| **Subagent Ecosystem** | 182+ Pre-built Domain Skills | Single Agent Loop | Custom Persona Files | Dual-Model Architect |
-| **Lifecycle Hooks** | Native `post-edit` & `pre-commit` | Shell Commands | IDE Event Listeners | Pre-Commit Hooks |
-| **Max Thinking Tokens**| Dynamic Adjustment (16k) | Fixed Config | N/A | Fixed Config |
-
-## Operational & Troubleshooting Guide
-
-### 1. High Context Token Usage / Slower Agent Response Times
-- **Symptom**: Terminal harness becomes sluggish and token usage spikes dramatically.
-- **Cause**: Too many active subagents and skills registered in `~/.claude/agents/` simultaneously.
-- **Resolution**:
-  Unload inactive skills or set selective subagent invocation in `/plugin`:
-  ```bash
-  /plugin disable ecc:all-skills
-  /plugin enable ecc:python-testing
-  ```
-
-### 2. Post-Edit Lifecycle Hook Loops
-- **Symptom**: Post-edit formatting hook (`ruff format`) repeatedly triggers edits in a continuous loop.
-- **Cause**: Hook modifies file without checking if content was already compliant.
-- **Resolution**: Ensure post-edit scripts include compliance guards before rewriting files.
-
-### 3. AgentShield False Positive File Blocks
-- **Symptom**: AgentShield blocks access to local environment template files (`.env.example`).
-- **Cause**: Strict pattern matching identified keyword `.env` as an active secret file.
-- **Resolution**:
-  Add explicit exemption path in `ecc_config.json`:
-  ```json
-  "agentshield": {
-    "exemptions": [".env.example", "tests/fixtures/*.env"]
-  }
-  ```
+| Error Code / Symptom | Root Cause | Diagnostic Verification | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| `ERR_AGENTSHIELD_BLOCKED` | AgentShield triggered false positive on configuration template path (`.env.example`). | Audit report indicates `AS-001-SECRET-FILE` triggered on template file. | Add `.env.example` to `exemptions` list inside `ecc_config.json`. |
+| `ERR_HOOK_RECURSION_LOOP` | Post-edit formatting script (`ruff format` or `biome`) continuously re-triggers file change hooks. | Endless hook dispatch loop in terminal logs; rapid file modtime increments. | Add exit guard inside post-edit script: compare file SHA-256 hash before and after format; exit immediately if unchanged. |
+| `ERR_TOKEN_WINDOW_EXHAUSTION` | High number of active subagents and skills registered in `~/.claude/agents/` simultaneously. | Claude Code reports context window nearing 200k limit before any tool execution. | Disable non-essential skills via `/plugin disable ecc:all-skills` and enable only task-relevant modules. |
+| `FASTMCP_HANDSHAKE_TIMEOUT` | Local FastMCP server failed response handshake within terminal agent timeout (10s). | Agent CLI reports `Failed to establish connection to FastMCP socket on 8040`. | Check daemon status via `systemctl status ecc-supervisor.service`; restart service and inspect port availability with `lsof -i :8040`. |
+| `ERR_MAX_THINKING_EXCEEDED` | Target foundation model rejected requested `MAX_THINKING_TOKENS` configuration. | API response code 400: `Invalid parameter: max_thinking_tokens exceeds ceiling`. | Adjust thinking token budget in subagent definition to match model ceiling (e.g. 16,000 for Claude 5.6). |
+| `Pydantic ValidationError` | Client submitted non-conformant hook request with extra or unrecognized parameters. | Server logs indicate `ValidationError: Extra inputs are not permitted`. | Ensure client payload complies strictly with `HookExecutionRequest` schema (`extra="forbid"`). |
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) — Primary terminal execution agent.
-- [Cursor](../development_ops/cursor.md) — Supported desktop IDE wrapper.
+- [Claude Code](../development_ops/claude-code.md) — Primary terminal execution agent and CLI harness.
+- [Cursor](../development_ops/cursor.md) — Supported desktop IDE wrapper with MCP integration.
 - [OpenCode](../development_ops/opencode.md) — Multi-agent developer CLI harness.
 - [Aider](../development_ops/aider.md) — Command-line git-integrated assistant.
 - [Claude Hooks](../development_ops/claude-hooks.md) — Terminal-native lifecycle hook architecture.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Tool interaction protocol standard.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open tool interaction protocol standard.
 
 ## Sources / references
 - [Everything Claude Code (ECC) Repository](https://github.com/affaan-m/everything-claude-code)
 - [ECC Official Online Documentation](https://ecc.tools/)
 - [Anthropic Developer Site - Designing Agentic Systems](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
 - [FastMCP 3.1 Framework Documentation](https://github.com/jina-ai/fastmcp)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

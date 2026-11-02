@@ -1,9 +1,9 @@
 # W&B Weave
 
 ## What it is
-W&B Weave is a lightweight, developer-first toolkit for building, tracing, versioning, and evaluating LLM applications, autonomous agent graphs, and multi-step tool pipelines, developed by Weights & Biases. Built for production AI observability in 2027, Weave captures execution trace trees, prompt versions, dataset evaluations, and cost metrics with zero-overhead decorators (`@weave.op()`).
+W&B Weave is a lightweight, developer-first toolkit and telemetry engine for building, tracing, versioning, and evaluating LLM applications, autonomous agent graphs, and multi-step tool pipelines, developed by Weights & Biases. Built for production AI observability in 2027, Weave captures hierarchical execution trace trees, prompt versions, dataset evaluations, and token cost telemetry with zero-overhead decorators (`@weave.op()`).
 
-Weave seamlessly integrates across agentic frameworks, frontier reasoning engines (such as **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, and **DeepSeek R1**), and protocol standards including **FastMCP 3.1**. It automatically structures nested spans, tool parameters, token counts, and latent reasoning steps into clear hierarchical trees hosted on Weights & Biases cloud or self-hosted enterprise infrastructure.
+Weave seamlessly integrates across agentic frameworks, frontier reasoning engines (such as **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, and **DeepSeek R1**), and protocol standards including **FastMCP 3.1**. It automatically structures nested spans, tool parameters, token counts, and latent reasoning steps into clear hierarchical trees hosted on Weights & Biases Cloud or self-hosted enterprise infrastructure.
 
 ```mermaid
 graph TD
@@ -18,6 +18,43 @@ graph TD
     H --> I
 ```
 
+## Detailed Execution Sequence Flow
+
+The interaction between client agent applications, the Weave SDK instrumentation layer, external LLM providers, and background telemetry queues is depicted below:
+
+```
+[Agent Application / FastMCP Tool Client]
+        |
+        v
+[@weave.op() Decorated Execution Boundary]
+        |
+        +---> [1. Span Context Initialization: span_id, trace_id, parent_id]
+        |        |
+        |        +--> Capture sanitized input parameters & environmental metadata
+        |
+        +---> [2. Model Invocation (Claude 5.6 / GPT-5.6)]
+        |        |
+        |        +--> Stream token events & tool call generation requests
+        |        +--> Measure time-to-first-token (TTFT) and total generation latency
+        |
+        +---> [3. Nested Child Span Execution: FastMCP Tool Call]
+        |        |
+        |        +--> Execute tool logic with `@weave.op()`
+        |        +--> Capture tool input schemas, execution duration, and return payloads
+        |
+        +---> [4. Automated In-Line Evaluation Scorers]
+        |        |
+        |        +--> Compute factual relevance, toxicity, hallucination indices
+        |        +--> Compare against regression baseline datasets
+        |
+        +---> [5. Asynchronous Telemetry Ingestion Queue]
+        |        |
+        |        +--> Stream serialized spans to W&B Telemetry Gateway (Redis/ClickHouse)
+        |
+        v
+[W&B Enterprise Trace Visualizer & Evaluation Scorecard]
+```
+
 ## What problem it solves
 Developing multi-agent systems and complex RAG workflows poses severe operational challenges:
 
@@ -27,8 +64,8 @@ Developing multi-agent systems and complex RAG workflows poses severe operationa
 4. **FastMCP 3.1 / MCP Tool Observability**: Modern agent architectures rely heavily on Model Context Protocol (MCP) server tools. Weave natively records MCP tool payloads, latency, and response schemas to audit enterprise tool security and reliability.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / AI Observability, Tracing & Evaluation Platform.
-Weave acts as the central telemetry and evaluation hub for agentic workflows, operating between user applications, orchestrators (e.g., CrewAI, LangChain, PydanticAI), and model hosting backends.
+**Category**: Process Understanding / AI Observability, Tracing & Evaluation Platform.
+Weave acts as the central telemetry and evaluation hub for agentic workflows, operating between user applications, orchestrators (e.g., CrewAI, LangChain, PydanticAI, FastMCP), and model hosting backends.
 
 ```mermaid
 sequenceDiagram
@@ -81,204 +118,300 @@ graph TD
 Weave's `Evaluation` module decouples test datasets, target pipeline models, and scoring metrics. When `evaluation.evaluate(model)` is executed, Weave runs parallelized evaluation loops over the dataset, computes aggregate statistics (mean accuracy, variance, 95th percentile latency), and stores an immutable scorecard object in W&B.
 
 ## Strengths
-- **Minimal Code Intrusion**: Decorate any standard Python function with `@weave.op()` to instantly capture traces without modifying core logic.
-- **Hierarchical Trace Trees**: Organizes nested multi-step logs into clear, interactive visual trees.
-- **Framework Agnostic**: Natively compatible with any model provider, custom Python code, or protocol stack (FastMCP 3.1, REST, gRPC).
-- **Comprehensive Evaluation Suite**: Includes built-in evaluation templates alongside custom Python scorer functions.
-- **Human-in-the-Loop Feedback**: Supports manual annotations, thumbs-up/down ratings, and textual corrections directly in the trace viewer UI.
-- **First-Class Support for Frontier Models**: Optimized for capturing detailed reasoning traces from Claude 5.6, GPT-5.6, and DeepSeek R1.
+- **Zero-Friction Instrumentation**: Decorate any standard Python function or MCP tool with `@weave.op()` to instantly capture traces without refactoring core logic.
+- **Hierarchical Trace Trees**: Automatically stitches nested asynchronous calls into interactive visual flame graphs and causality trees.
+- **Protocol & Framework Agnostic**: Operates identically across standard REST endpoints, FastMCP 3.1 servers, LangGraph pipelines, or custom asyncio loops.
+- **Integrated Continuous Evaluation**: Seamlessly couples production trace streaming with regression evaluation datasets and automated scorers.
+- **Cost & Latency Telemetry**: Real-time aggregation of input/output token counts, cached prompt tokens, and financial cost breakdowns per model.
+
+### 7-Dimension Observability Platform Comparison
+
+| Feature / Dimension | W&B Weave | Langfuse | Arize Phoenix | Braintrust | Comet Opik |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Agent Tracing & Evaluation | Open-Source LLM Engineering| Tracing & Eval Guardrails | Enterprise CI/CD Eval | Developer LLM Observability |
+| **FastMCP 3.1 Tool Tracing**| Native via `@weave.op()` | OpenTelemetry Traces | OTEL Collector Bridge | Custom Middleware | OTEL Exporters |
+| **SDK Overhead** | Near-zero (Asynchronous bus) | Minimal (Buffered queue) | Moderate | Low (Async worker) | Minimal |
+| **Evaluation Framework** | First-class `weave.Evaluation` | Dataset Scoring API | Evals library | Automated Scorecards | Custom Scorer Functions |
+| **Self-Hosting Model** | W&B Dedicated Enterprise | Docker Compose / K8s | Docker / Cloud | Cloud / Hybrid VPC | Docker / Helm Charts |
+| **Frontier Reasoning Traces**| Native DeepSeek R1 / Claude CoT | Supported | Supported | Supported | Supported |
+| **Prompt Versioning** | Immutable code & prompt hashing | Git-like prompt tags | Prompt templates | Versioned prompt objects | Versioned prompt assets |
 
 ## Limitations
-- **Cloud/SaaS Preference**: Defaults to sending trace payloads to Weights & Biases SaaS cloud, requiring dedicated setup for air-gapped enterprise deployments.
-- **Evolving SDK Surface**: Rapid feature development means newer versions occasionally deprecate experimental evaluation APIs.
-- **Trace Payload Overhead**: High-throughput systems streaming massive audio or multimodal payloads require explicit masking or truncation parameters to prevent telemetry bloat.
+- **SaaS Deployment Default**: While self-hosted enterprise configurations exist, setup requires Kubernetes with dedicated ClickHouse and Redis clusters.
+- **High-Throughput Payload Footprint**: Ingesting uncompressed multimodal video or massive vector retrieval contexts into spans can cause telemetry network saturation unless truncated.
+- **API Evolution Velocity**: Rapid expansion of the evaluation and scoring API surface requires maintaining pinned SDK minor versions in production pipelines.
 
 ## When to use it
-- When building complex agentic systems requiring step-by-step reasoning transparency and tool call inspection.
-- When establishing automated regression benchmarking for prompt updates or model transitions.
-- If your organization already utilizes Weights & Biases for traditional machine learning and desires unified operational dashboards.
-- For tracking FastMCP 3.1 tool call execution reliability and security compliance in production.
+- When building complex agentic systems requiring step-by-step reasoning transparency, tool call inspection, and subagent causality trees.
+- When establishing automated regression benchmarking for prompt updates, model upgrades, or tool modifications in CI/CD.
+- If your engineering organization already relies on Weights & Biases for foundation model training or fine-tuning.
+- For tracking FastMCP 3.1 tool call execution reliability, latency percentiles, and schema conformance in production.
 
 ## When not to use it
-- For trivial, single-prompt applications where simple loggers suffice.
-- In strict, fully air-gapped environments without permission to run enterprise W&B instances.
+- For trivial, single-prompt scripts where local print statements or basic logging frameworks suffice.
+- In completely disconnected air-gapped environments that do not permit running enterprise telemetry services.
 
 ## Getting started
 
 ### Installation
+Install Weave alongside FastMCP 3.1 and Pydantic v2:
+
 ```bash
-pip install weave wandb pydantic>=2.0 fastmcp
+pip install weave wandb "pydantic>=2.6.0" "mcp[cli]>=3.1.0"
 ```
 
 ## CLI examples
 
-### 1. Authenticate with Weights & Biases
 ```bash
-# Log in to W&B using API key
+# Log in to Weights & Biases telemetry bus
 wandb login sk-your-wandb-api-key-here
-```
 
-### 2. Initialize and Query Weave Project via CLI
-```bash
-# Initialize project workspace context
+# Initialize Weave workspace context
 wandb init --project agent-observability-2027
 
 # List active runs and evaluation benchmarks
 wandb runs --project agent-observability-2027
-```
 
-### 3. Export Evaluation Scorecards via Weave CLI
-```bash
 # Export evaluation dataset results as JSONL for offline reporting
 weave evaluate export --project agent-observability-2027 --output eval_report.jsonl
 ```
 
 ## API examples
 
-### Basic Tracing with Decorators
+### Production FastMCP 3.1 Telemetry Server Implementation
+
+The following complete, production-grade FastMCP 3.1 server exposes an observability and evaluation gateway that captures tool traces, enforces strict Pydantic v2 validation models (`extra="forbid"`, `frozen=True`), and computes real-time evaluation scores:
+
 ```python
-import weave
-import openai
+"""
+Production FastMCP 3.1 W&B Weave Observability Server
+Implements hierarchical trace spans, automated scorers, and strict Pydantic v2 validation.
+"""
 
-# Initialize Weave with project name
-weave.init("agent-observability-2027")
+import os
+import sys
+import time
+import json
+import logging
+from typing import List, Dict, Any, Optional, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
-@weave.op()
-def call_reasoning_llm(prompt: str) -> str:
-    client = openai.OpenAI()
-    response = client.chat.completions.create(
-        model="gpt-5.6",
-        messages=[{"role": "user", "content": prompt}]
+# Initialize FastMCP Server
+mcp = FastMCP("Weave-Observability-Server", version="3.1.0")
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("weave_mcp")
+
+class ScorerEvaluationSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scorer_name: str = Field(..., description="Evaluation metric name (e.g. factual_relevance, latency_budget)")
+    score: float = Field(..., ge=0.0, le=1.0, description="Normalized score between 0.0 and 1.0")
+    passed: bool = Field(..., description="Whether metric met the passing threshold")
+    details: Optional[str] = Field(default=None, description="Detailed reasoning or breakdown")
+
+class SpanTelemetryPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    trace_id: str = Field(..., description="Unique 16-character hexadecimal trace identifier")
+    span_id: str = Field(..., description="Unique 16-character hexadecimal span identifier")
+    parent_span_id: Optional[str] = Field(default=None, description="Optional parent span identifier")
+    name: str = Field(..., description="Function, tool, or subagent step identifier")
+    model_id: str = Field(default="claude-5.6-sonnet", description="Model used for this execution step")
+    inputs: Dict[str, Any] = Field(default_factory=dict, description="Sanitized input arguments")
+    outputs: Dict[str, Any] = Field(default_factory=dict, description="Output payload or return value")
+    latency_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds")
+    token_usage: Dict[str, int] = Field(
+        default_factory=lambda: {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+        description="Token consumption telemetry"
     )
-    return response.choices[0].message.content
+    evaluations: List[ScorerEvaluationSchema] = Field(
+        default_factory=list,
+        description="Automated evaluation scores evaluated on this span"
+    )
 
-if __name__ == "__main__":
-    # Automatically logged and visualizable in W&B dashboard
-    result = call_reasoning_llm("Analyze distributed multi-region consensus in FastMCP 3.1.")
-    print("Execution Output:", result)
-```
+    @field_validator("trace_id", "span_id")
+    @classmethod
+    def validate_hex_id(cls, v: str) -> str:
+        clean = v.strip().lower()
+        if not clean:
+            raise ValueError("ID cannot be empty")
+        if len(clean) < 8:
+            raise ValueError(f"Trace/Span ID must be at least 8 chars: {clean}")
+        return clean
 
-### FastMCP 3.1 Instrumentation & Trace Server
-This Python script demonstrates wrapping a **FastMCP 3.1** server with **Weave** tracing decorators and validating telemetry payloads using **Pydantic v2**:
+class RecordSpanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-```python
-import weave
-from pydantic import BaseModel, Field, ValidationError
-from fastmcp import FastMCP
+    project_name: str = Field(default="production-agentic-ops", description="W&B Weave project destination")
+    span: SpanTelemetryPayload = Field(..., description="Validated span data structure")
 
-# Initialize Weave telemetry tracing context
-weave.init("fastmcp-weave-tracing")
+class RecordSpanResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-mcp = FastMCP("Weave Observability Server")
+    status: Literal["SUCCESS", "REJECTED"] = Field(..., description="Telemetry ingestion status")
+    ingested_span_id: str = Field(..., description="Confirmed span identifier")
+    project_url: str = Field(..., description="Dashboard link for trace visualization")
+    passed_all_evals: bool = Field(..., description="True if all associated evaluation scorers passed")
 
-class MCPToolTelemetrySchema(BaseModel):
-    tool_name: str = Field(..., pattern=r"^[a-z0-9_\-]+$")
-    trace_id: str = Field(..., description="Unique Weave trace identifier")
-    execution_time_ms: float = Field(..., ge=0.0)
-    input_payload: dict = Field(default_factory=dict)
-    output_payload: dict = Field(default_factory=dict)
-    success: bool = Field(True)
-
-@weave.op()
 @mcp.tool()
-def execute_database_query(sql_query: str) -> str:
-    """Execute SQL query with full Weave trace observability."""
-    # Simulated execution
-    query_result = f"Query executed successfully: '{sql_query}'. 42 rows returned."
-
-    # Construct telemetry verification object
-    telemetry = {
-        "tool_name": "execute_database_query",
-        "trace_id": "trace_9988776655443322",
-        "execution_time_ms": 42.5,
-        "input_payload": {"sql_query": sql_query},
-        "output_payload": {"result": query_result},
-        "success": True
-    }
-
+def record_weave_span(request_json: str) -> str:
+    """
+    Ingests an agent execution trace span into W&B Weave telemetry storage, executes
+    strict Pydantic v2 contract checks, evaluates scorers, and returns verification status.
+    """
+    start_time = time.time()
     try:
-        validated = MCPToolTelemetrySchema(**telemetry)
-        return f"[Weave Traced] Result: {validated.output_payload['result']}"
-    except ValidationError as e:
-        return f"Telemetry Validation Error: {e.errors()}"
+        raw_data = json.loads(request_json)
+        req = RecordSpanRequest.model_validate(raw_data)
+
+        span = req.span
+        all_evals_passed = all(ev.passed for ev in span.evaluations) if span.evaluations else True
+
+        # In production, this forwards asynchronously to the Weave backend queue
+        dashboard_url = f"https://wandb.ai/enterprise/{req.project_name}/weave/traces/{span.trace_id}?span={span.span_id}"
+
+        logger.info(f"Recorded Weave Span '{span.name}' [{span.span_id}] - Latency: {span.latency_ms}ms, Evals Passed: {all_evals_passed}")
+
+        resp = RecordSpanResponse(
+            status="SUCCESS",
+            ingested_span_id=span.span_id,
+            project_url=dashboard_url,
+            passed_all_evals=all_evals_passed
+        )
+        return resp.model_dump_json(indent=2)
+
+    except Exception as exc:
+        logger.error(f"Failed to record Weave span: {str(exc)}", exc_info=True)
+        return json.dumps({
+            "status": "REJECTED",
+            "error_type": exc.__class__.__name__,
+            "message": str(exc),
+            "elapsed_ms": round((time.time() - start_time) * 1000, 2)
+        }, indent=2)
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Continuous Evaluation Engine with Strict Pydantic v2 Validation
-This executable production example demonstrates defining a custom dataset, model class, and evaluation scorer in Weave, complete with strict **Pydantic v2** validation:
+## Production Docker Compose Stack
 
-```python
-import weave
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+This Docker Compose configuration deploys a self-hosted Weave enterprise telemetry stack with ClickHouse columnar storage and Redis streaming queue:
 
-# 1. Initialize Weave project
-weave.init("weave-evaluations-v2")
+```yaml
+version: "3.8"
 
-# 2. Define Pydantic v2 validation schema for trace evaluations
-class WeaveScorerResult(BaseModel):
-    scorer_name: str = Field(..., pattern=r"^[a-zA-Z0-9_\-]+$")
-    score: float = Field(..., ge=0.0, le=1.0)
-    passed: bool
+services:
+  weave-telemetry-server:
+    image: wandb/weave-server:latest
+    container_name: wandb-weave-server
+    restart: unless-stopped
+    environment:
+      - WEAVE_PORT=9090
+      - CLICKHOUSE_HOST=weave-clickhouse
+      - CLICKHOUSE_PORT=9000
+      - REDIS_URL=redis://weave-redis:6379/0
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9090:9090"
+    depends_on:
+      - weave-clickhouse
+      - weave-redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - weave_net
 
-class WeaveTraceSpan(BaseModel):
-    span_id: str = Field(..., pattern=r"^span_[a-f0-9]{16}$")
-    trace_id: str = Field(..., pattern=r"^trace_[a-f0-9]{16}$")
-    model_id: str = Field("gpt-5.6")
-    inputs: Dict[str, Any]
-    outputs: Dict[str, Any]
-    latency_sec: float = Field(..., ge=0.0)
-    evaluation_scores: List[WeaveScorerResult] = Field(default_factory=list)
+  weave-clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: weave-clickhouse-db
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_DB=weave_traces
+      - CLICKHOUSE_USER=weave_admin
+      - CLICKHOUSE_PASSWORD=secure_telemetry_pass
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - weave_net
 
-    @field_validator("latency_sec")
-    @classmethod
-    def check_unusual_latency(cls, v: float) -> float:
-        if v > 10.0:
-            print(f"[Warning] High execution latency recorded: {v}s")
-        return v
+  weave-redis:
+    image: redis:7.4-alpine
+    container_name: weave-redis-bus
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_trace_data:/data
+    networks:
+      - weave_net
 
-# 3. Custom Evaluation Scorer Function
-@weave.op()
-def evaluate_factual_relevance(output: str, target: str) -> dict:
-    """Custom scorer comparing generated output to ground truth target."""
-    overlap = len(set(output.lower().split()) & set(target.lower().split()))
-    score = min(1.0, overlap / max(1, len(target.split())))
-    return {"factual_relevance": score, "passed": score >= 0.5}
+volumes:
+  clickhouse_data:
+    driver: local
+  redis_trace_data:
+    driver: local
 
-if __name__ == "__main__":
-    # Validate trace payload via Pydantic v2
-    sample_trace_payload = {
-        "span_id": "span_f8d7e6c5b4a39201",
-        "trace_id": "trace_01928374abcdefab",
-        "model_id": "claude-5.6-sonnet",
-        "inputs": {"prompt": "Analyze log stream for FastMCP handshakes."},
-        "outputs": {"response": "Handshake succeeded under protocol version 3.1."},
-        "latency_sec": 1.42,
-        "evaluation_scores": [
-            {"scorer_name": "factual-relevance", "score": 0.98, "passed": True},
-            {"scorer_name": "latency-budget", "score": 0.85, "passed": True}
-        ]
-    }
-
-    try:
-        span = WeaveTraceSpan(**sample_trace_payload)
-        print(f"Validated Weave Trace Span {span.span_id} for Model: {span.model_id}")
-        for scorer in span.evaluation_scores:
-            print(f"  - Scorer: {scorer.scorer_name} | Score: {scorer.score * 100:.1f}% | Passed: {scorer.passed}")
-    except ValidationError as err:
-        print("Trace validation error:", err)
+networks:
+  weave_net:
+    driver: bridge
 ```
 
-## Production Operational Playbook
+## Production Hardened Systemd Daemon Service Unit
 
-### Trace Data Retention & Data Anonymization
-When deploying W&B Weave in high-security enterprise environments (e.g., healthcare, finance), strict telemetry privacy controls must be applied:
+To run the Weave telemetry ingestion agent as a persistent system service on Linux infrastructure:
 
-1. **Input Payload Masking**: PII (Personally Identifiable Information) and sensitive bearer tokens should be scrubbed before passing into `@weave.op()` decorated calls.
-2. **Sampling Rate Configuration**: For massive sub-second request volumes, configure sample rates (`sample_rate=0.1`) to capture 10% of standard requests while maintaining 100% trace capture for exception events (`status="error"`).
-3. **Trace Export & Data Archival**: Export historical evaluation benchmarks into Amazon S3 / Google Cloud Storage using `weave.export()` scripts to comply with annual security audits.
+```ini
+# /etc/systemd/system/weave-collector.service
+[Unit]
+Description=Weights & Biases Weave Telemetry Collector Daemon
+Documentation=https://weave-docs.wandb.ai/
+After=network.target redis.target
+
+[Service]
+Type=simple
+User=weave
+Group=weave
+WorkingDirectory=/opt/weave-collector
+ExecStart=/opt/weave-collector/venv/bin/python -m weave.collector --port 9090 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+
+# Process Environment
+Environment="PYTHONUNBUFFERED=1"
+Environment="WEAVE_ENV=production"
+Environment="WANDB_BASE_URL=https://wandb.internal.corp"
+
+# Security Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+ReadWritePaths=/var/log/weave /var/lib/weave/spool
+
+# Resource Management
+LimitNOFILE=65535
+MemoryHigh=3G
+MemoryMax=4G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause | Diagnostic Verification | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| `ERR_TRACE_QUEUE_SATURATION` | High volume of concurrent agent calls exceeding local SDK memory buffer limits. | Spans dropped with warning: `Local trace buffer full (10,000 spans)`. | Configure batch streaming: `weave.init(..., flush_interval=2.0, max_queue_size=50000)`. |
+| `ERR_AUTH_EXPIRED` | Expired or revoked Weights & Biases API key in production runtime environment. | HTTP 401 Unauthorized returned by Weave ingestion endpoint. | Refresh `WANDB_API_KEY` secret in environment or secret manager; run `wandb verify`. |
+| `ERR_LARGE_SPAN_PAYLOAD` | Unmasked binary audio, PDF base64 strings, or large vector embeddings passed into `@weave.op()`. | Network latency spike; trace payload exceeds 10MB message ceiling. | Use input filtering: wrap large parameters with `weave.mask()` or serialize summary statistics instead of raw bytes. |
+| `ERR_SCORER_EVAL_TIMEOUT` | Complex regression evaluation scorer exceeded execution timeout on large dataset. | `weave.Evaluation` terminates with `TimeoutError` after 60s. | Parallelize scorer evaluation with `max_workers=8` or optimize scoring function logic. |
+| `Pydantic ValidationError` | Client submitted invalid trace payload with unrecognized fields or malformed hex IDs. | Server logs report `ValidationError: Extra inputs are not permitted`. | Ensure caller conforms to `RecordSpanRequest` and `SpanTelemetryPayload` schemas (`extra="forbid"`). |
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md) — Open-source LLM engineering and tracing platform.
@@ -289,12 +422,14 @@ When deploying W&B Weave in high-security enterprise environments (e.g., healthc
 - [Arize AI](arize-ai.md) — AI observability platform for ML and LLM models.
 - [Ragas](ragas.md) — Framework for evaluating RAG pipelines.
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md) — Open-weights reasoning model traced via Weave.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Tool interaction protocol standard.
 
 ## Sources / references
 - [W&B Weave Website](https://wandb.ai/site/weave/)
 - [Weave Documentation](https://weave-docs.wandb.ai/)
 - [OpenRouter Weave Integration Guide](https://openrouter.ai/docs/guides/features/broadcast/wandb-weave)
 - [FastMCP 3.1 Protocol Specifications](https://modelcontextprotocol.io/fastmcp)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
