@@ -150,7 +150,9 @@ curl -s "http://searxng.local:8080/search?q=FastMCP+specification&categories=fil
 
 ### Systemd Service & Timer Configuration
 
-Automating periodic health audits and upstream engine failover ensures production agent pipelines are not stalled by unresponsive external search providers:
+Automating periodic health audits and upstream engine failover ensures production agent pipelines are not stalled by unresponsive external search providers.
+
+> **Status: design sketch.** The units below start a `scripts.rotate_engines` module that does not ship in this repository; there is no engine-rotation script under `scripts/`. Treat the service and timer as a template for your own rotator.
 
 #### Service Unit: `/etc/systemd/system/searxng-rotator.service`
 ```ini

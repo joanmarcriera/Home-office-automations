@@ -1,0 +1,8 @@
+# Intentional references to scripts that do not ship in this repository.
+# Read by scripts/check_doc_script_refs.py. Format: <doc path> <ref>  # reason
+# Add an entry only when the page itself says the example is a sketch or
+# lives in the reader's own repository.
+
+# docs/services
+docs/services/inventory.md scripts.inventory_orchestrator  # systemd unit marked "design sketch" (PR #2352)
+docs/services/searXNG-automation.md scripts.rotate_engines  # rotator units marked "design sketch"
