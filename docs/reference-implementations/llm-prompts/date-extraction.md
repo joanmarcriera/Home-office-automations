@@ -60,7 +60,7 @@ Scanned paper documents, email screenshots, PDF invoices, and medical notices co
 This reference implementation sits in the **LLM Extraction & Reasoning Layer** within automated document intake pipelines:
 
 - **Ingestion Pipeline**: Follows OCR engines (such as [Paperless-ngx](../../services/paperless-ngx.md), Tesseract, or LlamaParse) and document pre-processors.
-- **Orchestration**: Direct integration with automation platforms like [n8n](../../services/n8n.md), [Node-RED](../../services/node-red.md), or custom Python [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) servers.
+- **Orchestration**: Direct integration with automation platforms like [n8n](../../services/n8n.md), Node-RED, or custom Python [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) servers.
 - **Verification UI**: Transmits ambiguous or low-confidence extractions into a [Human-In-The-Loop (HITL) UI](../hitl-ui-design.md) for user review prior to calendar commitment.
 - **Storage & Sync**: Pushes validated event objects to relational state stores like [Dolt](../../tools/intake_storage/dolt.md) or calendar backends ([CalDAV / Radicale](../../services/radicale.md), [Proton Calendar](../../tools/calendar_tasks/proton_calendar.md)).
 

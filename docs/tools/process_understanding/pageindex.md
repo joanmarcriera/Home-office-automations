@@ -65,7 +65,7 @@ PageIndex eliminates vector databases entirely for single-document and structure
 ```
 
 ## Where it fits in the stack
-**Process Understanding & Document Retrieval Layer**. PageIndex sits directly between raw ingestion engines (such as [Docling](../process_understanding/docling.md) or [Unstructured](../intake_storage/unstructured.md)) and frontier LLMs (such as [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), or [Gemini 4.0 Pro](../providers/gemini.md)). It serves as an agentic indexing proxy, exposing FastMCP 3.1 tools that allow orchestration frameworks ([LangChain](../frameworks/langchain.md), [AutoGen](../frameworks/autogen.md), [CrewAI](../agents/crewai.md)) to interact with complex documents without loading entire context windows or relying on lossy vector embeddings.
+**Process Understanding & Document Retrieval Layer**. PageIndex sits directly between raw ingestion engines (such as [Docling](../process_understanding/docling.md) or [Unstructured](../intake_storage/unstructured.md)) and frontier LLMs (such as [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), or [Gemini 4.0 Pro](../ai_knowledge/gemini.md)). It serves as an agentic indexing proxy, exposing FastMCP 3.1 tools that allow orchestration frameworks ([LangChain](../ai_knowledge/langchain.md), [AutoGen](../frameworks/autogen.md), [CrewAI](../frameworks/crewai.md)) to interact with complex documents without loading entire context windows or relying on lossy vector embeddings.
 
 ### Key Capabilities & Technical Features
 

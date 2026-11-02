@@ -156,8 +156,8 @@ print(response.json())
 - [Agentic Workflows](patterns/agentic-workflows.md) — patterns for operationalizing these repos.
 - [Claude Code](../tools/development_ops/claude-code.md) — a primary consumer of many of these tools.
 - [n8n](../services/n8n.md) — the automation engine often used to bridge these libraries.
-- [Skills Index](../../skills.md) — the functional capabilities these repos provide.
-- [Architecture Overview](../../ARCHITECTURE.md) — how these tools fit into the global stack.
+- [Skills Index](https://github.com/joanmarcriera/Home-office-automations/blob/main/skills.md) — the functional capabilities these repos provide.
+- [Architecture Overview](../architecture/infrastructure.md) — how these tools fit into the global stack.
 - [Aider](../tools/development_ops/aider.md) — terminal-based AI coding.
 - [Zed](../tools/development_ops/zed.md) — high-performance AI editor.
 - [Tabnine](../tools/development_ops/tabnine.md) — privacy-first AI completions.

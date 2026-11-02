@@ -491,14 +491,14 @@ Every page must conclude with this metadata block:
 - `Confidence`: `high`, `medium`, or `low`
 
 ## Related tools / concepts
-- [AGENTS.md](../AGENTS.md) — Agent operating rules and guidelines.
+- [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md) — Agent operating rules and guidelines.
 - [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md) — Multi-agent orchestration framework.
 - [Automated Contributions](architecture/automated_contributions.md) — Staged contribution pipeline.
 - [Jules Agent](tools/ai_knowledge/jules.md) — Primary autonomous engineering agent.
 - [Claude Code](tools/development_ops/claude-code.md) — Terminal-native developer CLI agent.
 - [FastMCP](tools/automation_orchestration/mcp.md) — FastMCP 3.1 protocol framework.
-- [Audit Docs Quality Script](../scripts/audit_docs_quality.py) — Documentation auditor script.
-- [Check Docs Contract Script](../scripts/check_docs_contract.py) — Individual file contract validator.
+- [Audit Docs Quality Script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py) — Documentation auditor script.
+- [Check Docs Contract Script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) — Individual file contract validator.
 
 ## Sources / references
 - [KnowledgeOps Standards Specification](https://github.com/joanmarcriera/homelab)

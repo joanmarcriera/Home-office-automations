@@ -251,10 +251,10 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [FastAPI](../tools/frameworks/fastapi.md): Asynchronous Python backend framework powering HITL endpoints.
-- [n8n](../../docs/services/n8n.md): Automation workflow engine routing document extractions into HITL queues.
-- [Paperless-ngx](../../docs/services/paperless-ngx.md): Primary document management system and OCR repository.
-- [Vikunja](../../docs/services/vikunja.md): Target productivity system for human-verified task creation.
-- [Home Admin UI](../../scripts/home_admin_ui.py): Primary Streamlit implementation of the HITL review interface.
+- [n8n](../services/n8n.md): Automation workflow engine routing document extractions into HITL queues.
+- [Paperless-ngx](../services/paperless-ngx.md): Primary document management system and OCR repository.
+- [Vikunja](../services/vikunja.md): Target productivity system for human-verified task creation.
+- [Home Admin UI](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/home_admin_ui.py): Primary Streamlit implementation of the HITL review interface.
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md): Standardized agent tool call interface.
 
 ## Sources / references

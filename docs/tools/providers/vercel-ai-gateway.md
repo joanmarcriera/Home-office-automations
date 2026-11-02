@@ -134,7 +134,7 @@ As a middleware/observability/security control plane it sits between application
 
 ## When not to use it
 - If your environment mandates strict 100% air-gapped, on-premise execution (refer to [LiteLLM](../../services/litellm.md)).
-- If you run purely local model workloads on private hardware without cloud provider integration (refer to [Ollama](../infrastructure/ollama.md) or [vLLM](../infrastructure/vllm.md)).
+- If you run purely local model workloads on private hardware without cloud provider integration (refer to [Ollama](../../services/ollama.md) or [vLLM](../infrastructure/vllm.md)).
 - If your organization uses an existing internal gateway infrastructure coupled with legacy API management systems like Kong or Apigee.
 - If your system requires ultra-low-latency on-premise local inference where internet edge proxies introduce unnecessary network overhead.
 - If you already rely on an existing enterprise observability and proxy stack like LangSmith or Helicone without requiring Vercel edge deployment.

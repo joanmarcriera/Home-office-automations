@@ -54,7 +54,7 @@ This document resides in the **Governance and Security Layer** of the [Home-Offi
 ## Typical use cases
 - **Privacy Auditing**: Ensuring local LLM instances (Ollama) are not leaking context across multi-user environments.
 - **Agent Sandboxing**: Configuring [Docker](../tools/infrastructure/docker.md) and [Tailscale](../services/tailscale.md) to isolate high-risk agents.
-- **Prompt Injection Defense**: Implementing "System/User" role separation and instruction delimiters in [LLM Prompts](../reference-implementations/llm-prompts/).
+- **Prompt Injection Defense**: Implementing "System/User" role separation and instruction delimiters in [LLM Prompts](../reference-implementations/index.md).
 - **Credential Rotation**: Automating the lifecycle of API keys used by agents to prevent long-term exposure.
 
 ## Strengths

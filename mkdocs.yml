@@ -882,6 +882,6 @@ nav:
           - Overview: reference-implementations/n8n/README.md
       - Paperless:
           - Tag Taxonomy: reference-implementations/paperless/tag-taxonomy.md
-  - Roadmap: ../roadmap.md
+  - Roadmap: https://github.com/joanmarcriera/Home-office-automations/blob/main/roadmap.md
   - Standards: standards.md
   - Contributing: CONTRIBUTING.md

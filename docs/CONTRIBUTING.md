@@ -81,8 +81,8 @@ We welcome contributions from both humans and AI agents:
 
 ### LLM Agent Quick Start
 Before changing files, agents must read these in order:
-1. [AGENTS.md](../AGENTS.md) — Repository operating contract, checklists, and quality bar.
-2. [skills.md](../skills.md) — Reusable task patterns for intake, docs updates, and branch hygiene.
+1. [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md) — Repository operating contract, checklists, and quality bar.
+2. [skills.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/skills.md) — Reusable task patterns for intake, docs updates, and branch hygiene.
 3. [Standards](standards.md) — Taxonomy, metadata rules, and canonical-page requirements.
 
 ### The Ralph-loop Protocol
@@ -278,7 +278,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [AGENTS.md](../AGENTS.md) — Core agent contract and operating rules.
+- [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md) — Core agent contract and operating rules.
 - [Standards](standards.md) — Repository taxonomy and metadata conventions.
 - [Jules Agent](tools/ai_knowledge/local_llms.md) — The primary Ralph-loop executor and maintainer.
 - [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md) — The federated governance model.

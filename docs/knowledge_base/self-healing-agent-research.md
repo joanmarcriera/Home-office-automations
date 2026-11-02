@@ -76,7 +76,7 @@ sequenceDiagram
 - **Context-Aware Root Cause Analysis**: Utilizes LLMs to reason across multi-container log streams, distinguishing between transient database locks and unrecoverable disk corruption.
 
 ## Where it fits in the stack
-**Category**: [Knowledge Base](../knowledge_base/index.md) / Observability & Automation Pattern. Operating at the **Observability / Infrastructure Control Layer**, self-healing agents sit alongside core homelab services (Paperless-ngx, Home Assistant, Vikunja) and infrastructure nodes (K3s, Docker, TrueNAS), bridging detection tools with automated remediation scripts via **FastMCP 3.1** and REST webhooks.
+**Category**: [Knowledge Base](README.md) / Observability & Automation Pattern. Operating at the **Observability / Infrastructure Control Layer**, self-healing agents sit alongside core homelab services (Paperless-ngx, Home Assistant, Vikunja) and infrastructure nodes (K3s, Docker, TrueNAS), bridging detection tools with automated remediation scripts via **FastMCP 3.1** and REST webhooks.
 
 ## Key Technical Specifications & Architectural Standards
 

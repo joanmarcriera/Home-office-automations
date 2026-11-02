@@ -9,7 +9,7 @@ Manual meeting coordination across distributed teams, external clients, and pros
 In autonomous agentic workflows, Calendly provides a controlled, secure abstraction layer that prevents AI agents from having unrestricted write access to internal calendar databases, enabling agents to negotiate schedules, verify host availability, and provision meeting invites safely.
 
 ## Where it fits in the stack
-**Calendar & Tasks / Scheduling Gateway**. Positioned between public-facing clients or AI communication agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [DeepSeek-V4](../providers/deepseek.md)) and core calendar infrastructure (Google Calendar, Office 365), Calendly coordinates automated event booking and triggers downstream operations in CRM systems ([HubSpot](../enterprise/hubspot.md), [Salesforce](../enterprise/salesforce.md)), messaging hubs ([Slack](../enterprise/slack.md)), and workflow orchestrators ([n8n](../../services/n8n.md)).
+**Calendar & Tasks / Scheduling Gateway**. Positioned between public-facing clients or AI communication agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [DeepSeek-V4](../providers/deepseek.md)) and core calendar infrastructure (Google Calendar, Office 365), Calendly coordinates automated event booking and triggers downstream operations in CRM systems (HubSpot, Salesforce), messaging hubs (Slack), and workflow orchestrators ([n8n](../../services/n8n.md)).
 
 ## Architecture Diagram
 

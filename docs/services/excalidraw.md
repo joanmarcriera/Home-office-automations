@@ -1,7 +1,7 @@
 # Excalidraw
 
 ## What it is
-Excalidraw is an open-source, lightweight virtual whiteboard and sketching ecosystem optimized for hand-drawn aesthetics, real-time collaboration, and structured visual reasoning in multi-agent AI networks. In modern developer environments, Excalidraw serves as both a human sketching tool and a machine-readable canvas where autonomous agents (e.g., [Claude Code](../tools/development_ops/claude-code.md), [Home Admin Agent](home-admin-tools.md)) externalize architectural ideas, sequence diagrams, and task dependency graphs.
+Excalidraw is an open-source, lightweight virtual whiteboard and sketching ecosystem optimized for hand-drawn aesthetics, real-time collaboration, and structured visual reasoning in multi-agent AI networks. In modern developer environments, Excalidraw serves as both a human sketching tool and a machine-readable canvas where autonomous agents (e.g., [Claude Code](../tools/development_ops/claude-code.md), [Home Admin Agent](../tools/agents/home-admin-tools.md)) externalize architectural ideas, sequence diagrams, and task dependency graphs.
 
 Because Excalidraw scenes are stored as deterministic JSON documents containing precise coordinate, shape, arrow, and text bindings, AI models can inspect, generate, and edit visual layouts programmatically via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers.
 

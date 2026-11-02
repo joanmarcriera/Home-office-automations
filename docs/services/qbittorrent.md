@@ -118,7 +118,7 @@ When running large-scale seedboxes or managing high-bandwidth 10GbE network down
 ## Limitations
 - **Memory Consumption at Scale**: Managing massive libraries exceeding 20,000 active torrents can increase RAM consumption significantly.
 - **Authentication Default Password Prompt**: Version 5.x requires capturing temporary startup log passwords during initial setup if defaults are changed.
-- **No Native Multi-User Access Control**: The Web UI uses a single administrator account model; role-based access control requires external proxies ([Authentik](../../services/authentik.md)).
+- **No Native Multi-User Access Control**: The Web UI uses a single administrator account model; role-based access control requires external proxies ([Authentik](authentik.md)).
 
 ## When to use it
 - When you need a reliable, headless BitTorrent downloader for homelab servers or VPS instances.
