@@ -6,3 +6,6 @@
 # docs/services
 docs/services/inventory.md scripts.inventory_orchestrator  # systemd unit marked "design sketch" (PR #2352)
 docs/services/searXNG-automation.md scripts.rotate_engines  # rotator units marked "design sketch"
+
+# docs/knowledge_base
+docs/knowledge_base/ai_signal_sources.md scripts.ingest_signals  # CLI line and systemd unit marked as sketch
