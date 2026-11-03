@@ -53,6 +53,19 @@ python3 scripts/compare_agents.py doc paperless-ngx
 
 # Validate catalog/nav consistency before a docs PR
 python3 scripts/check_catalog_consistency.py
+
+# Check every internal link, anchor and image reference (offline)
+python3 scripts/check_internal_links.py
+```
+
+## 🏗️ Build the Docs Locally
+
+The site is plain MkDocs + Material, built from `docs/` with `mkdocs.yml`; `deploy-docs.yml` publishes it to `gh-pages` (served at ai.riera.co.uk via `docs/CNAME`).
+
+```bash
+pip install mkdocs-material
+mkdocs serve    # http://localhost:8000
+mkdocs build    # writes ./site
 ```
 
 ## 🎯 Project Scope

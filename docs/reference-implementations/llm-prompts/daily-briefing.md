@@ -354,7 +354,7 @@ if __name__ == "__main__":
 - [Google Calendar](../../tools/calendar_tasks/google_calendar.md) — Primary calendar schedule provider.
 - [Vikunja](../../services/vikunja.md) — Self-hosted household task management engine.
 - [Immich](../../services/immich.md) — Self-hosted photo vault for "On This Day" memories.
-- [Home Assistant](../../services/home_assistant.md) — Ambient IoT environment telemetry platform.
+- [Home Assistant](../../services/home-assistant.md) — Ambient IoT environment telemetry platform.
 - [n8n](../../services/n8n.md) — Self-hosted workflow automation engine.
 - [Model Context Protocol (FastMCP 3.1)](../../tools/automation_orchestration/mcp.md) — Tool execution framework.
 

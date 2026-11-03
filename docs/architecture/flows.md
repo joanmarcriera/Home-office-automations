@@ -47,9 +47,9 @@ sequenceDiagram
 - **Flow**: [n8n](../services/n8n.md) triggers a payment agent that checks [Actual Budget](../services/actual-budget.md) and schedules a reminder, utilizing **MCP 3.1 Task Protocol** for execution verification.
 
 ### 3. KnowledgeOps Ralph-loop
-- **Trigger**: [find_oldest_issues.py](../../find_oldest_issues.py) identifies a stale doc.
+- **Trigger**: [find_oldest_issues.py](https://github.com/joanmarcriera/Home-office-automations/blob/main/find_oldest_issues.py) identifies a stale doc.
 - **Action**: Jules agent (Action A) performs a freshness audit.
-- **Gate**: [check_docs_contract.py](../../scripts/check_docs_contract.py) validates the PR.
+- **Gate**: [check_docs_contract.py](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) validates the PR.
 - **Merge**: Autonomous merge via GitHub Actions once all KnowledgeOps gates pass.
 
 ## Orchestration Engine Matrix

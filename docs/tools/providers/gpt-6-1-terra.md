@@ -412,7 +412,7 @@ curl -s -X POST http://localhost:8095/tools/ingest_stac_catalog_item \
 7. **Strict Coordinate Ordering**: Ensure ingestion adapters explicitly enforce `[x, y]` / `[lon, lat]` GeoJSON arrays, mitigating coordinate inversion issues common in GIS legacy stacks.
 
 ## Related tools / concepts
-- [OpenAI](openai.md) — Main OpenAI provider overview.
+- [OpenAI](../ai_knowledge/openai.md) — Main OpenAI provider overview.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Open tool execution framework.
 - [QGIS / GDAL](../development_ops/openclaw.md) — Open-source geographic information system engine.
 

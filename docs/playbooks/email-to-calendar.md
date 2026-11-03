@@ -41,7 +41,7 @@ Email to Calendar Automation eliminates manual entry through end-to-end event ex
 
 ## Where it fits in the stack
 
-**Category**: Playbook / Personal & Enterprise Productivity. It operates at the **Integration and Orchestration Layer**, bridging the gap between the **Email Server Layer** (IMAP/Graph API/SMTP), the **Document Storage & OCR Layer** ([Paperless-ngx](../services/paperless-ngx.md)), the **AI Reasoning Layer** (FastMCP 3.1 / Model Context Protocol), and the **Calendar Server Layer** ([Google Calendar](../tools/calendar_tasks/google_calendar.md), [JMAP](../tools/calendar_tasks/jmap.md), [Radicale](../../services/radicale.md)).
+**Category**: Playbook / Personal & Enterprise Productivity. It operates at the **Integration and Orchestration Layer**, bridging the gap between the **Email Server Layer** (IMAP/Graph API/SMTP), the **Document Storage & OCR Layer** ([Paperless-ngx](../services/paperless-ngx.md)), the **AI Reasoning Layer** (FastMCP 3.1 / Model Context Protocol), and the **Calendar Server Layer** ([Google Calendar](../tools/calendar_tasks/google_calendar.md), [JMAP](../tools/calendar_tasks/jmap.md), [Radicale](../services/radicale.md)).
 
 ## Typical use cases
 
@@ -54,7 +54,7 @@ Email to Calendar Automation eliminates manual entry through end-to-end event ex
 ## Strengths
 
 - **High Temporal Accuracy**: Leveraging early 2027 LLMs ensures flawless extraction across complex timezones, daylight saving transitions, and ambiguous phrasing.
-- **Privacy-Preserving Options**: Configurable routing enables sensitive medical or legal emails to be processed entirely locally via [Llama 4](../tools/ai_knowledge/llama.md) or [Ollama](../tools/infrastructure/ollama.md).
+- **Privacy-Preserving Options**: Configurable routing enables sensitive medical or legal emails to be processed entirely locally via [Llama 4](../tools/ai_knowledge/llama.md) or [Ollama](../services/ollama.md).
 - **Protocol-Standardized Tooling**: Standardized on **FastMCP 3.1** and **MCP 3.1** interfaces, allowing agents like [Claude Code](../tools/development_ops/claude-code.md) or [Roo Code](../tools/agents/roo-code.md) to interact seamlessly with calendar servers.
 - **Auditability and Lineage**: Maintains bi-directional links between calendar events and source document IDs stored in Paperless-ngx or email UID indexes.
 

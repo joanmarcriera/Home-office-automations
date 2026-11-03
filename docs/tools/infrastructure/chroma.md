@@ -11,7 +11,7 @@ Deploying large enterprise-grade vector databases (e.g., Milvus, Qdrant) require
 Chroma resolves this dilemma by delivering a zero-configuration, production-capable vector storage engine. It can be initialized in Python with a single line (`client = chromadb.PersistentClient(path="./chroma_db")`), handling vector embedding generation, HNSW graph indexing, persistence on NVMe SSD storage, and filtered metadata retrieval without external service dependencies.
 
 ## Where it fits in the stack
-**Vector Storage & Knowledge Layer**. Positioned between document parsing/chunking pipelines ([Unstructured](../process_understanding/unstructured.md), [LlamaIndex](../ai_knowledge/llamaindex.md)) and LLM orchestrators ([Claude Code](../development_ops/claude-code.md), [Open WebUI](../../services/open-webui.md)), Chroma stores document chunk embeddings and metadata tags, allowing agents to execute fast hybrid semantic retrieval over local knowledge bases.
+**Vector Storage & Knowledge Layer**. Positioned between document parsing/chunking pipelines ([Unstructured](../intake_storage/unstructured.md), [LlamaIndex](../ai_knowledge/llamaindex.md)) and LLM orchestrators ([Claude Code](../development_ops/claude-code.md), [Open WebUI](../../services/open-webui.md)), Chroma stores document chunk embeddings and metadata tags, allowing agents to execute fast hybrid semantic retrieval over local knowledge bases.
 
 ## Architecture Diagram
 

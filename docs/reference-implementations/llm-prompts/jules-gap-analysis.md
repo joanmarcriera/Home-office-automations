@@ -3,7 +3,7 @@
 ## What it is
 The "Jules Weekly Gap Analysis" is a structured LLM prompt and automated workflow pattern used to analyze failure patterns in [n8n](../../services/n8n.md) automation logs and propose concrete improvements to the repository's documentation or workflows. It leverages deep reasoning models (such as Claude 5.6, GPT-5.6, and DeepSeek-V4) to identify the underlying "why" behind recurring issues.
 
-As of early January 2027, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md#orchestration-patterns-the-ralph-loop) to maintain system health, error classification, and documentation synchronization across multi-agent environment pipelines.
+As of early January 2027, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md) to maintain system health, error classification, and documentation synchronization across multi-agent environment pipelines.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -62,7 +62,7 @@ Automation stacks often suffer from "silent decay" where small API changes, netw
 - **Multi-Agent Alignment**: Ensures that autonomous agents operating across the infrastructure share a unified model of active failure modes.
 
 ## Where it fits in the stack
-This prompt is part of the **Maintenance & Governance Layer**. It consumes data from the [n8n Log Aggregator](../../../scripts/n8n_log_aggregator.py) and generates actionable PRs for the **DevOps** ([Jules](../../tools/ai_knowledge/jules.md)) layer.
+This prompt is part of the **Maintenance & Governance Layer**. It consumes data from the [n8n Log Aggregator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/n8n_log_aggregator.py) and generates actionable PRs for the **DevOps** ([Jules](../../tools/ai_knowledge/jules.md)) layer.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -111,7 +111,7 @@ Outputs are categorized directly into actionable remediation routines:
 
 ## Strengths
 - **Data-Driven**: Improvements are based on actual execution logs, not just theoretical gaps or anecdotal evidence.
-- **Actionable Output**: Designed to be fed directly into an [Automation Improvement PR](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
+- **Actionable Output**: Designed to be fed directly into an [Automation Improvement PR](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
 - **Proactive Maintenance**: Identifies patterns and trends before they become critical system-wide failures.
 - **Reasoning-Aware**: Optimized for **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4** to perform deep chain-of-thought root cause analysis.
 
@@ -142,7 +142,7 @@ python3 scripts/n8n_log_aggregator.py --hours 168 > logs_summary.txt
 Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.6** or **Gemini 4.0 Ultra**).
 
 ### 3. Implementation
-Review the proposed fixes and execute them using the [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
+Review the proposed fixes and execute them using the [Automation PR Template](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
 
 ## Detailed Code Example: Complete Production Setup
 
@@ -339,10 +339,10 @@ def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md): The automation platform being monitored.
-- [n8n Log Aggregator](../../../scripts/n8n_log_aggregator.py): The primary data source for this prompt.
-- [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md): The output format for improvements.
+- [n8n Log Aggregator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/n8n_log_aggregator.py): The primary data source for this prompt.
+- [Automation PR Template](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/PULL_REQUEST_TEMPLATE/automation_improvement.md): The output format for improvements.
 - [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The broader framework for repository-driven automation maintenance.
-- [Error Handling Patterns](../../services/n8n.md#3-error-handling): The foundational n8n patterns this analysis helps enforce.
+- [Error Handling Patterns](../../services/n8n.md): The foundational n8n patterns this analysis helps enforce.
 - [Jules](../../tools/ai_knowledge/jules.md): The AI agent persona executing the analysis.
 - [Claude Code](../../tools/development_ops/claude-code.md): The environment where Jules executes these tasks.
 - [MCP](../../tools/automation_orchestration/mcp.md): Used to extend n8n capabilities and improve reliability.

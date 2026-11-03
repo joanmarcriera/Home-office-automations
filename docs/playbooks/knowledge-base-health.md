@@ -303,9 +303,9 @@ if __name__ == "__main__":
 - [Standards](../standards.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
 - [Automated Contributions](../architecture/automated_contributions.md)
-- [Quality Audit Script](../../scripts/audit_docs_quality.py)
-- [Check Docs Contract Script](../../scripts/check_docs_contract.py)
-- [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
+- [Quality Audit Script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py)
+- [Check Docs Contract Script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py)
+- [Catalog Consistency Script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_catalog_consistency.py)
 - [KnowledgeOps Standards](../standards.md)
 - [Jules Agent](../tools/ai_knowledge/jules.md)
 

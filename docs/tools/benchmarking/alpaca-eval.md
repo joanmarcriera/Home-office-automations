@@ -47,7 +47,7 @@ AlpacaEval solves these challenges by providing:
 - **FastMCP 3.1 Automated Benchmarking**: Enables automated CI/CD benchmark triggers across model training iterations and fine-tuning checkpoints.
 
 ## Where it fits in the stack
-**[Layer 7: Evaluation & Guardrails](../../knowledge_base/ai_tooling_landscape.md#layer-7-evaluation-guardrails)** — specifically as an **Automated Instruction-Following Preference Benchmark Framework**.
+**[Layer 7: Evaluation & Guardrails](../../knowledge_base/ai_tooling_landscape.md#the-stack-layered-view)** — specifically as an **Automated Instruction-Following Preference Benchmark Framework**.
 
 ```
 +--------------------------------------------------------------------+

@@ -196,8 +196,8 @@ To deploy the School Admin Intake pipeline:
 
 1. **Configure Ingestion Filters**: Set up an [n8n](../services/n8n.md) workflow with IMAP triggers monitoring incoming emails matching school domains or keywords (`permission`, `newsletter`, `field trip`).
 2. **Deploy Storage & Indexing**: Direct incoming attachments and scanned physical documents to [Paperless-ngx](../services/paperless-ngx.md) with consumption tags `School` and `Pending-AI`.
-3. **Run Local Inference**: Start an [Ollama](../tools/ai_knowledge/ollama.md) or [vLLM](../tools/infrastructure/vllm.md) container running `llama4:70b-instruct` or `gemma4:27b`.
-4. **Connect FastMCP Tools**: Register the Python MCP server above with your agentic router (e.g., [Claude Code](../tools/development_ops/claude-code.md) or [Home Admin Agent](../services/home-admin-tools.md)).
+3. **Run Local Inference**: Start an [Ollama](../services/ollama.md) or [vLLM](../tools/infrastructure/vllm.md) container running `llama4:70b-instruct` or `gemma4:27b`.
+4. **Connect FastMCP Tools**: Register the Python MCP server above with your agentic router (e.g., [Claude Code](../tools/development_ops/claude-code.md) or [Home Admin Agent](../tools/agents/home-admin-tools.md)).
 5. **Set Up Downstream Actions**: Connect workflow endpoints to [Google Calendar](../tools/calendar_tasks/google_calendar.md) for event dates and [Vikunja](../services/vikunja.md) for required actions.
 
 ## CLI examples

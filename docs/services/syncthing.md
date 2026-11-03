@@ -3,7 +3,7 @@
 ## What it is
 **Syncthing** is a continuous, decentralized, peer-to-peer file synchronization service and data distribution engine. It enables continuous, real-time file synchronization across two or more devices securely without relying on centralized cloud hosts or third-party servers.
 
-In modern decentralized AI homelabs and edge computing environments, Syncthing operates as an essential data fabric for distributing large language model (LLM) GGUF weights, vector database snapshots, and [FastMCP 3.1 / MCP](../../tools/automation_orchestration/mcp.md) tool configurations across local workstations, GPU servers, and edge nodes (Raspberry Pi 5 / Jetson Orin) with real-time block-level verification.
+In modern decentralized AI homelabs and edge computing environments, Syncthing operates as an essential data fabric for distributing large language model (LLM) GGUF weights, vector database snapshots, and [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) tool configurations across local workstations, GPU servers, and edge nodes (Raspberry Pi 5 / Jetson Orin) with real-time block-level verification.
 
 ```mermaid
 sequenceDiagram
@@ -65,7 +65,7 @@ sequenceDiagram
 - **Uncoordinated Parallel Writing Conflicts**: Employs Conflict Resolution File naming (`.sync-conflict-<date>-<time>-<user>`) to preserve both revisions safely during concurrent modifications.
 
 ## Where it fits in the stack
-**Category**: Services / Data Synchronization. Syncthing sits in the **storage and sync** layer of self-hosted infrastructure, backing up databases and syncing model weights, managed via [Docker](../../tools/infrastructure/docker.md) or systemd.
+**Category**: Services / Data Synchronization. Syncthing sits in the **storage and sync** layer of self-hosted infrastructure, backing up databases and syncing model weights, managed via [Docker](../tools/infrastructure/docker.md) or systemd.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -81,7 +81,7 @@ sequenceDiagram
 
 ## Typical use cases
 - **Multi-Node Model Weight Distribution**: Automatically replicating 10GB–50GB GGUF model weights across local GPU inference nodes.
-- **Private Knowledge Vault Syncing**: Keeping [Obsidian](../../tools/ai_knowledge/obsidian.md) vaults and KeePassXC databases synchronized in real time across mobile and desktop devices.
+- **Private Knowledge Vault Syncing**: Keeping [Obsidian](../tools/ai_knowledge/obsidian.md) vaults and KeePassXC databases synchronized in real time across mobile and desktop devices.
 - **Homelab Automated Backup Ingestion**: Forwarding mobile photo uploads from [Immich](immich.md) or document uploads from [Paperless-ngx](paperless-ngx.md) to offsite backup storage.
 - **FastMCP 3.1 Configuration Propagation**: Pushing updated JSON tool schemas and API credentials instantly to all active agent hosts in a private network.
 - **Automated Agent Output Mirroring**: Syncing generated reports and code artifacts from local agent execution hosts to centralized storage nodes.
@@ -306,10 +306,10 @@ if __name__ == "__main__":
 - [Nextcloud](nextcloud.md) — Self-hosted cloud platform.
 - [Rclone Automation](rclone-automation.md) — Cloud storage sync engine.
 - [Tailscale](tailscale.md) — Secure mesh VPN network layer.
-- [Docker](../../tools/infrastructure/docker.md) — Containerization engine.
-- [Local LLMs](../../tools/ai_knowledge/local_llms.md) — Local model inference runtimes.
-- [Obsidian](../../tools/ai_knowledge/obsidian.md) — Knowledge base synced via Syncthing.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — Tool execution framework.
+- [Docker](../tools/infrastructure/docker.md) — Containerization engine.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Local model inference runtimes.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Knowledge base synced via Syncthing.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Tool execution framework.
 
 ## Sources / references
 - [Official Syncthing Website](https://syncthing.net/)

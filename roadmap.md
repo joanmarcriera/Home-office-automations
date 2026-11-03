@@ -122,7 +122,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Research Authentik vs Kanidm vs LL-LDAP for family use (see [SSO Comparison](docs/knowledge_base/sso-comparison.md)).
     - [x] Deploy chosen SSO solution via Docker (see [Authentik Service](docs/services/authentik.md)).
     - [x] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
-    - [x] Set up 2FA for all family member accounts (see [Authentik 2FA Guide](docs/services/authentik.md#family-2fa-onboarding)).
+    - [x] Set up 2FA for all family member accounts (see [Authentik 2FA Guide](docs/services/authentik.md)).
 
 ## Technical Next Steps
 

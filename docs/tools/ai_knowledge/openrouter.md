@@ -3,7 +3,7 @@
 ## What it is
 OpenRouter is a unified API gateway, intelligent model router, and meta-provider for foundation language, vision, code, audio, and multimodal AI models. Operating as a single OpenAI-compatible HTTP interface, OpenRouter provides developer access to 250+ model variants hosted across major cloud providers and inference engines (Anthropic, OpenAI, Google DeepMind, Meta, DeepSeek, Mistral, Qwen, Cohere, Fireworks, Together, and Baseten). Incorporating native **FastMCP 3.1 routing**, real-time thinking token streaming, dynamic price-to-performance load balancing, automatic failover chains, prompt caching normalization, and granular enterprise billing controls, OpenRouter acts as an intelligent proxy layer.
 
-OpenRouter sits between application frameworks ([LangChain](langchain.md), [AutoGPT](../agents/autogpt.md), [Claude Code](../development_ops/claude-code.md), [Aider](../development_ops/aider.md)) and raw inference endpoints. It evaluates real-time API latency metrics, provider capacity, and token pricing to route incoming requests to the optimal endpoint without requiring code changes or multiple subscription credentials.
+OpenRouter sits between application frameworks ([LangChain](langchain.md), AutoGPT, [Claude Code](../development_ops/claude-code.md), [Aider](../development_ops/aider.md)) and raw inference endpoints. It evaluates real-time API latency metrics, provider capacity, and token pricing to route incoming requests to the optimal endpoint without requiring code changes or multiple subscription credentials.
 
 ## What problem it solves
 Integrating frontier AI models into production software introduces severe infrastructure, operational, and financial friction:
@@ -53,7 +53,7 @@ graph TD
 ```
 
 ## Where it fits in the stack
-**Provider / Routing Layer**. OpenRouter sits between high-level orchestration agents ([CrewAI](../agents/crewai.md), [LlamaIndex](../frameworks/llamaindex.md), [Roo Code](../agents/roo-code.md)) and raw inference endpoints. It serves as an intelligent proxy, balancing load, masking outages, and managing token budgets.
+**Provider / Routing Layer**. OpenRouter sits between high-level orchestration agents ([CrewAI](../frameworks/crewai.md), [LlamaIndex](llamaindex.md), [Roo Code](../agents/roo-code.md)) and raw inference endpoints. It serves as an intelligent proxy, balancing load, masking outages, and managing token budgets.
 
 ```
 +-----------------------------------------------------------------------------------+

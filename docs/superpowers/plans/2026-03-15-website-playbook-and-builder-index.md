@@ -227,8 +227,8 @@ git push origin main
 ```
 
 ## Sources / References
-- [KnowledgeOps Architecture Contract Framework](../../architecture/knowledgeops-contract-framework.md)
-- [AI Company Starter Stack Guide](../ai_company_starter_stack.md)
+- [KnowledgeOps Architecture Contract Framework](../../architecture/multi_agent_knowledgeops.md)
+- [AI Company Starter Stack Guide](../../knowledge_base/ai_company_starter_stack.md)
 - [Vercel Hosting](https://vercel.com/docs)
 
 ## Contribution Metadata
