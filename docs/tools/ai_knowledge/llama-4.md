@@ -67,39 +67,88 @@ Legacy dense foundation models activate every parameter for every generated toke
 | **Quantization Scheme** | AWQ / MoE-GGUF | K-quant GGUF | K-quant GGUF | Fine-grained FP8 |
 | **Inference Engine** | vLLM, llama.cpp, Ollama | vLLM, llama.cpp, Ollama | vLLM, SGLang, Ollama | vLLM, SGLang |
 
-## Typical use cases
-- **Native Multimodal Document Analysis**: Comprehending technical blueprints, UI designs, financial tables, and handwritten documentation directly alongside multi-turn textual context.
-- **Enterprise Agentic Workflows**: Executing complex multi-step agent actions via FastMCP 3.1 tool definitions with deterministic schema compliance.
-- **On-Premise Developer Copilots**: Providing low-latency inline code autocompletion, multi-file code editing, and automated test generation inside private corporate networks.
-- **Air-Gapped Knowledge & RAG Systems**: Processing confidential organizational documents in zero-egress, air-gapped server environments.
+## Operational Service Level Agreements (SLAs) & Hardware Benchmark Matrix
 
-## Strengths
-- **Sparse MoE Computational Efficiency**: High parameter capacity with sub-exponential active parameter compute costs per generation step.
-- **Native FastMCP 3.1 Tool Primitives**: Pre-trained on MCP protocol structures, enabling direct JSON-RPC function calling without wrapper prompt overhead.
-- **Unified Multimodal Architecture**: Joint vision-language pre-training eliminates alignment latency between external vision encoders and language backends.
-- **Broad Ecosystem Compatibility**: Instant integration with Hugging Face, vLLM, TensorRT-LLM, Ollama, and LM Studio.
+Deploying Llama 4 MoE clusters requires alignment across target token throughput, latency thresholds, and hardware topologies:
 
-## Limitations
-- **High Total VRAM Requirement**: While active parameter FLOPs are low, offloading all sparse MoE expert weights requires substantial total VRAM capacity.
-- **Quantization Complexity**: MoE routing matrices demand specialized quantization strategies (such as AWQ or MoE-aware GGUF) to avoid routing accuracy degradation.
-- **Licensing Governance**: Governed by the Meta Llama 4 Community License, requiring compliance tracking for massive commercial application deployments.
+| Deployment Profile | Target Hardware | Precision Format | Generation Throughput (Tokens/s) | First-Token Latency (p90) | Max Concurrent Sessions |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Single-Node Workstation**| 2x RTX 4090 (48GB) | Q4_K_M MoE-GGUF | 22 - 32 tok/s | < 950 ms | 4 sessions |
+| **Enterprise Server (TP=2)** | 2x NVIDIA H100 (160GB) | FP8 Native | 68 - 95 tok/s | < 280 ms | 32 sessions |
+| **High-Throughput Cluster (TP=4)**| 4x NVIDIA H100 / B200 | FP8 / BF16 | 130 - 180 tok/s | < 160 ms | 128 sessions |
+| **Edge Appliance (Mac Studio)** | M3/M4 Ultra (128GB) | Q4_K_S Metal MoE | 18 - 26 tok/s | < 1,100 ms | 2 sessions |
 
-## When to use it
-- When requiring a flagship open-weights foundation model for agentic workflows, software development, and multimodal document understanding.
-- When deploying native multimodal reasoning alongside FastMCP 3.1 tool execution on private hardware.
-- When self-hosting on modern GPU accelerators (e.g., NVIDIA H100, B200, or Apple Silicon Mac Studio clusters).
+## Containerized Production Deployment: Docker Compose Multi-Node Topology
 
-## When not to use it
-- On resource-constrained edge hardware with under 12GB VRAM (consider smaller open models like Gemma 4 or Llama 3.2 3B).
-- When fully managed cloud API services are preferred without infrastructure operational overhead.
+Below is an enterprise Docker Compose configuration deploying a GPU-accelerated vLLM inference server for Llama 4 coupled with Prometheus telemetry and a FastMCP 3.1 gateway:
 
-## Operational Best Practices & Deployment Patterns
-1. **Expert Weight Offloading**: When VRAM capacity is restricted across dual RTX 4090 GPUs (48GB total), run `vllm` with `--cpu-offload-gb 16` or use MoE-aware GGUF quantization (`Q4_K_M`) to keep active experts in high-bandwidth VRAM while storing dormant experts in host RAM.
-2. **Context Window Optimization**: Enable FlashAttention-3 KV-cache quantization (`--kv-cache-dtype fp8`) to double concurrent user throughput under long 128k context sessions.
-3. **Structured Tool Calling Safety**: Always enforce JSON schema validation at the inference gateway layer to intercept malformed tool calls before execution.
+```yaml
+version: "3.9"
 
-## Systemd Service Specs
-Deploy Llama 4 as a system daemon serving an OpenAI-compatible endpoint with vLLM:
+services:
+  llama4-inference:
+    image: vllm/vllm-openai:latest
+    container_name: llama4-vllm-engine
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - CUDA_VISIBLE_DEVICES=0,1
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    ports:
+      - "8000:8000"
+    volumes:
+      - /opt/huggingface/hub:/root/.cache/huggingface
+    command: >
+      serve meta-llama/Llama-4-70B-Instruct
+      --tensor-parallel-size 2
+      --max-model-len 32768
+      --kv-cache-dtype fp8
+      --gpu-memory-utilization 0.92
+      --enable-auto-tool-choice
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - llama4-cluster-net
+
+  llama4-mcp-gateway:
+    image: python:3.11-slim
+    container_name: llama4-mcp-gateway
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./gateway:/app:ro
+    environment:
+      - LLAMA4_API_URL=http://llama4-inference:8000/v1
+      - MCP_PORT=8095
+    command: >
+      bash -c "pip install --no-cache-dir fastmcp pydantic httpx &&
+               python /app/server.py"
+    ports:
+      - "8095:8095"
+    depends_on:
+      llama4-inference:
+        condition: service_healthy
+    networks:
+      - llama4-cluster-net
+
+networks:
+  llama4-cluster-net:
+    driver: bridge
+```
+
+## Systemd Service Specs: Hardened Production Unit
+Deploy Llama 4 as an enterprise system daemon serving an OpenAI-compatible endpoint with vLLM:
 
 ```ini
 [Unit]
@@ -131,6 +180,7 @@ SyslogIdentifier=llama4-vllm
 ProtectSystem=full
 ProtectHome=read-only
 NoNewPrivileges=true
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
@@ -144,6 +194,69 @@ WantedBy=multi-user.target
 | `ERR_ROUTING_MISMATCH` | Model output degrades after heavy quantization | `python3 scripts/audit_docs_quality.py` | Upgrade model quantization from `Q3` to AWQ or MoE-aware `Q4_K_M` GGUF |
 | `ERR_MCP_SCHEMA_FAIL` | Tool call output fails JSON schema validation | `journalctl -u llama4-vllm -n 50` | Enforce strict Pydantic v2 validation schema models on API input gateways |
 | `ERR_HTTP_504` | Gateway request timeout during long context processing | `curl -i http://localhost:8000/health` | Increase client HTTP read timeout to >120s and enable context chunking |
+| `ERR_NCCL_TIMEOUT` | Distributed rank hang during tensor parallel sync | `dmesg \| grep -i nvlink` | Check NVLink topology status with `nvidia-smi nvlink -s` and set `NCCL_P2P_DISABLE=0` |
+| `ERR_KV_FRAGMENTATION` | Out of VRAM during dynamic session scaling | `vllm.metrics` exporter | Reduce `--gpu-memory-utilization` from 0.95 to 0.90 to allow scratchpad buffer |
+| `ERR_VISION_TOKEN_OVERFLOW` | High-resolution image causing context window exhaustion | `journalctl -u llama4-vllm` | Configure vision preprocessor dynamic image tile limits (`--max-num-image-tiles 4`) |
+| `ERR_ROUTER_TOPK_DROPOUT` | High token generation temperature destabilizing expert gating | Log inspect router probabilities | Fix temperature between 0.1 and 0.4 for deterministic MoE routing execution |
+
+## Fine-Tuning & Parameter-Efficient Adaptation (PEFT / LoRA)
+
+Fine-tuning sparse MoE models like Llama 4 requires targeting the specific linear projection layers within active expert blocks rather than updating shared attention matrices alone:
+
+```python
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM
+
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-4-70B-Instruct",
+    load_in_4bit=True,
+    device_map="auto"
+)
+
+# Target expert feed-forward projections while keeping routing matrices frozen
+peft_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["w1", "w2", "w3"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+model = get_peft_model(model, peft_config)
+model.print_trainable_parameters()
+```
+
+## Typical use cases
+- **Native Multimodal Document Analysis**: Comprehending technical blueprints, UI designs, financial tables, and handwritten documentation directly alongside multi-turn textual context.
+- **Enterprise Agentic Workflows**: Executing complex multi-step agent actions via FastMCP 3.1 tool definitions with deterministic schema compliance.
+- **On-Premise Developer Copilots**: Providing low-latency inline code autocompletion, multi-file code editing, and automated test generation inside private corporate networks.
+- **Air-Gapped Knowledge & RAG Systems**: Processing confidential organizational documents in zero-egress, air-gapped server environments.
+
+## Strengths
+- **Sparse MoE Computational Efficiency**: High parameter capacity with sub-exponential active parameter compute costs per generation step.
+- **Native FastMCP 3.1 Tool Primitives**: Pre-trained on MCP protocol structures, enabling direct JSON-RPC function calling without wrapper prompt overhead.
+- **Unified Multimodal Architecture**: Joint vision-language pre-training eliminates alignment latency between external vision encoders and language backends.
+- **Broad Ecosystem Compatibility**: Instant integration with Hugging Face, vLLM, TensorRT-LLM, Ollama, and LM Studio.
+
+## Limitations
+- **High Total VRAM Requirement**: While active parameter FLOPs are low, offloading all sparse MoE expert weights requires substantial total VRAM capacity.
+- **Quantization Complexity**: MoE routing matrices demand specialized quantization strategies (such as AWQ or MoE-aware GGUF) to avoid routing accuracy degradation.
+- **Licensing Governance**: Governed by the Meta Llama 4 Community License, requiring compliance tracking for massive commercial application deployments.
+
+## When to use it
+- When requiring a flagship open-weights foundation model for agentic workflows, software development, and multimodal document understanding.
+- When deploying native multimodal reasoning alongside FastMCP 3.1 tool execution on private hardware.
+- When self-hosting on modern GPU accelerators (e.g., NVIDIA H100, B200, or Apple Silicon Mac Studio clusters).
+
+## When not to use it
+- On resource-constrained edge hardware with under 12GB VRAM (consider smaller open models like Gemma 4 or Llama 3.2 3B).
+- When fully managed cloud API services are preferred without infrastructure operational overhead.
+
+## Operational Best Practices & Deployment Patterns
+1. **Expert Weight Offloading**: When VRAM capacity is restricted across dual RTX 4090 GPUs (48GB total), run `vllm` with `--cpu-offload-gb 16` or use MoE-aware GGUF quantization (`Q4_K_M`) to keep active experts in high-bandwidth VRAM while storing dormant experts in host RAM.
+2. **Context Window Optimization**: Enable FlashAttention-3 KV-cache quantization (`--kv-cache-dtype fp8`) to double concurrent user throughput under long 128k context sessions.
+3. **Structured Tool Calling Safety**: Always enforce JSON schema validation at the inference gateway layer to intercept malformed tool calls before execution.
 
 ## Getting started
 
@@ -192,18 +305,18 @@ llama-cli -m ./models/llama-4-70b-Q4_K_M.gguf \
 ## API examples
 
 ### Python FastMCP 3.1 & Pydantic v2 Llama 4 Inference Integration
-The following code snippet demonstrates hosting a FastMCP 3.1 tool server that communicates with a local Llama 4 endpoint and validates model specifications and outputs using Pydantic v2 schemas:
+The following code snippet demonstrates hosting a FastMCP 3.1 tool server that communicates with a local Llama 4 endpoint and validates model specifications and outputs using Pydantic v2 schemas (`extra="forbid"`, `frozen=True`):
 
 ```python
 import json
 import urllib.request
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Define Pydantic v2 models for Llama 4 model specs and structured outputs
 class Llama4ModelSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model_id: str = Field(..., description="Model identifier string.")
     total_parameters_b: float = Field(..., gt=0, description="Total model parameter size in billions.")
@@ -220,22 +333,26 @@ class Llama4ModelSpec(BaseModel):
         return v
 
 class InferenceRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     prompt: str = Field(..., description="User query or instruction prompt.")
     temperature: float = Field(default=0.2, ge=0.0, le=1.0)
     max_tokens: int = Field(default=1024, ge=32, le=4096)
     task_id: str = Field(default="task-llama4-001", description="FastMCP 3.1 Task Protocol ID")
 
 class InferenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str
     model_spec: Llama4ModelSpec
     generated_content: str = Field(..., description="Generated text completion.")
 
 # Initialize FastMCP 3.1 server
-mcp = FastMCP("llama4-foundation-server")
+mcp = FastMCP("llama4-foundation-server", version="3.1.0")
 
 LLAMA4_API_URL = "http://localhost:8000/v1/chat/completions"
 
-@mcp.tool()
+@mcp.tool(name="query_llama4_foundation", description="Invokes local Llama 4 inference endpoint and returns validated completion and specs")
 async def query_llama4_foundation(request: InferenceRequest) -> InferenceResponse:
     """Invokes local Llama 4 inference endpoint and returns validated completion and architecture specs."""
     payload = {

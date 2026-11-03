@@ -83,6 +83,148 @@ sequenceDiagram
 | **Self-Documentation** | Built-in `task --list` | Manual target parsing | Built-in `just --list` | Manual `npm run` listing |
 | **Runtime Dependencies** | Single Go binary (Zero-dep) | C/POSIX toolchain | Single Rust binary | Node.js runtime |
 
+## Operational Service Level Agreements (SLAs) & Execution Concurrency Matrix
+
+Executing tasks across distributed CI runners and multi-agent development pipelines requires explicit SLA thresholds:
+
+| Execution Profile | Concurrency Mode | Checksum Cache Strategy | Max Step Timeout | Failure Strategy | Target Environment |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Local Dev Loop** | Sequential (`run: once`) | Content checksum hash | 60 seconds | Stop on first error | Local workstation terminal |
+| **CI Lint & Typecheck** | Parallel (`task --parallel`) | Source git-hash tracking | 120 seconds | Aggregate all errors | CI/CD build runner |
+| **Agent Tool Invocation**| Sandboxed Subprocess | Instant bypass (`--force`) | 45 seconds | Structured JSON error return | FastMCP 3.1 gateway agent |
+| **Artifact Compilation** | DAG Parallel (`deps`) | `sources` vs `generates` mtime | 600 seconds | Rollback artifact staging | Release pipeline worker |
+
+## Production Deployment: Distributed Task Runner Docker Compose Stack
+
+The following Docker Compose setup provides a containerized Taskfile execution agent linked with an artifact cache and Redis coordination bus for distributed build tasks:
+
+```yaml
+version: "3.9"
+
+services:
+  task-worker:
+    image: golang:1.23-alpine
+    container_name: task-worker-daemon
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - ./repo:/workspace:rw
+      - task-cache:/root/.task
+    environment:
+      - TASK_COLOR=always
+      - REDIS_URL=redis://task-redis:6379/0
+      - MCP_PORT=8092
+    command: >
+      sh -c "apk add --no-cache curl bash git python3 py3-pip &&
+             sh -c '$$(curl -ssL https://taskfile.dev/install.sh)' -- -d -b /usr/local/bin &&
+             pip install --no-cache-dir fastmcp pydantic --break-system-packages &&
+             task --version &&
+             python3 /workspace/task_mcp_server.py"
+    depends_on:
+      task-redis:
+        condition: service_healthy
+    networks:
+      - task-runner-net
+
+  task-redis:
+    image: redis:7-alpine
+    container_name: task-redis-broker
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no", "--requirepass", "TaskPass2027"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "TaskPass2027", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - task-runner-net
+
+volumes:
+  task-cache:
+
+networks:
+  task-runner-net:
+    driver: bridge
+```
+
+## Systemd Service Unit: Taskfile Remote Executor
+
+For continuous integration hosts and bare-metal builders executing scheduled maintenance routines via Task:
+
+```ini
+[Unit]
+Description=Taskfile Distributed Automation Worker
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=taskrunner
+Group=taskrunner
+WorkingDirectory=/opt/ci-tasks
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="TASK_COLOR=never"
+Environment="TASK_TEMP_DIR=/tmp/task_runs"
+ExecStart=/usr/local/bin/task --watch auto-maintain
+Restart=always
+RestartSec=5s
+
+# Process Sandbox Boundaries
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+PrivateTmp=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Multi-Package Monorepo Inclusion Patterns
+
+Task excels in large monorepos by allowing child `Taskfile.yml` manifests to be declared in submodules and included into root execution trees with dedicated namespaces:
+
+```yaml
+version: '3'
+
+includes:
+  docs:
+    taskfile: ./docs/Taskfile.yml
+    dir: ./docs
+  backend:
+    taskfile: ./backend/Taskfile.yml
+    dir: ./backend
+  frontend:
+    taskfile: ./frontend/Taskfile.yml
+    dir: ./frontend
+
+tasks:
+  all:
+    desc: "Build and verify all submodules across repository"
+    cmds:
+      - task: backend:build
+      - task: frontend:build
+      - task: docs:lint
+```
+
+## Advanced Dynamic Matrix Execution
+
+In complex automation architectures, Task allows dynamic looping over parameterized lists and arrays to test multiple matrix configurations:
+
+```yaml
+version: '3'
+
+vars:
+  PY_VERSIONS: '["3.10", "3.11", "3.12", "3.13"]'
+
+tasks:
+  test-matrix:
+    desc: "Run tests across multiple Python versions"
+    cmds:
+      - for: { var: PY_VERSIONS }
+        cmd: echo "Testing environment for Python {{.ITEM}}..." && python{{.ITEM}} -m pytest tests/
+```
+
 ## Strengths
 - **Simple YAML Syntax**: Clear, human-readable `Taskfile.yml` format with strict key validation and zero whitespace tab errors.
 - **Cross-Platform Shell Compatibility**: Uses `mvdan/sh` embedded shell parser, ensuring POSIX script execution across Windows, macOS, and Linux without MSYS/Cygwin.
@@ -175,7 +317,7 @@ task build --force
 ## API examples
 
 ### Python FastMCP 3.1 Task Execution & Pydantic v2 Schema Generator
-The following Python script illustrates how to construct a **FastMCP 3.1** task execution server that validates `Taskfile.yml` definitions using **Pydantic v2** models and exposes remote task execution endpoints to AI agents.
+The following Python script illustrates how to construct a **FastMCP 3.1** task execution server that validates `Taskfile.yml` definitions using **Pydantic v2** models with strict schema constraints (`extra="forbid"`, `frozen=True`) and exposes remote task execution endpoints to AI agents.
 
 ```python
 import os
@@ -186,16 +328,16 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 server for Taskfile orchestration
-mcp = FastMCP(name="taskfile-runner-server", version="3.1")
+mcp = FastMCP("taskfile-runner-server", version="3.1.0")
 
 class TaskCommand(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
 
     cmd: str = Field(..., description="Shell command string to execute")
     ignore_error: bool = Field(False, description="Whether to ignore command exit codes")
 
 class TaskDefinition(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
 
     desc: str = Field(..., min_length=5, description="Human-readable description of the task")
     summary: Optional[str] = Field(None, description="Detailed multiline task summary")
@@ -204,61 +346,58 @@ class TaskDefinition(BaseModel):
     sources: List[str] = Field(default_factory=list, description="Source files for checksum fingerprinting")
     generates: List[str] = Field(default_factory=list, description="Output target files")
 
-class TaskfileSchema(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+class TaskExecutionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    version: str = Field("3", pattern=r"^3$")
-    vars: Dict[str, str] = Field(default_factory=dict, description="Global string variables")
-    tasks: Dict[str, TaskDefinition] = Field(..., description="Map of task names to definitions")
+    task_name: str = Field(..., description="Name of task defined in Taskfile.yml")
+    vars_override: Optional[Dict[str, str]] = Field(default=None, description="Dynamic variable overrides")
+    force: bool = Field(default=False, description="Whether to bypass checksum fingerprinting")
 
-    @field_validator("tasks")
-    @classmethod
-    def check_default_task(cls, v: Dict[str, TaskDefinition]) -> Dict[str, TaskDefinition]:
-        if "default" not in v and "help" not in v:
-            raise ValueError("Taskfile should define a 'default' or 'help' task")
-        return v
+class TaskExecutionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str
+    task: str
+    stdout: str
+    exit_code: int
 
 @mcp.tool(name="execute_task", description="Execute a named task from local Taskfile.yml")
-def execute_task(task_name: str, vars_override: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+def execute_task(request: TaskExecutionRequest) -> TaskExecutionResponse:
     """FastMCP 3.1 endpoint to invoke Taskfile commands."""
-    cmd = ["task", task_name]
+    cmd = ["task", request.task_name]
+    if request.force:
+        cmd.append("--force")
+
     env = os.environ.copy()
-    if vars_override:
-        for k, v in vars_override.items():
+    if request.vars_override:
+        for k, v in request.vars_override.items():
             env[k] = v
 
     try:
         res = subprocess.run(cmd, capture_output=True, text=True, check=True, env=env)
-        return {
-            "status": "success",
-            "task": task_name,
-            "stdout": res.stdout,
-            "exit_code": res.returncode
-        }
+        return TaskExecutionResponse(
+            status="success",
+            task=request.task_name,
+            stdout=res.stdout,
+            exit_code=res.returncode
+        )
+    except subprocess.CalledProcessError as e:
+        return TaskExecutionResponse(
+            status="failed",
+            task=request.task_name,
+            stdout=e.stdout + "\n" + e.stderr,
+            exit_code=e.returncode
+        )
     except Exception as e:
-        return {
-            "status": "failed",
-            "task": task_name,
-            "error": str(e)
-        }
+        return TaskExecutionResponse(
+            status="error",
+            task=request.task_name,
+            stdout=str(e),
+            exit_code=-1
+        )
 
 if __name__ == "__main__":
-    schema = TaskfileSchema(
-        vars={"APP_NAME": "KnowledgeOpsEngine"},
-        tasks={
-            "default": TaskDefinition(
-                desc="Default automation entrypoint",
-                cmds=["echo 'Running {{.APP_NAME}} task automation pipeline...'"]
-            ),
-            "lint": TaskDefinition(
-                desc="Run python code quality checks",
-                cmds=["python3 scripts/check_catalog_consistency.py", "python3 scripts/validate_new_sources.py"]
-            )
-        }
-    )
-
-    print("Validated Taskfile Schema:")
-    print(schema.model_dump_json(indent=2))
+    mcp.run()
 ```
 
 ## Troubleshooting Guide
@@ -269,6 +408,10 @@ if __name__ == "__main__":
 | `YAML Parsing Error` | Invalid whitespace or missing quotes around template variables | Wrap Go template expressions in quotes: `echo "{{.VAR}}"`. |
 | `Task Skipped Unexpectedly` | Checksum matching `sources` files without detecting changes | Use `task <task_name> --force` to bypass fingerprint checks. |
 | `Environment Variable Not Inherited` | Variable not exported or overwritten in `vars` section | Pass environment variables explicitly before command or set `env:` in task definition. |
+| `Directory Missing Error` | `dir:` attribute specified non-existent subdirectory | Ensure targeted workspace path exists or set `silent: true` with `mkdir -p`. |
+| `Circular Dependency Detected` | Cyclic task references between tasks in `deps` declaration | Inspect task DAG and factor shared sub-commands into independent utility tasks. |
+| `Windows Path Separator Failure`| Hardcoded Linux forward slashes in non-POSIX child commands | Use Task's built-in `{{fromSlash .PATH}}` or native `mvdan/sh` path handlers. |
+| `Subtask Variable Pollution` | Global `vars` conflicting with sub-task parameters | Use `vars` block scoping inside task definition or pass explicit call parameters. |
 
 ## Related tools / concepts
 - [GNU Make](gnu-make.md) — Traditional tab-based Makefile build runner.
