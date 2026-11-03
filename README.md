@@ -4,7 +4,7 @@
 
 A structured, agent-maintained knowledge repository for building and operating a privacy-first home-office automation stack.
 
-🌐 **Live Documentation:** [ai.riera.co.uk](https://ai.riera.co.uk)
+🌐 **Live Documentation:** [ai.riera.co.uk](http://ai.riera.co.uk)
 
 ![GitHub stars](https://img.shields.io/github/stars/joanmarcriera/Home-office-automations?style=flat-square&color=ffd700)
 ![GitHub forks](https://img.shields.io/github/forks/joanmarcriera/Home-office-automations?style=flat-square&color=60a5fa)
