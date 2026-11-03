@@ -1,0 +1,23 @@
+# Task Decomposition Report - Batch 1029
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/playbooks/raspberry-pi-kiosk-automation.md`, `docs/tools/ai_knowledge/jasper.md`, `docs/tools/providers/perplexity.md`, `docs/tools/frameworks/deepspeed.md`, and `docs/tools/process_understanding/faster-whisper.md`) past 21,200–26,000+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative matrices, and diagnostic troubleshooting tables while preserving untouched review metadata where appropriate.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/playbooks/raspberry-pi-kiosk-automation.md` | **Completed & Closed** | 15,711 B | 27,032 B | Deepened technical content (+11,321 B). Added Wayland (labwc) vs X11 vs Containerized display stack comparative matrix, hardware sizing & performance table across 5 SBC tiers, CLI and API examples sections, hardened systemd service unit (`kiosk.service`) with sandbox boundaries, resilient `kiosk-supervisor.sh` script, FastMCP 3.1 kiosk supervisor server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose DRM/KMS graphics stack, and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/jasper.md` | **Completed & Closed** | 15,714 B | 21,436 B | Deepened technical content (+5,722 B). Added operational benchmarks & generation SLA matrix across 5 asset tiers, CLI and API examples sections, production FastMCP 3.1 enterprise Brand Brain tool server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), Celery/Redis Docker Compose dispatch stack, hardened systemd service unit (`jasper-agent.service`), enterprise integration patterns, and expanded 8-scenario diagnostic troubleshooting table. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/providers/perplexity.md` | **Completed & Closed** | 15,718 B | 21,761 B | Deepened technical content (+6,043 B). Added Sonar model routing & operational latency benchmark matrix across 5 tiers, provider comparison matrix (Perplexity vs Gemini Search vs Exa AI vs Tavily), CLI and API examples sections, FastMCP 3.1 real-time web search and citation synthesis server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), LiteLLM proxy and Redis caching Docker Compose stack, hardened systemd unit (`perplexity-mcp.service`), and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/frameworks/deepspeed.md` | **Completed & Closed** | 15,721 B | 21,266 B | Deepened technical content (+5,545 B). Added ZeRO memory partitioning & communication throughput benchmark matrix, CLI and API examples sections, FastMCP 3.1 distributed training supervisor server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), multi-node PyTorch Distributed Docker Compose stack, hardened systemd worker unit (`deepspeed-worker.service`), production operational guardrails & scaling checklist, and expanded 8-scenario diagnostic troubleshooting table. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/process_understanding/faster-whisper.md` | **Completed & Closed** | 15,721 B | 21,934 B | Deepened technical content (+6,213 B). Added empirical quantization & real-time factor (RTF) benchmark matrix across 6 hardware tiers, CLI and API examples sections, FastMCP 3.1 speech-to-text server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), hardened systemd service unit (`faster-whisper.service`), Docker Compose GPU runner stack, production operational hardening recommendations, and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
