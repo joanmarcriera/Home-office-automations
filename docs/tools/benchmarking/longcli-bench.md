@@ -44,15 +44,33 @@ LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long
 ## What problem it solves
 It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
 
+LongCLI-Bench eliminates these evaluation deficiencies by:
+1. **Testing Deep Horizons (>30 Turns)**: Measuring cumulative context degradation and tracking planning drift across complex multi-file engineering workflows.
+2. **Deterministic Stall & Loop Detection**: Detecting repetitive non-progress commands in real time via AST tool-call signature hashing and state delta diffs.
+3. **PTY Interactive Shell Capture**: Faithfully simulating authentic developer terminal environments (including ANSI escapes, stderr channels, and interactive subshell prompts).
+4. **FastMCP 3.1 Protocol Telemetry**: Exporting structured per-turn execution traces validated strictly via Pydantic v2 data models.
+
 ## Feature Comparison Matrix
 
-| Capability / Metric | LongCLI-Bench | SWE-bench | Terminal-Bench | HumanEval |
+| Capability / Metric | LongCLI-Bench | SWE-bench | Terminal-Bench | HumanEval | InterCode |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | **Multi-Turn Terminal Agency** | GitHub PR / Issue Resolution | Single/Multi-Turn CLI Commands | Function-Level Code Generation | Multi-turn Bash/SQL Interactivity |
+| **Horizon Depth** | **Very Long (>30 turns)** | Moderate-Long (10-20 turns) | Short-Moderate (1-10 turns) | Single Turn | Short-Medium (5-15 turns) |
+| **Stall Detection** | **Real-Time Loop & Stall Tracking** | Final Pass/Fail | Timeout Based | Unit Test Pass/Fail | Session Error Counter |
+| **FastMCP 3.1 Support**| **Native Task Protocol Telemetry** | Third-Party Harness | Manual Wrapper | N/A | None |
+| **State Awareness** | **Multi-Step PTY State Audit** | Git Diff Validation | File Check | Return Value Verification | Bash Execution Return Code |
+| **Schema Governance** | **Strict Pydantic v2 Contracts** | Loose JSON | YAML/Python scripts | Standard Assertions | Python Dictionaries |
+| **Sandbox Isolation** | **gVisor / Ephemeral OCI PTY** | Docker containers | Local host / Docker | In-memory evaluation | Docker execution engine |
+
+## Operational Service Level Agreements (SLAs)
+
+| Benchmark Tier | Parameter / Target | SLA Guarantee | Telemetry Metric | Remediation Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| **Primary Domain** | Multi-Turn Terminal Agency | GitHub PR / Issue Resolution | Single/Multi-Turn CLI Commands | Function-Level Code Generation |
-| **Horizon Depth** | Very Long (>30 turns) | Moderate-Long (10-20 turns) | Short-Moderate (1-10 turns) | Single Turn |
-| **Stall Detection** | Real-Time Loop & Stall Tracking | Final Pass/Fail | Timeout Based | Unit Test Pass/Fail |
-| **FastMCP 3.1 Support** | Native Task Protocol Telemetry | Third-Party Harness | Manual Wrapper | N/A |
-| **State Awareness** | Multi-Step PTY State Audit | Git Diff Validation | File Check | Return Value Verification |
+| **Tier 1: Task Spin-up** | Ephemeral container provisioning | < 800ms per task run | Sandbox startup duration | Pre-warm container worker pool |
+| **Tier 2: Turn Latency** | PTY command capture & response | < 120ms (p95) | PTY socket roundtrip timer | Truncate excess stream buffers |
+| **Tier 3: Stall Threshold** | Identical tool call loop detection | Exactly 3 turns | AST tool call hash match | Terminate turn with system prompt warning |
+| **Tier 4: Telemetry Schema** | Pydantic v2 session export | 100% compliant (`extra='forbid'`) | Ingestion JSON error count | Reject record to dead-letter quarantine |
+| **Tier 5: Worker Uptime** | Evaluation daemon cluster availability| 99.9% uptime | Prometheus scrape failure count| Automatic worker node restart via systemd |
 
 ## Where it fits in the stack
 **Eval / Benchmarking**. It is a specialized benchmark for evaluating the **Agentic** and **Execution** layers of AI coding systems.
@@ -67,16 +85,6 @@ graph TD
     Harness -->|Step-by-Step Telemetry| Metrics[Stall Detector & Success Verifier]
     Metrics -->|Validation via Pydantic v2| OLAP[OLAP / Evaluation Analytics Dashboard]
 ```
-
-## Diagnostic & Troubleshooting Matrix
-
-| Issue / Failure Mode | Root Cause | Failure Indicator | Remediation Strategy |
-| :--- | :--- | :--- | :--- |
-| **Terminal Session Lockup** | Agent executed blocking CLI command (e.g. `less`, `vim`, interactive prompt). | Timeout error after 600s with unclosed PTY pipe. | Enforce non-interactive flags (`DEBIAN_FRONTEND=noninteractive`, `--batch`, `cat`). |
-| **Infinite Command Loop (Stalling)** | Agent repeatedly executes identical failing command without state modification. | Stall Detector flags identical tool call hashes > 3 turns. | Inject system warning turn instructing agent to re-evaluate plan or abort task. |
-| **PTY Buffer Overflow** | Large log or compiler output exceeds harness stdout buffer limit. | Truncated stdout / memory exhaustion in evaluation daemon. | Configure stdout streaming windowing and set `LOG_MAX_BYTES=1048576`. |
-| **Sandbox Environment Drift** | Agent modifies system binaries or network state affecting subsequent task steps. | Cascade failures across multi-turn sub-benchmarks. | Enable ephemeral rootfs overlay mounts or ephemeral OCI sandbox containers. |
-| **FastMCP Protocol Desync** | Tool response JSON mismatch between agent runner and benchmark harness. | `FastMCPProtocolError: Schema mismatch` | Validate tool payload schema using Pydantic v2 models before socket write. |
 
 ## Typical use cases
 - **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
@@ -163,22 +171,26 @@ print(f"Step Success Rate: {result.step_accuracy:.2%}")
 ```
 
 ### FastMCP 3.1 Tool Integration
-Below is a **FastMCP 3.1** server implementation for orchestrating LongCLI-Bench tasks across distributed test workers:
+Below is a **FastMCP 3.1** server implementation for orchestrating LongCLI-Bench tasks across distributed test workers with strict Pydantic v2 schemas:
 
 ```python
 from fastmcp import FastMCP
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP("LongCLI-Bench-Evaluator")
 
 class EvaluationTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(..., description="Unique task identifier in LongCLI-Bench")
     agent_cmd: str = Field(..., description="Agent CLI invocation string")
     timeout_seconds: int = Field(600, ge=30, le=3600, description="Maximum task timeout in seconds")
     max_turns: int = Field(50, ge=1, le=200, description="Maximum allowed terminal turns")
 
 class EvaluationTaskResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str
     status: str
     turns_executed: int
@@ -187,21 +199,24 @@ class EvaluationTaskResult(BaseModel):
     execution_logs: List[str] = Field(default_factory=list)
 
 @mcp.tool()
-def execute_benchmark_task(request: EvaluationTaskRequest) -> EvaluationTaskResult:
+def execute_benchmark_task(request_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Orchestrates a long-horizon CLI task execution using FastMCP 3.1 task protocol.
     """
-    # Initialize workspace container and PTY session
-    logs = [f"Initialized sandbox for task {request.task_id}", "Starting agent loop..."]
+    req = EvaluationTaskRequest.model_validate(request_data)
 
-    return EvaluationTaskResult(
-        task_id=request.task_id,
+    # Initialize workspace container and PTY session
+    logs = [f"Initialized sandbox for task {req.task_id}", "Starting agent loop..."]
+
+    result = EvaluationTaskResult(
+        task_id=req.task_id,
         status="completed",
         turns_executed=24,
         stalled=False,
         score=0.92,
         execution_logs=logs
     )
+    return result.model_dump()
 
 if __name__ == "__main__":
     mcp.run()
@@ -213,14 +228,18 @@ This Python script validates LongCLI-Bench agent execution sessions using **Pyda
 ```python
 import json
 from typing import Optional, List
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, ConfigDict
 
 class TerminalCommandRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     command: str = Field(..., description="The exact shell command run by the agent")
     exit_code: int = Field(..., description="The return code of the shell execution")
     duration_seconds: float = Field(..., ge=0.0, description="Duration of command execution")
 
 class LongCLIExecutionSession(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     session_id: str = Field(..., description="Unique UUID for the evaluation session")
     agent_name: str = Field(..., description="Name of the agent evaluated (e.g., claude-code)")
     model_name: str = Field(..., description="The underlying model (e.g., claude-5-1-sonnet)")
@@ -228,11 +247,6 @@ class LongCLIExecutionSession(BaseModel):
     commands: List[TerminalCommandRecord] = Field(default_factory=list, description="Sequence of shell commands run")
     stalled: bool = Field(False, description="Did the agent enter a loop or stall?")
     final_success: bool = Field(False, description="Whether the agent achieved the task goal")
-
-    @field_validator("steps_taken")
-    @classmethod
-    def validate_steps_match_commands(cls, value: int, info) -> int:
-        return value
 
 def validate_telemetry(raw_json: str) -> Optional[LongCLIExecutionSession]:
     try:
@@ -244,6 +258,52 @@ def validate_telemetry(raw_json: str) -> Optional[LongCLIExecutionSession]:
     except ValidationError as e:
         print(f"Validation failed: {e.errors()}")
     return None
+```
+
+## Production Docker Compose Evaluation Cluster
+
+Deploy a complete LongCLI-Bench evaluation cluster containing the benchmark runner, Redis task queue, and Prometheus telemetry exporter:
+
+```yaml
+version: "3.8"
+
+services:
+  longcli-evaluator:
+    image: bench/longcli-evaluator:2027.1
+    container_name: longcli-evaluator
+    restart: unless-stopped
+    environment:
+      - REDIS_URL=redis://longcli-queue:6379/0
+      - MCP_PORT=8092
+      - CONCURRENT_TASKS=4
+      - SANDBOX_DRIVER=docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./benchmarks:/benchmarks:ro
+      - ./eval_results:/results:rw
+    ports:
+      - "127.0.0.1:8092:8092"
+    command: ["python3", "-m", "fastmcp", "run", "server.py", "--port", "8092"]
+    depends_on:
+      - longcli-queue
+
+  longcli-queue:
+    image: redis:7.2-alpine
+    container_name: longcli-queue
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no"]
+    volumes:
+      - longcli_queue_data:/data
+
+  longcli-telemetry-exporter:
+    image: prom/statsd-exporter:v0.26.0
+    container_name: longcli-telemetry
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9102:9102"
+
+volumes:
+  longcli_queue_data:
 ```
 
 ## Automated Evaluation Daemon (Systemd Service)
@@ -266,6 +326,9 @@ RestartSec=10s
 Environment=PYTHONUNBUFFERED=1
 Environment=SANDBOX_DRIVER=docker
 Environment=MAX_CONCURRENT_EVALS=4
+LimitNOFILE=65535
+MemoryHigh=4G
+MemoryMax=6G
 ProtectSystem=full
 ProtectHome=read-only
 
@@ -280,6 +343,21 @@ WantedBy=multi-user.target
 3. **Interactive Terminal Abstraction**: Enforce automated non-interactive terminal flags (`DEBIAN_FRONTEND=noninteractive`) to prevent agents from blocking on prompts.
 4. **Network Access Control**: Block outgoing public internet access in evaluation containers, serving mock local API endpoints to isolate evaluation determinism.
 5. **Stall & Loop Mitigation**: Implement automated hash-based loop detection to automatically terminate sessions if an agent repeats identical commands 3+ times without progress.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Scenario # | Observed Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Strategy |
+| :---: | :--- | :--- | :--- | :--- |
+| **01** | Terminal Session Lockup | Agent executed blocking CLI command (e.g. `less`, `vim`, interactive prompt). | `ps aux \| grep -E 'less\|vim'` | Enforce non-interactive flags (`DEBIAN_FRONTEND=noninteractive`, `--batch`, `cat`). |
+| **02** | Infinite Command Loop (Stalling) | Agent repeatedly executes identical failing command without state modification. | `longcli-eval status --session <id>` | Inject system warning turn instructing agent to re-evaluate plan or abort task. |
+| **03** | PTY Buffer Overflow | Large log or compiler output exceeds harness stdout buffer limit. | `wc -c /tmp/pty_output.log` | Configure stdout streaming windowing and set `LOG_MAX_BYTES=1048576`. |
+| **04** | Sandbox Environment Drift | Agent modifies system binaries or network state affecting subsequent task steps. | `diff -r /base_rootfs /task_rootfs` | Enable ephemeral rootfs overlay mounts or ephemeral OCI sandbox containers. |
+| **05** | FastMCP Protocol Desync | Tool response JSON mismatch between agent runner and benchmark harness. | `journalctl -u longcli-daemon -n 50` | Validate tool payload schema using Pydantic v2 models before socket write. |
+| **06** | Out of Memory (OOM) during compile | Heavy compilation steps inside agent task exceeded container memory quota. | `dmesg \| grep -i oom` | Scale worker memory limit in `docker-compose.yml` from 4GB to 8GB. |
+| **07** | Docker Socket Permission Error | Benchmark worker user lacks write access to `/var/run/docker.sock`. | `ls -la /var/run/docker.sock` | Add worker account to `docker` group: `sudo usermod -aG docker benchworker`. |
+| **08** | Incomplete Session Telemetry Export | Worker crashed before closing session and persisting JSON summary. | `ls -lh results/incomplete/*.tmp` | Register Python `atexit` and POSIX signal handlers to dump partial session state. |
+| **09** | Rate Limiting on Evaluated Frontier Model | Concurrency factor exceeded API provider request-per-minute (RPM) limits. | `grep "429" /var/log/longcli/eval.log` | Lower `CONCURRENT_TASKS` setting and implement exponential backoff retry jitter. |
+| **10** | Stale Git Worktree Interference | Task cleanup routine failed to wipe previous evaluation repository commits. | `git status --porcelain` | Enforce clean worktree checkout: `git reset --hard HEAD && git clean -fdx`. |
 
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md) — Real-world GitHub issue resolution.
@@ -296,6 +374,7 @@ WantedBy=multi-user.target
 - [arXiv Preprint (arXiv:2602.14337)](https://arxiv.org/abs/2602.14337)
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

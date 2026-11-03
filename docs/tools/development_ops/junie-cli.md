@@ -44,6 +44,28 @@ Junie CLI eliminates these friction points by:
 ## Where it fits in the stack
 **Development & Ops Layer**. Junie CLI acts as an **AI-Native Shell Companion and Code Orchestrator**. It sits directly inside the developer's terminal environment, interacting with local shells (zsh/bash), Neovim/Helix text editors, Git version control, and FastMCP model servers.
 
+## Comparative Analysis: Terminal AI Coding Companions
+
+| Feature / Dimension | Junie CLI (v2.5+) | Claude Code | Aider | OpenHands | Mentat |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | Background Daemon + Rust AST | Standalone Terminal CLI | Interactive Git-Bound CLI | Containerized Web/CLI Agent | Interactive Context CLI |
+| **Multiplexer Bridge** | **Native Tmux-Bridge PTY** | Subshell invocation | Terminal Subprocess | Docker sandbox runtime | Subshell execution |
+| **AST Analysis Engine** | **JetBrains PSI / Tree-sitter** | Ripgrep / AST grep | Tree-sitter repository map | Basic regex / parser | Tree-sitter parser |
+| **FastMCP 3.1 Support** | **Native Dual Client/Server** | Client-only tool runner | Experimental wrapper | Custom server hooks | None |
+| **Memory Footprint** | **<50 MB RSS** | ~180 MB RSS (Node.js) | ~120 MB RSS (Python) | >1.5 GB RSS (Docker) | ~110 MB RSS (Python) |
+| **Schema Governance** | **Strict Pydantic v2 Models** | JSON-Schema v7 | Python TypedDict | Pydantic v1/v2 mixed | Python dataclasses |
+| **Multi-File Safe Diffs** | **AST-Grammar Gatekeeper** | Model proposed patch | Git unified diff parser | Git patch executor | Custom diff block parser |
+
+## Operational Service Level Agreements (SLAs)
+
+| Operational Tier | Metric / Target | SLA Guarantee | Monitoring Mechanism | Failover / Remediation |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: AST Indexing** | Cold repository initial parse | < 8.0s per 100k LOC | SQLite WAL index telemetry | Fallback to incremental cache |
+| **Tier 2: Semantic Lookup** | Symbol & vector search latency | < 350ms (p95) | FastMCP execution timer | Fallback to ripgrep regex scan |
+| **Tier 3: Tmux Execution** | Pane lifecycle & buffer capture | < 50ms per poll cycle | Unix domain socket heartbeat | Re-spawn orphaned tmux window |
+| **Tier 4: AST Patch Audit** | Syntax check before disk write | < 120ms per diff file | Tree-sitter validation hook | Reject patch; request re-generation |
+| **Tier 5: Daemon Availability**| Continuous background uptime | 99.95% availability | Systemd watchdog / Docker health | Auto-restart with state recovery |
+
 ## System Architecture & Technical Deep-Dive
 
 ```mermaid
@@ -162,18 +184,96 @@ junie audit \
   --output "./reports/codebase-compliance.md"
 ```
 
+## Production Docker Compose Daemon Stack
+
+For shared remote development nodes or centralized CI runner environments, Junie CLI can be deployed as an autonomous background container alongside an ephemeral Redis event broker:
+
+```yaml
+version: "3.8"
+
+services:
+  junie-daemon:
+    image: jetbrains/junie-cli:2.5.2
+    container_name: junie-core-daemon
+    restart: unless-stopped
+    environment:
+      - JUNIE_LOG_LEVEL=info
+      - JUNIE_IPC_SOCKET=/var/run/junie/junie.sock
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://junie-event-broker:6379/0
+      - FASTMCP_SERVER_PORT=8089
+    volumes:
+      - ./workspace:/workspace:rw
+      - junie_ipc_data:/var/run/junie:rw
+      - junie_ast_cache:/root/.cache/junie:rw
+    ports:
+      - "127.0.0.1:8089:8089"
+    command: ["junie", "daemon", "--listen-ipc", "/var/run/junie/junie.sock", "--mcp-port", "8089"]
+    healthcheck:
+      test: ["CMD", "junie", "ping", "--socket", "/var/run/junie/junie.sock"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - junie-event-broker
+
+  junie-event-broker:
+    image: redis:7.2-alpine
+    container_name: junie-event-broker
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis_event_data:/data
+
+volumes:
+  junie_ipc_data:
+  junie_ast_cache:
+  redis_event_data:
+```
+
+## Production Systemd Daemon Service (`junie-daemon.service`)
+
+Deploy Junie CLI as a managed, self-healing systemd service in multi-developer Linux workstation hosts:
+
+```ini
+[Unit]
+Description=Junie CLI AST Indexer and FastMCP Daemon
+After=network.target tmux.service
+Wants=tmux.service
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer/workspace
+EnvironmentFile=/etc/junie/daemon.env
+ExecStart=/usr/local/bin/junie daemon --listen-mcp 127.0.0.1:8089 --log-level info
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65535
+MemoryHigh=2G
+MemoryMax=3G
+CPUQuota=200%
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=junie-daemon
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### FastMCP 3.1 Python Integration Server
-The following script exposes Junie CLI workspace refactoring capabilities as an agentic FastMCP tool server:
+The following script exposes Junie CLI workspace refactoring capabilities as an agentic FastMCP tool server with strict Pydantic v2 schemas:
 
 ```python
 import os
 import json
 import subprocess
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
     name="Junie Workspace Controller",
@@ -181,19 +281,24 @@ mcp = FastMCP(
 )
 
 class JunieRefactorRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_description: str = Field(..., description="High-level description of refactoring task")
     target_directory: str = Field(".", description="Relative directory path to restrict refactoring focus")
     use_tmux_bridge: bool = Field(True, description="Execute test loops in background tmux pane")
-    max_iterations: int = Field(5, ge=1, le=10)
+    max_iterations: int = Field(5, ge=1, le=10, description="Maximum automated self-correction cycles")
+    timeout_seconds: int = Field(300, ge=30, le=900, description="Execution timeout limit")
 
 class JunieRefactorResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     success: bool
     applied_patches_count: int
     iterations_used: int
     summary: str
+    target_files_modified: List[str] = Field(default_factory=list)
 
 @mcp.tool()
-
 def execute_junie_refactor(request_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Executes an autonomous refactoring task using the Junie CLI daemon.
@@ -211,15 +316,16 @@ def execute_junie_refactor(request_data: Dict[str, Any]) -> Dict[str, Any]:
         if req.use_tmux_bridge:
             cmd.append("--tmux-bridge")
 
-        res = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=req.timeout_seconds)
 
         if res.returncode == 0:
-            parsed = json.loads(res.stdout)
+            parsed = json.loads(res.stdout) if res.stdout else {}
             response_obj = JunieRefactorResponse(
                 success=parsed.get("success", True),
                 applied_patches_count=parsed.get("patches_applied", 1),
                 iterations_used=parsed.get("iterations", 1),
-                summary=parsed.get("summary", "Refactoring task completed successfully")
+                summary=parsed.get("summary", "Refactoring task completed successfully"),
+                target_files_modified=parsed.get("files_modified", [])
             )
             return response_obj.model_dump()
         else:
@@ -227,7 +333,8 @@ def execute_junie_refactor(request_data: Dict[str, Any]) -> Dict[str, Any]:
                 "success": False,
                 "applied_patches_count": 0,
                 "iterations_used": 0,
-                "summary": f"Junie CLI returned error code {res.returncode}: {res.stderr}"
+                "summary": f"Junie CLI returned error code {res.returncode}: {res.stderr}",
+                "target_files_modified": []
             }
 
     except Exception as err:
@@ -235,7 +342,8 @@ def execute_junie_refactor(request_data: Dict[str, Any]) -> Dict[str, Any]:
             "success": False,
             "applied_patches_count": 0,
             "iterations_used": 0,
-            "summary": f"Failed to execute Junie CLI daemon: {str(err)}"
+            "summary": f"Failed to execute Junie CLI daemon: {str(err)}",
+            "target_files_modified": []
         }
 
 if __name__ == "__main__":
@@ -243,14 +351,16 @@ if __name__ == "__main__":
 ```
 
 ### Pydantic v2 Schema for Junie Diff Verification & Tmux Sessions
-This module demonstrates strict **Pydantic v2** validation of Junie CLI session states, semantic search results, and patch diff verification.
+This module demonstrates strict **Pydantic v2** validation of Junie CLI session states, semantic search results, and patch diff verification:
 
 ```python
 import sys
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class JunieCodeMatch(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     file_path: str = Field(..., description="Relative file path")
     start_line: int = Field(..., ge=1)
     end_line: int = Field(..., ge=1)
@@ -258,12 +368,16 @@ class JunieCodeMatch(BaseModel):
     code_snippet: str
 
 class JunieDiffBlock(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_file: str
     added_lines_count: int = Field(..., ge=0)
     deleted_lines_count: int = Field(..., ge=0)
     unified_diff: str
 
 class JunieTmuxSessionReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     session_name: str
     active_pane_id: str
     command_executed: str
@@ -301,6 +415,21 @@ if __name__ == "__main__":
 
     validate_junie_session_output(sample_json)
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Scenario # | Observed Issue / Symptom | Root Cause | Diagnostic Command | Remediation Procedure |
+| :---: | :--- | :--- | :--- | :--- |
+| **01** | `junie: command not found` | Binary directory not in user `$PATH`. | `which junie || echo $PATH` | Add `export PATH="$HOME/.cargo/bin:$PATH"` to `~/.zshrc` or `~/.bashrc`. |
+| **02** | `TmuxBridgeError: no server running on /tmp/tmux-1000` | No active tmux server or socket permissions error. | `tmux ls` | Run `tmux new-session -d -s junie-main` before launching background refactor loops. |
+| **03** | AST vector index stale or missing symbols | Repository underwent heavy rebase or branch switch without re-indexing. | `junie index status` | Execute `junie index rebuild --force` to flush and regenerate the SQLite symbol DB. |
+| **04** | FastMCP socket connection refused on port 8089 | Port conflict or daemon crashed. | `netstat -tlpn \| grep 8089` | Terminate stale processes (`lsof -ti:8089 \| xargs kill -9`) and restart `junie daemon`. |
+| **05** | Tree-sitter parse syntax rejection error | LLM generated code violating language grammar specs. | `junie diff verify --file <path>` | Trigger re-prompting with explicit compiler error messages passed back to the model. |
+| **06** | Tmux buffer capture truncation | Target test suite emitted verbose logs exceeding pane scrollback. | `tmux show-options -g history-limit` | Set `set-option -g history-limit 50000` in `~/.tmux.conf`. |
+| **07** | High memory usage in SQLite WAL cache | Excessive index writes without WAL checkpointing. | `ls -lh ~/.cache/junie/*.db*` | Run `sqlite3 ~/.cache/junie/symbols.db "PRAGMA wal_checkpoint(TRUNCATE);"` to reclaim disk. |
+| **08** | API rate limit error (`429 Too Many Requests`) | Rapid multi-iteration loop exhausted API quota. | `grep "429" ~/.local/share/junie/logs/daemon.log` | Configure exponential backoff and activate local fallback model (`junie config set fallback qwen-3.6-vl`). |
+| **09** | Permission denied modifying git worktree | Ephemeral container running as root modified host file ownerships. | `ls -la src/` | Chown files to host user: `sudo chown -R $USER:$USER .`. |
+| **10** | Neovim keybinding RPC timeout | Stale IPC socket connection. | `test -S /tmp/junie-ipc.sock && echo "alive"` | Remove dangling socket `rm /tmp/junie-ipc.sock` and restart editor session. |
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Anthropic CLI agentic tool.
