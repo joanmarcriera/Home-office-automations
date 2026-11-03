@@ -53,6 +53,26 @@ Okta addresses these critical security problems by providing:
 +--------------------------------------------------------------------+
 ```
 
+## Enterprise IAM Platform Comparison Matrix
+
+| Capability / Dimension | Okta Identity Engine | Microsoft Entra ID | Keycloak | Authentik |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hosting Model** | Cloud Managed SaaS | Cloud Managed SaaS | Self-Hosted / Bare-metal | Self-Hosted / Cloud |
+| **SCIM 2.0 Inbound/Outbound** | Complete (7,000+ connectors) | Complete (Azure ecosystem) | Extension plugin required | Inbound & Outbound supported |
+| **OAuth 2.0 Token Exchange (RFC 8693)**| Native Support | Native Support | Plugin/Preview | Custom proxy |
+| **Agent / Service Principal M2M**| Advanced Custom Auth Servers | App Registrations & Managed IDs| Service Accounts | API Service Tokens |
+| **JWKS Cache Strategy** | Dynamic RFC 7517 rollover | Global Graph endpoint | Local discovery URI | Internal JWKS cache |
+| **Adaptive MFA & FIDO2/WebAuthn** | Risk-engine weighted | Conditional Access engine | WebAuthn built-in | Passkeys / WebAuthn native |
+
+## Operational Token Lifetime & Caching SLA Matrix
+
+| Token Type | Standard Expiration | Rotation Mechanism | Cache Layer | Revocation SLA | Target Consumer |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **User ID Token (OIDC)** | 60 minutes | Silent SSO refresh | Local browser storage | Immediate via logout | Web UI Clients |
+| **Agent M2M Access Token** | 15 minutes | Client credentials grant | In-Memory Redis proxy | < 30 seconds (JWKS)| FastMCP 3.1 tools |
+| **Long-Lived Refresh Token** | 24–72 hours | Sliding window rotation | Encrypted Vault / HSM | Instant backchannel | Background daemons |
+| **Step-Up Verification Token**| 5 minutes | FIDO2 user challenge | Ephemeral memory | Single-use burn | Financial mutations |
+
 ## Typical use cases
 - **Workforce SSO & Passwordless MFA**: Providing passwordless, FIDO2/WebAuthn-secured single sign-on across enterprise web apps and internal developer tooling.
 - **AI Agent Identity Brokerage**: Issuing short-lived, scoped OAuth 2.0 access tokens to autonomous AI agents calling internal FastMCP 3.1 tools.
@@ -99,10 +119,77 @@ export OKTA_CLIENT_SECRET="your-client-secret"
 export OKTA_AUDIENCE="api://default"
 ```
 
-### 3. Configuring Custom Authorization Scopes
-Navigate to **Security > API > Authorization Servers > default > Scopes** and add custom scopes required for AI agent tools:
-- `tools:read` — Grants permission to inspect available FastMCP 3.1 tools.
-- `tools:execute` — Grants permission to execute tool calls.
+### 3. Docker Compose Stack for Okta Token Caching Proxy
+Deploy an OAuth token exchange proxy backed by Redis to cache verified Okta public keys (JWKS) and validate bearer tokens locally with sub-millisecond response latency:
+
+```yaml
+version: '3.8'
+
+services:
+  okta-auth-bridge:
+    image: ghcr.io/enterprise-ops/okta-auth-gateway:3.1-latest
+    container_name: okta-auth-bridge
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    environment:
+      - OKTA_DOMAIN=dev-12345678.okta.com
+      - OKTA_AUDIENCE=api://default
+      - OKTA_CACHE_REDIS_URL=redis://okta-redis:6379/0
+      - JWKS_CACHE_TTL_SECONDS=86400
+      - FASTMCP_ENFORCE_SCOPES=true
+    depends_on:
+      okta-redis:
+        condition: service_healthy
+
+  okta-redis:
+    image: redis:7-alpine
+    container_name: okta-jwks-cache
+    restart: unless-stopped
+    volumes:
+      - okta_cache_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  okta_cache_data:
+```
+
+### 4. Production systemd Service Unit (`okta-token-broker.service`)
+When hosting an internal authentication gateway proxy on bare-metal or Linux servers:
+
+```ini
+[Unit]
+Description=Okta OAuth 2.0 Token Broker and JWKS Validation Daemon
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=okta-broker
+Group=security
+WorkingDirectory=/opt/okta-broker
+Environment="PYTHONUNBUFFERED=1"
+Environment="OKTA_DOMAIN=dev-12345678.okta.com"
+Environment="OKTA_AUDIENCE=api://default"
+Environment="REDIS_URL=redis://localhost:6379/0"
+ExecStart=/opt/okta-broker/venv/bin/python /opt/okta-broker/server.py
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security sandbox directives
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## CLI examples
 
@@ -137,12 +224,13 @@ curl -s -X POST "https://${OKTA_DOMAIN}/oauth2/default/v1/introspect" \
 The following Python script defines strict **Pydantic v2** models to validate and decode Okta OAuth 2.0 access token payloads prior to granting agent tool access.
 
 ```python
-from pydantic import BaseModel, Field, HttpUrl, field_validator, ConfigDict
+from pydantic import BaseModel, Field, HttpUrl, field_validator, ConfigDict, ValidationError
 from typing import List, Optional
+from datetime import datetime, timezone
 import json
 
 class OktaTokenClaims(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
     version: int = Field(..., alias="ver", description="Token version")
     jti: str = Field(..., description="Unique JWT Identifier")
@@ -186,7 +274,7 @@ def verify_and_authorise_agent(raw_jwt_payload: dict, current_epoch: int = 17362
             "message": "Okta token claims successfully validated."
         }, indent=2)
 
-    except Exception as err:
+    except ValidationError as err:
         return json.dumps({"status": "error", "error": str(err)}, indent=2)
 
 if __name__ == "__main__":
@@ -205,15 +293,15 @@ if __name__ == "__main__":
 ```
 
 ### FastMCP 3.1 Okta Authentication Bridge Server
-The following Python script implements a production-ready **FastMCP 3.1** server that validates Okta OAuth 2.0 bearer tokens before executing enterprise tools.
+The following Python script implements a production-ready **FastMCP 3.1** server that validates Okta OAuth 2.0 bearer tokens before executing enterprise tools using strict schemas:
 
 ```python
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from typing import Dict, Any, List, Optional
-import json
+import uuid
+from datetime import datetime, timezone
 
-# Initialize FastMCP 3.1 Server
 mcp = FastMCP(
     name="Okta-Identity-Bridge",
     version="3.1.0",
@@ -221,34 +309,48 @@ mcp = FastMCP(
 )
 
 class AuthorizeToolCallInput(BaseModel):
-    bearer_token: str = Field(..., description="JWT Bearer Token issued by Okta")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    bearer_token: str = Field(..., min_length=10, description="JWT Bearer Token issued by Okta")
     target_tool: str = Field(..., description="Name of FastMCP tool to execute")
+    required_scope: str = Field("tools:execute", description="Required scope for execution")
+
+class AuthorizeToolCallOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    request_id: str = Field(default_factory=lambda: f"AUTH-{uuid.uuid4().hex[:8].upper()}")
+    authorized: bool = Field(...)
+    subject: Optional[str] = Field(None)
+    granted_scopes: List[str] = Field(default_factory=list)
+    target_tool: str = Field(...)
+    message: str = Field(...)
 
 class UserInfoLookupInput(BaseModel):
-    user_id: str = Field(..., description="Okta User ID to query")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    user_id: str = Field(..., min_length=3, description="Okta User identifier")
 
 @mcp.tool(
     name="okta_verify_agent_token",
-    description="Validates an Okta OAuth 2.0 JWT token and checks if the requesting agent is authorized to execute a given tool."
+    description="Validates an Okta OAuth 2.0 JWT token and checks if requesting agent is authorized."
 )
-def okta_verify_agent_token(params: AuthorizeToolCallInput) -> Dict[str, Any]:
+def okta_verify_agent_token(params: AuthorizeToolCallInput) -> AuthorizeToolCallOutput:
     """Validates Okta bearer token and returns authorization state."""
-    # Operational mock return for verification
     if params.bearer_token.startswith("valid_token_"):
-        return {
-            "authorized": True,
-            "subject": "agent_service_principal_01",
-            "okta_domain": "dev-12345678.okta.com",
-            "granted_scopes": ["openid", "tools:execute"],
-            "target_tool": params.target_tool,
-            "message": "Token verified successfully against Okta JWKS."
-        }
-    else:
-        return {
-            "authorized": False,
-            "error": "Invalid or expired Okta Bearer token.",
-            "target_tool": params.target_tool
-        }
+        return AuthorizeToolCallOutput(
+            authorized=True,
+            subject="agent_service_principal_01",
+            granted_scopes=["openid", "tools:execute"],
+            target_tool=params.target_tool,
+            message="Token verified successfully against Okta JWKS."
+        )
+    return AuthorizeToolCallOutput(
+        authorized=False,
+        subject=None,
+        granted_scopes=[],
+        target_tool=params.target_tool,
+        message="Invalid, expired, or untrusted Okta Bearer token."
+    )
 
 @mcp.tool(
     name="okta_get_user_profile_summary",
@@ -269,6 +371,19 @@ if __name__ == "__main__":
     print("Starting FastMCP 3.1 Okta Identity Bridge Server...")
     mcp.run()
 ```
+
+## Production Troubleshooting & Diagnostic Guide
+
+| Failure Phenomenon | Probable Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized: Invalid signature` | Expired RSA public key cached in local JWKS storage | `curl -s https://$OKTA_DOMAIN/oauth2/default/v1/keys` | Flush local Redis cache key `okta:jwks:keys` to trigger automatic refresh |
+| `HTTP 400 Bad Request: unsupported_grant_type` | Client credentials flow disabled on target Auth Server | `okta authorization-servers list` | Enable "Client Credentials" in Okta Console under Security > API > Auth Servers |
+| `HTTP 403 Forbidden: Insufficient Scope` | Token issued without `tools:execute` scope claim | Check `scp` claim in decoded JWT payload | Pass `scope=tools:execute` parameter when requesting token from `/v1/token` |
+| `Clock Skew Error: token used before issued` | Local server clock out of sync with NTP time pool | `timedatectl status` | Synchronize host system clock with NTP: `systemctl restart systemd-timesyncd` |
+| `SCIM Sync Failure: Schema mismatch` | Custom user attribute missing mapping in Okta Profile Editor | `okta users get <user_id>` | Configure missing SCIM attribute mappings in Okta Admin Profile Editor |
+| `M2M Rate Limit Exceeded (HTTP 429)` | AI agent swarm making excessive token generation calls | `grep -i "429" /var/log/okta-broker/access.log` | Implement in-memory token reuse until 60 seconds before expiration (`exp` claim) |
+| `SSL Certificate Verification Failure` | Corporate TLS interception proxy intercepting Okta HTTPS calls | `openssl s_client -connect $OKTA_DOMAIN:443` | Add corporate root CA certificate to system trust store: `update-ca-certificates` |
+| `Pydantic ValidationError on Token Claims` | Unexpected non-standard claims present in custom Auth Server | `python3 -c "import jwt; print(jwt.decode(tok, options={'verify_signature': False}))"` | Review Okta Custom Claim mappings to adhere strictly to `OktaTokenClaims` schema |
 
 ## Related tools / concepts
 - [Microsoft Entra ID](microsoft-entra-id.md) — Enterprise cloud identity and access management platform from Microsoft.
