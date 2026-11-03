@@ -9,7 +9,7 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-### Canonical pricing matrix (last verified: 2027-01-07)
+### Canonical pricing matrix (last verified: 2026-10-07)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
@@ -46,7 +46,7 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## What problem it solves
-LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern early January 2027 models like Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra/Pro/Flash, and FastMCP 3.1.
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern models like Claude 3.5 Sonnet, GPT-4o, DeepSeek-V2.5, Gemini 1.5 Flash/Pro, and MCP tooling.
 
 ## Where it fits in the stack
 This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
@@ -57,11 +57,11 @@ This document belongs to the **Layer 1: Providers** and **Layer 2: Models** anal
 - **Provider Switching**: Comparing the "Intelligence-per-Dollar" value when deciding whether to migrate from one provider to another (e.g., Anthropic to Google or DeepSeek).
 - **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
 
-### Model Intelligence-per-Dollar Value (2027 Triage)
-Based on community analysis (early January 2027), models are categorized by their efficiency relative to cost:
-- **Top Intelligence**: Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra, Claude Opus 4.8.
-- **Best Value**: DeepSeek V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6 VL, Gemma 4.
-- **Balanced**: Claude Sonnet 4.7, GPT-5.5, Llama 4.
+### Model Intelligence-per-Dollar Value (October 2026 Triage)
+Based on community analysis (October 2026), models are categorized by their efficiency relative to cost:
+- **Top Intelligence**: Claude 3.5 Sonnet, GPT-4o, DeepSeek-V2.5, Gemini 1.5 Pro.
+- **Best Value**: DeepSeek V2.5, Gemini 1.5 Flash, Qwen 2.5, Llama 3.1 70B.
+- **Balanced**: Claude 3.5 Haiku, GPT-4o mini, Mistral Large 2.
 
 ## Strengths
 - **Consolidated**: Aggregates data from over 30 providers in a single view.
@@ -87,7 +87,7 @@ Based on community analysis (early January 2027), models are categorized by thei
 ## Getting started
 1. Identify your primary requirement (e.g., "Coding", "Fast", or "Budget").
 2. Consult the **[Capability Capacity Summary](#capability-capacity-summary-auto-generated)** to see which models currently offer the best free-tier value.
-3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2027-01-07)** to jump to the official pricing and documentation for your chosen provider.
+3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2026-10-07)** to jump to the official pricing and documentation for your chosen provider.
 4. Check the **[Model-level quota tracker](#model-level-quota-tracker-expanded-list)** for specific RPM/TPD limits.
 
 ### Developer Program Plans
@@ -146,7 +146,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
 ## CLI examples
-The following CLI tools can be used to monitor quotas and billing in a SOTA 2027 environment.
+The following CLI tools can be used to monitor quotas and billing in a production environment.
 
 ```bash
 # Google Cloud: List project quotas for Gemini APIs
@@ -247,5 +247,5 @@ print(f"Validated billing configuration for: {validated_billing.model_name}")
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high
