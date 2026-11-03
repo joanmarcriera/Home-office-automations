@@ -101,6 +101,99 @@ sequenceDiagram
 | **FastMCP 3.1 Server Integration** | FastMCP Tool Bridge | Native MCP Client | External Wrappers | Native MCP Client | Native MCP Client |
 | **Upstream Status** | Legacy / Archived Mirror | Active Production | Active Open Source | Active Commercial | Active Commercial |
 
+## Operational Service Level Agreements (SLAs) & Task Complexity Tiering
+
+Managing automated AI refactoring across diverse enterprise repositories demands explicit complexity boundaries:
+
+| Refactor Complexity Tier | Target File Count | Max Context Window | Expected Turnaround (p90) | Auto-Test Verification Mandate | Rollback Strategy |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: Atomic Lint Fix** | 1 - 2 files | < 8,000 tokens | < 12 seconds | Linter (`flake8` / `eslint`) | Instant `git checkout -- <file>` |
+| **Tier 2: Single-Module Refactor** | 3 - 6 files | < 24,000 tokens | < 35 seconds | Module unit tests (`pytest -k`) | Branch commit rollback (`git reset --hard`) |
+| **Tier 3: Cross-Module Migration** | 7 - 15 files | < 64,000 tokens | < 90 seconds | Full test suite (`pytest tests/`) | Isolated feature branch squash merge |
+| **Tier 4: Enterprise Deprecation Pass** | 16 - 35 files | < 128,000 tokens | < 240 seconds | Full CI integration & contract checks | Staged PR generation with human review |
+
+## Containerized Headless Refactoring Runner: Docker Compose Stack
+
+The following production Docker Compose architecture provides an isolated, sandboxed environment for headless Mentat refactoring runs, preventing rogue code modifications from escaping sandbox boundaries:
+
+```yaml
+version: "3.9"
+
+services:
+  mentat-runner:
+    image: python:3.11-slim
+    container_name: mentat-headless-runner
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - ./target-repo:/workspace:rw
+      - ./mentat-cache:/root/.mentat:rw
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_QUEUE_URL=redis://mentat-redis:6379/0
+      - MCP_PORT=8085
+    command: >
+      bash -c "pip install --no-cache-dir mentat-ai fastmcp pydantic redis &&
+               python /workspace/mentat_worker.py"
+    depends_on:
+      mentat-redis:
+        condition: service_healthy
+    networks:
+      - mentat-sandbox-net
+
+  mentat-redis:
+    image: redis:7-alpine
+    container_name: mentat-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no", "--requirepass", "MentatQueue2027"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "MentatQueue2027", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - mentat-sandbox-net
+
+networks:
+  mentat-sandbox-net:
+    driver: bridge
+```
+
+## Systemd Service Unit: Mentat Headless Worker
+
+For dedicated Linux build agents or CI/CD runners executing automated code maintenance tasks continuously:
+
+```ini
+[Unit]
+Description=Mentat Headless Refactoring Worker Daemon
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=builder
+Group=builder
+WorkingDirectory=/opt/mentat-runner
+Environment="PATH=/opt/mentat-runner/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="ANTHROPIC_API_KEY=sk-ant-live-token"
+Environment="MENTAT_AUTO_COMMIT=true"
+ExecStart=/opt/mentat-runner/venv/bin/python /opt/mentat-runner/worker.py
+Restart=always
+RestartSec=10s
+
+# Sandboxing and Filesystem Hardening
+ProtectSystem=strict
+ReadWritePaths=/opt/mentat-runner/workspace /opt/mentat-runner/logs
+NoNewPrivileges=true
+PrivateTmp=true
+LimitNOFILE=32768
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Typical use cases
 - **Cross-Cutting Codebase Refactoring**: Executing coordinated edits across data models, business logic controllers, and unit tests simultaneously.
 - **Automated Test Generation**: Scanning existing source modules and generating comprehensive unit tests in matching test directories.
@@ -183,14 +276,18 @@ The following Python script implements a headless refactoring runner that valida
 import sys
 import subprocess
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class ASTDiffChunk(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     file_path: str = Field(..., description="Target file path relative to repository root")
     search_block: str = Field(..., description="Exact string block to search in target file")
     replace_block: str = Field(..., description="Replacement string block to inject")
 
 class MentatRefactorConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_files: List[str] = Field(..., min_items=1, description="Source files or directories to refactor")
     prompt: str = Field(..., min_length=10, description="Natural language instructions")
     model: str = Field(default="claude-5-1-sonnet-20261022", description="Target reasoning model")
@@ -229,27 +326,31 @@ if __name__ == "__main__":
 
 ## FastMCP 3.1 & Model Context Protocol Implementation
 
-The following complete Python script creates a FastMCP 3.1 server that exposes Mentat's multi-file refactoring engine as a tool for autonomous AI agents (**Claude 5.1**, **GPT-5.5**):
+The following complete Python script creates a FastMCP 3.1 server that exposes Mentat's multi-file refactoring engine as a tool for autonomous AI agents (**Claude 5.1**, **GPT-5.5**) with strict Pydantic v2 schemas:
 
 ```python
 import subprocess
 from typing import List, Dict, Any, Optional
-from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ConfigDict
 
-mcp = FastMCP("MentatRefactorServer")
+mcp = FastMCP("MentatRefactorServer", version="3.1.0")
 
 class MentatActionResult(BaseModel):
-    success: bool
-    modified_files: List[str]
-    summary_log: str
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    success: bool = Field(..., description="Whether refactor execution succeeded")
+    modified_files: List[str] = Field(..., description="List of files touched by refactor")
+    summary_log: str = Field(..., description="Summary output from refactor process")
 
 class RefactorRequestPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     instructions: str = Field(..., description="Detailed instructions for multi-file editing")
     target_files: List[str] = Field(..., description="List of target file paths or directories")
-    auto_commit: bool = Field(default=True)
+    auto_commit: bool = Field(default=True, description="Whether to auto-commit modifications")
 
-@mcp.tool()
+@mcp.tool(name="run_mentat_refactor", description="Executes a multi-file refactoring task using Mentat")
 async def run_mentat_refactor(
     payload: RefactorRequestPayload,
     ctx: Optional[Context] = None
@@ -295,6 +396,10 @@ if __name__ == "__main__":
 | `TreeSitterParseError` | Unsupported programming language syntax version. | Upgrade local Tree-Sitter grammar bindings or pass `--ignore-ast` flag to force line-based diff matching. |
 | `GitWorkingDirectoryDirtyError` | Uncommitted local edits blocking `--auto-commit` step. | Execute `git commit` or `git stash` before launching Mentat refactor loops. |
 | `ContextWindowExceededError` | Included directory contains excessive binary files or `node_modules`. | Add an `.gitignore` or `.mentatignore` file to exclude compiled assets and vendor libraries. |
+| `DiffChunkApplicationFailure` | Model produced fuzzy search match not identical to file lines. | Configure model temperature to <=0.1 and re-run with explicit line number anchors. |
+| `NonZeroExitCodeTimeout` | Unit test suite hung during automated verification cycle. | Pass `--test-timeout 30` to enforce test runtime limits in execution wrapper. |
+| `APIKeyMissingError` | LLM vendor authentication tokens absent in environment. | Ensure `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` are exported in runner shell. |
+| `FastMCPToolValidationFailure`| Schema mismatch in tool input arguments sent to MCP bridge. | Use strict Pydantic v2 schemas (`extra="forbid"`) to inspect and validate request JSON. |
 
 ## Operational & Security Guardrails
 - **Git Branch Isolation**: Always execute Mentat tasks on dedicated feature branches (`feature/ai-refactor-*`) to ensure atomic rollback capabilities via `git reset --hard`.

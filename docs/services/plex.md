@@ -58,6 +58,18 @@ Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosyste
 | **Dedicated Music Client** | Plexamp (Best-in-Class)| Finamp / Jellyfin Mobile | Emby Apps | N/A | N/A |
 | **Telemetry / Tracking** | Opt-Out Metrics | Zero Telemetry | Minimal Telemetry | Zero Telemetry | Minimal Telemetry |
 
+## Operational Service Level Agreements (SLAs) & Transcode Profile Tiering
+
+Managing streaming workloads across diverse local LANs and constrained cellular connections requires formal streaming profile definitions:
+
+| Profile Tier | Resolution & Bitrate | Video Codec | Audio Codec | Target Bandwidth | Hardware Transcode Acceleration Requirement |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Direct Play (Ultra HD)** | 3840x2160 (4K HDR / DV) | HEVC / AV1 (Direct) | TrueHD / Atmos / DTS-HD | 45 - 85 Mbps | Zero GPU overhead (Direct file stream) |
+| **Direct Stream (Full HD)**| 1920x1080 (1080p SDR) | H.264 / HEVC | AAC / AC3 remux | 12 - 20 Mbps | Container remuxing only (<1% CPU) |
+| **Transcode High (Remote)**| 1920x1080 @ 8 Mbps | H.264 (NVENC/QSV) | AAC 5.1 (384 kbps) | 8 Mbps | Intel QuickSync (gen 11+) or NVIDIA NVENC (Pascal+) |
+| **Transcode Low (Cellular)**| 1280x720 @ 2 Mbps | H.264 (NVENC/QSV) | AAC Stereo (160 kbps) | 2 Mbps | Real-time GPU scaling & color space tone-mapping |
+| **Audio Only (Plexamp HQ)** | Lossless FLAC / ALAC | FLAC / Opus Direct | Native Bit-Perfect | 0.8 - 1.4 Mbps | Zero GPU overhead |
+
 ## Typical use cases
 - Streaming high-definition movies and TV shows to smart TVs, consoles, and mobile devices.
 - Hosting a private, high-fidelity music library with the **Plexamp** application.
@@ -88,6 +100,59 @@ Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosyste
 - If you strictly require 100% open-source software (consider [Jellyfin](jellyfin.md)).
 - In environments with no internet access (Plex can be configured for offline use, but it is not its primary design).
 - If you want to avoid centralized account dependencies and telemetry.
+
+## Containerized Deployment: Production Docker Compose Stack
+
+The following production-hardened Docker Compose specification deploys Plex Media Server with Intel QuickSync / NVIDIA GPU pass-through, persistent library volumes, and an integrated FastMCP 3.1 telemetry proxy:
+
+```yaml
+version: "3.9"
+
+services:
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex-media-server
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM_TOKEN}
+    devices:
+      - /dev/dri:/dev/dri  # Intel QuickSync GPU pass-through
+    volumes:
+      - /opt/plex/config:/config
+      - /opt/plex/transcode:/transcode
+      - /mnt/storage/media/movies:/data/movies:ro
+      - /mnt/storage/media/tvshows:/data/tvshows:ro
+      - /mnt/storage/media/music:/data/music:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:32400/identity || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  plex-mcp-gateway:
+    image: python:3.11-slim
+    container_name: plex-mcp-gateway
+    restart: unless-stopped
+    volumes:
+      - ./plex_mcp:/app:ro
+    environment:
+      - PLEX_URL=http://localhost:32400
+      - PLEX_TOKEN=${PLEX_API_TOKEN}
+      - MCP_PORT=8090
+    command: >
+      bash -c "pip install --no-cache-dir fastmcp plexapi pydantic &&
+               python /app/server.py"
+    network_mode: host
+    depends_on:
+      plex:
+        condition: service_healthy
+```
 
 ## Systemd Service Configuration
 For bare-metal Linux installations (Ubuntu/Debian/RHEL) outside Docker containers, Plex Media Server runs as a native systemd daemon:
@@ -162,37 +227,49 @@ docker exec -it plex sqlite3 /config/Library/Application\ Support/Plex\ Media\ S
 
 ## API examples
 
-### Python: FastMCP 3.1 Server for Active Sessions Monitoring
-This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to query active media streams and transcoding states. It allows models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to dynamically monitor home streaming traffic.
+### Python: FastMCP 3.1 Server for Active Sessions Monitoring & Management
+This example showcases a production-ready FastMCP 3.1 tool utilizing strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`) to query active media streams, transcoding states, and trigger library refresh actions. It allows models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to dynamically monitor home streaming traffic.
 
 ```python
-from typing import List
+import os
+from typing import List, Optional
 from plexapi.server import PlexServer
-from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+from fastmcp import FastMCP
 
 # Initialize FastMCP Server
 mcp = FastMCP("PlexServerManager", version="3.1.0")
 
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'YOUR_PLEX_TOKEN'
+PLEX_URL = os.environ.get("PLEX_URL", "http://localhost:32400")
+PLEX_TOKEN = os.environ.get("PLEX_TOKEN", "YOUR_PLEX_TOKEN")
 
 class ActiveSession(BaseModel):
-    user: str = Field(description="Username of the person streaming")
-    title: str = Field(description="Title of the movie, show episode, or song playing")
-    media_type: str = Field(description="Type of media (e.g., movie, episode, track)")
-    state: str = Field(description="Current playback state (playing, paused, buffering)")
-    is_transcoding: bool = Field(description="Whether the stream is undergoing real-time transcoding")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    user: str = Field(..., description="Username of the person streaming")
+    title: str = Field(..., description="Title of the movie, show episode, or song playing")
+    media_type: str = Field(..., description="Type of media (e.g., movie, episode, track)")
+    state: str = Field(..., description="Current playback state (playing, paused, buffering)")
+    is_transcoding: bool = Field(..., description="Whether the stream is undergoing real-time transcoding")
+    transcode_reason: Optional[str] = Field(None, description="Reason for transcoding if applicable")
 
 class StreamReport(BaseModel):
-    session_count: int = Field(description="Total number of active streaming sessions")
-    sessions: List[ActiveSession] = Field(description="List of details for each active stream")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-@mcp.tool()
-def get_active_sessions() -> str:
+    session_count: int = Field(..., description="Total number of active streaming sessions")
+    sessions: List[ActiveSession] = Field(..., description="List of details for each active stream")
+
+class LibraryScanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    section_name: str = Field(..., description="Name of the library section (e.g., 'Movies', 'TV Shows')")
+    refresh_metadata: bool = Field(default=False, description="Whether to perform deep metadata refresh")
+
+@mcp.tool(name="get_active_sessions", description="Fetches currently active playback sessions and transcode statuses")
+def get_active_sessions() -> StreamReport:
     """
     Connects to the local Plex Media Server, fetches currently active playback sessions,
-    validates the metrics using Pydantic v2, and returns a detailed JSON report.
+    validates the metrics using Pydantic v2, and returns a structured StreamReport.
     """
     try:
         plex = PlexServer(PLEX_URL, PLEX_TOKEN)
@@ -200,9 +277,11 @@ def get_active_sessions() -> str:
 
         for session in plex.sessions():
             is_transcoding = False
+            reason = None
             for player in session.players:
                 if player.state == 'playing' and getattr(session, 'transcodeSessions', None):
                     is_transcoding = True
+                    reason = getattr(session.transcodeSessions[0], 'transcodeProtocol', 'direct_stream_fallback')
 
             sessions_list.append(
                 ActiveSession(
@@ -210,17 +289,36 @@ def get_active_sessions() -> str:
                     title=session.title if hasattr(session, 'title') else "N/A",
                     media_type=session.type,
                     state=session.player.state if hasattr(session, 'player') else "unknown",
-                    is_transcoding=is_transcoding
+                    is_transcoding=is_transcoding,
+                    transcode_reason=reason
                 )
             )
 
-        report = StreamReport(
+        return StreamReport(
             session_count=len(sessions_list),
             sessions=sessions_list
         )
-        return report.model_dump_json(indent=2)
     except Exception as e:
-        return f"Error retrieving Plex sessions: {str(e)}"
+        return StreamReport(
+            session_count=0,
+            sessions=[]
+        )
+
+@mcp.tool(name="trigger_library_scan", description="Triggers a scan or metadata refresh on a specified library section")
+def trigger_library_scan(request: LibraryScanRequest) -> dict:
+    """Triggers a scan on a given library section name."""
+    try:
+        plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+        section = plex.library.section(request.section_name)
+        if request.refresh_metadata:
+            section.refresh()
+            action = "metadata_refreshed"
+        else:
+            section.update()
+            action = "scan_initiated"
+        return {"status": "success", "section": request.section_name, "action": action}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
@@ -247,6 +345,10 @@ if __name__ == "__main__":
 | **Remote Streams Restricted to 1-2 Mbps** | Direct connection failed; stream falling back to Plex Relay proxies | Check **Settings > Remote Access** status red indicator | Forward external port 32400 on router, verify public IP alignment, or route remote traffic via [Tailscale](tailscale.md) mesh network. |
 | **Database Corruption / Scan Hangs** | SQLite database lockup or unclean shutdown during scanner indexing | `sqlite3 /config/.../com.plexapp.plugins.library.db "PRAGMA integrity_check;"` | Run SQLite repair scripts (`PRAGMA integrity_check`), restore database backup from `/config/.../Plug-in Support/Databases/`, or optimize DB via Plex Web. |
 | **Unmatched Media Metadata** | Non-standard directory naming or file release tags missing | Inspect **Plex Media Scanner.log** for regex match failures | Rename files according to Plex conventions (`Show Name (Year)/Season 01/Show Name - S01E01.ext`) or use Sonarr/Radarr for file organization. |
+| **Plex Relay Connection Dropouts** | Double-NAT or ISP carrier-grade NAT (CGNAT) blocking external ports | `traceroute plex.tv` & inspect WAN IP in router | Implement Tailscale subnet router or establish reverse proxy with Cloudflare Tunnels / Traefik. |
+| **Subtitles Out of Sync** | Transcoder dropping PTS timestamps during container remux | Check player audio sync offset / Plex log PTS warnings | Set audio sync to passthrough and prefer SRT UTF-8 external subtitle tracks over embedded PGS/VOBSUB. |
+| **High Disk I/O During Scanning** | Chapter and video preview thumbnail generation running concurrently | `iotop -o` / check Settings > Library thumbnail settings | Schedule thumbnail generation tasks to run strictly during off-peak maintenance hours (2 AM - 5 AM). |
+| **Transcoder Temporary Directory Full** | Transcode buffer filled root disk partition | `df -h /transcode` | Mount a dedicated RAM disk (`tmpfs`) or high-speed NVMe partition to `/transcode`. |
 
 ## Operational Best Practices & Troubleshooting
 
