@@ -58,6 +58,27 @@ RAG functions as the core **Knowledge & Retrieval Layer** within the KnowledgeOp
 +-----------------------------------------------------------------------------------+
 ```
 
+## RAG Architectural Paradigms Comparison
+
+| Paradigm | Vector Retrieval | Graph Reasoning | Latency | Complex Queries | Implementation Complexity |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Naive RAG** | Dense Similarity Only | None | Low (<100ms) | Low | Low |
+| **Advanced Hybrid RAG** | Sparse (BM25) + Dense | None | Medium (150-300ms) | Moderate | Medium |
+| **Agentic RAG** | Dynamic Multi-Turn | Multi-Index Routing | High (300-1000ms) | High | High |
+| **GraphRAG** | Subgraph + Dense | Knowledge Graphs | High (500-2000ms) | Very High (Global Ops) | High |
+| **Contextual RAG** | Dense + Prefix Caching | Optional | Low-Medium (120-250ms) | High | Medium |
+
+## Operational Service Level Agreements (SLAs)
+
+| Operational Stage | Metric / Parameter | SLA Guarantee | Telemetry Metric | Remediation Strategy |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: Ingestion & Chunking** | Parsing throughput via Docling | > 25 pages/sec | Ingestion queue worker latency | Scale ingestion worker pods |
+| **Tier 2: Dense/Sparse Retrieval** | Qdrant HNSW vector lookup | < 45ms (p95) | Vector index search duration | Cache hot segment indices in RAM |
+| **Tier 3: Cross-Encoder Rerank** | Top-50 reranking latency | < 120ms (p95) | Rerank batch inference time | Quantize reranker weights (INT8) |
+| **Tier 4: Prefix KV Cache Hit** | Frontier LLM prompt reuse | > 85% cache hit | Provider API header telemetry | Enforce static retriever prompt prefixes |
+| **Tier 5: Schema Citations** | Pydantic v2 citation validation | 100% compliant (`extra='forbid'`) | Citation parse error rate | Prompt re-formatting fallback turn |
+| **Tier 6: Overall Gateway Uptime** | FastMCP RAG server availability | 99.95% uptime | Prometheus HTTP probe | Docker Compose auto-heal restart |
+
 ## Typical use cases
 - **Personal & Team Knowledge Engines**: Instant search and synthesis across note vaults (Obsidian, Notion, SilverBullet) and saved research links.
 - **Enterprise Customer Support**: Grounding support agents in technical manuals, API reference docs, and release notes.
@@ -84,16 +105,6 @@ RAG functions as the core **Knowledge & Retrieval Layer** within the KnowledgeOp
 - Creative tasks, stylistic rewriting, or open-ended ideation where factual grounding is unnecessary.
 - Real-time sub-50ms applications where external vector database roundtrips introduce unacceptable latency.
 - Simple lookup queries over structured tables where standard SQL or Key-Value lookups are more efficient.
-
-## RAG Architectural Paradigms Comparison
-
-| Paradigm | Vector Retrieval | Graph Reasoning | Latency | Complex Queries | Implementation Complexity |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Naive RAG** | Dense Similarity Only | None | Low (<100ms) | Low | Low |
-| **Advanced Hybrid RAG** | Sparse (BM25) + Dense | None | Medium (150-300ms) | Moderate | Medium |
-| **Agentic RAG** | Dynamic Multi-Turn | Multi-Index Routing | High (300-1000ms) | High | High |
-| **GraphRAG** | Subgraph + Dense | Knowledge Graphs | High (500-2000ms) | Very High (Global Ops) | High |
-| **Contextual RAG** | Dense + Prefix Caching | Optional | Low-Medium (120-250ms) | High | Medium |
 
 ## Getting started
 Modern RAG implementation in early 2027 utilizes FastMCP 3.1 tool bindings, layout-aware document parsers, and hybrid vector/keyword search engines.
@@ -124,14 +135,101 @@ ragflow-cli search --query "thermal shutdown limits" --collection battery_specs 
 graphrag-cli reindex --config ./graphrag.yaml --root-dir ./docs/
 ```
 
+## Production Docker Compose RAG Topology
+
+Deploy a resilient local enterprise RAG cluster featuring Qdrant vector database, an in-memory Redis semantic cache, and the FastMCP 3.1 RAG retrieval gateway:
+
+```yaml
+version: "3.8"
+
+services:
+  rag-qdrant:
+    image: qdrant/qdrant:v1.12.0
+    container_name: rag-qdrant
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=8
+
+  rag-redis-cache:
+    image: redis:7.2-alpine
+    container_name: rag-redis-cache
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis_rag_cache:/data
+
+  rag-fastmcp-gateway:
+    image: openclaw/rag-mcp-gateway:3.1.0
+    container_name: rag-fastmcp-gateway
+    restart: unless-stopped
+    environment:
+      - QDRANT_HOST=rag-qdrant
+      - QDRANT_PORT=6333
+      - REDIS_URL=redis://rag-redis-cache:6379/0
+      - MCP_PORT=8096
+      - EMBEDDING_MODEL=BAAI/bge-m3
+      - RERANKER_MODEL=BAAI/bge-reranker-v2-m3
+    ports:
+      - "127.0.0.1:8096:8096"
+    depends_on:
+      - rag-qdrant
+      - rag-redis-cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8096/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  qdrant_storage:
+  redis_rag_cache:
+```
+
+## Production Systemd Gateway Service (`rag-mcp-gateway.service`)
+
+Configure the FastMCP RAG gateway as a self-healing Linux background service:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Enterprise RAG Retrieval Gateway
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=ragsvc
+Group=ragsvc
+WorkingDirectory=/opt/rag-gateway
+EnvironmentFile=/etc/rag-gateway/production.env
+ExecStart=/opt/rag-gateway/venv/bin/python3 server.py --host 127.0.0.1 --port 8096
+Restart=always
+RestartSec=5s
+LimitNOFILE=65535
+MemoryHigh=4G
+MemoryMax=6G
+CPUQuota=200%
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rag-mcp-gateway
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## FastMCP 3.1 RAG Tool Server Pattern
 
-The following Python script illustrates a full FastMCP 3.1 server exposing an enterprise hybrid RAG tool endpoint:
+The following Python script illustrates a full FastMCP 3.1 server exposing an enterprise hybrid RAG tool endpoint with strict Pydantic v2 schemas:
 
 ```python
 import os
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP(
@@ -141,20 +239,33 @@ mcp = FastMCP(
 )
 
 class RAGChunk(BaseModel):
-    chunk_id: str
-    document_title: str
-    content: str
-    score: float = Field(..., ge=0.0, le=1.0)
-    source_url: str
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    chunk_id: str = Field(..., description="Unique chunk primary key")
+    document_title: str = Field(..., description="Title of source document")
+    content: str = Field(..., description="Retrieved passage text")
+    score: float = Field(..., ge=0.0, le=1.0, description="Reranked relevance score")
+    source_url: str = Field(..., description="Canonical source URL or file path")
+
+class RAGQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str = Field(..., min_length=2, description="Natural language search query")
+    top_k: int = Field(5, ge=1, le=20, description="Maximum chunks to return")
+    min_score: float = Field(0.70, ge=0.0, le=1.0, description="Minimum similarity threshold")
 
 class RAGResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str
     total_retrieved: int
     chunks: List[RAGChunk]
 
 @mcp.tool(description="Query enterprise knowledge base using hybrid dense/sparse retrieval")
-def query_knowledge_base(query: str, top_k: int = 5, min_score: float = 0.75) -> Dict[str, Any]:
+def query_knowledge_base(request_data: Dict[str, Any]) -> Dict[str, Any]:
     """Retrieves authoritative context chunks matching the query string."""
+    req = RAGQueryRequest.model_validate(request_data)
+
     # Simulated hybrid vector search & rerank pipeline
     mock_chunks = [
         RAGChunk(
@@ -173,8 +284,8 @@ def query_knowledge_base(query: str, top_k: int = 5, min_score: float = 0.75) ->
         )
     ]
 
-    filtered = [c for c in mock_chunks if c.score >= min_score][:top_k]
-    result = RAGResponse(query=query, total_retrieved=len(filtered), chunks=filtered)
+    filtered = [c for c in mock_chunks if c.score >= req.min_score][:req.top_k]
+    result = RAGResponse(query=req.query, total_retrieved=len(filtered), chunks=filtered)
     return result.model_dump()
 
 if __name__ == "__main__":
@@ -205,15 +316,19 @@ print(contextualized_chunk)
 ### 2. Pydantic v2 RAG Retrieval Payload & Citation Validation
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class RetrievedChunkMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     document_id: str = Field(..., description="Unique source document reference")
     section: str = Field(..., description="Section title or heading path")
     situational_context: str = Field(..., description="Contextual paragraph for situated embedding")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
 class GroundedChunk(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     chunk_id: str
     content: str
     metadata: RetrievedChunkMetadata
@@ -227,6 +342,8 @@ class GroundedChunk(BaseModel):
         return value
 
 class RAGQueryPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str
     chunks: List[GroundedChunk]
     synthesized_response: Optional[str] = None
@@ -271,6 +388,21 @@ except ValidationError as err:
 - **Order Retrieved Chunks by Relevance**: Place the highest scoring chunks at the very beginning and very end of the prompt context window to mitigate "lost in the middle" attention decay.
 - **Leverage Prefix Caching**: Structure static prompt templates and retriever instructions before the dynamic chunks list so frontier models can reuse prompt KV caches across queries.
 
+## Diagnostic & Troubleshooting Matrix
+
+| Scenario # | Observed Issue / Failure | Root Cause Analysis | Diagnostic Command | Remediation Strategy |
+| :---: | :--- | :--- | :--- | :--- |
+| **01** | Low Search Recall on Exact Acronyms | Dense vector embeddings failed to capture rare tokens. | `rag-cli search --query "XYZ-9" --sparse-only` | Activate Hybrid Search with BM25 / SPLADE sparse keyword fusion (RRF). |
+| **02** | High P99 Reranking Latency (>800ms) | Cross-encoder evaluating too many candidate documents. | `time python3 rerank_benchmark.py` | Limit reranker candidate pool from top-100 to top-30 and enable FP16 execution. |
+| **03** | Vector Index Memory Exhaustion | Qdrant HNSW graph uncompressed in RAM. | `curl http://localhost:6333/collections` | Enable scalar quantization (`int8`) in Qdrant collection configuration. |
+| **04** | LLM Hallucinates Despite Retrieved Chunks | Chunks placed in the middle of a massive context window. | `python3 scripts/audit_context_order.py` | Order chunks by relevance placing highest scored chunks at the start and end of prompt. |
+| **05** | Chunk Table Layout Corruption | Ingestion split a markdown or HTML table across chunks. | `cat /tmp/debug_chunk_102.txt` | Switch ingestion pipeline to layout-aware table parser like Docling. |
+| **06** | Prompt Prefix Cache Misses | Dynamic timestamps injected before static retriever guidelines. | `tail -n 20 /var/log/rag/api_tokens.log` | Move dynamic query and retrieved chunks strictly below static instructions. |
+| **07** | Stale Document Content Returned | Ingestion worker did not evict updated PDF revisions. | `qdrant-cli count --filter "doc_id=..."` | Enforce document versioning and purge stale vectors prior to re-indexing. |
+| **08** | Pydantic Citation Schema Error | Model returned citations in unstructured text format. | `journalctl -u rag-mcp-gateway -g "ValidationError"` | Enforce strict Pydantic v2 JSON-Schema contract and few-shot citation examples. |
+| **09** | FastMCP Port 8096 Socket Refusal | FastMCP gateway crashed or port occupied by orphan process. | `lsof -i :8096` | Restart gateway service: `sudo systemctl restart rag-mcp-gateway.service`. |
+| **10** | Embedding Model Rate Limit (`429`) | Batch ingestion exceeded provider RPM quota. | `grep "rate_limit" /var/log/rag/ingest.log` | Implement exponential backoff worker queue with local embedding fallback. |
+
 ## Related tools / concepts
 - [Data-Copilot Agentic RAG](data-copilot-agentic-rag.md) — Autonomous multi-step retrieval architecture.
 - [Tool Calling & MCP](tool-calling-and-mcp.md) — FastMCP 3.1 protocol standards for retrieval tools.
@@ -284,6 +416,7 @@ except ValidationError as err:
 - [Anthropic Contextual Retrieval Guide](https://www.anthropic.com/news/contextual-retrieval)
 - [Pydantic v2 Validation Standards](https://docs.pydantic.dev/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
