@@ -22,7 +22,7 @@ graph TD
     end
 
     SubGraph_Providers[AI Inference & Cloud Infrastructure]
-        LLM[Model Router - Claude 5.1 / GPT-5.5 / Llama 4 Maverick]
+        LLM[Model Router - Claude 5.6 / GPT-5.6 / Llama 4 Maverick]
         Origin[Cursor Origin Cloud Hosting & CI]
         MCPServers[Local & Remote MCP Servers]
     end
@@ -46,7 +46,30 @@ Cursor addresses the severe cognitive and operational overhead of traditional AI
 4. **Tool Disconnect**: Connects external databases, API documentation tools, and testing frameworks directly into the editor loop via FastMCP 3.1 protocol servers.
 
 ## Where it fits in the stack
-**Development & Ops / AI-Native IDE & Agent Workbench**. Cursor serves as the primary cockpit for software engineers and autonomous AI agents. It operates at the top of the local development workflow, interfacing directly with local Git repositories, language servers, terminal shells, and cloud-hosted agent systems like Cursor Origin.
+**Category**: Development & Ops / AI-Native IDE & Agent Workbench. Cursor serves as the primary cockpit for software engineers and autonomous AI agents. It operates at the top of the local development workflow, interfacing directly with local Git repositories, language servers, terminal shells, and cloud-hosted agent systems like Cursor Origin.
+
+## Comparative Feature & Benchmark Matrix (2027 AI IDEs & Agents)
+
+| Dimension / Metric | Cursor 3.5 (Composer) | Windsurf (Cascade) | VS Code + Copilot Workspace | Zed (Assistant Panel) | Aider (Terminal Agent) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Paradigm** | Full AI-Native IDE Fork | Agentic AI Flow IDE | Editor Plugin Extension | High-Performance Native Rust | CLI Terminal-Native Git Agent |
+| **Multi-File Autonomous Editing**| Native (Composer 3.5) | Native (Cascade Flow) | Cloud Copilot Workspace | Single-file / Prompts | Native Git Diff Loop |
+| **Model Context Protocol** | FastMCP 3.1 Native Client | Proprietary MCP Adapter | GitHub Tools Integration | External Tool CLI | Architecture Map / Prompts |
+| **Local Indexing Engine** | C++ AST + Vector Cache | Local Codebase Indexer | Cloud Embedding Index | Tree-Sitter Search | Tree-Sitter AST Repo Map |
+| **UI Design Visual Mode** | Design Mode v3 (Live Canvas)| Visual Flow Preview | Webview Previews | Plaintext Buffer | None (Terminal Only) |
+| **Cloud Hosting / Autonomous PRs**| Cursor Origin | None (Local only) | GitHub Actions / PRs | None | GitHub CLI integration |
+| **Local / Offline LLM Support** | Full (vLLM / Ollama) | Partial Cloud Fallback | Cloud Only (Azure OpenAI)| Native Local Runners | Full (Ollama / LocalAI) |
+
+## Operational SLA & Performance Benchmarking Matrix
+
+| Operation Category | Target Response Latency | Execution Context | Resource Ceiling | Target Availability SLA |
+| :--- | :--- | :--- | :--- | :--- |
+| **Inline Multi-Token Completion**| < 80 ms | Local Speculative Cache | < 120 MB RAM | 99.99% |
+| **Composer 3.5 Plan Generation** | < 1,400 ms TTFT | Claude 5.6 / GPT-5.6 | Network Bound | 99.95% |
+| **Full Repo Indexing (500k LOC)**| < 35 seconds | Local Multi-threaded C++ | < 1.5 GB RAM | 99.99% |
+| **AST Symbol Resolution Query** | < 15 ms | Local SQLite AST Cache | < 250 MB RAM | 99.99% |
+| **FastMCP Tool Dispatch Roundtrip**| < 65 ms | Unix Socket / Localhost | < 50 MB RAM | 99.99% |
+| **Origin Remote PR Orchestration**| < 45 seconds | Cloud CI Worker Cluster | 4 vCPU / 8 GB RAM | 99.90% |
 
 ## Typical use cases
 - **Autonomous Multi-File Refactoring**: Leveraging Composer 3.5 to migrate legacy API specs across 50+ service modules simultaneously with automatic test execution and error resolution.
@@ -94,7 +117,7 @@ sudo snap install cursor --classic
 1. Open your project root directory: `cursor .`
 2. Launch settings (`Cmd+,` or `Ctrl+,`) and navigate to **Cursor Settings -> Features -> Indexing**.
 3. Enable **Repository Indexing** and configure `.cursorignore` to exclude build artifacts (e.g., `dist/`, `node_modules/`, `target/`).
-4. Select your primary LLM provider (e.g., **Claude 5.1**, **GPT-5.5**, or custom local endpoints).
+4. Select your primary LLM provider (e.g., **Claude 5.6**, **GPT-5.6**, or custom local endpoints).
 
 ## CLI examples
 
@@ -118,7 +141,7 @@ Cursor 3.5 includes `cursor-agent`, a headless command-line interface for runnin
 ```bash
 # Execute a multi-file refactor command non-interactively
 cursor-agent run "Upgrade all Express route handlers to native FastMCP 3.1 endpoints" \
-  --model claude-5.1 \
+  --model claude-5.6 \
   --auto-apply \
   --max-iterations 10
 
@@ -137,41 +160,132 @@ cursor-mcp add-server --name "pg-prod-replica" --command "npx -y @modelcontextpr
 cursor-mcp list
 ```
 
+## Production Headless Agent CI Stack (`docker-compose.yml`)
+
+For team continuous integration pipelines executing automated refactoring jobs and pull request reviews using `cursor-agent` in headless Docker environments:
+
+```yaml
+version: "3.8"
+
+services:
+  cursor-agent-worker:
+    image: node:22-bookworm-slim
+    container_name: cursor_agent_worker
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - ./repo:/workspace
+      - ./cursor-config:/root/.cursor
+    environment:
+      - CURSOR_API_KEY=${CURSOR_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_JOB_URL=redis://cursor-queue:6379/0
+      - FAST_MCP_VERSION=3.1.0
+      - CI_RUN_MODE=headless
+    command: >
+      sh -c "npm install -g cursor-agent @modelcontextprotocol/inspector &&
+             cursor-agent daemon --port 8092"
+    ports:
+      - "8092:8092"
+    depends_on:
+      - cursor-queue
+    networks:
+      - cursor-net
+
+  cursor-queue:
+    image: redis:7.4-alpine
+    container_name: cursor_queue
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - cursor_queue_data:/data
+    networks:
+      - cursor-net
+
+networks:
+  cursor-net:
+    driver: bridge
+
+volumes:
+  cursor_queue_data:
+```
+
+## Production Systemd Service Unit (`cursor-origin-worker.service`)
+
+Deploying a background continuous refactoring and pull-request synthesis worker on dedicated Linux build nodes:
+
+```ini
+[Unit]
+Description=Cursor Origin Headless CI Refactoring Worker
+Documentation=https://docs.cursor.com/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cursorworker
+Group=cursorworker
+WorkingDirectory=/opt/cursor-worker
+ExecStart=/usr/local/bin/cursor-agent daemon --config /etc/cursor/agent.conf --workers 4
+Restart=always
+RestartSec=5s
+
+# Process & Resource Isolation
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/cursor-worker/workspace /var/log/cursor
+PrivateTmp=true
+NoNewPrivileges=true
+LimitNOFILE=65536
+Environment="NODE_ENV=production"
+Environment="CURSOR_TELEMETRY=off"
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
-### Native FastMCP 3.1 Python Integration
-Cursor 3.5 seamlessly executes tools exposed through FastMCP 3.1 servers. Below is a complete, runnable Python FastMCP server that provides repository health metrics and AST analysis tools to Cursor Composer sessions.
+### Native FastMCP 3.1 Python Integration with Strict Pydantic v2
+Cursor 3.5 seamlessly executes tools exposed through FastMCP 3.1 servers. Below is a complete, runnable Python FastMCP server that provides repository health metrics, AST analysis tools, and strict validation to Cursor Composer sessions.
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import os
 import ast
 
 # Initialize FastMCP 3.1 Server for Cursor Workspaces
-mcp = FastMCP("CursorWorkspaceTools")
+mcp = FastMCP("CursorWorkspaceTools", version="3.1.0")
 
 class CodebaseStats(BaseModel):
-    total_files: int = Field(description="Total count of source code files scanned")
-    python_files: int = Field(description="Count of Python source files")
-    total_lines: int = Field(description="Total line count across all source files")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    total_files: int = Field(..., description="Total count of source code files scanned")
+    python_files: int = Field(..., description="Count of Python source files")
+    total_lines: int = Field(..., description="Total line count across all source files")
 
 class FunctionMetadata(BaseModel):
-    name: str = Field(description="Name of the function")
-    lineno: int = Field(description="Starting line number")
-    arg_count: int = Field(description="Number of arguments")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    name: str = Field(..., description="Name of the function")
+    lineno: int = Field(..., description="Starting line number")
+    arg_count: int = Field(..., description="Number of arguments")
+
+class WorkspaceHealthRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    directory_path: str = Field(..., description="Local workspace folder path to analyze")
 
 @mcp.tool()
-def analyze_workspace_health(directory_path: str) -> str:
+def analyze_workspace_health(params: WorkspaceHealthRequest) -> str:
     """Scans the workspace directory and calculates basic codebase metrics for Cursor Composer."""
-    if not os.path.exists(directory_path):
-        return f"Error: Path '{directory_path}' does not exist."
+    if not os.path.exists(params.directory_path):
+        return f"Error: Path '{params.directory_path}' does not exist."
 
     total_files = 0
     python_files = 0
     total_lines = 0
 
-    for root, _, files in os.walk(directory_path):
+    for root, _, files in os.walk(params.directory_path):
         if "node_modules" in root or ".git" in root or "__pycache__" in root:
             continue
         for file in files:
@@ -220,21 +334,24 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### Workspace Configuration Validation with Pydantic v2
+### Workspace Configuration Validation with Strict Pydantic v2
 Validate local workspace settings, indexing rules, and agent runtime permissions securely using Pydantic v2 schemas:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional, Dict
 
 class MCPToolConfig(BaseModel):
-    name: str = Field(description="Identifier for the FastMCP tool")
-    command: str = Field(description="Command or binary invocation path")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    name: str = Field(..., description="Identifier for the FastMCP tool")
+    command: str = Field(..., description="Command or binary invocation path")
     env: Dict[str, str] = Field(default_factory=dict, description="Environment variables")
 
 class CursorWorkspaceConfig(BaseModel):
-    workspace_name: str = Field(alias="workspaceName")
-    model: str = Field(default="claude-5.1")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
+
+    workspace_name: str = Field(..., alias="workspaceName")
+    model: str = Field(default="claude-5.6")
     enable_mcp: bool = Field(default=True, alias="enableMCP")
     indexing_excludes: List[str] = Field(default_factory=list, alias="indexingExcludes")
     mcp_servers: List[MCPToolConfig] = Field(default_factory=list, alias="mcpServers")
@@ -243,18 +360,15 @@ class CursorWorkspaceConfig(BaseModel):
     @field_validator("model")
     @classmethod
     def validate_model_choice(cls, v: str) -> str:
-        allowed = {"claude-5.1", "gpt-5.5", "llama-4-maverick", "custom-local"}
+        allowed = {"claude-5.6", "gpt-5.6", "llama-4-maverick", "custom-local"}
         if v not in allowed:
             raise ValueError(f"Model '{v}' is not supported. Choose from {allowed}")
         return v
 
-    class Config:
-        populate_by_name = True
-
 # Validate sample workspace configuration payload
 raw_config = {
     "workspaceName": "core-services-monorepo",
-    "model": "claude-5.1",
+    "model": "claude-5.6",
     "enableMCP": True,
     "indexingExcludes": ["**/node_modules/**", "**/dist/**", "**/.git/**"],
     "mcpServers": [
@@ -290,7 +404,7 @@ export function activate(context: vscode.ExtensionContext) {
     const document = editor.document;
     const composerSession = await cursor.composer.createSession({
       title: `Audit ${document.fileName}`,
-      model: 'claude-5.1',
+      model: 'claude-5.6',
     });
 
     await composerSession.sendPrompt({
@@ -302,6 +416,21 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom / Error | Root Cause | Impact | Actionable Remediation | Verification Command |
+| :--- | :--- | :--- | :--- | :--- |
+| **`Indexing Stalled at 99%`** | Large binary, SQLite db, or bundle file trapped in index | High CPU usage and degraded autocomplete | Add path glob to `.cursorignore` and purge AST cache | `cursor --status-indexing` |
+| **`MCP Connection Refused`** | Target MCP server daemon crashed or port conflict | Composer tool calls fail with timeout | Verify local port listening and inspect daemon stderr logs | `lsof -i :8092` |
+| **`LSP Diagnostic Conflict`** | Outdated TypeScript / Python LSP cache fighting AI diff | Inline red squiggles across generated edits | Reload window (`Cmd+Shift+P` -> `Reload Window`) | Inspect Output tab -> Language Server |
+| **`Composer Patch Rejection`** | File modified on disk externally during generation | Multi-file refactor halts midway | Revert unsaved dirty buffer and click 'Retry Generation' | `git status -s` |
+| **`Local LLM Rate Exhaustion`**| Ollama/vLLM backend GPU out-of-memory or throttling | Cursor agent pauses waiting for token stream | Allocate dedicated GPU layer offloading and reduce context size | `nvidia-smi` |
+| **`Design Mode Render Blackout`**| Unsupported React component SSR dependency | Visual canvas displays blank preview screen | Mark component client-only with `'use client'` directive | Check browser DevTools console |
+| **`FastMCP Schema Mismatch`** | Stale tool parameters cached in Composer session | Model returns `-32602 Invalid params` | Re-register tool server via `cursor-mcp reload` | `cursor-mcp inspect <server>` |
+| **`TCC Permission Denied (macOS)`**| macOS sandboxing blocking terminal execution in IDE | `cursor-agent` commands exit with code 1 | Grant Full Disk Access in macOS System Settings | `spctl --status` |
+| **`Keybinding Collision`** | Upstream VS Code extension overriding `Cmd+I` / `Cmd+K` | Composer or inline prompt fails to open | Remap Cursor AI keybindings in `keybindings.json` | `cursor --list-extensions` |
+| **`Origin Pull Request CI Failure`**| Headless agent generated unformatted code violating linter | Auto-generated PR blocked in GitHub Actions | Configure `autoApplyDiffs` with pre-commit linter hooks | `npm run lint` |
 
 ## Related tools / concepts
 - [VS Code](../development_ops/vscode.md) — The core upstream framework upon which Cursor is built.
