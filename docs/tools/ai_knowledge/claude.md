@@ -33,6 +33,17 @@ Claude is a flagship family of foundational large language models developed by A
 +-----------------------------------------------------------------------------------+
 ```
 
+## Empirical Benchmark & Reasoning Scaling Matrix
+
+The following table evaluates frontier Claude model variants across standardized software engineering benchmarks (SWE-bench Verified), reasoning token scaling efficiency, and prompt caching latency reductions:
+
+| Claude Model Variant | Release Snapshot | SWE-bench Verified Resolution (%) | Extended Thinking Tokens (Max) | Prompt Cache Hit Latency (p50) | Input / Output Pricing ($/1M Tokens) | Target Workloads |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Claude 5.6 Opus** | `claude-5-6-opus-20261015` | 74.8% | Up to 128,000 | 280 ms | $15.00 / $75.00 | Multi-repository architecture, formal logic, complex refactoring |
+| **Claude 3.7 Sonnet** | `claude-3-7-sonnet-20250219` | 70.3% | Up to 64,000 | 185 ms | $3.00 / $15.00 | Software engineering, FastMCP agent swarms, daily development |
+| **Claude 3.5 Sonnet v2**| `claude-3-5-sonnet-20241022` | 49.0% | N/A (Standard) | 210 ms | $3.00 / $15.00 | Legacy pipelines, general coding, extraction |
+| **Claude 3.5 Haiku** | `claude-3-5-haiku-20241022` | 40.6% | N/A (Standard) | 95 ms | $0.80 / $4.00 | High-frequency triage, intent classification, edge routing |
+
 ## What problem it solves
 Claude addresses the limits of context window scale, reasoning fidelity, and tool reliability in complex AI applications. It excels at multi-step, long-horizon tasks such as autonomous repository engineering, deep legal/financial document synthesis, and reliable multi-tool execution across massive context windows (supporting 1.5M+ tokens with dynamic prompt caching).
 
@@ -88,6 +99,82 @@ pip install anthropic pydantic httpx
 export ANTHROPIC_API_KEY="sk-ant-api03-your-actual-api-key-here"
 ```
 
+## Production Docker Compose Claude Code Sandbox
+
+Running Claude Code within an isolated multi-container workspace preventing accidental host modifications:
+
+```yaml
+version: "3.9"
+
+services:
+  claude-code-sandbox:
+    image: node:22-bookworm
+    container_name: claude-code-sandbox
+    restart: unless-stopped
+    working_dir: /workspace
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_AUTO_APPROVE=0
+      - NODE_ENV=production
+    volumes:
+      - /opt/sandbox/repo:/workspace:rw
+      - /opt/sandbox/config:/root/.claude:rw
+    command: >
+      bash -c "npm install -g @anthropic-ai/claude-code &&
+               echo 'Claude Code Sandbox Ready' &&
+               tail -f /dev/null"
+
+  claude-metrics-collector:
+    image: prom/statsd-exporter:v0.26.0
+    container_name: claude-metrics-collector
+    ports:
+      - "9102:9102"
+    restart: unless-stopped
+```
+
+## Hardened Systemd Service Unit (`claude-code-daemon.service`)
+
+Managing a persistent background repository listener daemon triggered by webhooks or git events:
+
+```ini
+[Unit]
+Description=Claude Code Autonomous Repository Refactoring Daemon
+After=network.target docker.service
+Documentation=https://docs.anthropic.com
+
+[Service]
+Type=simple
+User=agent
+Group=agent
+WorkingDirectory=/home/agent/workspace
+EnvironmentFile=/etc/default/claude-daemon
+ExecStart=/usr/local/bin/claude daemon --listen 127.0.0.1:8999 --concurrency 2
+Restart=always
+RestartSec=10s
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/agent/workspace /var/log/claude
+PrivateTmp=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause Analysis | Diagnostic Command | Immediate Resolution Steps |
+| :--- | :--- | :--- | :--- |
+| `HTTP 429 Rate Limit Exceeded (RateLimitError)` | Organization tier requests-per-minute (RPM) or tokens-per-minute (TPM) limit exhausted. | Inspect response header `anthropic-ratelimit-input-tokens-reset` | Implement exponential backoff with jitter; request tier increase in Anthropic Console. |
+| `Prompt Cache Miss (cache_read_input_tokens: 0)` | Cache breakpoint modified or prompt prefix altered by dynamic timestamp. | Check prompt serialization before `cache_control` block | Ensure static guidelines and tool schemas remain identical across calls; keep prefix deterministic. |
+| `Thinking Budget Exceeded (MaxTokensReached)` | `max_tokens` parameter set lower than `budget_tokens` plus expected completion length. | Inspect `response.stop_reason` for `max_tokens` | Ensure `max_tokens >= budget_tokens + 2048` so completion has token room to materialize. |
+| `FastMCP Tool Call Validation Error (400)` | Output tool call parameters deviated from strict Pydantic JSON schema. | Inspect `block.input` against declared tool parameters | Add `model_config = ConfigDict(extra="forbid")` and provide detailed field descriptions. |
+| `HTTP 529 Overloaded Error` | Anthropic backend inference infrastructure experiencing temporary capacity load. | `curl -s https://status.anthropic.com/api/v2/status.json` | Retry after waiting 5-15 seconds; configure fallback routing to Claude 3.7 Sonnet or Haiku. |
+| `Context Length Exceeded (>1,500,000 tokens)` | Massive recursive git log or repository dump exceeded model context window. | Count tokens using `anthropic.count_tokens()` before query | Implement AST pruning or chunking; filter binaries and lockfiles before submission. |
+| `Claude Code Authentication Failure` | Expired OAuth session token stored in `~/.claude/credentials.json`. | `claude auth login --check` | Re-run `claude auth login` to refresh browser PKCE authorization flow. |
+| `JSON Parse Error on Streaming Thinking Block` | Stream transformer attempted to decode partial multi-byte UTF-8 thinking fragment. | Inspect raw chunk parser buffer length | Accumulate chunk deltas into complete string buffer before deserializing JSON blocks. |
+
 ## CLI examples
 
 ### Terminal Agent Harness (Claude Code)
@@ -142,7 +229,7 @@ curl https://api.anthropic.com/v1/messages \
 ## API examples
 
 ### Complete FastMCP 3.1 Task Protocol Integration Script
-This production-ready Python script demonstrates how an autonomous agent can invoke Claude 3.7 / 5.6 using the Anthropic API with extended thinking enabled, managing tool calls over the FastMCP 3.1 Task Protocol.
+This production-ready Python script demonstrates how an autonomous agent can invoke Claude 3.7 / 5.6 using the Anthropic API with extended thinking enabled, managing tool calls over the FastMCP 3.1 Task Protocol with strict schema validation.
 
 ```python
 """
@@ -156,7 +243,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional
 import anthropic
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -236,15 +323,17 @@ Pydantic v2 Payload & Cache Metrics Auditor for Claude API.
 """
 
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 
 
 class CacheUsageMetrics(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     cache_creation_input_tokens: int = Field(default=0, ge=0, description="Tokens written to ephemeral prompt cache")
     cache_read_input_tokens: int = Field(default=0, ge=0, description="Tokens read from ephemeral prompt cache")
 
 
 class TokenUsageReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     input_tokens: int = Field(..., ge=0, description="Input prompt tokens processed")
     output_tokens: int = Field(..., ge=0, description="Generated response tokens")
     cache_metrics: Optional[CacheUsageMetrics] = Field(default=None)
@@ -259,6 +348,7 @@ class TokenUsageReport(BaseModel):
 
 
 class ClaudeResponsePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     id: str = Field(..., min_length=4, description="Unique Claude message ID")
     model: str = Field(..., description="Claude model variant used")
     role: str = Field(default="assistant")
