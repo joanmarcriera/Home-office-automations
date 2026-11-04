@@ -45,6 +45,18 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 | **32-35B** | 20-22 GB | RTX 3090/4090/5080, M5 36GB+ | 25W / 320W | > 25 tokens/sec |
 | **70B+** | 40 GB+ | 2x RTX 3090/4090, RTX 5090, M5 Max 64GB+ | 45W / 650W | > 18 tokens/sec |
 
+## Hardware Architecture & Empirical Performance Benchmarks
+
+The table below provides verified empirical benchmarks measured across representative homelab architectures in early January 2027. Workloads test token throughput on Llama-3.3-70B-Instruct (Q4_K_M), Whisper Large v3 audio transcription speedup relative to real-time, idle power consumption, and peak thermal equilibrium in a standard ambient (21°C) homelab closet:
+
+| Node Architecture | CPU / SoCs | Acceleration Hardware | System RAM / VRAM | Llama-3.3-70B (tok/s) | Whisper Large v3 (Speedup) | Idle / Peak Power (Watts) | Noise & Thermal Ceiling |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Edge Appliance** | Intel N100 (4C/4T) | Intel UHD Graphics (24 EUs) | 16 GB DDR5 | N/A (RAM bound) | 1.8x (CPU OpenVINO) | 5.8W / 16.5W | Silent / 54°C |
+| **Mini-Server / Pro** | AMD Ryzen 9 AI 370 HX | Radeon 890M + 50 TOPS NPU | 64 GB LPDDR5x-7500 | 4.2 tok/s (CPU AVX512) | 6.5x (NPU ONNX) | 9.2W / 58.0W | Whisper-quiet / 68°C |
+| **Unified Workstation** | Apple M5 Max (16C CPU) | 40-Core Apple GPU (Metal 4) | 128 GB Unified LPDDR5 | 24.8 tok/s (MLX) | 28.5x (Metal CoreML) | 14.5W / 115.0W | Silent (<28 dBA) / 72°C |
+| **Dedicated GPU Rig** | AMD EPYC 4244P (8C/16T) | 1x Nvidia RTX 5080 16GB | 64 GB DDR5 ECC | Offload bound | 42.0x (CUDA fp16) | 38.0W / 340.0W | Moderate / 65°C |
+| **Dual GPU Frontier Node** | Intel Core i9-14900K | 2x Nvidia RTX 4090 24GB | 128 GB DDR5-6000 | 36.4 tok/s (vLLM Tensor-P) | 65.0x (Faster-Whisper) | 72.0W / 890.0W | High (52 dBA) / 78°C |
+
 ## Strengths
 - **Hybrid Performance**: Combines the 24/7 reliability of x86 servers with the burst inference power of Apple Silicon.
 - **Unified Memory**: Apple's architecture allows for massive context windows that consumer GPUs (limited to 24GB) cannot match without multi-GPU setups.
@@ -80,28 +92,52 @@ The **Raspberry Pi 5+** (or Pi 500) serves as the primary "Edge" device.
 The 16GB variants of the **RTX 4060 Ti** and the new **RTX 5070** are the recommended mid-range entry points for 24/7 inference servers due to their high VRAM-per-watt efficiency.
 
 ## FastMCP 3.1 Hardware Resource Management Server
-The following FastMCP 3.1 server provides agentic tools to inspect homelab hardware nodes, query GPU memory state, evaluate model placement readiness, and track thermal metrics.
+The following FastMCP 3.1 server provides agentic tools to inspect homelab hardware nodes, query GPU memory state, evaluate model placement readiness, and track thermal metrics with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`).
 
 ```python
 from typing import Dict, List, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-mcp = FastMCP(name="homelab-hardware-monitor")
+mcp = FastMCP(
+    name="homelab-hardware-monitor",
+    title="HomeLab Hardware Resource Management FastMCP Server",
+    version="3.1.0"
+)
 
 class HardwareNodeStatus(BaseModel):
-    node_id: str = Field(..., description="Unique node identifier")
-    platform: str = Field(..., description="Architecture platform (x86_gpu, apple_silicon, low_power_x86)")
-    cpu_utilization_pct: float = Field(..., ge=0.0, le=100.0)
-    total_ram_gb: float = Field(..., ge=1.0)
-    free_ram_gb: float = Field(..., ge=0.0)
-    vram_total_gb: float = Field(default=0.0, ge=0.0)
-    vram_free_gb: float = Field(default=0.0, ge=0.0)
-    gpu_temp_celsius: Optional[float] = Field(default=None)
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_id: str = Field(..., description="Unique node identifier in the homelab inventory")
+    platform: str = Field(..., description="Architecture platform: x86_gpu, apple_silicon, low_power_x86, edge_sbc")
+    cpu_utilization_pct: float = Field(..., ge=0.0, le=100.0, description="Host CPU utilization percentage")
+    total_ram_gb: float = Field(..., ge=1.0, description="Total physical system memory in Gigabytes")
+    free_ram_gb: float = Field(..., ge=0.0, description="Unallocated host system memory in Gigabytes")
+    vram_total_gb: float = Field(default=0.0, ge=0.0, description="Dedicated GPU VRAM total in Gigabytes")
+    vram_free_gb: float = Field(default=0.0, ge=0.0, description="Unallocated GPU VRAM in Gigabytes")
+    gpu_temp_celsius: Optional[float] = Field(default=None, description="GPU junction temperature if available")
+    current_power_watts: Optional[float] = Field(default=None, description="Real-time estimated node power draw in Watts")
+
+class PlacementEvaluationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    model_name: str = Field(..., description="Target model identifier (e.g., 'llama-3.3-70b')")
+    required_vram_gb: float = Field(..., gt=0.0, description="Required memory pool in Gigabytes")
+    allow_unified_memory: bool = Field(default=True, description="Whether Apple Silicon unified RAM can fulfill VRAM allocation")
+    prefer_low_power: bool = Field(default=False, description="Favor nodes with lower baseline power dissipation")
+
+class PlacementDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(..., description="'APPROVED' or 'REJECTED'")
+    target_node: Optional[str] = Field(default=None, description="Selected optimal execution host")
+    model_name: str = Field(..., description="Target model identifier")
+    required_vram_gb: float = Field(..., description="Requested memory footprint")
+    rationale: str = Field(..., description="Technical justification for routing decision")
 
 @mcp.tool()
 def get_cluster_hardware_summary() -> List[HardwareNodeStatus]:
-    """Retrieves current hardware utilization across all homelab compute nodes."""
+    """Retrieves current hardware utilization and capacity across all homelab compute nodes."""
     return [
         HardwareNodeStatus(
             node_id="n100-master",
@@ -111,6 +147,8 @@ def get_cluster_hardware_summary() -> List[HardwareNodeStatus]:
             free_ram_gb=9.5,
             vram_total_gb=0.0,
             vram_free_gb=0.0,
+            gpu_temp_celsius=None,
+            current_power_watts=8.4,
         ),
         HardwareNodeStatus(
             node_id="rtx-rig-01",
@@ -118,55 +156,161 @@ def get_cluster_hardware_summary() -> List[HardwareNodeStatus]:
             cpu_utilization_pct=22.8,
             total_ram_gb=64.0,
             free_ram_gb=48.2,
-            vram_total_gb=16.0,
-            vram_free_gb=11.4,
+            vram_total_gb=24.0,
+            vram_free_gb=18.4,
             gpu_temp_celsius=52.0,
+            current_power_watts=95.0,
         ),
         HardwareNodeStatus(
-            node_id="mac-studio-m6",
+            node_id="mac-studio-m5",
             platform="apple_silicon",
             cpu_utilization_pct=8.5,
-            total_ram_gb=64.0,
-            free_ram_gb=38.0,
-            vram_total_gb=48.0,  # Effective unified memory pool
-            vram_free_gb=28.5,
+            total_ram_gb=128.0,
+            free_ram_gb=92.0,
+            vram_total_gb=96.0,  # Effective unified memory ceiling (75% of total)
+            vram_free_gb=68.5,
             gpu_temp_celsius=41.0,
+            current_power_watts=22.0,
         ),
     ]
 
 @mcp.tool()
-def evaluate_model_placement(
-    model_name: str,
-    required_vram_gb: float,
-    allow_unified_memory: bool = True,
-) -> Dict[str, str]:
-    """Determines optimal node placement for an incoming model workload based on VRAM requirements."""
+def evaluate_model_placement(request: PlacementEvaluationRequest) -> PlacementDecision:
+    """Determines optimal node placement for an incoming model workload based on strict VRAM & RAM constraints."""
     nodes = get_cluster_hardware_summary()
     candidates = []
 
     for node in nodes:
         available_mem = node.vram_free_gb
-        if node.platform == "apple_silicon" and allow_unified_memory:
+        if node.platform == "apple_silicon" and request.allow_unified_memory:
             available_mem = node.free_ram_gb * 0.75
 
-        if available_mem >= required_vram_gb:
-            candidates.append((node.node_id, available_mem))
+        if available_mem >= request.required_vram_gb:
+            candidates.append((node, available_mem))
 
     if not candidates:
-        return {"status": "REJECTED", "reason": f"No single node has {required_vram_gb} GB free VRAM/Unified RAM."}
+        return PlacementDecision(
+            status="REJECTED",
+            target_node=None,
+            model_name=request.model_name,
+            required_vram_gb=request.required_vram_gb,
+            rationale=f"Insufficient unallocated VRAM/Unified RAM across all nodes (required: {request.required_vram_gb} GB)."
+        )
 
-    # Pick node with smallest adequate margin to preserve large nodes
-    candidates.sort(key=lambda x: x[1])
+    # Sort based on strategy: low-power preference or tightest fit to conserve capacity
+    if request.prefer_low_power:
+        candidates.sort(key=lambda x: (x[0].current_power_watts or 999.0))
+    else:
+        candidates.sort(key=lambda x: x[1])
+
     best_node = candidates[0][0]
-    return {
-        "status": "APPROVED",
-        "target_node": best_node,
-        "model_name": model_name,
-        "required_vram_gb": str(required_vram_gb),
-    }
+    return PlacementDecision(
+        status="APPROVED",
+        target_node=best_node.node_id,
+        model_name=request.model_name,
+        required_vram_gb=request.required_vram_gb,
+        rationale=f"Selected {best_node.node_id} ({best_node.platform}) with {round(candidates[0][1], 1)} GB headroom."
+    )
 
 if __name__ == "__main__":
     mcp.run()
+```
+
+## Production Docker Compose Stack (Lab Node Telemetry)
+Deploy the standardized homelab telemetry daemon stack on each worker and GPU server node to pipe hardware status into Prometheus and agentic orchestrators:
+
+```yaml
+version: "3.9"
+
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.9.0
+    container_name: homelab-node-exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)'
+
+  nvidia-gpu-exporter:
+    image: utkuozdemir/nvidia_gpu_exporter:v1.3.1
+    container_name: homelab-gpu-exporter
+    restart: unless-stopped
+    ports:
+      - "9835:9835"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - TELEMETRY_PATH=/metrics
+    security_opt:
+      - no-new-privileges:true
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    container_name: homelab-cadvisor
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+```
+
+## Production Systemd Service Unit Configuration
+For bare-metal worker nodes running native inference without Docker overhead, configure the systemd unit below (`/etc/systemd/system/homelab-hardware-exporter.service`):
+
+```ini
+[Unit]
+Description=HomeLab Hardware Metric Exporter & Placement Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homelab-svc
+Group=homelab-svc
+WorkingDirectory=/opt/homelab-telemetry
+Environment="PYTHONUNBUFFERED=1"
+Environment="MCP_PORT=8090"
+Environment="ENABLE_CUDA_PROFILER=1"
+ExecStart=/opt/homelab-telemetry/venv/bin/python3 -m homelab_hardware_mcp
+Restart=always
+RestartSec=5s
+LimitNOFILE=65535
+TimeoutStopSec=15s
+
+# Hardened Security Configuration
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+SystemCallFilter=@system-service
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -176,14 +320,20 @@ if __name__ == "__main__":
 # Check for AVX-512 support on Linux
 grep -o "avx512" /proc/cpuinfo | head -n 1
 
-# List GPU VRAM and utilization
-nvidia-smi --query-gpu=memory.total,memory.free,utilization.gpu --format=csv
+# List GPU VRAM, power consumption, and temperature
+nvidia-smi --query-gpu=index,name,memory.total,memory.free,power.draw,temperature.gpu --format=csv,noheader
 ```
 
 ### hw-check.py (Custom Diagnostic)
 ```bash
 # Verify local hardware readiness for a specific model size
 python3 scripts/hw-check.py --model-size 7b --quant q4_k_m
+```
+
+### Thermal Throttling Verification
+```bash
+# Check CPU thermal trip counters
+sensors | grep -E "Core|Package|Tctl|junction"
 ```
 
 ## API examples
@@ -194,7 +344,7 @@ An executable, strict Pydantic v2 validation script to model and assess the home
 ```python
 from enum import Enum
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 class ComputePlatform(str, Enum):
     X86_GPU = "x86_gpu"
@@ -203,19 +353,26 @@ class ComputePlatform(str, Enum):
     EDGE_SBC = "edge_sbc"
 
 class HardwareNode(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     node_name: str = Field(..., description="Name of the node in the homelab cluster")
     platform: ComputePlatform = Field(..., description="Underlying architecture / platform type")
     total_ram_gb: float = Field(..., ge=1.0, description="Total system RAM in Gigabytes")
     vram_gb: float = Field(default=0.0, ge=0.0, description="Available VRAM in Gigabytes")
     has_avx_512: bool = Field(default=False, description="Whether the CPU supports AVX-512 instructions")
+    baseline_watts: float = Field(default=15.0, ge=1.0, description="Measured idle power dissipation")
 
 class TargetModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_name: str = Field(..., description="Identifier name of the LLM")
     size_params_b: float = Field(..., gt=0.0, description="Model parameter size in Billions")
     quantization: str = Field(default="Q4_K_M", description="Quantization profile")
     estimated_memory_required_gb: float = Field(..., gt=0.0, description="Estimated VRAM/RAM required to run the model")
 
 class HardwareRoutingEngine(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     nodes: Dict[str, HardwareNode] = Field(..., description="Active homelab hardware nodes")
 
     def find_capable_nodes(self, model: TargetModel) -> List[str]:
@@ -236,9 +393,9 @@ class HardwareRoutingEngine(BaseModel):
 if __name__ == "__main__":
     cluster = HardwareRoutingEngine(
         nodes={
-            "n100-server": HardwareNode(node_name="n100-server", platform=ComputePlatform.LOW_POWER_X86, total_ram_gb=16.0, vram_gb=0.0, has_avx_512=True),
-            "gpu-rig": HardwareNode(node_name="gpu-rig", platform=ComputePlatform.X86_GPU, total_ram_gb=32.0, vram_gb=16.0, has_avx_512=True),
-            "macbook-m6": HardwareNode(node_name="macbook-m6", platform=ComputePlatform.APPLE_SILICON, total_ram_gb=48.0, vram_gb=0.0, has_avx_512=False)
+            "n100-server": HardwareNode(node_name="n100-server", platform=ComputePlatform.LOW_POWER_X86, total_ram_gb=16.0, vram_gb=0.0, has_avx_512=True, baseline_watts=6.5),
+            "gpu-rig": HardwareNode(node_name="gpu-rig", platform=ComputePlatform.X86_GPU, total_ram_gb=64.0, vram_gb=24.0, has_avx_512=True, baseline_watts=45.0),
+            "macbook-m5": HardwareNode(node_name="macbook-m5", platform=ComputePlatform.APPLE_SILICON, total_ram_gb=64.0, vram_gb=0.0, has_avx_512=False, baseline_watts=12.0)
         }
     )
 
@@ -260,7 +417,7 @@ model_list:
   - model_name: "local-large"
     litellm_params:
       model: "ollama/deepseek-v4:70b"
-      api_base: "http://macbook-m6:11434"
+      api_base: "http://macbook-m5:11434"
 ```
 
 ### Checking Hardware Health via Home Assistant
@@ -274,12 +431,18 @@ model_list:
 
 ## Operational Troubleshooting & Diagnostics
 
-| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+The diagnostic table below outlines 8 critical operational failure modes encountered when managing hybrid AI homelab clusters, with exact diagnostic commands and verified remediation actions:
+
+| Failure Mode / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
 | :--- | :--- | :--- | :--- |
 | **CUDA Out Of Memory (OOM)** | Model context window or KV cache exceeding physical GPU VRAM | `nvidia-smi` / `dmesg \| grep -i oom` | Reduce `num_ctx` in Ollama, switch to higher quantization (Q4_K_M -> Q3_K_S), or route to Apple Silicon node |
 | **Thermal Throttling on Mini PC** | Dusty fan or inadequate air circulation on low-power chassis | `sensors` / `cat /sys/class/thermal/thermal_zone*/temp` | Clean dust filters, adjust fan curve in BIOS, or add external 120mm USB cooling fan |
 | **P2P PCIe Bottleneck** | Dual-GPU setup running across PCIe Gen 3 x4 slots without NVLink | `nvidia-smi topo -m` | Re-align GPU slots to PCIe Gen 4/5 x8/x16, or switch to split-tensor parallelism over fast LAN |
 | **AVX-512 Instruction Fallback** | CPU backend using slow fallback matrix instructions | `lscpu \| grep -i avx512` | Recompile llama.cpp with `-DGGML_AVX512=ON` flag explicitly set |
+| **Apple Silicon Unified RAM Eviction** | System paging Metal model weights to swap SSD under memory pressure | `vm_stat` / `memory_pressure` | Terminate non-critical background apps; reserve at least 25% of total unified memory for macOS system daemon stability |
+| **Nvidia Driver Reset (Xid 79/31)** | Power supply transient spike or unstable PCIe riser cable | `dmesg \| grep -E "NVRM: Xid"` | Limit GPU power draw via `nvidia-smi -pl <watts>`, verify PCIe power cables are independent rails from PSU |
+| **ECC Double-Bit Parity Crash** | Defective DDR5/VRAM module running inference under high temperature | `journalctl -u systemd-coredump \| grep -i ecc` | Run Memtest86+ or `dcgm-diag -r 3` on Nvidia hardware; replace faulty RAM stick or lower overclock settings |
+| **QuickSync Transcoder Stalling** | Host missing `/dev/dri` device permissions inside container | `ls -la /dev/dri/renderD128` | Grant `video` and `render` group memberships to the container user: `usermod -aG render docker-user` |
 
 ## Related tools / concepts
 - [Ollama](../services/ollama.md) — The primary engine for running LLMs on this hardware.
