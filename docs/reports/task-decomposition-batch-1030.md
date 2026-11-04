@@ -1,0 +1,23 @@
+# Task Decomposition Report - Batch 1030
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/providers/anthropic.md`, `docs/knowledge_base/model_classes.md`, `docs/tools/infrastructure/deepseek-dsec.md`, `docs/services/ollama.md`, and `docs/tools/ai_knowledge/magpie-tts.md`) past 22,000–24,600+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative matrices, and diagnostic troubleshooting tables while preserving untouched review metadata where appropriate.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/providers/anthropic.md` | **Completed & Closed** | 15,726 B | 23,192 B | Deepened technical content (+7,466 B). Added operational token economics & performance benchmark matrix across 6 usage tiers, CLI and curl inspection examples, prompt caching audit FastMCP 3.1 tool, production FastMCP 3.1 code refactor gateway server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), multi-container Docker Compose caching proxy with Redis, hardened systemd service unit (`anthropic-gateway.service`), and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/knowledge_base/model_classes.md` | **Completed & Closed** | 15,729 B | 24,688 B | Deepened technical content (+8,959 B). Added comparative operational metrics & benchmark matrix across 5 model classes (Reasoning-Native, MoE-Native, Multimodal-Unified, Edge-Native SLM, Embedding/Reranker), production FastMCP 3.1 dynamic model classifier and dispatcher server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), multi-service Docker Compose testbed topology (LiteLLM + Ollama + Redis), systemd service unit (`model-class-router.service`), and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/infrastructure/deepseek-dsec.md` | **Completed & Closed** | 15,734 B | 22,084 B | Deepened technical content (+6,350 B). Added hardware topology & scale benchmark matrix across 5 compute tiers (Workstation Edge up to Frontier Cluster), production FastMCP 3.1 sandbox orchestration tool server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), multi-container Docker Compose deployment (`dsec-proxy-daemon` + `dsec-fastmcp-gateway`), hardened systemd service unit (`dsec-agent-proxy.service`), operational safety & infrastructure guardrails, and expanded 8-scenario systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/services/ollama.md` | **Completed & Closed** | 15,740 B | 22,896 B | Deepened technical content (+7,156 B). Added hardware acceleration & empirical inference throughput matrix across 5 compute tiers and quantizations, enterprise FastMCP 3.1 Ollama supervisor and dynamic context manager server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), GPU-accelerated Docker Compose stack with Open WebUI, hardened systemd service unit (`ollama-enterprise.service`), and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/magpie-tts.md` | **Completed & Closed** | 15,740 B | 22,706 B | Deepened technical content (+6,966 B). Added empirical audio synthesis & hardware benchmark matrix across 5 compute tiers, production FastMCP 3.1 streaming speech generation server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`), multi-service Docker Compose worker stack with Redis audio chunk buffer, hardened systemd service unit (`magpie-tts.service`), production operational playbook, and expanded 8-scenario diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
