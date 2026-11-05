@@ -3,12 +3,46 @@
 ## What it is
 MultiOn is an enterprise-grade AI agent framework, SDK, and API designed specifically for autonomous web navigation, interaction, and stateful browser control. As of early January 2027, it operates on the mature API v3 architecture with full support for **FastMCP 3.1 Task Protocol**, serving as a high-performance "motor cortex" for AI. It enables frontier reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to execute complex, multi-step actions across any web surface by combining real-time visual grounding with structural DOM parsing.
 
+---
+
 ## What problem it solves
 Traditional web scraping, RPA (Robotic Process Automation), and heuristic automation frameworks are notoriously brittle, requiring constant maintenance when website layouts or class names change. Standard LLMs without browser grounding are "read-only" and cannot interact with authenticated user sessions or complete transaction loops. MultiOn bridges this gap by providing autonomous web execution environments that handle state management, user authentication, CAPTCHAs, dynamic JS execution, and self-healing navigation trajectories without brittle hardcoded rules.
+
+---
 
 ## Where it fits in the stack
 **Category**: [Agents](index.md) / [Automation & Orchestration](../automation_orchestration/index.md).
 It functions as the execution and interaction layer of the agentic stack. SOTA models generate semantic intents or command paths (such as using Model Context Protocol / FastMCP 3.1 specifications), which are translated by MultiOn's browser orchestrator into physical browser operations (click, type, hover, scroll, extract).
+
+---
+
+## Mathematical Formulation: Normalized Visual Grounding & Element Bounding Regression
+
+Autonomous browser control combines structural DOM tree pruning with Vision-Language Model (VLM) 2D spatial coordinate regression. Given viewport resolution $W \times H$ (typically normalized to $1000 \times 1000$ internal space), a screen element $e_k$ is represented by its normalized bounding box:
+
+$$
+\mathcal{B}(e_k) = \left[ x_{\min}, y_{\min}, x_{\max}, y_{\max} \right], \quad x \in [0, 1000], \; y \in [0, 1000]
+$$
+
+The VLM generates an action intent conditioned on instruction prompt $I$, viewport snapshot $V_t$, and candidate interactive elements $\mathcal{E} = \{e_1, e_2, \dots, e_M\}$:
+
+$$
+P(\text{action}_t \mid I, V_t, \mathcal{E}) = \text{Softmax}\left( \frac{Q(I, V_t) K(e_k)^T}{\sqrt{d}} \right)
+$$
+
+For mouse interaction events (click, hover), the physical browser coordinate $(\tilde{X}, \tilde{Y})$ is calculated via center-point affine projection:
+
+$$
+x_c = \frac{x_{\min} + x_{\max}}{2}, \quad y_c = \frac{y_{\min} + y_{\max}}{2}
+$$
+
+$$
+\tilde{X} = \left\lfloor \frac{x_c}{1000} \times W \right\rfloor, \quad \tilde{Y} = \left\lfloor \frac{y_c}{1000} \times H \right\rfloor
+$$
+
+State transition reward verifies task progress by measuring visual delta $\Delta V = \| \text{Embed}(V_{t+1}) - \text{Embed}(V_t) \|_2$ and DOM mutation events, ensuring self-healing retry if $\Delta V < \epsilon_{\text{threshold}}$.
+
+---
 
 ## Architecture & Visual Grounding Sequence
 
@@ -36,16 +70,20 @@ sequenceDiagram
     MultiOn-->>Agent: Action completed (Pydantic v2 session report)
 ```
 
+---
+
 ## Web Automation Framework Comparison Matrix
 
-| Framework | Primary Engine | Anti-Bot & CAPTCHA | Visual Grounding | State Persistence | Avg Step Latency | Ideal Use Case |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **MultiOn** | Cloud API v3 / Chromium | Advanced Auto-Solving | High (VLM-Native) | Continuous Cookies | ~3 - 8s | Complex transactional SaaS automation |
-| **Stagehand** | Playwright + AI | Proxy Integration | Medium (DOM + Vision) | Local Browser State | ~2 - 5s | Node/TypeScript web agent execution |
-| **Browser Use** | LangChain / Playwright | Custom Proxies | High (VLM Viewport) | Session Context | ~4 - 10s | Python-native LLM browser steering |
-| **Skyvern** | Computer Vision / OCR | Basic Proxy | High (OCR + Bounding) | Ephemeral Session | ~5 - 12s | Layout-agnostic visual scraping |
-| **Crawl4AI** | Headless Chromium | Stealth Mode | None (Pure Text/DOM) | Stateless / Per Request| ~0.2 - 0.8s | High-throughput LLM text ingestion |
-| **Playwright** | Native CDP / Chromium | Manual Extension | None (Rule-Based) | Manual Storage State| ~0.05 - 0.2s | Deterministic unit testing & scraping |
+| Framework | Primary Engine | Anti-Bot & CAPTCHA | Visual Grounding | State Persistence | Avg Step Latency | FastMCP 3.1 Native | Ideal Use Case |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- | :--- |
+| **MultiOn** | Cloud API v3 / Chromium | Advanced Auto-Solving | High (VLM-Native) | Continuous Cookies | ~3 - 8s | **Yes (Task Protocol)** | Complex transactional SaaS automation |
+| **Stagehand** | Playwright + AI | Proxy Integration | Medium (DOM + Vision) | Local Browser State | ~2 - 5s | Community Adapter | Node/TypeScript web agent execution |
+| **Browser Use** | LangChain / Playwright | Custom Proxies | High (VLM Viewport) | Session Context | ~4 - 10s | Custom Bridge | Python-native LLM browser steering |
+| **Skyvern** | Computer Vision / OCR | Basic Proxy | High (OCR + Bounding) | Ephemeral Session | ~5 - 12s | Experimental | Layout-agnostic visual scraping |
+| **Crawl4AI** | Headless Chromium | Stealth Mode | None (Pure Text/DOM) | Stateless / Per Request| ~0.2 - 0.8s | Custom Tool | High-throughput LLM text ingestion |
+| **Playwright** | Native CDP / Chromium | Manual Extension | None (Rule-Based) | Manual Storage State| ~0.05 - 0.2s | Direct SDK | Deterministic unit testing & scraping |
+
+---
 
 ## Typical use cases
 - **Transaction Orchestration**: Completing automated purchases, hotel/flight bookings, or filling out long corporate forms across disjointed websites.
@@ -54,6 +92,8 @@ sequenceDiagram
 - **Social Media & Workspace Automation**: Managing profiles, scheduling posts, reviewing pull requests on GitHub, and interacting with team portals.
 - **Competitive Benchmarking & Live Audits**: Continuously navigating e-commerce websites to monitor real-time pricing and stock adjustments under varying simulation profiles.
 
+---
+
 ## Strengths
 - **Visual Grounding & Self-Healing**: Utilizing visual analysis from frontier VLMs to accurately target UI elements, making it highly resilient to HTML structural changes.
 - **Model Context Protocol / FastMCP 3.1 Native**: Seamlessly maps web browsing capabilities to MCP-compatible agents as an external tool, providing structured inputs/outputs.
@@ -61,28 +101,36 @@ sequenceDiagram
 - **Anti-Bot and CAPTCHA Handling**: Integrates advanced proxy routing and automated CAPTCHA solving to navigate complex security gates smoothly.
 - **Multi-Modal Execution**: Supports both headless high-throughput sessions and visual debug sessions in a real-time local or cloud window.
 
+---
+
 ## Limitations
 - **Operational Latency**: Multi-step web interaction is bound by browser rendering times, network latencies, and visual verification steps (often 5 to 15 seconds per step).
 - **Execution Cost**: High consumption of VLM and LLM reasoning tokens when performing long-horizon vision tasks or DOM parsing on dense websites.
 - **Safety and Guardrails**: Requires rigorous application-level filtering (e.g., via [Lakera Guard](../benchmarking/lakera-guard.md)) to prevent unintended transactional actions or modifications of sensitive accounts.
 - **Deterministic Limits**: Unpredictable web design shifts or custom iframe-based interfaces may occasionally require fallback prompt corrections or manual human-in-the-loop overrides.
 
+---
+
 ## When to use it
 - When an agent must perform write actions (e.g., submit forms, transfer data, book services) on websites lacking public API access.
 - For long-horizon agentic missions requiring interaction across multiple web domains with persistent sessions.
 - When building multi-agent systems that need a reliable, fully managed browser orchestration gateway instead of maintaining a complex Selenium, Puppeteer, or Playwright cluster.
+
+---
 
 ## When not to use it
 - For static data extraction or massive-scale crawling where high-performance local scrapers like [Crawl4AI](../process_understanding/crawl4ai.md) can run headless with significantly lower cost and latency.
 - If the target systems already expose secure, robust REST or GraphQL APIs, which are always faster, cheaper, and more reliable than web-based automation.
 - For strictly local, completely air-gapped deployments where external API endpoints or third-party visual model APIs cannot be queried.
 
+---
+
 ## Getting started
 
 ### Installation
 Install the official MultiOn client, Pydantic, and MCP libraries:
 ```bash
-pip install multion pydantic mcp
+pip install multion pydantic>=2.0 fastmcp>=3.1.0 requests
 ```
 
 ### Authentication and Setup
@@ -90,6 +138,8 @@ Acquire an API key from the [MultiOn Console](https://console.multion.ai/) and e
 ```bash
 export MULTION_API_KEY="mo_live_abcdef1234567890abcdef"
 ```
+
+---
 
 ## CLI examples
 The MultiOn CLI allows you to execute immediate web tasks and monitor active visual sessions directly from your terminal.
@@ -107,6 +157,96 @@ multion browse --url "https://news.ycombinator.com" --cmd "Find the top story an
 # Maintain a persistent session across commands
 multion session create --url "https://github.com"
 ```
+
+---
+
+## Production Multi-Container Orchestration (`docker-compose.yml`)
+
+The following Docker Compose configuration runs a local FastMCP 3.1 gateway communicating with MultiOn API v3 and local headless sandboxed browsers:
+
+```yaml
+version: "3.8"
+
+services:
+  multion-agent-gateway:
+    image: python:3.11-slim
+    container_name: multion-agent-gateway
+    restart: always
+    environment:
+      - MULTION_API_KEY=${MULTION_API_KEY}
+      - REDIS_URL=redis://multion-session-cache:6379/0
+      - MCP_PORT=8090
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./server/multion_mcp_server.py:/app/server.py:ro
+      - ./data/recordings:/app/recordings
+    command: >
+      bash -c "pip install multion fastmcp>=3.1.0 pydantic>=2.0 redis && python /app/server.py"
+    depends_on:
+      - multion-session-cache
+
+  chromium-sandbox:
+    image: browserless/chrome:1.60.2-puppeteer-21.4.1
+    container_name: multion-chromium-sandbox
+    restart: always
+    environment:
+      - MAX_CONCURRENT_SESSIONS=10
+      - PREBOOT_CHROME=true
+      - CONNECTION_TIMEOUT=60000
+    ports:
+      - "3005:3000"
+
+  multion-session-cache:
+    image: redis:7.2-alpine
+    container_name: multion-session-cache
+    restart: always
+    ports:
+      - "6385:6379"
+    volumes:
+      - multion_redis_data:/data
+
+volumes:
+  multion_redis_data:
+    driver: local
+```
+
+---
+
+## Production Systemd Service Unit (`multion-gateway.service`)
+
+Deploy the MultiOn FastMCP gateway daemon as a Linux background service:
+
+```ini
+[Unit]
+Description=MultiOn FastMCP 3.1 Browser Automation Gateway
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=multion
+Group=multion
+WorkingDirectory=/opt/multion-gateway
+Environment="PATH=/opt/multion-venv/bin:/usr/bin"
+EnvironmentFile=/etc/multion/gateway.env
+ExecStart=/opt/multion-venv/bin/python3 /opt/multion-gateway/server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/multion-gateway/recordings /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+---
 
 ## API examples
 
@@ -175,22 +315,25 @@ finally:
 ```
 
 ### 3. FastMCP 3.1 Executable Browser Automation Tool Server
-Exposing MultiOn visual navigation capabilities as a standardized FastMCP 3.1 tool server with Pydantic v2 session guardrails:
+Exposing MultiOn visual navigation capabilities as a standardized FastMCP 3.1 tool server with strict **Pydantic v2** session guardrails (`extra="forbid"`, `frozen=True`):
 
 ```python
 import os
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 from mcp.server.fastmcp import FastMCP
 from multion.client import MultiOn
 
-mcp = FastMCP("multion-browser-tool-server")
+mcp = FastMCP("multion-browser-tool-server", version="3.1.0")
 
 class BrowseCommandSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_url: str = Field(..., description="HTTPS target URL to initiate browsing session.")
-    command: str = Field(..., min_length=5, description="Natural language navigation command.")
+    command: str = Field(..., min_length=5, max_length=2000, description="Natural language navigation command.")
     max_steps: int = Field(default=10, ge=1, le=30)
     capture_screenshot: bool = Field(default=True)
+    task_id: Optional[str] = Field(None, description="FastMCP 3.1 task identifier")
 
     @field_validator("target_url")
     @classmethod
@@ -198,6 +341,15 @@ class BrowseCommandSchema(BaseModel):
         if not v.startswith("https://"):
             raise ValueError("Target URL must use secure https:// scheme.")
         return v
+
+class BrowseExecutionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str
+    execution_message: str
+    steps_completed: int
+    screenshot_captured: bool
+    protocol_version: str = Field(default="3.1.0")
 
 @mcp.tool()
 def execute_multion_browse(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
@@ -213,12 +365,13 @@ def execute_multion_browse(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
             include_screenshot=req.capture_screenshot
         )
 
-        return {
-            "status": "success",
-            "execution_message": getattr(res, "message", "Command processed successfully"),
-            "steps_completed": getattr(res, "steps", 1),
-            "protocol": "FastMCP 3.1"
-        }
+        resp = BrowseExecutionResponse(
+            status="success",
+            execution_message=getattr(res, "message", "Command processed successfully"),
+            steps_completed=getattr(res, "steps", 1),
+            screenshot_captured=bool(getattr(res, "screenshot", None))
+        )
+        return resp.model_dump()
     except ValidationError as e:
         return {"status": "error", "error_type": "ValidationFailure", "details": e.errors()}
     except Exception as e:
@@ -227,6 +380,23 @@ def execute_multion_browse(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+---
+
+## Systematic Diagnostic & Troubleshooting Matrix
+
+| Diagnostic Symptom / Error | Probable Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`ElementNotFoundError` during step** | Dynamic JS rendering delay or hidden iframe element | `multion browse --local --debug` | Add explicit visual wait instruction in prompt (e.g. "Wait for modal to render"). |
+| **`CAPTCHA Solving Failure`** | Bot score trigger on IP or outdated browser fingerprint | MultiOn Console Session Inspector | Enable enterprise residential proxy routing or manual human solve fallback. |
+| **`Session Token Expiration`** | Session timeout after prolonged inactivity (>15m) | `client.sessions.get_status(session_id)` | Implement automated heartbeat ping or re-authenticate session. |
+| **`High VLM Token Overhead`** | Viewport rendering on ultra-dense high-resolution web pages | MultiOn API payload configuration | Set viewport resolution to `1280x720` and disable unneeded background asset downloads. |
+| **`HTTP 403 Forbidden on Ingress`** | Cloudflare WAF or Akamai Bot Manager blocking datacenter IP | Inspect response header `cf-ray` | Route traffic through authenticated residential rotating proxies. |
+| **`FastMCP Connection Drop`** | Execution step time exceeding client SSE socket read timeout | Inspect MCP gateway logs | Increase FastMCP client socket read timeout to $\ge 120$ seconds. |
+| **`Stale DOM Coordinate Misclick`** | DOM reflowed after async AJAX content loaded | Review session action trace | Instruct agent to perform scroll anchor check before clicking dynamic elements. |
+| **`PydanticFrozenInstanceError`** | Agent mutating immutable schema instance in session state | Review Python traceback | Use `req.model_copy(update={...})` rather than mutating attributes directly. |
+
+---
 
 ## Production Guardrails & Operational Security Guidelines
 
@@ -241,14 +411,7 @@ if __name__ == "__main__":
 3. **Proxy Rotation & Anti-Bot Reliability**:
    - Route requests through premium residential proxy networks when navigating geo-restricted or strict anti-bot targets.
 
-## Systematic Troubleshooting & Navigation Diagnostic Guide
-
-| Diagnostic Symptom | Probable Cause | Diagnostic Command / Tool | Remediation Action |
-| :--- | :--- | :--- | :--- |
-| **`ElementNotFoundError` during step** | Dynamic JS rendering delay or hidden iframe element | `multion browse --local --debug` | Add explicit visual wait instruction in prompt (e.g., "Wait for modal to render") |
-| **CAPTCHA Solving Failure** | Bot score trigger on IP or outdated browser fingerprint | MultiOn Console Session Inspector | Enable enterprise residential proxy routing or manual human solve fallback |
-| **Session Token Expiration** | Session timeout after prolonged inactivity (>15m) | `client.sessions.get_status(session_id)` | Implement automated heartbeat ping or re-authenticate session |
-| **High VLM Token Overhead** | Viewport rendering on ultra-dense high-resolution web pages | MultiOn API payload configuration | Set viewport resolution to `1280x720` and disable unneeded background asset downloads |
+---
 
 ## Related tools / concepts
 - [Stagehand](../automation_orchestration/stagehand.md) — Node-based visual automation using SOTA vision-language models and Playwright.
@@ -260,15 +423,21 @@ if __name__ == "__main__":
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Industry-standard protocol for integrating web tools with frontier LLMs.
 - [Exa AI](../providers/exa_ai.md) — Semantic search provider used to identify target URLs before initiating MultiOn browser interactions.
 
+---
+
 ## Licensing and cost
 - **License**: Proprietary SDK / Cloud API.
 - **Cost**: Offers free tier with limited browsing runs; standard consumption costs are billed based on execution runtime, step counts, and active proxy/solving features.
+
+---
 
 ## Sources / references
 - [MultiOn Developer Portal](https://docs.multion.ai/)
 - [MultiOn Official Site](https://www.multion.ai/)
 - [MultiOn Python SDK GitHub](https://github.com/multion-ai/multion-python)
 - [API v3 Architecture and Vision-Grounding Update](https://www.multion.ai/blog/v3-api-release)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

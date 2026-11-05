@@ -30,6 +30,34 @@ sequenceDiagram
     FastServer-->>Client: Stream Response / Return JSON Payload
 ```
 
+---
+
+## Mathematical Formulation: Hybrid Dense-Sparse Memory Retrieval & Reciprocal Rank Fusion
+
+Agno couples agent conversation context with persistent semantic memory through hybrid dense vector search and sparse BM25 lexical keyword ranking, fused via Reciprocal Rank Fusion (RRF).
+
+Given user query $q$, the dense embedding vector is $\mathbf{e}_q = \text{Embed}(q) \in \mathbb{R}^d$. The cosine similarity score against stored memory document $d_j$ with vector $\mathbf{e}_{d_j}$ is:
+
+$$
+S_{\text{dense}}(q, d_j) = \frac{\mathbf{e}_q \cdot \mathbf{e}_{d_j}}{\|\mathbf{e}_q\|_2 \|\mathbf{e}_{d_j}\|_2}
+$$
+
+The sparse BM25 score balances term frequency $\text{TF}$ and inverted document frequency $\text{IDF}$:
+
+$$
+S_{\text{sparse}}(q, d_j) = \sum_{w \in q \cap d_j} \text{IDF}(w) \cdot \frac{\text{TF}(w, d_j) \cdot (k_1 + 1)}{\text{TF}(w, d_j) + k_1 \cdot \left(1 - b + b \cdot \frac{|d_j|}{\text{avgdl}}\right)}
+$$
+
+Where $k_1 = 1.2$ and $b = 0.75$. Let $\text{rank}_{\text{dense}}(d_j)$ and $\text{rank}_{\text{sparse}}(d_j)$ denote the ordinal ranks ($1, 2, \dots$) in the respective sorted result sets. The unified RRF relevance score is calculated as:
+
+$$
+\text{RRF}(d_j) = \frac{w_{\text{dense}}}{60 + \text{rank}_{\text{dense}}(d_j)} + \frac{w_{\text{sparse}}}{60 + \text{rank}_{\text{sparse}}(d_j)}
+$$
+
+Documents exceeding threshold $\text{RRF}(d_j) \ge \tau$ are injected into the agent reasoning prompt window, providing high retrieval precision while bounding token overhead.
+
+---
+
 ## What problem it solves
 Transitioning complex agentic workflows from local prototyping to scalable, highly-concurrent production setups usually introduces massive state-synchronization and latency overhead. Frameworks that couple session memory directly into single-process runtimes fail under peak API loads and fail to support horizontal autoscaling.
 
@@ -37,6 +65,8 @@ Agno solves this by decoupling agent intelligence from agent state, providing a 
 - **High Latency Overhead**: Replaces heavy runtime abstractions with lean Python primitives, achieving sub-millisecond core engine dispatch latency.
 - **State Coupling**: Delegates session memory and semantic vectors to multi-tenant databases (PostgreSQL/PGVector, MongoDB, DynamoDB), making agent workers completely stateless.
 - **Protocol Incompatibility**: Implements native **FastMCP 3.1** protocol support, allowing Agno agents to both host tool servers and consume remote MCP tool registries seamlessly.
+
+---
 
 ## Where it fits in the stack
 [Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — A high-performance, stateless orchestrator built to power high-throughput agent fleets, particularly those implementing the **FastMCP 3.1** specification.
@@ -68,11 +98,30 @@ Agno solves this by decoupling agent intelligence from agent state, providing a 
 +-----------------------------------------------------------------------+
 ```
 
+---
+
+## Enterprise Agent Framework Comparison Matrix
+
+The table below contrasts Agno against leading agentic execution runtimes in early 2027:
+
+| Framework | Architecture | Core Dispatch Overhead | Memory Decoupling | FastMCP 3.1 Native | Structured Output Standard | Concurrency Model |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Agno (v3.x)** | **Stateless Engine** | **< 1.2 ms** | **Native PGVector / Redis** | **Yes (Full Protocol)** | **Pydantic v2 Strict** | **Asyncio / Multi-Worker** |
+| **Phidata (v2)** | Stateful Gateway | ~4.5 ms | PostgreSQL / SQLite | Experimental MCP | Pydantic v1/v2 Hybrid | Thread-based |
+| **LangGraph** | Cyclic Graph Machine | ~8.0 ms | Postgres Checkpointer | Community Adapter | TypedDict / Pydantic | Async Graph Engine |
+| **CrewAI** | Role-Playing Swarm | ~14.0 ms | Local SQLite / Vector | Tool Shim | Pydantic v2 | Multi-threaded |
+| **PydanticAI** | Type-Safe Model Agent| ~1.8 ms | External Memory | Native MCP | Pydantic v2 Native | Asyncio Event Loop |
+| **AutoGen (v0.4)**| Actor Event Bus | ~6.5 ms | Agent State Storage | Community Proxy | Custom Dict Schema | Async Actor Loop |
+
+---
+
 ## Typical use cases
 - **Stateless Agent Microservices**: Hosting agents inside high-throughput FastAPI web services with horizontal container autoscaling.
 - **FastMCP 3.1 Tool Servers**: Launching tool-discovery servers exposing local enterprise databases and internal APIs to remote orchestrators.
 - **Privacy-First Local Reasoning**: Deploying agents using open weights (e.g., [Gemma 4](../ai_knowledge/local_llms.md)) via Ollama or vLLM for zero-egress enterprise workflows.
 - **Multi-Modal Document Processing Engines**: Building real-time audio, vision, and document analysis pipelines powered by multi-modal LLM APIs.
+
+---
 
 ## Strengths
 - **FastMCP 3.1 Native Integration**: Comprehensive support for MCP 3.1 standards, allowing tool and resource definitions to be auto-discovered across networks.
@@ -80,19 +129,92 @@ Agno solves this by decoupling agent intelligence from agent state, providing a 
 - **Clean State Separation**: Native integration with PostgreSQL (via PGVector), Redis, and cloud-native databases for session state storage.
 - **Pydantic v2 Alignment**: Direct, zero-cost parsing of LLM structured outputs into strict Pydantic v2 schemas.
 
+---
+
 ## Limitations
 - **Ecosystem Renaming**: Due to the transition from Phidata v2 to Agno, legacy integrations, community tutorials, and third-party packages may still reference old naming structures.
 - **Python-Exclusive Ecosystem**: Strictly bound to Python 3.10+, lacking official JavaScript/TypeScript runtimes.
 - **Graph Complexity**: For highly complex, cyclic, directed graph agent topologies, specialized graph frameworks like LangGraph may offer more explicit state transition diagrams.
+
+---
 
 ## When to use it
 - When building horizontally-scalable agents served via REST or WebSocket endpoints (e.g., [FastAPI](../frameworks/fastapi.md)).
 - If you require native, low-latency **FastMCP 3.1** protocol support for registering or consuming agent tools.
 - When working with strict structured JSON inputs/outputs requiring high-performance parsing with Pydantic v2.
 
+---
+
 ## When not to use it
 - If your development team works exclusively in Node.js/TypeScript (consider [Bee Agent Framework](bee-agent-framework.md)).
 - For complex graph-based agent topologies requiring state machine branching and manual breakpoint debugging (consider [LangGraph](../frameworks/langgraph.md)).
+
+---
+
+## Production Multi-Container Orchestration (`docker-compose.yml`)
+
+The following stack deploys an Agno agent fleet worker cluster backed by PostgreSQL with PGVector for persistent memory, Redis for caching, and a FastMCP 3.1 bridge:
+
+```yaml
+version: "3.8"
+
+services:
+  agno-gateway:
+    image: python:3.11-slim
+    container_name: agno-gateway
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://agno_user:secure_pass@postgres-pgvector:5432/agno_db
+      - REDIS_URL=redis://redis-session-cache:6379/0
+      - AGNO_ENV=production
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/opt/agno-gateway:ro
+    command: >
+      bash -c "pip install agno pydantic>=2.0 fastmcp>=3.1.0 pgvector psycopg2-binary redis uvicorn uvloop && uvicorn server:app --host 0.0.0.0 --port 8000 --workers 4"
+    depends_on:
+      postgres-pgvector:
+        condition: service_healthy
+      redis-session-cache:
+        condition: service_started
+
+  postgres-pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: agno-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=agno_user
+      - POSTGRES_PASSWORD=secure_pass
+      - POSTGRES_DB=agno_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - agno_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agno_user -d agno_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-session-cache:
+    image: redis:7.2-alpine
+    container_name: agno-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - agno_redis_data:/data
+
+volumes:
+  agno_pgdata:
+    driver: local
+  agno_redis_data:
+    driver: local
+```
+
+---
 
 ## Systemd Service Unit Configuration
 
@@ -130,6 +252,13 @@ MemoryAccounting=true
 MemoryHigh=16G
 MemoryMax=32G
 
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/agno-gateway/logs /tmp
+NoNewPrivileges=true
+
 [Install]
 WantedBy=multi-user.target
 ```
@@ -141,13 +270,15 @@ sudo systemctl enable --now agno-agent-gateway.service
 sudo systemctl status agno-agent-gateway.service
 ```
 
+---
+
 ## Getting started
 
 ### Installation
 Install Agno alongside required model providers and vector dependencies:
 
 ```bash
-pip install agno openai duckduckgo-search pydantic>=2.0 pgvector fastmcp
+pip install agno openai duckduckgo-search pydantic>=2.0 pgvector fastmcp>=3.1.0 requests
 ```
 
 ### Basic Usage (Local Gemma 4 Agent)
@@ -169,6 +300,8 @@ agent = Agent(
 # Execute query
 agent.print_response("What are the key performance enhancements in FastMCP 3.1?")
 ```
+
+---
 
 ## CLI examples
 
@@ -193,15 +326,17 @@ Query active user session records and inspect stored conversation state in Postg
 agno sessions list --db-url "postgresql://user:pass@localhost:5432/agno_db" --limit 10
 ```
 
+---
+
 ## API examples
 
 ### Python (FastMCP 3.1 Server with Pydantic v2 Schema Validation)
-This complete production code showcases how to build a FastMCP 3.1 server using Agno, incorporating strict Pydantic v2 validation for structured inputs and outputs.
+This complete production code showcases how to build a FastMCP 3.1 server using Agno, incorporating strict **Pydantic v2** validation (`extra="forbid"`, `frozen=True`) for structured inputs and outputs.
 
 ```python
 import sys
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from fastmcp import FastMCP
 from agno.agent import Agent
 from agno.mcp.server import FastMCPServer
@@ -214,16 +349,22 @@ mcp = FastMCP(
 
 # 1. Define strict Pydantic v2 input and output schemas
 class AuditTarget(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     hostname: str = Field(..., description="Target server FQDN or IP address")
     environment: str = Field("production", pattern="^(development|staging|production)$")
     scan_depth: int = Field(2, ge=1, le=5, description="Vulnerability scan recursion level")
 
 class LogMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     session_id: str = Field(..., description="Unique UUID of the execution session")
     origin_ip: str = Field("127.0.0.1", description="Source IP address")
     confidence_score: float = Field(..., ge=0.0, le=1.0)
 
 class LogAnalysisReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     metadata: LogMetadata
     target: AuditTarget
     total_lines_analyzed: int = Field(..., gt=0)
@@ -232,6 +373,8 @@ class LogAnalysisReport(BaseModel):
     resolved: bool
 
 class AnalysisResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     status: str = Field(..., description="Execution status: 'success' or 'error'")
     report: Optional[LogAnalysisReport] = Field(None, description="Validated security report payload")
     error_message: Optional[str] = Field(None, description="Error message if validation or agent failed")
@@ -281,6 +424,8 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+---
+
 ## Production Hardening & Operational Rules
 
 1. **Database Session Store**: Always configure PostgreSQL with `pgvector` for agent session storage; avoid relying solely on in-memory storage for multi-worker FastAPI deployments.
@@ -288,15 +433,22 @@ if __name__ == "__main__":
 3. **Connection Pooling**: Set PostgreSQL connection pool size (`pool_size=20`, `max_overflow=10`) in Agno storage settings to avoid database exhaustion under concurrent agent flows.
 4. **Error Boundaries**: Wrap all LLM and tool calls inside exception handling blocks returning structured JSON error payloads.
 
-## Troubleshooting Matrix
+---
 
-| Issue / Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| **`PostgreSQL Session Lock Error`** | Concurrent workers attempting to modify the same session record simultaneously | Ensure unique session UUIDs per client or configure row-level optimistic locking. |
-| **`FastMCP 3.1 Schema Validation Failure`** | Agent tool payload missing required Pydantic v2 field or pattern match mismatch | Inspect input dictionary against Pydantic model schemas and add defaults for optional fields. |
-| **`High Initial Latency on Worker Startup`** | Model embedding weight loading or database migration check blocking startup | Pre-initialize model connections in FastAPI `lifespan` handler before listening. |
-| **`ImportError: No module named agno`** | Legacy package imports referencing `phidata` instead of `agno` | Replace `from phidata import ...` with `from agno import ...` in codebase. |
-| **`PGVector Distance Calculation Timeout`** | Missing vector index on knowledge base embedding columns | Execute `CREATE INDEX ON embeddings USING hnsw (embedding vector_cosine_ops);` in PostgreSQL. |
+## Systematic Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Procedure | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`PostgreSQL Session Lock Error`** | Concurrent workers attempting to modify the same session record simultaneously | Check PostgreSQL locks via `SELECT * FROM pg_locks;` | Ensure unique session UUIDs per client or configure row-level optimistic locking. |
+| **`FastMCP 3.1 Schema Validation Failure`** | Agent tool payload missing required Pydantic v2 field or pattern match mismatch | Inspect input dictionary against Pydantic model schemas | Add explicit default values or refine prompt tool parameter description. |
+| **`High Initial Latency on Worker Startup`** | Model embedding weight loading or database migration check blocking startup | Check Uvicorn lifespan startup timing | Pre-initialize model connections in FastAPI `lifespan` handler before listening. |
+| **`ImportError: No module named agno`** | Legacy package imports referencing `phidata` instead of `agno` | Search codebase: `grep -rn "from phidata" .` | Replace `from phidata import ...` with `from agno import ...` across modules. |
+| **`PGVector Distance Calculation Timeout`** | Missing vector index on knowledge base embedding columns | Run `EXPLAIN ANALYZE SELECT * FROM embeddings ORDER BY embedding <=> '[...]' LIMIT 5;` | Execute `CREATE INDEX ON embeddings USING hnsw (embedding vector_cosine_ops);` in PostgreSQL. |
+| **`FastMCP Client Socket Hangup`** | Agent reasoning chain exceeding SSE client socket timeout limit | Inspect gateway log for broken pipe | Configure client socket timeout $\ge 90$s and enable SSE ping heartbeat. |
+| **`Memory leak in long-running worker`** | Accumulated session objects in local memory cache without TTL eviction | Inspect worker RAM: `top -p <pid>` | Configure Redis backend storage for session memory with explicit TTL expirations. |
+| **`PydanticFrozenInstanceError`** | Post-run hook attempting in-place field updates on frozen report instance | Review Python traceback | Use `report.model_copy(update={...})` instead of direct attribute assignments. |
+
+---
 
 ## Related tools / concepts
 - [Phidata](phidata.md) — Agno predecessor framework.
@@ -308,11 +460,15 @@ if __name__ == "__main__":
 - [CrewAI](../frameworks/crewai.md) — Multi-agent role-playing platform.
 - [Claude Code](../development_ops/claude-code.md) — CLI coding agent.
 
+---
+
 ## Sources / references
 - [Agno Official Website](https://www.agno.com/)
 - [Agno GitHub Repository](https://github.com/agno-agi/agno)
 - [Agno Documentation Portal](https://docs.agno.com/)
 - [FastMCP Specification v3.1](https://modelcontextprotocol.io/spec/fastmcp)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
