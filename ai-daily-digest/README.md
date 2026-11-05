@@ -1,5 +1,71 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-11-05
+
+## Digest fallback for 2026-11-05
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [OpenAI to acquire Pierre Computer Company, Inc.](https://openai.com/index/openai-to-acquire-pierre) (OpenAI Blog)
+2. [Daybreak Red is now available in AWS GovCloud (US-East)](https://openai.com/index/daybreak-red-aws-govcloud) (OpenAI Blog)
+3. [A thousand fewer paths to root](https://openai.com/index/a-thousand-fewer-paths-to-root) (OpenAI Blog)
+4. [Introducing Images 2.6](https://openai.com/index/introducing-images-2-6) (OpenAI Blog)
+5. [DevRev delivers autonomous self-service with GPT-6.1 Sol](https://openai.com/index/devrev-enterprise-self-service) (OpenAI Blog)
+6. [Accelerating engineering for the physical world](https://openai.com/index/accelerating-engineering-for-the-physical-world) (OpenAI Blog)
+7. [How Cisco defends at machine speed with OpenAI](https://openai.com/index/cisco-cyber) (OpenAI Blog)
+8. [Heimstaden is changing residential real estate management with AI](https://openai.com/index/heimstaden) (OpenAI Blog)
+9. [Dharma Field Extractor: Any Document In, Structured Fields in JSON Out](https://huggingface.co/blog/Dharma-AI/dharma-field-extractor) (Hugging Face Blog)
+10. [StateBench: Testing how language models track state changes over long documents](https://huggingface.co/blog/allenai/statebench) (Hugging Face Blog)
+11. [Palette: teaching a small model to build decks in your design language](https://huggingface.co/blog/ibm-research/palette-deck-building) (Hugging Face Blog)
+12. [We’re the product team at Reflection, the lab behind Beam — Ask Us Anything!](https://www.reddit.com/r/LocalLLaMA/comments/1xmwryg/were_the_product_team_at_reflection_the_lab/) (r/LocalLLaMA)
+13. [Kimi-K3.1-Pro is now open-weights](https://www.reddit.com/r/LocalLLaMA/comments/1xnrhvb/kimik31pro_is_now_openweights/) (r/LocalLLaMA)
+14. [Deepseek alone accounted for 53% of all (27 trillion) tokens on Openrouter yesterday. Open-weights labs totaling over 75% now](https://www.reddit.com/r/LocalLLaMA/comments/1xnz8ct/deepseek_alone_accounted_for_53_of_all_27/) (r/LocalLLaMA)
+15. [CCORE GLB-3D-Coder 4B final model and full weights are out](https://www.reddit.com/r/LocalLLaMA/comments/1xobe4h/ccore_glb3dcoder_4b_final_model_and_full_weights/) (r/LocalLLaMA)
+16. [My gift to the mods:](https://www.reddit.com/r/LocalLLaMA/comments/1xnr6zd/my_gift_to_the_mods/) (r/LocalLLaMA)
+17. [ricursiveAI/Ripple-65B-Preview · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1xnx3cs/ricursiveairipple65bpreview_hugging_face/) (r/LocalLLaMA)
+18. [Ricursive Intelligence Ripple-65B-Preview: New Dense Model!](https://www.reddit.com/r/LocalLLaMA/comments/1xo2arv/ricursive_intelligence_ripple65bpreview_new_dense/) (r/LocalLLaMA)
+19. [What are you looking forward to in Qwen 4?](https://www.reddit.com/r/LocalLLaMA/comments/1xo3ikc/what_are_you_looking_forward_to_in_qwen_4/) (r/LocalLLaMA)
+20. [I am big enough to admit that this is me](https://www.reddit.com/r/LocalLLaMA/comments/1xnqxlq/i_am_big_enough_to_admit_that_this_is_me/) (r/LocalLLaMA)
+21. [Unsloth Qwen3.8-Flash-Next GGUFs V3.1 Update (November 4th 2026)](https://www.reddit.com/r/LocalLLaMA/comments/1xnuva2/unsloth_qwen38flashnext_ggufs_v31_update_november/) (r/LocalLLaMA)
+22. [I removed 85% of gemma's weights (and it is mostly fine)](https://www.reddit.com/r/LocalLLaMA/comments/1xnoqyy/i_removed_85_of_gemmas_weights_and_it_is_mostly/) (r/LocalLLaMA)
+23. [New Qwen3.8-Flash-Next Unsloth Dynamic V3.1 GGUFs](https://www.reddit.com/r/LocalLLaMA/comments/1xnvbxn/new_qwen38flashnext_unsloth_dynamic_v31_ggufs/) (r/LocalLLaMA)
+24. [What are vector embeddings? An interactive guide](https://www.reddit.com/r/LocalLLaMA/comments/1xo9vl3/what_are_vector_embeddings_an_interactive_guide/) (r/LocalLLaMA)
+25. [Qwen3.8 27B Q4 on my low-end Laptop, and it became my main Model usage for coding](https://www.reddit.com/r/LocalLLaMA/comments/1xnzo38/qwen38_27b_q4_on_my_lowend_laptop_and_it_became/) (r/LocalLLaMA)
+26. [Qwen be like](https://www.reddit.com/r/LocalLLaMA/comments/1xobzg3/qwen_be_like/) (r/LocalLLaMA)
+27. [LFM3-Omni-2B running fully offline on my iPhone 18 Pro Max at ~80 tok/s, powered by custom WebGPU kernels in a React Native app.](https://www.reddit.com/r/LocalLLaMA/comments/1xntou1/lfm3omni2b_running_fully_offline_on_my_iphone_18/) (r/LocalLLaMA)
+28. [Kimi K3.1 is likely benchmaxxed (with some proof)](https://www.reddit.com/r/LocalLLaMA/comments/1xnu6y1/kimi_k31_is_likely_benchmaxxed_with_some_proof/) (r/LocalLLaMA)
+29. [Qwen 3.8 Flash Next GSQ RCO quant as good as BF16](https://www.reddit.com/r/LocalLLaMA/comments/1xnutr6/qwen_38_flash_next_gsq_rco_quant_as_good_as_bf16/) (r/LocalLLaMA)
+30. [Slow is smart and smart is fast](https://www.reddit.com/r/LocalLLaMA/comments/1xnsckx/slow_is_smart_and_smart_is_fast/) (r/LocalLLaMA)
+31. [Introducing Hy4 (open weights soon)](https://www.reddit.com/r/LocalLLaMA/comments/1xnhzbz/introducing_hy4_open_weights_soon/) (r/LocalLLaMA)
+32. [baidu/ERNIE-5.5-Flash-Base · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1xobtwx/baiduernie55flashbase_hugging_face/) (r/LocalLLaMA)
+33. [Axion1-0/Axion-1.0-35B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1xnjiu4/axion10axion1035b_hugging_face/) (r/LocalLLaMA)
+34. [Rust inference engine for Qwen models on a 12 GB GPU, and it runs Qwen3.8-Flash-Next faster than the original Strata](https://www.reddit.com/r/LocalLLaMA/comments/1xnu9iv/rust_inference_engine_for_qwen_models_on_a_12_gb/) (r/LocalLLaMA)
+35. [British fintech Revolut slashes AI coding costs 10x by cutting out Claude and going self-hosted](https://www.reddit.com/r/LocalLLaMA/comments/1xn568h/british_fintech_revolut_slashes_ai_coding_costs/) (r/LocalLLaMA)
+36. [AuroraIMG2-100M Releases!](https://www.reddit.com/r/LocalLLaMA/comments/1xnzynf/auroraimg2100m_releases/) (r/LocalLLaMA)
+37. [Qwen 3.8 27B on my laptop can interpret model weights, too](https://simonwillison.net/2026/Nov/3/qwen-can-interpret-model-weights/) (Simon Willison's Weblog)
+38. [We now have Kerr’s Law](https://changelog.com/podcast/689) (The Changelog)
+39. [[AINews] It's Swapping Season](https://latent.space/p/ainews-it-s-swapping-season/) (Latent Space)
+40. [[AINews] Behind Latent Space: Kill My SaaS, Jev & AI in 2026 | AIEi Shanghai](https://latent.space/p/ainews-behind-latent-space-kill-my-saas-jev-ai-in-2026-aiei-shanghai/) (Latent Space)
+41. [Anthropic found a way to prove which AI model answered you — but there’s a costly catch](https://thenewstack.io/anthropic-flashprove-model-verification/) (The New Stack)
+42. [Render just removed its AI sandbox time limit — and Vercel still has a 24-hour cap](https://thenewstack.io/render-vercel-ai-sandboxes/) (The New Stack)
+43. [Fortra says AI could save file transfer admins up to 160 hours a year](https://thenewstack.io/failed-file-transfer-ai-troubleshooting/) (The New Stack)
+44. [“Signing in to your company’s plugins one by one is annoying”: Anthropic’s fix puts Claude in the identity business](https://thenewstack.io/claude-plugin-identity-issuer/) (The New Stack)
+45. [A developer opened Postman. Then two AI coding agents changed without their permission.](https://thenewstack.io/postman-plugin-coding-agents/) (The New Stack)
+46. [Can agent standards keep up with the companies building them?](https://thenewstack.io/mazin-gilbert-aaif-interview/) (The New Stack)
+47. [Goldman Sachs restricted Claude Code for bankers — but made one surprising exception](https://thenewstack.io/ai-coding-agents-security/) (The New Stack)
+48. [Anthropic speeds up Claude Code with message threads. But your token bill stays the same.](https://thenewstack.io/anthropic-claude-message-threads/) (The New Stack)
+49. [Agentic cheminformatics with Google Antigravity](https://deepmind.google/blog/agentic-cheminformatics-with-google-antigravity/) (Google DeepMind Blog)
+50. [How big is the open model economy today?](https://www.interconnects.ai/p/how-well-can-we-measure-open-model) (Interconnects (Nathan Lambert))
+51. [Google Launches LiteRT Tensor API for Building, Customizing, and Optimizing ML Models for On-Device](https://www.infoq.com/news/2026/11/litert-tensor-api/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+52. [Presentation: Beyond the Harness: Canvas for AI Agents](https://www.infoq.com/presentations/canvas-ai-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-11-03
 
 ## Digest fallback for 2026-11-03
