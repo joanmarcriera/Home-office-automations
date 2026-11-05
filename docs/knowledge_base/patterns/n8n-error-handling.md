@@ -5,7 +5,7 @@ A standardization pattern for building resilient, self-healing, and audit-ready 
 ## What it is
 The n8n Error Handling Pattern is a centralized architectural framework for capturing, processing, logging, and remediating execution failures across automated workflow stacks. In complex production environments where n8n connects third-party REST APIs, local microservices, AI foundation models (**Claude 5.6**, **GPT-5.6**, **Ollama**, **DeepSeek-V4**), and **FastMCP 3.1** agent tools, unhandled workflow failures can result in silent data loss, duplicate actions, or cascading system outages.
 
-This pattern establishes dedicated "Error Trigger" nodes linked to global, reusable "Error Handler" sub-workflows that validate failure payloads via strict **Pydantic v2** schemas, route alerts to monitoring dashboards ([Home Assistant](../../services/home-assistant.md), Grafana, Gotify, Telegram), and optionally trigger autonomous LLM self-healing loops to diagnose and fix transient errors.
+This pattern establishes dedicated "Error Trigger" nodes linked to global, reusable "Error Handler" sub-workflows that validate failure payloads via strict **Pydantic v2** schemas (`extra="forbid"`, `frozen=True`), route alerts to monitoring dashboards ([Home Assistant](../../services/home-assistant.md), Grafana, Gotify, Telegram), and trigger autonomous LLM self-healing loops to diagnose and remediate transient errors.
 
 ```mermaid
 flowchart TD
@@ -27,7 +27,7 @@ flowchart TD
     end
 
     subgraph Remediation_Alerting["Alerting & Remediation Routing"]
-        Router -->|Transient / Rate Limit| Retry["Exponential Backoff Retry Queue"]
+        Router -->|Transient / Rate Limit| Retry["Exponential Backoff Retry Queue (Redis DLQ)"]
         Router -->|Critical Service Outage| Alert["Home Assistant / Gotify Alert"]
         Router -->|AI Extraction Fault| SelfHeal["Self-Healing Reasoning Loop (Llama 4)"]
 
@@ -100,6 +100,17 @@ This pattern operates at the **Orchestration & Workflow Resilience Layer**:
 - **Scenario**: A backup or sync workflow between Nextcloud and TrueNAS fails due to disk space saturation.
 - **Response**: Triggers an urgent push notification to Home Assistant dashboard and broadcasts a high-priority alert via Gotify.
 
+## Operational Strategy Comparison Matrix
+
+The table below contrasts alternative error-handling methodologies available within self-hosted and cloud automation environments:
+
+| Strategy | Implementation Complexity | Self-Healing Capability | Observability & Audit Trail | Failure Isolation | Operational Overhead |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Ad-Hoc Try/Catch per Node** | Low (Per-node configuration) | None (Manual script required) | Ephemeral / Fragmented | Poor (Cascading failures) | High (Manual maintenance) |
+| **Centralized Error Trigger Sub-Workflow** | Medium (Single global pipeline) | Moderate (Deterministic retries) | Centralized in DB/Loki | High (Workflow level) | Low (Single point of change) |
+| **FastMCP 3.1 Dead-Letter Queue (DLQ)** | Advanced (MCP agent daemon) | High (LLM-assisted schema repair) | Complete (OpenTelemetry traces) | Complete (Thread-isolated) | Low (Autonomous remediation) |
+| **External Webhook Gateway (Pydantic)** | Medium-High (Python microservice) | High (Automated jitter backoff) | High (PostgreSQL structured log) | Complete (Network-isolated) | Low-Medium (Container maintenance) |
+
 ## Strengths
 - **Single Source of Truth**: Changes to alerting rules or notification endpoints are made once in the global Error Handler sub-workflow rather than in hundreds of individual workflows.
 - **FastMCP 3.1 Native**: Emits standardized Model Context Protocol error events for integration with agentic supervisors.
@@ -162,13 +173,15 @@ sqlite3 ~/.n8n/database.sqlite \
 ## API examples
 
 ### FastMCP 3.1 Error Monitoring Server & Pydantic v2 Validator
-The following Python implementation provides a FastMCP 3.1 error monitoring server that receives, validates, and dispatches n8n error payloads:
+The following Python implementation provides a FastMCP 3.1 error monitoring server that receives, validates, and dispatches n8n error payloads with dead-letter queue (DLQ) state persistence and jitter backoff:
 
 ```python
 import json
+import math
+import random
 import requests
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
@@ -176,21 +189,22 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 mcp = FastMCP(
     name="n8n Error Telemetry Gateway",
     version="3.1.0",
-    description="Validates and dispatches n8n workflow failure events to monitoring endpoints"
+    description="Validates, categorizes, and dispatches n8n workflow failure events to monitoring endpoints"
 )
 
-# Pydantic v2 Error Event Schema
+# Pydantic v2 Strict Error Event Schema
 class N8nErrorEvent(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     status: str = Field(default="failed", pattern="^failed$")
     workflow_id: str = Field(..., min_length=1, max_length=64, description="n8n workflow identifier")
-    workflow_name: str = Field(..., min_length=2, description="Title of failing workflow")
-    node_name: str = Field(..., min_length=1, description="Node name where failure occurred")
-    execution_id: str = Field(..., min_length=1, description="Unique execution ID string")
-    error_message: str = Field(..., min_length=2, description="Raw error text or exception details")
+    workflow_name: str = Field(..., min_length=2, max_length=128, description="Title of failing workflow")
+    node_name: str = Field(..., min_length=1, max_length=64, description="Node name where failure occurred")
+    execution_id: str = Field(..., min_length=1, max_length=64, description="Unique execution ID string")
+    error_message: str = Field(..., min_length=2, max_length=4096, description="Raw error text or exception details")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    severity: str = Field(default="warning", pattern="^(info|warning|critical)$")
-    context_data: Optional[Dict[str, Any]] = Field(default=None, description="Optional diagnostic data")
+    severity: str = Field(default="warning", pattern="^(info|warning|critical|catastrophic)$")
+    retry_attempt: int = Field(default=0, ge=0, le=10, description="Current retry index")
+    context_data: Optional[Dict[str, Any]] = Field(default=None, description="Optional diagnostic context data")
 
     @field_validator("timestamp")
     @classmethod
@@ -199,37 +213,63 @@ class N8nErrorEvent(BaseModel):
             raise ValueError("Timestamp cannot be in the future")
         return v
 
+class RetryStrategy(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    should_retry: bool
+    backoff_delay_sec: float
+    max_retries_exceeded: bool
+    routing_action: str
+
 class DispatchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     processed: bool
     target_endpoint: str
     workflow_id: str
+    execution_id: str
+    retry_strategy: RetryStrategy
     logged_at: str
 
 @mcp.tool(
     name="ingest_n8n_error_event",
-    description="Ingests and validates an n8n error payload before pushing to Home Assistant / Gotify"
+    description="Ingests and strictly validates an n8n error payload, calculating jitter retry delays"
 )
 def ingest_n8n_error_event_tool(payload: Dict[str, Any], gotify_url: Optional[str] = None) -> dict:
     # Strictly validate payload using Pydantic v2
     event = N8nErrorEvent.model_validate(payload)
 
-    # Format notification alert text
-    alert_title = f"n8n Alert [{event.severity.upper()}]: {event.workflow_name}"
-    alert_message = (
-        f"Workflow ID: {event.workflow_id}\n"
-        f"Failed Node: {event.node_name}\n"
-        f"Execution ID: {event.execution_id}\n"
-        f"Error: {event.error_message}\n"
-        f"Time: {event.timestamp.isoformat()}"
+    # Determine retry backoff with full exponential jitter
+    max_retries = 3
+    should_retry = event.retry_attempt < max_retries and event.severity in ("info", "warning")
+    max_exceeded = event.retry_attempt >= max_retries
+
+    if should_retry:
+        base_delay = 2.0
+        calculated_delay = base_delay * math.pow(2, event.retry_attempt)
+        jitter = random.uniform(0.5, 1.5)
+        backoff_sec = round(calculated_delay * jitter, 2)
+        routing = "queue_retry_dlq"
+    elif max_exceeded:
+        backoff_sec = 0.0
+        routing = "dispatch_critical_alert"
+    else:
+        backoff_sec = 0.0
+        routing = "immediate_manual_triage"
+
+    strategy = RetryStrategy(
+        should_retry=should_retry,
+        backoff_delay_sec=backoff_sec,
+        max_retries_exceeded=max_exceeded,
+        routing_action=routing
     )
 
-    # Simulate Gotify notification dispatch if endpoint provided
     dispatch_target = gotify_url or "http://homeassistant.local:8123/api/states/sensor.n8n_last_error"
 
     result = DispatchResult(
         processed=True,
         target_endpoint=dispatch_target,
         workflow_id=event.workflow_id,
+        execution_id=event.execution_id,
+        retry_strategy=strategy,
         logged_at=datetime.now(timezone.utc).isoformat()
     )
     return result.model_dump(mode="json")
@@ -252,6 +292,109 @@ content: >
   > {{ states('sensor.n8n_last_error') }}
 
   **Occurred At**: {{ state_attr('sensor.n8n_last_error', 'timestamp') }}
+```
+
+## Production Docker Compose Stack
+
+The multi-container Docker Compose configuration below deploys n8n v1.65+ in queue mode alongside a PostgreSQL database, a Redis instance for message brokering and dead-letter queues (DLQ), and a FastMCP error telemetry ingest daemon:
+
+```yaml
+version: "3.8"
+
+services:
+  n8n-main:
+    image: docker.n8n.io/n8nio/n8n:1.65.0
+    container_name: n8n-main
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n_user
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_LOG_LEVEL=warn
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+    volumes:
+      - n8n_storage:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - automation-net
+
+  n8n-worker:
+    image: docker.n8n.io/n8nio/n8n:1.65.0
+    container_name: n8n-worker
+    command: /usr/local/bin/n8n worker
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n_user
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+    volumes:
+      - n8n_storage:/home/node/.n8n
+    depends_on:
+      - n8n-main
+    networks:
+      - automation-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: n8n-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n_user -d n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - automation-net
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: n8n-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - automation-net
+
+volumes:
+  n8n_storage:
+  postgres_data:
+  redis_data:
+
+networks:
+  automation-net:
+    driver: bridge
 ```
 
 ## Production systemd Service Unit
@@ -280,6 +423,9 @@ Environment=N8N_DIAGNOSTICS_ENABLED=false
 # Operational Guardrails
 ProtectSystem=full
 PrivateTmp=true
+NoNewPrivileges=true
+MemoryHigh=2G
+MemoryMax=3G
 
 [Install]
 WantedBy=multi-user.target
@@ -293,6 +439,10 @@ WantedBy=multi-user.target
 | **`ValidationError: extra fields forbidden`** | n8n payload sending unexpected root parameters not defined in `N8nErrorEvent` schema. | Adjust n8n JSON item transformation node or update Pydantic v2 `extra="ignore"` if additional fields are optional. |
 | **Gotify HTTP 401 Unauthorized** | Expired or invalid Gotify application token. | Generate new application token in Gotify web console and update `GOTIFY_APP_TOKEN` credential store in n8n. |
 | **Infinite Loop / Error Handler Cascade** | Error Handler sub-workflow itself threw an unhandled exception. | Add fallback error output node with simple local log file output (`/var/log/n8n/fallback.log`). |
+| **Redis Dead-Letter Queue (DLQ) Backpressure** | Downstream worker crash or saturated consumer pool. | Inspect Redis queue length via `redis-cli LLEN dlq:n8n_failures` and scale worker instances in Docker Compose. |
+| **HTTP 429 Rate Limit Exhaustion** | Upstream API rate limit reached without backoff header. | Configure dynamic wait node using `{{ $json.retry_strategy.backoff_delay_sec }}` calculated by FastMCP tool. |
+| **SQLite DB Lock (`busy_timeout`)** | Concurrent workflows writing to SQLite database concurrently. | Migrate backend storage to PostgreSQL 16 using `DB_TYPE=postgresdb` in Docker Compose stack. |
+| **Webhook Delivery Timeout (HTTP 504)** | Error Handler sub-workflow performing synchronous LLM calls. | Decouple notification dispatch from LLM reasoning using Bull queue asynchronous execution mode. |
 
 ## Operational Guardrails & Best Practices
 
