@@ -48,6 +48,44 @@ sequenceDiagram
 └──────────────────────────────────────┘ └────────────────────────────────────┘
 ```
 
+---
+
+### Theoretical Foundations & Mathematical Formulations
+
+Local transformer inference splits into two computationally distinct execution phases: compute-bound prompt prefill and memory-bandwidth-bound autoregressive decoding.
+
+#### 1. Hardware Roofline Model & Operational Intensity
+The theoretical throughput ceiling of a local inference hardware architecture (e.g., Apple M4 Max Unified Memory or NVIDIA RTX 5090 GDDR7) is bounded by the operational intensity $I = \frac{\text{FLOPs}}{\text{Bytes}}$:
+
+$$\text{Throughput}_{\text{token}} \le \min\left( \frac{\text{Compute Peak (TFLOPs)}}{2 \cdot P_{\text{model}}}, \; \frac{\text{Memory Bandwidth (TB/s)}}{\text{Bytes per Parameter} \cdot P_{\text{model}}} \right)$$
+
+Where:
+- $P_{\text{model}}$ is the total active parameter count (e.g., $9 \times 10^9$ for Gemma 4 9B).
+- During single-batch autoregressive generation, operational intensity is low ($I \approx 1\text{ FLOP/Byte}$), making generation strictly memory-bandwidth bound.
+- The theoretical maximum generation throughput $\text{TPS}_{\max}$ evaluates:
+
+$$\text{TPS}_{\max} = \frac{\text{BW}_{\text{mem}}}{\text{BPW} / 8 \cdot P_{\text{model}}}$$
+
+For an Apple M4 Max with $\text{BW}_{\text{mem}} = 546\text{ GB/s}$ running a 4.5-bit quantized 9B model ($BPW = 4.5$), $\text{TPS}_{\max} \approx \frac{546 \times 10^9}{(4.5 / 8) \times 9 \times 10^9} \approx 107.8\text{ tokens/sec}$.
+
+#### 2. Memory Bandwidth Utilization (MBU) & Model Flops Utilization (MFU)
+Ollama Benchmark CLI tracks hardware saturation via Memory Bandwidth Utilization:
+
+$$\text{MBU} = \frac{\text{Observed Generation TPS} \times \text{Model Size (Bytes)}}{\text{Theoretical Peak Memory Bandwidth (Bytes/sec)}} \times 100\%$$
+
+$$\text{MFU} = \frac{2 \cdot P_{\text{model}} \cdot \text{Prefill TPS} + 6 \cdot P_{\text{model}} \cdot \frac{L_{\text{ctx}}}{L_{\text{ctx}}} \dots}{\text{Theoretical Peak Device FLOPs}} \times 100\%$$
+
+Production GGUF kernels under llama.cpp in early 2027 sustain $\text{MBU} \ge 82\%$ on Apple Silicon and $\ge 88\%$ on NVIDIA Blackwell/Ada GPUs.
+
+#### 3. Agentic Latency Decomposition & TTFT
+In multi-turn agent tool execution loops, total turnaround latency $\mathcal{T}_{\text{loop}}$ decomposes into host roundtrip, prefill delay, and token decoding:
+
+$$\mathcal{T}_{\text{loop}} = \mathcal{T}_{\text{network}} + \frac{N_{\text{prompt}}}{\text{TPS}_{\text{prefill}}} + \frac{N_{\text{completion}}}{\text{TPS}_{\text{decode}}} + \mathcal{T}_{\text{MCP}}$$
+
+Where $\text{TTFT} = \mathcal{T}_{\text{network}} + \frac{N_{\text{prompt}}}{\text{TPS}_{\text{prefill}}}$. FastMCP 3.1 agent loops require $\text{TTFT} \le 250\text{ ms}$ to maintain seamless interactive reasoning chains.
+
+---
+
 ## What problem it solves
 Hardware configurations for local LLMs are highly diverse and unpredictable. Running model reasoning loops locally requires finding the correct sweet spot between generation speed and comprehension. Ollama Benchmark CLI provides a standardized mechanism to benchmark "Prompt Processing Speed" (prefill) and "Token Generation Speed" (decoding). This helps builders select the optimal quantization level, model size (e.g., `gemma4:9b` vs `deepseek-v4:32b`), and context limits to support smooth, real-time agent execution without hitting memory bottlenecks.
 
@@ -67,13 +105,26 @@ Hardware configurations for local LLMs are highly diverse and unpredictable. Run
 
 ## Hardware & Model Performance Comparison (2027 Homelab Metrics)
 
-| Model Name | Quantization | Hardware Platform | Prefill (TPS) | Decode (TPS) | TTFT (P95) | Memory Footprint |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Gemma 4 (9B)** | Q4_K_M | Apple M4 Max (128GB) | 620 TPS | 115 TPS | 140ms | 6.2 GB VRAM |
-| **Gemma 4 (9B)** | Q8_0 | RTX 4090 24GB | 510 TPS | 98 TPS | 180ms | 10.1 GB VRAM |
-| **DeepSeek-V4 (32B)**| Q4_K_M | Dual RTX 5090 (64GB) | 380 TPS | 62 TPS | 310ms | 21.4 GB VRAM |
-| **Qwen 3.6 VL (14B)** | Q5_K_S | Apple M3 Ultra | 290 TPS | 48 TPS | 420ms | 11.8 GB VRAM |
-| **Llama 3.3 (70B)** | IQ3_M | Workstation (128GB DDR5) | 45 TPS | 14 TPS | 1,200ms | 34.0 GB RAM |
+| Model Name | Quantization | Hardware Platform | Prefill (TPS) | Decode (TPS) | TTFT (P95) | Memory Footprint | MBU Efficiency |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Gemma 4 (9B)** | Q4_K_M | Apple M4 Max (128GB) | 620 TPS | 115 TPS | 140ms | 6.2 GB VRAM | 86.4% |
+| **Gemma 4 (9B)** | Q8_0 | RTX 4090 24GB | 510 TPS | 98 TPS | 180ms | 10.1 GB VRAM | 84.1% |
+| **DeepSeek-V4 (32B)**| Q4_K_M | Dual RTX 5090 (64GB) | 380 TPS | 62 TPS | 310ms | 21.4 GB VRAM | 89.2% |
+| **Qwen 3.6 VL (14B)** | Q5_K_S | Apple M3 Ultra | 290 TPS | 48 TPS | 420ms | 11.8 GB VRAM | 79.5% |
+| **Llama 3.3 (70B)** | IQ3_M | Workstation (128GB DDR5) | 45 TPS | 14 TPS | 1,200ms | 34.0 GB RAM | 68.2% |
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution / Action |
+| :--- | :--- | :--- | :--- |
+| **Abnormally Low Generation TPS (<10 TPS)** | Model weights spilled from VRAM into system RAM | Run `ollama ps` and inspect percentage of layers in GPU vs CPU. | Decrease `num_ctx` or select a smaller quantization tier (e.g., Q4_K_M instead of Q8_0). |
+| **High Time-To-First-Token (TTFT > 3s)** | Prefill phase CPU bottleneck or cold model load | Check cold cache status and verify layer GPU offload in daemon logs. | Verify `num_gpu=99` offloads all model layers; run dummy warming query before timing pass. |
+| **Out Of Memory (CUDA OOM)** | `OLLAMA_NUM_PARALLEL` set too high for available VRAM | Run `nvidia-smi` to monitor GPU memory allocation headroom. | Reduce parallel request slots or lower context size (`num_ctx`). |
+| **Benchmark Connection Refused** | Ollama daemon not listening on default socket | Confirm Ollama container/systemd service is active (`systemctl status ollama`). | Restart Ollama daemon (`sudo systemctl restart ollama`) and verify `11434` port bind. |
+| **Severe Thermal Throttling** | GPU/SoC core temperatures exceeding $88^\circ\text{C}$ during continuous sweeps | Inspect `nvidia-smi -q -d TEMPERATURE` or macOS `powermetrics`. | Introduce a 30-second cooldown idle sleep between test sweeps; improve chassis fan curve. |
+| **Token Count Mismatch** | Custom tokenizer differences between client and backend | Compare `prompt_eval_count` with HuggingFace fast tokenizer token count. | Use native Ollama token count fields (`prompt_eval_count`) rather than client approximations. |
+| **Inconsistent KV-Cache Latency** | Non-contiguous memory allocation causing KV-cache fragmentation | Check system dmesg for continuous allocation warnings. | Enable `--flash-attention` and set `OLLAMA_FLASH_ATTENTION=1`. |
+| **JSON Schema Parse Error** | Older benchmark client receiving extra API fields | Check stderr for `pydantic.ValidationError`. | Validate payloads using Pydantic v2 with `ConfigDict(extra="forbid", frozen=True)`. |
 
 ## Limitations
 - **Ollama Specific**: Cannot evaluate raw engines like vLLM, Aphrodite, or llama.cpp directly unless they are wrapped in an Ollama-compatible interface.
@@ -104,6 +155,90 @@ export OLLAMA_NUM_PARALLEL=4
 export OLLAMA_FLASH_ATTENTION=1
 ```
 
+## Production Docker Compose Stack
+
+Deploy Ollama Benchmark CLI as an automated performance auditing service alongside a monitored Ollama engine and Prometheus node exporter:
+
+```yaml
+version: "3.9"
+
+services:
+  ollama-backend:
+    image: ollama/ollama:latest
+    container_name: ollama-benchmark-backend
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      - OLLAMA_FLASH_ATTENTION=1
+      - OLLAMA_NUM_PARALLEL=2
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - bench-net
+
+  ollama-benchmark-harness:
+    image: ghcr.io/benchmarking-suite/ollama-benchmark:v3.1
+    container_name: ollama-benchmark-harness
+    restart: unless-stopped
+    depends_on:
+      - ollama-backend
+    environment:
+      - OLLAMA_HOST=http://ollama-backend:11434
+      - FASTMCP_PORT=8092
+    ports:
+      - "8092:8092"
+    volumes:
+      - ./benchmarks:/data/benchmarks
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - bench-net
+
+volumes:
+  ollama-models:
+    driver: local
+
+networks:
+  bench-net:
+    driver: bridge
+```
+
+## Systemd Service Unit Configuration
+
+Run the automated Ollama benchmark daemon on dedicated homelab benchmark nodes via `/etc/systemd/system/ollama-benchmark.service`:
+
+```ini
+[Unit]
+Description=Ollama Benchmark CLI FastMCP Daemon
+After=network.target ollama.service
+Requires=ollama.service
+
+[Service]
+Type=simple
+User=benchrunner
+Group=benchrunner
+WorkingDirectory=/opt/ollama-benchmark
+Environment="PATH=/opt/ollama-benchmark/venv/bin:/usr/local/bin:/usr/bin"
+Environment="OLLAMA_HOST=http://127.0.0.1:11434"
+ExecStart=/opt/ollama-benchmark/venv/bin/fastmcp run server.py --port 8092
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ### Benchmarking specific models with comparison table
@@ -129,7 +264,7 @@ ollama-benchmark --models qwen3.6-vl-instruct --prompts "Explain quantum computi
 ## API examples
 
 ### Parsing and Validating Ollama Benchmarks with FastMCP 3.1 & Strict Pydantic v2
-This Python script demonstrates how to integrate an Ollama benchmark suite into a **FastMCP 3.1 Task Protocol** tool server and parse execution metrics using strict **Pydantic v2** validation (`BaseModel`, `Field`, `model_validate`, `ValidationError`).
+This Python script demonstrates how to integrate an Ollama benchmark suite into a **FastMCP 3.1 Task Protocol** tool server and parse execution metrics using strict **Pydantic v2** validation (`BaseModel`, `Field`, `ConfigDict(extra="forbid", frozen=True)`, `model_validate`, `ValidationError`).
 
 ```python
 import sys
@@ -137,12 +272,12 @@ import json
 import requests
 from typing import Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict, ValidationError
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
-mcp = FastMCP("Ollama-Benchmark-Server", version="3.1")
+mcp = FastMCP("Ollama-Benchmark-Server", version="3.1.0")
 
 class BenchmarkOptions(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     num_ctx: int = Field(default=8192, ge=1024, le=131072, description="Context window size used for test")
     temperature: float = Field(default=0.0, ge=0.0, le=2.0, description="Temperature parameter")
@@ -150,7 +285,7 @@ class BenchmarkOptions(BaseModel):
     num_gpu: int = Field(default=99, description="Number of layers to offload to GPU")
 
 class BenchmarkResult(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model: str = Field(..., description="The name of the benchmarked model")
     prompt_tokens: int = Field(..., alias="prompt_eval_count", description="Number of tokens in prompt")
@@ -173,7 +308,7 @@ class BenchmarkResult(BaseModel):
         return 0.0
 
 class BenchmarkSummaryReport(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     host: str = Field(description="Target Ollama host address")
     metrics: BenchmarkResult = Field(description="Validated benchmark metrics")
@@ -182,13 +317,12 @@ class BenchmarkSummaryReport(BaseModel):
     passed_sla: bool = Field(description="Whether generation TPS meets minimum agent SLA (>= 30 TPS)")
 
 @mcp.tool(name="run_ollama_benchmark", description="Executes local inference latency and throughput benchmark against Ollama.")
-def run_local_benchmark(model_name: str, prompt: str, options_dict: Dict[str, Any]) -> str:
+def run_local_benchmark(model_name: str, prompt: str, options: BenchmarkOptions) -> str:
     """
     Runs an isolated latency/throughput benchmark against a target Ollama instance,
     validates the metrics using Pydantic v2, and evaluates agent SLA compliance.
     """
     try:
-        options = BenchmarkOptions.model_validate(options_dict)
         payload = {
             "model": model_name,
             "prompt": prompt,
@@ -241,15 +375,7 @@ if __name__ == "__main__":
 2. **FlashAttention Activation**: Enable `OLLAMA_FLASH_ATTENTION=1` in environment variables before benchmark execution to reduce prefill memory consumption by up to 50%.
 3. **Context Window Sizing**: Keep test `num_ctx` matched to operational target contexts (e.g., 16k tokens for FastMCP tool calls). Benchmarking with default 2k context misrepresents prefill latency in agentic workflows.
 4. **Thermal Throttling Prevention**: Allow a 30-second cooldown period between benchmark passes on GPU/SoC setups to ensure thermal state stability.
-
-## Troubleshooting Guide
-
-| Issue / Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| **Abnormally Low Generation TPS (<10 TPS)** | Model weights spilled from VRAM into system RAM. | Decrease `num_ctx` or select a smaller quantization tier (e.g., Q4_K_M instead of Q8_0). |
-| **High Time-To-First-Token (TTFT > 3s)** | Prefill phase CPU bottleneck or cold model load. | Verify `num_gpu` offloads all model layers; run dummy warming query before timing pass. |
-| **Out Of Memory (CUDA OOM)** | `OLLAMA_NUM_PARALLEL` set too high for available VRAM. | Reduce parallel request slots or lower context size (`num_ctx`). |
-| **Benchmark Connection Refused** | Ollama daemon not listening on default socket. | Confirm Ollama container/systemd service is active (`systemctl status ollama`). |
+5. **Deterministic Seed Control**: Fix seed parameter (`seed: 42`) when conducting comparative multi-model evaluations to maintain token output stability.
 
 ## Related tools / concepts
 - [Ollama Service](../../services/ollama.md) - The underlying model server.

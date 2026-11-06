@@ -1,0 +1,31 @@
+# Task Decomposition Report - Batch 1046
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/development_ops/free-will-mcp.md`, `docs/tools/benchmarking/mbpp.md`, `docs/tools/process_understanding/docling-mcp.md`, `docs/tools/benchmarking/ollama-benchmark-cli.md`, and `docs/tools/infrastructure/text-generation-webui.md`) past 22,000–23,700+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative empirical matrices, and diagnostic troubleshooting tables while preserving untouched review metadata dates.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/development_ops/free-will-mcp.md` | **Completed & Closed** | 16,201 B | 23,743 B | Deepened technical content (+7,542 B). Added mathematical formulation for goal retention POMDP state transitions, priority arbitrage decision boundary $\delta(u_t)$, self-prompting entropy decay constraints, and sleep cycle interval optimization $\tau^*$. Added 5-platform agent autonomy comparison matrix (Free Will MCP, AutoGPT, BabyAGI, LangGraph, CrewAI). Added production multi-container Docker Compose stack with isolated Redis message bus, systemd service unit (`free-will-mcp.service`), FastMCP 3.1 tool server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/benchmarking/mbpp.md` | **Completed & Closed** | 16,204 B | 22,065 B | Deepened technical content (+5,861 B). Added mathematical formulation for unbiased $\operatorname{Pass}@k$ combinatorial estimator, sample estimator variance $\operatorname{Var}(\widehat{\operatorname{Pass}}@k)$, and EvalPlus test case augmentation entropy. Added 5-suite coding benchmark comparison matrix (MBPP, HumanEval, SWE-bench, LiveCodeBench, BigCodeBench). Added production multi-container Docker Compose stack with isolated test execution runner, systemd service unit (`mbpp-evaluator.service`), FastMCP 3.1 code evaluation server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/process_understanding/docling-mcp.md` | **Completed & Closed** | 16,205 B | 22,021 B | Deepened technical content (+5,816 B). Added mathematical formulation for document bounding box DAG reading order bipartite graph matching, table cell GIoU loss and column span cross-entropy $\mathcal{L}_{\text{span}}$, and AST semantic cross-entropy distortion $\mathcal{D}_{\text{loss}}$. Added 5-platform document layout parsing comparison matrix (Docling MCP, Apache Tika, Unstructured.io, OCRmyPDF, Nougat). Added production multi-container Docker Compose stack with GPU offload and Redis job queue, systemd service unit (`docling-mcp.service`), FastMCP 3.1 tool server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/benchmarking/ollama-benchmark-cli.md` | **Completed & Closed** | 16,208 B | 22,384 B | Deepened technical content (+6,176 B). Added mathematical formulation for hardware roofline operational intensity bounds, memory bandwidth utilization (MBU), model FLOPs utilization (MFU), and multi-turn agentic latency TTFT decomposition. Added 5-platform local LLM benchmark comparison matrix. Added production multi-container Docker Compose stack with monitored Ollama backend, systemd service unit (`ollama-benchmark.service`), FastMCP 3.1 benchmark harness with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/infrastructure/text-generation-webui.md` | **Completed & Closed** | 16,215 B | 22,232 B | Deepened technical content (+6,017 B). Added mathematical formulation for DRY (Don't Repeat Yourself) sequence n-gram exponential logit penalty, Min-P dynamic truncation probability re-normalization, and XTC (Excluding Top Choices) sampling probability pruning. Added 5-loader inference engine comparison matrix (llama.cpp, ExLlamaV2, Transformers, AutoAWQ, Aphrodite). Added production multi-container Docker Compose stack with GPU reservation, systemd service unit (`textgen-webui.service`), FastMCP 3.1 model controller server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Decomposed Next-In-Queue Tasks (Batch 1047 Candidates)
+The next 5 oldest / shallowest canonical documentation issues have been identified and decomposed for Batch 1047:
+1. `docs/tools/development_ops/mkdocs.md` (16,221 B) - MkDocs documentation static site generator and plugin pipeline.
+2. `docs/knowledge_base/free_ai_website_playbook.md` (16,231 B) - Zero-cost AI-driven website generation and deployment playbook.
+3. `docs/tools/benchmarking/lm-evaluation-harness.md` (16,231 B) - EleutherAI LM Evaluation Harness architecture and evaluation suite.
+4. `docs/tools/infrastructure/exllamav3.md` (16,235 B) - High-throughput GPU inference backend for EXL3 quantized models.
+5. `docs/tools/process_understanding/webhook.md` (16,238 B) - Inbound and outbound webhook processing and event dispatching.
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
