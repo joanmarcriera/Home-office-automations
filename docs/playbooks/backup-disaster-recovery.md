@@ -3,6 +3,51 @@
 ## What it is
 The Backup & Disaster Recovery playbook provides a comprehensive enterprise strategy for protecting the data, state, configurations, and vector indices of the self-hosted automation and AI stack. It leverages modern deduplicating backup engines ([restic](https://restic.net/), [BorgBackup](https://www.borgbackup.org/), or [Kopia](https://kopia.io/)) to enforce a zero-trust 3-2-1 backup architecture (3 copies of data, 2 distinct storage media types, 1 offsite/air-gapped target) across services like [Paperless-ngx](../services/paperless-ngx.md), [Immich](../services/immich.md), [Nextcloud](../services/nextcloud.md), vector databases ([Milvus](../tools/infrastructure/milvus.md), [Qdrant](../tools/infrastructure/qdrant.md), ChromaDB), and FastMCP 3.1 server configurations.
 
+## Theoretical Foundations & Mathematical Formulations
+
+Resilient disaster recovery architectures depend on probabilistic risk modeling, content-defined deduplication efficiency, and cryptographic entropy guarantees.
+
+### 1. Poisson Failure Probability, MTTF, and RPO/RTO Boundary Dynamics
+System failure events across distributed storage nodes, NVMe arrays, and cloud egress targets are modeled as non-homogeneous Poisson processes with constant hazard rate $\lambda = \frac{1}{\text{MTTF}}$ (Mean Time To Failure). The cumulative probability $P(T \le t)$ of encountering at least one catastrophic storage failure during operational window $t$ is formulated as:
+
+$$P(T \le t) = 1 - e^{-\lambda t} = 1 - \exp\left(-\frac{t}{\text{MTTF}}\right)$$
+
+When enforcing Recovery Point Objective (RPO) and Recovery Time Objective (RTO) service-level agreements (SLAs), the maximum expected unrecoverable data transaction loss $\mathbb{E}[\Delta_{\text{data}}]$ and financial/operational outage risk $\mathcal{C}_{\text{outage}}$ are bounded by:
+
+$$\mathbb{E}[\Delta_{\text{data}}] \le \int_0^{\text{RPO}} \lambda_{\text{write}}(t) \, dt$$
+
+$$\mathcal{C}_{\text{outage}} = c_{\text{downtime}} \cdot \mathbb{E}[\text{RTO}] + c_{\text{loss}} \cdot \mathbb{E}[\Delta_{\text{data}}]$$
+
+Where $\lambda_{\text{write}}(t)$ denotes the write transaction ingestion rate, $c_{\text{downtime}}$ represents cost per minute of stack unavailability, and $\mathbb{E}[\text{RTO}] = t_{\text{provision}} + t_{\text{restore}} + t_{\text{verify}}$.
+
+### 2. Rabin-Karp Content-Defined Chunking (CDC) & Deduplication Bounds
+Modern backup engines (such as Restic and FastMCP snapshot handlers) partition arbitrary binary volume streams $B = (b_1, b_2, \ldots, b_N)$ into variable-sized deduplicated chunks using rolling polynomial Rabin-Karp hashing over a sliding window of size $w$:
+
+$$\mathcal{H}_{\text{poly}}(b_{k+1 \ldots k+w}) = \left( \sum_{i=1}^w b_{k+i} \cdot p^{w-i} \right) \pmod q$$
+
+A chunk boundary is cut when the low-order $k$ bits match a designated mask $M$:
+
+$$\mathcal{H}_{\text{poly}}(b_{k+1 \ldots k+w}) \ \& \ (2^k - 1) = 0$$
+
+Yielding an expected average chunk size $\mu_{\text{chunk}} = 2^k$ (typically $4\text{ MiB}$ in Restic). The deduplication storage compression ratio $\mathcal{D}_{\text{ratio}}$ across consecutive backup iterations $j \in \{1, \ldots, m\}$ is strictly bounded by set-theoretic unique block cardinality:
+
+$$\mathcal{D}_{\text{ratio}} = \frac{\sum_{j=1}^m |S_j|}{\left| \bigcup_{j=1}^m S_j \right|}$$
+
+Where $S_j$ is the multiset of cryptographic hash digests (e.g., BLAKE3 or SHA-256) of chunks generated in snapshot $j$.
+
+### 3. Shannon Information Entropy & AES-256-GCM Cryptographic Integrity
+Encrypted repository payloads must exhibit maximal empirical Shannon entropy $H(X)$ to guarantee zero information leakage against statistical cryptanalysis:
+
+$$H(X) = -\sum_{i=0}^{255} P(x_i) \log_2 P(x_i) \approx 8.000\text{ bits/byte}$$
+
+Every stored pack file is protected with AES-256-GCM or ChaCha20-Poly1305 authenticated encryption with associated data (AEAD). The probability of an adversary forging a valid authentication tag $\tau$ across $q$ forgery verification queries is bounded by the standard AEAD security theorem:
+
+$$\operatorname{Adv}_{\text{AEAD}}^{\text{auth}} \le \frac{q}{2^{128}} + \frac{B^2}{2^{256}}$$
+
+Where $B$ is the cumulative number of 16-byte blocks processed under a single derived master encryption key.
+
+---
+
 ## What problem it solves
 It mitigates catastrophic operational risks and data loss caused by:
 - **Hardware & Storage Failure**: Silent bit rot, SSD wear, NVMe drive failures, or NAS array corruption.
@@ -47,6 +92,7 @@ flowchart TD
 | **Kopia** | AES-256 + LZ4/zstd | Content-Addressable | Native REST API | Ultra-Fast (Parallel) | Large media & document libraries |
 | **BorgBackup** | AES-256 + LZ4/zstd | Chunk-Level | SSH CLI Bridge | Fast | Dedicated SSH-accessible server targets |
 | **S3 Glacier / Air-Gapped B2** | Immutable Write-Once (WORM) | Inherited from Engine | Scheduled Replication | Slow (Retrieval Delay) | Disaster recovery offsite archive |
+| **ZFS Send/Receive** | Native AES-256-GCM | Block-Level CoW | CLI Subprocess | Instantaneous | Raw block storage across ZFS pools |
 
 ## Typical use cases
 - **Paperless-ngx Document Vault Snapshot**: Daily encrypted backups of scanned documents, PostgreSQL metadata, and OCR indices.
@@ -69,7 +115,7 @@ flowchart TD
 
 ## Production Systemd Service Unit & Timer (`restic-backup.service`)
 
-Deploy scheduled background backup jobs using systemd service units and timers:
+Deploy scheduled background backup jobs using hardened systemd service units and timers:
 
 ```ini
 [Unit]
@@ -89,11 +135,14 @@ ExecStart=/usr/bin/restic backup \
 ExecPost=/usr/bin/restic forget --keep-daily 7 --keep-weekly 4 --prune
 EnvironmentFile=/etc/restic/env.conf
 
-# Systemd Hardening
+# Systemd Hardening Guidelines
 ProtectSystem=strict
 ProtectHome=read-only
 ReadWritePaths=/var/log/restic /tmp
 NoNewPrivileges=true
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
+MemoryMax=4G
+CPUQuota=150%
 
 [Install]
 WantedBy=multi-user.target
@@ -111,6 +160,64 @@ Persistent=true
 WantedBy=timers.target
 ```
 
+## Production Docker Compose Staging & Recovery Environment
+
+The following multi-container Docker Compose deployment spins up a sandboxed staging and disaster recovery harness, including local MinIO S3 storage, a relational database, and an automated restic execution agent:
+
+```yaml
+version: "3.8"
+
+services:
+  restic-agent:
+    image: restic/restic:0.17.3
+    container_name: restic-agent
+    restart: unless-stopped
+    environment:
+      - RESTIC_REPOSITORY=s3:http://minio:9000/homelab-backups
+      - RESTIC_PASSWORD_FILE=/run/secrets/restic_pass
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin123
+    volumes:
+      - ./data/prod_volumes:/data/source:ro
+      - ./staging/restore:/data/restore:rw
+      - ./scripts/backup_entrypoint.sh:/entrypoint.sh:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - backup-net
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-20T00-00-00Z
+    container_name: backup-minio-vault
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+    volumes:
+      - minio-storage:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - backup-net
+
+networks:
+  backup-net:
+    driver: bridge
+
+volumes:
+  minio-storage:
+```
+
 ## Diagnostic Troubleshooting Matrix
 
 | Issue / Error Symptom | Root Cause | Verification Procedure | Remediation Strategy |
@@ -120,6 +227,9 @@ WantedBy=timers.target
 | **S3 connection timeout during upload** | Network instability or bucket rate limits | Trace HTTP traffic via `RESTIC_DEBUG=1 restic backup` | Set retry parameters (`RESTIC_CONNECT_TIMEOUT=30`) and adjust chunk size |
 | **`wrong password` or auth failure** | Invalid passphrase or modified key file | Verify environment variables via `echo $RESTIC_PASSWORD` | Test password against repository keys (`restic key list`) |
 | **High CPU utilization during pruning** | Garbage collection indexing large deduplication tree | Inspect process load with `htop` or `systemd-cgtop` | Schedule `restic prune` on separate weekly off-peak timer |
+| **`Fatal: unable to save snapshot: disk quota exceeded`** | Target volume or S3 bucket storage quota reached | Query target usage via `df -h` or AWS S3 metrics CLI | Prune obsolete historical snapshots via `restic forget --prune` |
+| **FUSE mount failure (`mount: fusermount failed`)** | Missing kernel FUSE module or container privilege cap | Check kernel status via `lsmod \| grep fuse` | Ensure `user_allow_other` is enabled in `/etc/fuse.conf` and provide `--device /dev/fuse` |
+| **Snapshot checksum verification mismatch** | Silent bit rot or physical storage controller degradation | Run full payload scan `restic check --read-data` | Quarantine damaged pack files and trigger point-in-time rebuild from immutable secondary |
 
 ## When to use it
 - Protecting any self-hosted service, production database, or local vector store containing non-ephemeral data.
@@ -181,20 +291,22 @@ In the event of a total site loss or volume corruption, execute the following st
 
 ## FastMCP 3.1 Backup Orchestration Server Implementation
 
-The following complete Python implementation exposes an automated backup and disaster recovery tool endpoint compliant with FastMCP 3.1 and Pydantic v2 validation:
+The following complete Python implementation exposes an automated backup and disaster recovery tool endpoint compliant with FastMCP 3.1 and strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 import sys
 import asyncio
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP("Backup-Disaster-Recovery-Orchestrator", version="3.1.0")
 
 class BackupJobRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     repository_uri: str = Field(..., description="Target backup repository URI (sftp://, s3://, or local path).")
     source_paths: List[str] = Field(..., min_items=1, description="List of volume or dump file paths to include.")
     tags: List[str] = Field(default_factory=lambda: ["automated", "production"])
@@ -209,6 +321,8 @@ class BackupJobRequest(BaseModel):
         return v
 
 class SnapshotMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     snapshot_id: str = Field(..., min_length=8)
     timestamp: str
     paths_backed_up: List[str]
@@ -272,15 +386,17 @@ restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --prune
 ## API examples
 
 ### Python: Backup Verification & Health Reporting (Pydantic v2)
-This script uses **Pydantic v2** models to parse, validate, and verify snapshot output metrics from backup repositories, alerting on missing targets or oversized snapshots.
+This script uses **Pydantic v2** models with strict schema enforcement (`extra="forbid"`, `frozen=True`) to parse, validate, and verify snapshot output metrics from backup repositories, alerting on missing targets or oversized snapshots.
 
 ```python
 import json
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class SnapshotItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     snapshot_id: str = Field(..., alias="id", min_length=8)
     time: datetime
     paths: List[str]
@@ -296,6 +412,8 @@ class SnapshotItem(BaseModel):
         return v
 
 class BackupRepositoryReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     repository_url: str
     checked_at: datetime = Field(default_factory=datetime.utcnow)
     status: str = Field(..., pattern="^(HEALTHY|DEGRADED|FAILED)$")
