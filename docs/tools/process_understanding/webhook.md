@@ -17,6 +17,39 @@ A Webhook is a standard, lightweight method for an application to deliver real-t
 +-------------------+                                    +-------------------------+
 ```
 
+## Theoretical Foundations & Mathematical Formulations
+
+Reliable event delivery, cryptographic verification, and backpressure buffering in distributed webhook systems rely on queueing theory and cryptographic hash algorithms.
+
+### 1. Cryptographic HMAC-SHA256 Constant-Time Verification
+Inbound webhooks guarantee data integrity and authenticity via Hash-based Message Authentication Codes (HMAC). For shared secret $K$ and message payload $M$, the HMAC is computed via inner and outer key pads ($ipad = 0x36$, $opad = 0x5c$):
+
+$$\operatorname{HMAC}(K, M) = \mathcal{H}\left( (K \oplus opad) \mathbin{\Vert} \mathcal{H}\left( (K \oplus ipad) \mathbin{\Vert} M \right) \right)$$
+
+To prevent timing side-channel attacks where an attacker deduces signature bytes from microsecond comparison variations, verification must execute in strictly constant time $\mathcal{O}(L)$:
+
+$$\operatorname{Verify}(S_{\text{expected}}, S_{\text{received}}) = \left( \sum_{i=1}^{L} (S_{\text{expected}}[i] \oplus S_{\text{received}}[i]) \right) \stackrel{?}{=} 0$$
+
+Where $L = 32\text{ bytes}$ for SHA-256 digests. Python's `hmac.compare_digest` implements this bitwise accumulator without short-circuiting.
+
+### 2. Full Jitter Exponential Backoff Delivery Dynamics
+When transient network errors or receiver rate limits occur, retry intervals $t_k$ for delivery attempt $k \in \{1, \ldots, K_{\max}\}$ must incorporate randomized decorrelated jitter to prevent thundering herd collapses:
+
+$$t_k = \operatorname{Uniform}\left(0, \min(t_{\max}, t_0 \cdot 2^k)\right)$$
+
+Where $t_0$ is the initial base backoff interval (typically $1.0\text{ s}$), and $t_{\max}$ is the ceiling timeout (typically $300\text{ s}$). The cumulative maximum delivery latency $\mathcal{T}_{\text{total}}$ is bounded by:
+
+$$\mathbb{E}[\mathcal{T}_{\text{total}}] = \sum_{k=1}^{K_{\max}} \frac{\min(t_{\max}, t_0 \cdot 2^k)}{2}$$
+
+### 3. Queueing Saturation & Dead-Letter Queue (DLQ) Poisson Arrival
+Receiver buffer absorption during event bursts is modeled as an $M/M/1/K$ queueing system with Poisson arrival rate $\lambda$ and exponential processing rate $\mu$. The traffic intensity $\rho = \frac{\lambda}{\mu}$ determines steady-state buffer overflow probability $P_{\text{drop}}$:
+
+$$P_{\text{drop}} = \frac{(1 - \rho)\rho^B}{1 - \rho^{B+1}}$$
+
+Where $B$ is the maximum in-memory buffer capacity. When incoming event load $\lambda$ approaches service capacity $\mu$ ($\rho \to 1$), unhandled events overflow directly into a durable Dead-Letter Queue (DLQ) with arrival rate $\lambda_{\text{DLQ}} = \lambda \cdot P_{\text{drop}}$.
+
+---
+
 ## What problem it solves
 In an ecosystem dominated by long-running or asynchronous agentic processes, polling introduces unacceptable latency and wastes valuable CPU and network resources. Webhooks solve this "latency gap." For instance, when an autonomous agent triggers a long-running research or parsing pipeline, downstream tools do not need to repeatedly query the status; the processing service simply dispatches an HTTP POST request containing verified results directly to the orchestrator (e.g., [n8n](../../services/n8n.md)) the moment it completes.
 
@@ -45,7 +78,7 @@ In an ecosystem dominated by long-running or asynchronous agentic processes, pol
                                           | Sanitized Telemetry
                                           v
 +-----------------------------------------------------------------------------------+
-|                        FASTmcp 3.1 ORCHESTRATION PLANE                            |
+|                        FASTMCP 3.1 ORCHESTRATION PLANE                            |
 |  +--------------------+   +---------------------+   +--------------------------+  |
 |  | n8n Workflows      |   | FastMCP Task Router |   | Self-Healing Daemon      |  |
 |  +--------------------+   +---------------------+   +--------------------------+  |
@@ -71,14 +104,107 @@ In an ecosystem dominated by long-running or asynchronous agentic processes, pol
 
 ## Webhook Transport vs. Alternative Protocols
 
-| Feature / Metric | Webhook (HTTP POST) | WebSockets | gRPC / HTTP2 | Polling (REST) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Communication Pattern** | Asynchronous Push | Full-Duplex Stream | Direct RPC Call | Repeated Pull |
-| **Connection Overhead** | Short-lived per event | Persistent TCP | Persistent TCP | High (Repeated Headers) |
-| **Latency** | Near-Zero (< 50ms) | Real-time (< 5ms) | Low (< 10ms) | Polling Interval Dependent |
-| **Firewall Friendliness** | High (Standard Port 80/443) | Medium (Requires Upgrades) | Medium (HTTP/2 framing) | High |
-| **Security Mechanism** | HMAC SHA-256 Signatures | Bearer / WSS TLS | mTLS / JWT | Bearer Tokens |
-| **Best Used For** | Discontinuous Event Alerts | Microsecond Video/Audio Streams | High-throughput Microservices | Legacy External APIs |
+| Feature / Metric | Webhook (HTTP POST) | WebSockets | gRPC / HTTP2 | Polling (REST) | Apache Kafka / Event Streams |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Communication Pattern** | Asynchronous Push | Full-Duplex Stream | Direct RPC Call | Repeated Pull | Distributed Log Ingestion |
+| **Connection Overhead** | Short-lived per event | Persistent TCP | Persistent TCP | High (Repeated Headers) | High (Zookeeper/KRaft cluster) |
+| **Latency** | Near-Zero (< 50ms) | Real-time (< 5ms) | Low (< 10ms) | Polling Interval Dependent | Sub-10ms (Batching) |
+| **Firewall Friendliness** | High (Standard Port 80/443) | Medium (Requires Upgrades) | Medium (HTTP/2 framing) | High | Low (Custom broker ports) |
+| **Security Mechanism** | HMAC SHA-256 Signatures | Bearer / WSS TLS | mTLS / JWT | Bearer Tokens | SASL / SCRAM / TLS |
+| **Best Used For** | Discontinuous Event Alerts | Microsecond Media Streams | High-throughput RPC | Legacy External APIs | Massive Event Streaming Hubs |
+
+## Production Docker Compose Receiver Stack
+
+Deploy a containerized FastAPI webhook receiver coupled with Valkey for queuing and an Nginx reverse proxy:
+
+```yaml
+version: "3.8"
+
+services:
+  webhook-ingress:
+    image: nginx:1.27-alpine
+    container_name: webhook-ingress
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx-webhook.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - webhook-app
+
+  webhook-app:
+    image: python:3.11-slim
+    container_name: webhook-app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      - WEBHOOK_SECRET=production_hmac_secret_key_12345
+      - REDIS_URL=redis://webhook-queue:6379/0
+      - PYTHONUNBUFFERED=1
+    command: uvicorn server:app --host 0.0.0.0 --port 8080 --workers 4
+    depends_on:
+      - webhook-queue
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+
+  webhook-queue:
+    image: valkey/valkey:8.0-alpine
+    container_name: webhook-queue
+    restart: unless-stopped
+    command: valkey-server --save 60 1 --loglevel notice
+    volumes:
+      - valkey-data:/data
+
+volumes:
+  valkey-data:
+```
+
+## Systemd Production Service Configuration
+
+Run a resilient webhook listener daemon on dedicated server nodes:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Webhook Ingress Daemon
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=webhook
+Group=webhook
+WorkingDirectory=/opt/webhook-service
+ExecStart=/opt/webhook-service/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8000 --workers 4
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3s
+LimitNOFILE=65536
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Failure | Probable Root Cause | Verification Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`403 Forbidden: Invalid signature`** | HMAC secret mismatch or payload mutated by proxy body buffering | `echo -n "$BODY" \| openssl dgst -sha256 -hmac "$SECRET"` | Ensure raw byte streams are validated before UTF-8 decoding and whitespace stripping. |
+| **`401 Unauthorized: Missing Header`** | Reverse proxy or load balancer stripped `X-Hub-Signature-256` | `curl -v http://localhost:8000/webhook` | Add `underscores_in_headers on;` and configure proxy header passthrough in Nginx. |
+| **`422 Unprocessable Entity`** | Payload schema mismatch against strict Pydantic v2 model | Inspect JSON payload via `jq . payload.json` | Update Pydantic model fields or add field aliases matching producer keys. |
+| **High Latency / Upstream Timeout (504)** | Webhook handler executing synchronous long tasks inline | Check active thread states via `py-spy dump` | Shift heavy compute jobs into Redis background queues and return `202 Accepted`. |
+| **Duplicate Task Executions** | Producer retries on slow responses lacking idempotency checking | Query processed ID cache via `valkey-cli get $EVENT_ID` | Store event UUID in key-value store with 24-hour TTL and return early on duplicates. |
+| **Buffer Exhaustion Under Traffic Spikes** | In-memory message backlog exceeding queue capacity limits | `valkey-cli info memory` | Scale worker consumer pool and implement dead-letter queue spillover policies. |
+| **SSL Handshake Failure on Callback** | Self-signed or expired certificate on local receiver endpoint | `openssl s_client -connect receiver.local:443` | Deploy Let's Encrypt certificates or distribute internal CA certificates to producers. |
+| **FastMCP Subprocess Connection Drop** | Event loop stalled during heavy blocking JSON serialization | Inspect syslog via `journalctl -u webhook-service -n 50` | Offload heavy JSON serialization to `orjson` or asynchronous background tasks. |
 
 ## When to use it
 - When you require real-time synchronization between independent, self-hosted services.
@@ -143,13 +269,15 @@ import json
 from datetime import datetime
 from typing import Dict, Any, Optional, Literal
 from fastapi import FastAPI, Request, Header, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 app = FastAPI()
 WEBHOOK_SHARED_SECRET = b"homelab_super_secure_webhook_key"
 
 # 1. Define strict Pydantic v2 schema for incoming event payloads
 class WebhookPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     event_type: Literal["agent_task_completed", "document_ingested", "alert_triggered"]
     timestamp: datetime
     sender_id: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
@@ -169,26 +297,21 @@ async def receive_webhook(request: Request, x_signature_256: str = Header(None))
     if not x_signature_256:
         raise HTTPException(status_code=401, detail="Missing required security signature header")
 
-    # Read raw body to perform cryptographic HMAC verification
     raw_body = await request.body()
 
-    # Calculate expected HMAC SHA256 signature
     expected_signature = hmac.new(
         WEBHOOK_SHARED_SECRET,
         raw_body,
         hashlib.sha256
     ).hexdigest()
 
-    # Prevent timing attacks using compare_digest
     if not hmac.compare_digest(f"sha256={expected_signature}", x_signature_256):
         raise HTTPException(status_code=403, detail="Cryptographic verification failed: Invalid signature")
 
-    # Parse JSON and validate utilizing strict Pydantic v2 schemas
     try:
         json_data = json.loads(raw_body.decode("utf-8"))
         validated_event = WebhookPayload.model_validate(json_data)
 
-        # In a real pipeline, dispatch tasks based on validated_event.event_type
         print(f"Verified event '{validated_event.event_type}' received from '{validated_event.sender_id}'")
         return {"status": "accepted", "message": "Event processed successfully"}
 
@@ -202,32 +325,35 @@ if __name__ == "__main__":
 ```
 
 ### FastMCP 3.1 Webhook Dispatcher
-This example illustrates a FastMCP 3.1 server endpoint that emits signed webhooks to external orchestrators upon completing long-running tasks.
+This example illustrates a FastMCP 3.1 server endpoint that emits signed webhooks to external orchestrators upon completing long-running tasks:
 
 ```python
 import hmac
 import hashlib
 import json
 import httpx
-from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from typing import Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
+from fastmcp import FastMCP
 
-mcp = FastMCP("WebhookDispatcherService")
+mcp = FastMCP("WebhookDispatcherService", version="3.1.0")
 SHARED_SECRET = b"homelab_super_secure_webhook_key"
 
 class TaskWebhookEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_url: str = Field(..., description="Target webhook URL")
     task_id: str = Field(..., description="Unique FastMCP task identifier")
     result: str = Field(..., description="Execution outcome string")
 
 @mcp.tool()
-async def dispatch_signed_webhook(target_url: str, task_id: str, result: str) -> str:
+async def dispatch_signed_webhook(payload: TaskWebhookEvent) -> Dict[str, Any]:
     """Dispatches an HMAC-signed webhook POST payload to an external orchestrator."""
     payload_dict = {
         "event_type": "agent_task_completed",
         "sender_id": "fastmcp-orchestrator",
         "timestamp": "2027-01-07T12:00:00Z",
-        "payload": {"task_id": task_id, "result": result},
+        "payload": {"task_id": payload.task_id, "result": payload.result},
         "priority": 1
     }
     raw_payload = json.dumps(payload_dict).encode("utf-8")
@@ -240,10 +366,18 @@ async def dispatch_signed_webhook(target_url: str, task_id: str, result: str) ->
 
     async with httpx.AsyncClient() as client:
         try:
-            resp = await client.post(target_url, content=raw_payload, headers=headers, timeout=5.0)
-            return json.dumps({"status": "dispatched", "http_code": resp.status_code})
+            resp = await client.post(payload.target_url, content=raw_payload, headers=headers, timeout=5.0)
+            return {
+                "status": "dispatched",
+                "http_code": resp.status_code,
+                "protocol_version": "FastMCP-3.1"
+            }
         except Exception as e:
-            return json.dumps({"status": "failed", "error": str(e)})
+            return {
+                "status": "failed",
+                "error": str(e),
+                "protocol_version": "FastMCP-3.1"
+            }
 
 if __name__ == "__main__":
     mcp.run()

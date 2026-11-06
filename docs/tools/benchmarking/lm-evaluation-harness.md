@@ -17,6 +17,52 @@ graph TD
     D -->|Pydantic v2 Output Validation| E[Standardized Leaderboard & Telemetry Logs]
 ```
 
+## Theoretical Foundations & Mathematical Formulations
+
+Standardized benchmark evaluation relies on statistical formulations of autoregressive token likelihoods, length normalization penalties, perplexity, and choice probability ranking.
+
+### 1. Perplexity and Cross-Entropy Formulation
+For a tokenized evaluation sequence $W = (w_1, w_2, \ldots, w_N)$, the language model assigns sequence probability $P(W) = \prod_{i=1}^N P(w_i \mid w_{<i})$. The empirical cross-entropy loss $\mathcal{L}(W)$ and perplexity $\mathcal{P}(W)$ are given by:
+
+$$\mathcal{L}(W) = -\frac{1}{N} \sum_{i=1}^{N} \log_2 P(w_i \mid w_{<i})$$
+
+$$\mathcal{P}(W) = 2^{\mathcal{L}(W)} = \exp\left( -\frac{1}{N} \sum_{i=1}^{N} \ln P(w_i \mid w_{<i}) \right)$$
+
+Lower perplexity denotes superior sequence modeling fidelity. For multi-choice tasks, relative ranking between candidate answers is computed via conditional log-likelihood.
+
+### 2. Normalized Conditional Log-Likelihood Scoring
+Given prompt context $C$ and candidate answer choices $\{A_1, A_2, \ldots, A_K\}$, raw log-likelihood is biased toward shorter completions. The LM Evaluation Harness evaluates normalized log-likelihood $\hat{\ell}(A_k \mid C)$ using token count normalization or byte-length normalization:
+
+$$\ell(A_k \mid C) = \sum_{j=1}^{|A_k|} \ln P(a_{k,j} \mid C, a_{k,<j})$$
+
+$$\hat{\ell}_{\text{token}}(A_k \mid C) = \frac{\ell(A_k \mid C)}{|A_k|}, \quad \hat{\ell}_{\text{byte}}(A_k \mid C) = \frac{\ell(A_k \mid C)}{\operatorname{bytes}(A_k)}$$
+
+The predicted choice $\hat{k}$ is selected via argmax:
+
+$$\hat{k} = \arg\max_{k \in \{1, \ldots, K\}} \hat{\ell}_{\text{norm}}(A_k \mid C)$$
+
+Unconditioned answer probability normalization (subtracting $\ell(A_k \mid \text{null context})$) is optionally applied to cancel inherent surface form frequency biases.
+
+### 3. Estimator Variance & Confidence Intervals
+For benchmark accuracy $\hat{p} = \frac{1}{M}\sum_{m=1}^M \mathbb{I}(\hat{y}_m = y_m)$ across $M$ independent test queries, the sample variance $\operatorname{Var}(\hat{p})$ and asymptotic 95% Wald confidence interval bounds are formulated as:
+
+$$\operatorname{Var}(\hat{p}) = \frac{\hat{p}(1 - \hat{p})}{M}, \quad \operatorname{CI}_{95\%} = \hat{p} \pm 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{M}}$$
+
+When computing paired differential model superiority $\Delta = \hat{p}_A - \hat{p}_B$, the harness evaluates McNemar's test $\chi^2$ statistic with 1 degree of freedom:
+
+$$\chi^2 = \frac{(|n_{01} - n_{10}| - 1)^2}{n_{01} + n_{10}}$$
+
+Where $n_{01}$ represents queries solved exclusively by Model B and $n_{10}$ solved exclusively by Model A.
+
+### 4. Few-Shot In-Context Learning Scaling Dynamics
+The impact of few-shot example count $K$ on prompt token overhead and accuracy $\mathcal{A}(K)$ exhibits diminishing marginal returns modeled by power-law saturation:
+
+$$\mathcal{A}(K) = \mathcal{A}_{\infty} - (\mathcal{A}_{\infty} - \mathcal{A}_0) \cdot (1 + \beta K)^{-\gamma}$$
+
+Where $\mathcal{A}_0$ represents zero-shot baseline capability, $\mathcal{A}_{\infty}$ denotes theoretical infinite-shot asymptotic limit, and $\gamma > 0$ controls the learning saturation exponent. In transformer attention KV-caches, sequence memory grows linearly $\mathcal{O}(K \cdot \bar{L}_{\text{example}})$, constraining practical real-world evaluation shots to $K \le 25$ under memory-bound GPU execution.
+
+---
+
 ## What problem it solves
 Eliminates the need for researchers to implement individual, often inconsistent, evaluation pipelines for every new benchmark. By providing a single, standardized framework, it ensures that results are comparable across different papers and models, reducing the "eval-hacking" potential and implementation overhead in the rapidly evolving agentic ecosystem.
 
@@ -57,13 +103,13 @@ Eliminates the need for researchers to implement individual, often inconsistent,
 
 ## Technical Comparison Matrix
 
-| Evaluation Harness / Tool | LM Evaluation Harness | DeepEval | Promptfoo | Inspect AI |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Focus** | Few-Shot Model Capabilities | RAG / LLM Guardrails | Red Teaming & Prompts | Agentic Trajectories |
-| **Backend Support** | HF, vLLM, GGUF, APIs | OpenAI, Custom LLM | Any API / Custom JS/Py | Python / Agent APIs |
-| **Task Ecosystem** | 100+ Standard Benchmarks | Custom Test Suites | Prompt Test Matrices | Custom Agent Tasks |
-| **MCP 3.1 Integration** | Native FastMCP Support | Custom Wrappers | Custom Extensions | Native MCP Server |
-| **Speed / Throughput** | Very High (vLLM Engine)| Medium | High (Batch API) | Medium |
+| Evaluation Harness / Tool | LM Evaluation Harness | DeepEval | Promptfoo | Inspect AI | Ragas |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Few-Shot Model Capabilities | RAG / LLM Guardrails | Red Teaming & Prompts | Agentic Trajectories | RAG Retrieval & Generation |
+| **Backend Support** | HF, vLLM, GGUF, APIs | OpenAI, Custom LLM | Any API / Custom JS/Py | Python / Agent APIs | LangChain, LlamaIndex, APIs |
+| **Task Ecosystem** | 100+ Standard Benchmarks | Custom Test Suites | Prompt Test Matrices | Custom Agent Tasks | Synthetic RAG Datasets |
+| **MCP 3.1 Integration** | Native FastMCP Support | Custom Wrappers | Custom Extensions | Native MCP Server | API Connector |
+| **Throughput / Scalability**| Very High (vLLM Engine)| Medium | High (Batch API) | Medium | Medium |
 
 ## Strengths
 - **Massive Task Library**: Supports 100+ standard academic benchmarks with thousands of subtasks, including late 2026 additions like AIR-Bench and humanity's last exam (HLE).
@@ -76,6 +122,50 @@ Eliminates the need for researchers to implement individual, often inconsistent,
 - **Focus on Causal LMs**: Primarily designed for autoregressive, decoder-only models; support for encoder-decoder models exists but is less central.
 - **Compute Intensive**: Running the full suite of benchmarks can take hours or days on high-end GPUs without pipeline optimization.
 - **Complexity**: The YAML configuration for new tasks can have a steep learning curve for complex multi-choice reasoning or visual RAG tasks.
+
+## Production Docker Compose Evaluation Stack
+
+Run reproducible evaluation runs in isolated container stacks with pinned dependencies and GPU compute access:
+
+```yaml
+version: "3.8"
+
+services:
+  lm-eval-runner:
+    image: ghcr.io/eleutherai/lm-evaluation-harness:v0.4.5
+    container_name: lm-eval-runner
+    restart: "no"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0,1
+      - HF_HOME=/root/.cache/huggingface
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./hf_cache:/root/.cache/huggingface
+      - ./results:/workspace/results
+      - ./custom_tasks:/workspace/tasks
+    command: >
+      lm_eval --model vllm
+      --model_args pretrained=meta-llama/Llama-3-8b,tensor_parallel_size=2,dtype=auto
+      --tasks mmlu_pro,gsm8k
+      --output_path /workspace/results/run_output.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+        limits:
+          cpus: "16.0"
+          memory: 64G
+
+  eval-telemetry:
+    image: prometheus/node-exporter:v1.8.2
+    container_name: eval-telemetry
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+```
 
 ## Systemd Service Units & Automated Benchmarking Daemon
 
@@ -101,6 +191,9 @@ Restart=on-failure
 RestartSec=30s
 LimitNOFILE=65536
 PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=false
+NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target
@@ -128,6 +221,9 @@ WantedBy=timers.target
 | **FastMCP Gateway Timeout during agent eval** | Sub-10ms FastMCP tool server heartbeat lost during heavy GPU tensor computation | `python3 -m mcp.cli ping http://localhost:18789` | Execute evaluation subprocess in isolated worker threads with async event loop detachment. |
 | **`Pydantic.ValidationError` on metric export** | Metric dictionary containing `NaN` or unnormalized score floats (>1.0) | Inspect JSON output via `python3 -m json.tool` | Ensure custom task evaluators apply bounds clipping (`max(0.0, min(1.0, score))`) before returning. |
 | **vLLM Engine Initialization Failure** | Missing CUDA drivers or conflicting PyTorch ABI versions | `python3 -c "import torch; print(torch.cuda.is_available())"` | Reinstall PyTorch with matching CUDA toolkit wheel version (e.g. CUDA 12.4+). |
+| **Download Timeout on HF Datasets** | Hugging Face hub rate limits or corporate proxy firewall blocking raw asset fetches | `curl -I https://huggingface.co` | Pre-download datasets into `$HF_HOME/datasets` and use local offline evaluation modes. |
+| **Zero-Shot Discrepancy Across Prompt Versions** | Template whitespace drift altering initial prefix BOS tokenization | `lm_eval --model hf --tasks arc_easy --show_config` | Explicitly enforce standard Jinja2 template formatting and disable auto-strip. |
+| **Distributed Multi-Node Rank Sync Deadlock** | NCCL backend communication stall across disparate network interfaces | `export NCCL_DEBUG=INFO` | Pin `NCCL_IB_DISABLE=1` and `NCCL_SOCKET_IFNAME=eth0` for single-subnet node clustering. |
 
 ## When to use it
 - When you need to evaluate a model across many standard benchmarks at once.
@@ -196,17 +292,17 @@ lm_eval --model mcp \
 ## API examples
 
 ### 1. FastMCP 3.1 Harness Evaluation Gateway
-Exposing evaluation harness task triggers over FastMCP 3.1 Task Protocol:
+Exposing evaluation harness task triggers over FastMCP 3.1 Task Protocol with strict Pydantic v2 schemas:
 
 ```python
-from mcp.server.fastmcp import FastMCP, Context
+from fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 from typing import List, Dict, Any
 
 mcp = FastMCP("LM Evaluation Harness Server", version="3.1.0")
 
 class EvalTaskRequest(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model_name: str = Field(..., description="Target model string (e.g., vllm/meta-llama/Llama-4-70b)")
     tasks: List[str] = Field(default_factory=lambda: ["mmlu_pro", "gsm8k"])
@@ -220,12 +316,13 @@ class EvalTaskRequest(BaseModel):
         return value
 
 class EvalTaskResult(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model_name: str
     completed_tasks: List[str]
     mmlu_score: float = Field(..., ge=0.0, le=1.0)
     scores_by_task: Dict[str, float] = Field(default_factory=dict)
+    protocol_version: str = Field(default="FastMCP-3.1")
 
 @mcp.tool()
 async def run_harness_evaluation(req: EvalTaskRequest, ctx: Context) -> EvalTaskResult:
@@ -236,7 +333,8 @@ async def run_harness_evaluation(req: EvalTaskRequest, ctx: Context) -> EvalTask
         model_name=req.model_name,
         completed_tasks=req.tasks,
         mmlu_score=0.884,
-        scores_by_task={"mmlu_pro": 0.884, "gsm8k": 0.912}
+        scores_by_task={"mmlu_pro": 0.884, "gsm8k": 0.912},
+        protocol_version="FastMCP-3.1"
     )
 
 if __name__ == "__main__":
@@ -251,13 +349,13 @@ from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 
 class MetricValue(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     metric_name: str = Field(..., alias="metric")
     value: float = Field(..., ge=0.0, le=1.0)
 
 class HarnessEvalResult(BaseModel):
-    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
     model_name: str = Field(..., alias="model")
     task_name: str = Field(..., alias="task")
@@ -275,7 +373,6 @@ class HarnessEvalResult(BaseModel):
 def run_pipeline_eval() -> Optional[HarnessEvalResult]:
     """Runs programmatic evaluation payload validation."""
     try:
-        # Build sample score dict for validation
         payload = {
             "model": "Llama-4-70b-it",
             "task": "mmlu_pro",
@@ -283,7 +380,6 @@ def run_pipeline_eval() -> Optional[HarnessEvalResult]:
             "num_fewshot": 5
         }
 
-        # Pydantic v2 validation
         validated = HarnessEvalResult.model_validate(payload)
         return validated
     except ValidationError as e:
@@ -315,6 +411,18 @@ results = lm_eval.simple_evaluate(
     limit=100
 )
 ```
+
+## Advanced Evaluation Pipeline Optimization Formulations
+
+When scaling model evaluation across heterogeneous compute topologies, batch sizing is constrained by GPU memory limits:
+
+$$\operatorname{BatchSize}_{\max} = \left\lfloor \frac{V_{\text{free}} - V_{\text{weights}} - V_{\text{activations}}}{S_{\max} \cdot 2 \cdot L \cdot D_{\text{model}} \cdot b_{\text{elem}}} \right\rfloor$$
+
+Where:
+- $V_{\text{free}}$ represents available physical VRAM.
+- $V_{\text{weights}}$ is the static footprint of the model parameters.
+- $S_{\max}$ is the maximum task prompt plus completion context window.
+- $L$ is the number of transformer layers, $D_{\text{model}}$ is hidden dimension, and $b_{\text{elem}}$ is bytes per precision format (e.g. 2 for BF16/FP16).
 
 ## Related tools / concepts
 

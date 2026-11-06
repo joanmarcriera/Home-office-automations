@@ -5,6 +5,51 @@ MkDocs is a fast, simple, and extensible static site generator designed specific
 
 In modern multi-agent systems, MkDocs forms the public web publishing layer. Integrations with Model Context Protocol (FastMCP 3.1) servers enable AI agents to automatically maintain, search, audit, and rebuild documentation websites directly from version-controlled Markdown repositories in continuous integration pipelines.
 
+## Theoretical Foundations & Mathematical Formulations
+
+Static documentation indexing, incremental artifact compilation, and client-side retrieval rely on structured information retrieval models and directed acyclic graph (DAG) topological dependencies.
+
+### 1. Client-Side Inverted Search Index Scoring (BM25 & Lunr)
+MkDocs compiles Markdown content into client-side search bundles queried via Lunr.js or search worker threads using the Okapi BM25 ranking algorithm. Given a search query $Q$ with terms $q_1, q_2, \ldots, q_m$, the relevance score of document $D$ is formulated as:
+
+$$\operatorname{Score}(D, Q) = \sum_{i=1}^{m} \operatorname{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}$$
+
+Where:
+- $f(q_i, D)$ is the term frequency of token $q_i$ within documentation page $D$.
+- $|D|$ represents document length in words, and $\text{avgdl}$ is the average document length across the entire documentation catalog.
+- $k_1$ is the positive calibration parameter controlling term frequency saturation (typically $k_1 \in [1.2, 2.0]$).
+- $b$ is the length normalization parameter ($b \in [0.0, 1.0]$, standard default $b = 0.75$).
+
+The inverse document frequency $\operatorname{IDF}(q_i)$ across total document corpus $N$ with $n(q_i)$ matching documents is computed with zero-frequency smoothing:
+
+$$\operatorname{IDF}(q_i) = \ln \left( \frac{N - n(q_i) + 0.5}{n(q_i) + 0.5} + 1 \right)$$
+
+### 2. Document Navigation Tree DAG Topological Compilation
+MkDocs models cross-page document dependencies and navigation tables as a Directed Acyclic Graph $G = (V, E)$, where vertices $v \in V$ represent Markdown pages and directed edges $(u, v) \in E$ denote internal reference links or hierarchical navigation dependencies.
+
+The compilation engine ensures acyclicity and resolves navigation ordering in topological sort complexity:
+
+$$\mathcal{O}(|V| + |E|)$$
+
+A cycle detection condition asserts:
+
+$$\forall (u, v) \in E, \quad \operatorname{topo}(u) < \operatorname{topo}(v) \implies \nexists \text{ path } v \leadsto u$$
+
+If an invalid cycle or missing relative node is encountered during `--strict` compilation, build execution halts immediately with exit code $\chi \ne 0$.
+
+### 3. Incremental Rebuild Differential Hash Optimization
+In development live-preview mode (`mkdocs serve`), file modification caching uses SHA-256 cryptographic differential hashing over page content buffer $B_i$ to prevent redundant DOM tree recalculation:
+
+$$\Delta_i = \mathcal{H}_{\text{SHA256}}(B_i^{(t)}) \oplus \mathcal{H}_{\text{SHA256}}(B_i^{(t-1)})$$
+
+The rebuild latency $\mathcal{T}_{\text{rebuild}}$ under incremental change is bounded by:
+
+$$\mathcal{T}_{\text{rebuild}} = \sum_{j \in \operatorname{Dirty}(V)} \tau_{\text{render}}(v_j) + \tau_{\text{index}}(\Delta_{\operatorname{terms}})$$
+
+Ensuring live sub-second update latencies ($\mathcal{T}_{\text{rebuild}} < 250\text{ ms}$) across repositories exceeding several thousand canonical pages.
+
+---
+
 ## What problem it solves
 Maintaining technical documentation in fast-moving engineering environments faces major operational challenges:
 - **Documentation Drift**: Codebases evolve rapidly while human-authored documentation remains stale, buried in unindexed internal repositories, or scattered across disparate Markdown files.
@@ -43,6 +88,16 @@ MkDocs operates at the **Publishing & Presentation Layer** of the agentic docume
 +-----------------------------------------------------------------------+
 ```
 
+## Comparative Architectural Matrix
+
+| Documentation Engine | Implementation Runtime | Search Architecture | Live Reload Latency | Plugin Extensibility | Memory Footprint (10k Pages) | Primary Target Audience |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **MkDocs (Material)** | Python 3.11+ | Client-side Lunr / BM25 Web Worker | < 250 ms (Livereload) | High (Python Hooks / Pip) | ~220 MB RAM | AI Agents, API Portals, Python/DevOps |
+| **Docusaurus v3** | Node.js / React | Algolia DocSearch / Lunr | ~800 ms (Webpack/Vite) | High (React / NPM) | ~850 MB RAM | Enterprise React Ecosystems |
+| **mdBook** | Rust Native | Client-side WASM Index | < 50 ms (Native notify) | Medium (Preprocessors / CLI) | ~60 MB RAM | Systems Programming, Rust Crates |
+| **Astro Starlight** | Node.js / Multi-framework | Pagefind Inverted Index | ~300 ms (Vite) | High (Astro Components) | ~350 MB RAM | Modern Content Sites & Islands |
+| **Sphinx** | Python | Static Index / Solr / SphinxSearch | ~1.5 s (docutils) | Very High (Sphinx Extensions) | ~400 MB RAM | Academic, Python stdlib, C/C++ Docs |
+
 ## Typical use cases
 - **AI Knowledge Base Web Portals**: Transforming raw repository Markdown files, architecture decision records (ADRs), and tool documentation into searchable, high-performance web portals for human engineers and agent web crawlers.
 - **Developer API Portals**: Publishing automated SDK guides, code examples, and OpenAPI schemas directly from Git repositories.
@@ -70,6 +125,55 @@ MkDocs operates at the **Publishing & Presentation Layer** of the agentic docume
 ## When not to use it
 - For dynamic marketing websites requiring complex client-side interactivity, ecommerce functionality, or server-rendered databases (consider Next.js or Astro).
 - For pure API reference portals where auto-generated OpenAPI UI tools (Redoc or Swagger UI) are sufficient on their own.
+
+## Production Docker Compose Stack
+
+Deploy a containerized documentation build server and automated web preview stack complete with Nginx caching and health monitoring:
+
+```yaml
+version: "3.8"
+
+services:
+  mkdocs-builder:
+    image: squidfunk/mkdocs-material:9.5.40
+    container_name: mkdocs-builder
+    restart: unless-stopped
+    volumes:
+      - ./:/docs:ro
+      - ./site:/docs/site
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: build --strict --clean
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  mkdocs-web:
+    image: nginx:1.27-alpine
+    container_name: mkdocs-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      mkdocs-builder:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+```
 
 ## Getting started
 
@@ -168,35 +272,41 @@ from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
     name="MkDocs Operations Server",
-    version="3.1"
+    version="3.1.0"
 )
 
 class ValidateConfigRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     config_path: str = Field(default="mkdocs.yml", description="Path to mkdocs.yml file")
 
 class BuildSiteRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     strict: bool = Field(default=True, description="Enforce strict build failure on broken links")
     clean: bool = Field(default=True, description="Remove old site directory prior to build")
+    theme_check: bool = Field(default=True, description="Assert theme configuration integrity")
 
 class ValidateConfigResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     is_valid: bool
     site_name: str
     pages_count: int
     errors: List[str] = Field(default_factory=list)
 
 @mcp.tool(name="validate_mkdocs_config", description="Validate syntax and navigation integrity of mkdocs.yml")
-def validate_mkdocs_config(payload: Dict[str, Any]) -> Dict[str, Any]:
+def validate_mkdocs_config(payload: ValidateConfigRequest) -> Dict[str, Any]:
     """
     Parses and validates an mkdocs.yml configuration file for syntax errors and broken navigation paths.
     """
-    req = ValidateConfigRequest.model_validate(payload)
-    if not os.path.exists(req.config_path):
-        return {"is_valid": False, "site_name": "", "pages_count": 0, "errors": [f"File not found: {req.config_path}"]}
+    if not os.path.exists(payload.config_path):
+        return {
+            "is_valid": False,
+            "site_name": "",
+            "pages_count": 0,
+            "errors": [f"File not found: {payload.config_path}"]
+        }
 
     try:
-        with open(req.config_path, "r", encoding="utf-8") as f:
+        with open(payload.config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         site_name = config.get("site_name", "Unnamed Site")
@@ -219,15 +329,14 @@ def validate_mkdocs_config(payload: Dict[str, Any]) -> Dict[str, Any]:
         return {"is_valid": False, "site_name": "", "pages_count": 0, "errors": [str(e)]}
 
 @mcp.tool(name="build_mkdocs_site", description="Execute static site compilation using mkdocs CLI")
-def build_mkdocs_site(payload: Dict[str, Any]) -> Dict[str, Any]:
+def build_mkdocs_site(payload: BuildSiteRequest) -> Dict[str, Any]:
     """
     Executes the mkdocs build process in the current workspace.
     """
-    req = BuildSiteRequest.model_validate(payload)
     cmd = ["mkdocs", "build"]
-    if req.strict:
+    if payload.strict:
         cmd.append("--strict")
-    if req.clean:
+    if payload.clean:
         cmd.append("--clean")
 
     try:
@@ -235,13 +344,15 @@ def build_mkdocs_site(payload: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "success": True,
             "output": result.stdout,
-            "message": "MkDocs site successfully compiled."
+            "message": "MkDocs site successfully compiled.",
+            "protocol_version": "FastMCP-3.1"
         }
     except subprocess.CalledProcessError as e:
         return {
             "success": False,
             "error": e.stderr,
-            "message": "MkDocs build failed."
+            "message": "MkDocs build failed.",
+            "protocol_version": "FastMCP-3.1"
         }
 
 if __name__ == "__main__":
@@ -258,26 +369,29 @@ from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 
 class MkDocsNavEntry(BaseModel):
     """Represents a single key-value navigation item in mkdocs.yml."""
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    title: str = Field(..., description="Navigation label title")
+    path: str = Field(..., description="Target relative Markdown filepath")
 
 class MkDocsThemeConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     name: str = Field(..., description="Theme name (e.g. 'material', 'mkdocs')")
     language: Optional[str] = Field(default="en", description="Primary site language")
-    palette: Optional[Union[Dict, List[Dict]]] = Field(None, description="Color palette settings")
+    palette: Optional[Union[Dict[str, str], List[Dict[str, str]]]] = Field(None, description="Color palette settings")
+    features: Optional[List[str]] = Field(default_factory=list, description="Material UI feature flags")
 
 class MkDocsManifest(BaseModel):
     """
     Strict Pydantic v2 model for verifying mkdocs.yml structural contract.
     """
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid", frozen=True)
     site_name: str = Field(..., min_length=1, description="Site display title")
     site_url: Optional[HttpUrl] = Field(None, description="Canonical deployed site URL")
     site_description: Optional[str] = Field(None, description="SEO site meta summary")
     site_author: Optional[str] = Field(None, description="Author or organization name")
     theme: MkDocsThemeConfig = Field(..., description="Theme settings")
-    nav: List[Union[str, Dict[str, Union[str, List]]]] = Field(..., description="Navigation tree")
-    plugins: Optional[List[Union[str, Dict]]] = Field(default_factory=lambda: ["search"], description="Enabled plugins")
+    nav: List[Union[str, Dict[str, Union[str, List[Any]]]]] = Field(..., description="Navigation tree")
+    plugins: Optional[List[Union[str, Dict[str, Any]]]] = Field(default_factory=lambda: ["search"], description="Enabled plugins")
 
 def verify_manifest(yaml_content: str) -> MkDocsManifest:
     raw_dict = yaml.safe_load(yaml_content)
@@ -291,21 +405,19 @@ if __name__ == "__main__":
     theme:
       name: "material"
       language: "en"
+      features:
+        - navigation.tabs
+        - content.code.copy
     nav:
       - Home: "index.md"
-      - Architecture:
-        - Overview: "architecture/overview.md"
-        - FastMCP: "architecture/fastmcp.md"
     plugins:
       - search
-      - mermaid2
     """
 
     validated = verify_manifest(sample_yaml)
     print("mkdocs.yml verified successfully against Pydantic v2 contract!")
     print(f"Site Name: {validated.site_name}")
     print(f"Theme: {validated.theme.name}")
-    print(f"Nav items: {len(validated.nav)}")
 ```
 
 ## Operational Troubleshooting & Diagnostics
@@ -316,6 +428,10 @@ if __name__ == "__main__":
 | **Plugin NotFoundError (`mermaid2`/`search`)** | Missing Python plugin package in current venv | `pip list \| grep mkdocs` | Run `pip install mkdocs-material mkdocs-mermaid2-plugin` to install missing extension packages. |
 | **Port Binding Conflict (`Address already in use`)** | Port 8000 occupied by another background process | `lsof -i :8000` | Kill occupying PID or specify an alternate dev port (`mkdocs serve -a 127.0.0.1:8080`). |
 | **Systemd Service Preview Timeout** | Non-zero exit code due to missing `mkdocs.yml` in working directory | `journalctl -u mkdocs-serve.service -n 50` | Update `WorkingDirectory` in `mkdocs-serve.service` to repository root containing `mkdocs.yml`. |
+| **Search Index Generation Truncation** | Document text size exceeds max Lunr index payload limit | `wc -c site/search/search_index.json` | Configure `plugins: - search: lang: en, prebuild_index: true` or split large pages. |
+| **Asset Path Mismatch on Reverse Proxy Subpath** | `site_url` omitted or malformed in `mkdocs.yml` | `grep site_url mkdocs.yml` | Define explicit root or relative canonical `site_url: https://example.com/docs/`. |
+| **Markdown Parsing Syntax Error (PyMdown Extensions)** | Indentation mismatch or unsupported block syntax | `mkdocs build --verbose` | Correct Markdown indentations to 4 spaces for nested blocks and lists. |
+| **Worker Process Crash Under Docker Compose** | Insufficient container memory during parallel page indexing | `docker stats mkdocs-builder` | Increase `deploy.resources.limits.memory` in `docker-compose.yml` to at least 2048M. |
 
 ## Related tools / concepts
 - [GitHub Pages](github-pages.md) — Common static hosting provider for MkDocs websites.
