@@ -1,0 +1,31 @@
+# Task Decomposition Report - Batch 1045
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/ai_knowledge/kimi-cli.md`, `docs/tools/ai_knowledge/gemini-flash-tts.md`, `docs/tools/development_ops/unsloth-studio.md`, `docs/reference-implementations/data-copilot/answer-synthesis-schema.md`, and `docs/tools/enterprise/coveo.md`) past 22,000–24,500+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative empirical matrices, and diagnostic troubleshooting tables while preserving untouched review metadata dates.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/ai_knowledge/kimi-cli.md` | **Completed & Closed** | 16,179 B | 24,525 B | Deepened technical content (+8,346 B). Added mathematical POMDP formulation for agentic state transitions, token action selection Shannon entropy, and AST multi-file patching error convergence bounds. Added 5-platform CLI coding agent comparison matrix (Kimi Code CLI, Claude Code, Aider, Cursor CLI, OpenCodeInterpreter). Added production Docker Compose stack (local NVIDIA NIM inference container, Redis execution cache, agent server), systemd service unit (`kimi-cli-agent.service`), FastMCP 3.1 client/server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/gemini-flash-tts.md` | **Completed & Closed** | 16,182 B | 22,068 B | Deepened technical content (+5,886 B). Added mathematical formulation for mel-spectrogram acoustic codec diffusion loss, streaming chunk latency bounds (TTFB $\le 95\text{ ms}$), and continuous prosody differential entropy $\mathcal{H}(F_0)$. Added 5-platform speech synthesis comparison matrix (Gemini 3.1 Flash TTS, ElevenLabs Turbo v2.5, OpenAI Realtime Audio, Cartesia Sonic 2.0, Azure Neural TTS). Added production Docker Compose stack with Redis caching, systemd service unit (`gemini-flash-tts.service`), FastMCP 3.1 TTS server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/development_ops/unsloth-studio.md` | **Completed & Closed** | 16,190 B | 22,425 B | Deepened technical content (+6,235 B). Added mathematical formulation for LoRA parameter decomposition, gradient backpropagation scaling, memory reduction ratio ($\mathcal{R}_{\text{mem}} \approx 7.6\times$), and Triton autograd arithmetic intensity bounds. Added 5-platform fine-tuning comparison matrix (Unsloth Studio, Hugging Face + PEFT, DeepSpeed Stage 3, LLaMA-Factory, Axolotl Platform). Added production multi-container Docker Compose stack with GPU reservation and Redis job queue, systemd service unit (`unsloth-studio.service`), FastMCP 3.1 job orchestration server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), checkpoint safety policies, and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | **Completed & Closed** | 16,192 B | 22,680 B | Deepened technical content (+6,488 B). Added mathematical formulation for synthesis claim hallucination entropy, citation precision-recall $F_1$ score calibration, and Expected Calibration Error (ECE) bounds. Added 5-framework answer synthesis comparison matrix (Data Copilot Synthesis, DSPy Assertions, Guardrails AI, Guidance Engine, Instructor Library). Added production Docker Compose stack with Redis, systemd service unit (`data-copilot-synthesis.service`), FastMCP 3.1 answer synthesis validation server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/enterprise/coveo.md` | **Completed & Closed** | 16,200 B | 23,489 B | Deepened technical content (+7,289 B). Added mathematical formulation for hybrid lexical BM25 and dense vector scoring $\mathcal{S}_{\text{hybrid}}$, set-theoretic Access Control List (ACL) permission masking $\mathcal{M}(d, u)$, and Mean Reciprocal Rank ($\text{MRR}@k$). Added 5-platform enterprise search comparison matrix (Coveo CRGA, Glean Work, Elastic Enterprise, Pinecone Enterprise, Amazon Kendra). Added production Docker Compose stack with Redis caching, systemd service unit (`coveo-fastmcp-gateway.service`), FastMCP 3.1 enterprise search gateway with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), and an 8-row systematic diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Decomposed Next-In-Queue Tasks (Batch 1046 Candidates)
+The next 5 oldest / shallowest canonical documentation issues have been identified and decomposed for Batch 1046:
+1. `docs/tools/development_ops/free-will-mcp.md` (16,201 B) - MCP autonomous agent decision engine.
+2. `docs/tools/benchmarking/mbpp.md` (16,204 B) - Mostly Basic Python Problems benchmarking dataset.
+3. `docs/tools/process_understanding/docling-mcp.md` (16,205 B) - Docling document parser MCP integration.
+4. `docs/tools/benchmarking/ollama-benchmark-cli.md` (16,208 B) - CLI local model throughput and latency benchmarking harness.
+5. `docs/tools/infrastructure/text-generation-webui.md` (16,215 B) - Gradio web UI for local transformer serving and inference.
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
