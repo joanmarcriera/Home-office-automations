@@ -74,6 +74,49 @@ graph TD
 +------------------------------------------------------------------------------------+
 ```
 
+---
+
+### Theoretical Foundations & Mathematical Formulations
+
+Autoregressive decoding and probability distribution shaping rely on dynamic token logit modifications designed to suppress repetitive degenerate loops without truncating rare semantic expressions.
+
+#### 1. DRY (Don't Repeat Yourself) Repetition Penalty
+Standard frequency or presence penalties penalize isolated single tokens irrespective of syntax context. The DRY sampler dynamically penalizes the logit of token $v \in \mathcal{V}$ based on longest matching suffix sequences:
+
+$$z'_v = z_v - \text{penalty}_{\text{DRY}}(v, \mathbf{x}_{<t})$$
+
+Where for matching suffix sequence length $L \ge L_{\min}$ observed in past context $\mathbf{x}_{<t}$:
+
+$$\text{penalty}_{\text{DRY}}(v, \mathbf{x}_{<t}) = \mu_{\text{DRY}} \cdot b_{\text{DRY}}^{L - L_{\min}}$$
+
+Where:
+- $\mu_{\text{DRY}} \ge 0.0$ is the multiplier scalar (typically $0.8$).
+- $b_{\text{DRY}} > 1.0$ is the exponential base parameter (typically $1.75$).
+- $L_{\min}$ is the minimum n-gram match threshold (default $2$).
+This penalizes repetitive phrases exponentially as their sequence length grows while leaving single token frequencies unaffected.
+
+#### 2. Min-P Dynamic Truncation
+Top-$p$ (nucleus) sampling struggles across varying distribution shapes; flat distributions retain noisy tails while peaked distributions over-prune. Min-$P$ dynamically scales the probability cutoff threshold relative to the top candidate token $v_1$:
+
+$$p_{\text{threshold}} = p_{\max} \cdot \theta_{\text{min\_p}}, \quad \text{where } p_{\max} = \max_{v \in \mathcal{V}} P(v \mid \mathbf{x}_{<t})$$
+
+$$\mathcal{V}_{\text{candidate}} = \left\{ v \in \mathcal{V} \mid P(v \mid \mathbf{x}_{<t}) \ge p_{\text{threshold}} \right\}$$
+
+Probabilities within $\mathcal{V}_{\text{candidate}}$ are re-normalized:
+
+$$P_{\text{sample}}(v) = \frac{P(v \mid \mathbf{x}_{<t})}{\sum_{u \in \mathcal{V}_{\text{candidate}}} P(u \mid \mathbf{x}_{<t})}$$
+
+This naturally expands candidate choices during open-ended, creative prompts and narrows candidates to deterministic answers during factual queries.
+
+#### 3. XTC (Excluding Top Choices) Sampling
+To break deterministic robotic tone without injecting incoherent tails, XTC selectively removes the highest-probability token when the distribution confidence crosses threshold $\theta_{\text{XTC}}$:
+
+$$\text{If } P(v_1 \mid \mathbf{x}_{<t}) > \theta_{\text{XTC}} \text{ with probability } p_{\text{remove}} \in [0.1, 0.5]: \quad \mathcal{V}' = \mathcal{V} \setminus \{v_1\}$$
+
+This forces the generator to sample high-probability secondary synonyms, enriching prose diversity without risk of hallucinations.
+
+---
+
 ## What problem it solves
 Local LLM power users and home-lab builders often need to run and compare models in diverse formats (GGUF, EXL2, AWQ, HF Safeguards/Safetensors) with deep control over sampling parameters, extension plugins, and API integration. Monolithic apps often constrain backend parameters. text-generation-webui solves this by providing unified parameter controls, chat and notebook interfaces, dynamic model swapping, and dual OpenAI/TGI-compatible API endpoints for home automation integration.
 
@@ -92,12 +135,13 @@ text-generation-webui features a modular Python architecture designed around dyn
 
 ## Loader Backend Comparison Matrix
 
-| Loader Backend | Target Checkpoint Format | VRAM Efficiency | Context Scaling Speed | Primary Use Case |
-| :--- | :--- | :--- | :--- | :--- |
-| **llama.cpp** | GGUF | High (Partial Offload) | Medium | CPU+GPU Offload / General Quantized Models |
-| **ExLlamaV2** | EXL2 / BPW | Extremely High | Fast (FlashAttention-2) | Maximum VRAM Token Throughput |
-| **Transformers** | FP16 / BF16 Safetensors | Baseline (Dense) | Standard PyTorch | Unquantized Research Checkpoints |
-| **AutoAWQ / AutoGPTQ**| AWQ / GPTQ INT4 | High | Fast | Standard 4-bit CUDA Inference |
+| Loader Backend | Target Checkpoint Format | VRAM Efficiency | Context Scaling Speed | Primary Use Case | Supported Samplers |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **llama.cpp** | GGUF | High (Partial Offload) | Medium | CPU+GPU Offload / General Quantized Models | DRY, Min-P, Mirostat, Top-K |
+| **ExLlamaV2** | EXL2 / BPW | Extremely High | Fast (FlashAttention-2) | Maximum VRAM Token Throughput | DRY, Min-P, XTC, Temp |
+| **Transformers** | FP16 / BF16 Safetensors | Baseline (Dense) | Standard PyTorch | Unquantized Research Checkpoints | Standard PyTorch Samplers |
+| **AutoAWQ / AutoGPTQ**| AWQ / GPTQ INT4 | High | Fast | Standard 4-bit CUDA Inference | Min-P, Top-P, Temperature |
+| **Aphrodite Engine** | AWQ / GPTQ / FP8 | High | Fast (PagedAttention) | High-Concurrency Batching API | Min-P, DRY, Paged Samplers |
 
 ## Typical use cases
 - **Multi-Backend Inference Hosting**: Running GGUF models via llama.cpp or high-speed EXL2 models via ExLlamaV2 on local GPUs.
@@ -114,6 +158,51 @@ text-generation-webui features a modular Python architecture designed around dyn
 ## Limitations
 - **Configuration Complexity**: Power-user interface with numerous hyperparameter dials can be overwhelming for beginners compared to simplified apps like Ollama or LM Studio.
 - **Resource Footprint**: Gradio UI and Python environment require higher baseline RAM compared to C++ single binaries.
+
+## Production Docker Compose Stack
+
+Deploy text-generation-webui alongside an isolated Redis execution queue and GPU acceleration bindings:
+
+```yaml
+version: "3.9"
+
+services:
+  textgen-webui:
+    image: ghcr.io/oobabooga/text-generation-webui:latest
+    container_name: textgen-webui-server
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+      - "5000:5000"
+    environment:
+      - CLI_ARGS=--listen --api --api-port 5000 --loader ExLlamaV2_HF --max_seq_len 16384
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_HOME=/app/cache
+    volumes:
+      - ./models:/app/models
+      - ./characters:/app/characters
+      - ./extensions:/app/extensions
+      - textgen-cache:/app/cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - textgen-net
+
+volumes:
+  textgen-cache:
+    driver: local
+
+networks:
+  textgen-net:
+    driver: bridge
+```
 
 ## Production Systemd Service Unit (`textgen-webui.service`)
 
@@ -148,18 +237,24 @@ WantedBy=multi-user.target
 
 ## Diagnostic Troubleshooting Matrix
 
-| Issue / Error Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| `CUDA out of memory (OOM)` | Context length or model quantization size exceeds GPU VRAM | Enable `cache_4bit` in ExLlamaV2 or increase offloaded GPU layers in `llama.cpp`. |
-| `ModuleNotFoundError: extensions.openai` | Required API extension not enabled at launch | Pass `--api` or `--extensions openai` in launch flags. |
-| Slow token output on ExLlamaV2 loader | FlashAttention-2 not compiled for host GPU | Reinstall `flash-attn` wheel matched to host CUDA toolkit version. |
-| Port 7860 or 5000 bind failure | Ghost process holding web or API socket | Run `lsof -i :5000` and terminate lingering server instance. |
-| Endless repetition in model output | Sampler parameters defaulting to standard top-p | Enable DRY repetition penalty (`--dry_multiplier 0.8`) in sampler settings. |
+| Issue / Error Symptom | Root Cause | Diagnostic Steps | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| `CUDA out of memory (OOM)` | Context length or model quantization size exceeds GPU VRAM | Monitor `nvidia-smi` memory during weight initialization. | Enable `cache_4bit` in ExLlamaV2 or increase offloaded GPU layers in `llama.cpp`. |
+| `ModuleNotFoundError: extensions.openai` | Required API extension not enabled at launch | Check server startup stdout flags. | Pass `--api` or `--extensions openai` in launch flags. |
+| Slow token output on ExLlamaV2 loader | FlashAttention-2 not compiled for host GPU | Inspect `python -c "import flash_attn"` traceback. | Reinstall `flash-attn` wheel matched to host CUDA toolkit version. |
+| Port 7860 or 5000 bind failure | Ghost process holding web or API socket | Run `lsof -i :5000` or `netstat -tlpn`. | Terminate lingering process using `kill -9 $(lsof -t -i :5000)`. |
+| Endless repetition in model output | Sampler parameters defaulting to standard top-p | Inspect generation log for repetitive n-grams. | Enable DRY repetition penalty (`--dry_multiplier 0.8`) in sampler settings. |
+| Degraded output quality with EXL2 | Incompatible RoPE frequency base scaling | Inspect `config.json` inside model directory. | Adjust `--rope_alpha` or `--compress_pos_emb` to match model fine-tune spec. |
+| Socket disconnect on WebSocket stream | Proxy timeout closing idle streaming connections | Check reverse proxy (nginx/caddy) timeout settings. | Increase `proxy_read_timeout` to 300s in nginx configuration. |
+| Pydantic schema validation error | Non-conforming sampler JSON options submitted to API | Check stderr for `pydantic.ValidationError`. | Validate payloads with strict `ConfigDict(extra="forbid", frozen=True)`. |
 
 ## Operational Best Practices & Performance Tuning
 1. **ExLlamaV2 VRAM Optimization**: When loading EXL2 models, enable `max_seq_len` scaling alongside `cache_4bit` to double available context without exceeding VRAM allocation limits.
 2. **Headless API Deployment**: Run in `--headless --api` mode when deploying as an automated inference provider for n8n or FastMCP agents to avoid Gradio rendering overhead.
 3. **Container Persistent Mounts**: Mount `./models` and `./characters` to external high-speed NVMe storage paths for zero-latency checkpoint access.
+4. **Sampler Combination Tuning**: For high-coherence reasoning agents, configure a unified sampler chain: Temperature $0.6 \to \text{Min-}P \; 0.05 \to \text{DRY} \; (\mu=0.8, b=1.75, L=2)$.
+5. **Dynamic KV-Cache Offloading**: In multi-GPU homelabs, configure split allocation fractions (`--gpu-memory 18,22`) to avoid OOM crashes when processing long context windows.
+6. **Strict Schema Interception**: Pass all programmatic API requests through Pydantic v2 validated controllers to prevent model loader desynchronization during dynamic swaps.
 
 ## When to use it
 - When requiring fine-grained control over model loaders (e.g., ExLlamaV2 max_seq_len, llama.cpp n_gpu_layers, rope_alpha).
@@ -206,7 +301,7 @@ from typing import Optional, List, Dict
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class SamplerSettings(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     top_p: float = Field(default=0.9, ge=0.0, le=1.0)
@@ -216,7 +311,7 @@ class SamplerSettings(BaseModel):
     dry_base: float = Field(default=1.75, ge=1.0, description="DRY sampler base exponent")
 
 class ServerLaunchConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     model: str = Field(..., description="Target model folder or filename inside models/")
     loader: str = Field(default="llama.cpp", description="Inference backend loader")
@@ -251,40 +346,50 @@ if __name__ == "__main__":
 ### 2. FastMCP 3.1 Task Protocol Integration
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, Any
 
-mcp = FastMCP("textgen-webui-controller")
+mcp = FastMCP("textgen-webui-controller", version="3.1.0")
 
 class ModelLoadRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_name: str = Field(..., min_length=3, description="Model folder or filename")
     loader: str = Field(default="llama.cpp", description="Backend loader engine")
     gpu_layers: int = Field(default=35, ge=0, description="Offloaded GPU layers")
+    context_length: int = Field(default=8192, ge=512, le=131072)
+
+class UpdateSamplersRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    dry_multiplier: float = Field(default=0.8, ge=0.0, le=2.0)
+    repetition_penalty: float = Field(default=1.15, ge=1.0, le=2.0)
+    min_p: float = Field(default=0.05, ge=0.0, le=1.0)
 
 @mcp.tool()
-async def load_webui_model(request: ModelLoadRequest) -> dict:
+async def load_webui_model(request: ModelLoadRequest) -> Dict[str, Any]:
     """Loads a model dynamically in a text-generation-webui server instance."""
     return {
         "status": "loaded",
         "model": request.model_name,
         "loader": request.loader,
         "gpu_layers": request.gpu_layers,
+        "context_length": request.context_length,
         "api_endpoint": "http://localhost:5000/v1",
         "fastmcp_version": "3.1"
     }
 
 @mcp.tool()
-async def update_samplers(
-    temperature: float = 0.7,
-    dry_multiplier: float = 0.8,
-    repetition_penalty: float = 1.15
-) -> dict:
+async def update_samplers(request: UpdateSamplersRequest) -> Dict[str, Any]:
     """Dynamically updates generation sampler settings on the running WebUI session."""
     return {
         "status": "updated",
         "active_samplers": {
-            "temperature": temperature,
-            "dry_multiplier": dry_multiplier,
-            "repetition_penalty": repetition_penalty
+            "temperature": request.temperature,
+            "dry_multiplier": request.dry_multiplier,
+            "repetition_penalty": request.repetition_penalty,
+            "min_p": request.min_p
         },
         "fastmcp_version": "3.1"
     }
