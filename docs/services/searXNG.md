@@ -3,9 +3,9 @@
 SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services, providing a privacy-preserving and agent-friendly search infrastructure in early January 2027.
 
 ## What it is
-SearXNG is a free, privacy-preserving internet metasearch engine that aggregates search results from over 70 search engines and services. Operating as an anonymizing proxy, SearXNG strips tracking cookies, user tokens, and IP addresses from outgoing queries, providing clean, structured results to end users, local LLM agents (**Gemma 3**, **Qwen 3.8**), and frontier multi-agent systems (**Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro**).
+SearXNG is an open-source, privacy-preserving internet metasearch engine that aggregates search results from over 70 search engines and services. Operating as an anonymizing proxy, SearXNG strips tracking cookies, user tokens, and IP addresses from outgoing queries, providing clean, structured results to end users, local LLM agents (**Gemma 3**, **Gemma 4**, **Qwen 3.8**), and frontier multi-agent systems (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Pro**, **DeepSeek-V4**).
 
-In the early 2027 AI architecture ecosystem, SearXNG acts as an essential gateway between deterministic internal agent loops and the noisy external web. By unifying multiple upstream providers—ranging from general search (Google, Bing, DuckDuckGo) to technical hubs (GitHub, StackOverflow, ArXiv, Wikipedia)—it normalizes unstructured web data into structured JSON objects. This empowers local RAG pipelines and autonomous agent toolkits to perform dynamic research without leaking private operational telemetry or incurring high API fees from commercial search providers.
+In the early 2027 AI architecture ecosystem, SearXNG acts as an essential gateway between deterministic internal agent loops and the noisy external web. By unifying multiple upstream providers—ranging from general search (Google, Bing, DuckDuckGo, Brave) to technical hubs (GitHub, StackOverflow, ArXiv, Wikipedia)—it normalizes unstructured web data into structured JSON objects. This empowers local RAG pipelines and autonomous agent toolkits to perform dynamic research without leaking private operational telemetry or incurring high API fees from commercial search providers.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -39,9 +39,37 @@ In the early 2027 AI architecture ecosystem, SearXNG acts as an essential gatewa
 ```
 
 ## What problem it solves
-It eliminates search profiling, behavioral tracking, and search bubble bias enforced by commercial engines. For autonomous AI agent workflows, SearXNG solves rate-limiting, engine-specific IP blocking, and formatting fragmentation by unifying diverse upstream search provider responses into standardized JSON payloads accessible via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers and direct HTTP APIs.
+It eliminates search profiling, behavioral tracking, and search bubble bias enforced by commercial engines. For autonomous AI agent workflows, SearXNG solves rate-limiting, engine-specific IP blocking, and formatting fragmentation by unifying diverse upstream search provider responses into standardized JSON payloads accessible via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers and direct HTTP APIs:
 
-Furthermore, commercial search APIs often charge per request or restrict query rate limits, making iterative multi-step research loops cost-prohibitive. SearXNG solves this by transforming self-hosted infrastructure into an unthrottled, privacy-first search broker. Agents can query, refine, and cross-validate web citations across hundreds of requests per minute without third-party tracking or budget exhaustion.
+1. **User Profiling & Data Harvesting**: Commercial search providers log user identities, query patterns, and browsing history to target advertising. SearXNG completely anonymizes queries before dispatching them to external engines.
+2. **Search API Paywalls & Rate Constraints**: Proprietary agent search APIs impose steep costs ($0.005–$0.02 per search call). SearXNG enables continuous, cost-free search across hundreds of daily agent research loops.
+3. **Engine-Specific Formatting Discrepancies**: Different search APIs provide varying response schemas, markdown formats, and metadata tags. SearXNG unifies diverse results into clean, normalized JSON structures.
+4. **IP Blocking on Cloud VPS Ranges**: Major search providers aggressively challenge or block IP ranges from AWS, DigitalOcean, and Hetzner. SearXNG supports built-in proxy rotation and multiple engine fallbacks.
+
+## Mathematical Formulations: Multi-Engine Rank Merging & Latency Optimization
+
+### 1. Reciprocal Rank Fusion (RRF) Metasearch Aggregation
+SearXNG aggregates and re-scores search result hits from $E$ upstream engines using Reciprocal Rank Fusion (RRF) with engine reliability weighting $w_e$:
+
+$$RRF\_Score(d \in D) = \sum_{e \in E} w_e \cdot \frac{1}{k + r_e(d)}$$
+
+Where:
+- $r_e(d)$ is the ordinal ranking of document $d$ within engine $e$ ($1 \le r_e(d) \le 50$).
+- $k$ is a rank smoothing constant (standardized to $k = 60$).
+- $w_e \in (0, 5.0]$ is the configured engine priority weight (e.g. $w_{github} = 3.0$, $w_{internal} = 5.0$).
+
+This guarantees that a result appearing in the top 3 of multiple search engines dominates items ranked #1 on only a single engine, filtering out clickbait outliers.
+
+### 2. Parallel Engine Response Latency Damping
+Given that each upstream scraper engine $e_i$ exhibits stochastic network latency $L_i \sim \mathcal{N}(\mu_i, \sigma_i^2)$, waiting for all $E$ engines results in severe straggler delay:
+
+$$L_{total} = \max_{i=1 \dots E} (L_i)$$
+
+SearXNG implements a dual-stage timeout deadline $\tau_{soft}$ and $\tau_{hard}$:
+
+$$\text{ActiveSet}(t) = \{ e_i \mid L_i \le \tau_{soft} \}$$
+
+If $|\text{ActiveSet}(\tau_{soft})| \ge N_{min}$ (where $N_{min} = 3$), SearXNG immediately normalizes and returns results, cancelling slower pending scraper workers and capping P99 search latency to $\le 650\text{ ms}$.
 
 ## Where it fits in the stack
 **Category**: Services / Search & Discovery. SearXNG acts as the primary web search and live-retrieval engine for private RAG pipelines and autonomous agent toolkits. It typically resides behind reverse proxies (Nginx, Traefik, or Caddy) with authentication secured by [Authentik](authentik.md) or Authelia, interfacing directly with orchestration engines like [n8n](n8n.md) or custom MCP servers.
@@ -60,27 +88,28 @@ Furthermore, commercial search APIs often charge per request or restrict query r
 |   [ FastMCP 3.1 Layer ] -----> ( FastMCP Search Tool Server )                     |
 |                                         |                                         |
 |                                         v                                         |
-|   [ Agent Execution Loop ] -> ( Claude 5.1 / DeepSeek-V4 / Gemma 3 RAG )           |
+|   [ Agent Execution Loop ] -> ( Claude 5.6 / DeepSeek-V4 / Gemma 4 RAG )          |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
 
 ## Feature Comparison Matrix
 
-| Feature / Dimension | SearXNG | Commercial Search APIs (Tavily/Perplexity) | Raw HTML Scraping (Playwright/Selenium) |
-| :--- | :--- | :--- | :--- |
-| **Privacy & Anonymity** | Complete IP & Header stripping; zero telemetry | Telemetry logged for service optimization | High exposure; exposes scraper IP to anti-bot systems |
-| **Pricing Model** | 100% Free & Open Source (Self-hosted) | Per-query API charges ($0.005–$0.02 / query) | Free code, high compute/proxy infrastructure cost |
-| **Data Format** | Native standardized JSON payload | Proprietary agent-optimized JSON | Unstructured HTML requires DOM parsing |
-| **Multi-Engine Aggregation**| Aggregates 70+ engines in parallel | Single backend aggregator | Single targeted domain per scraper session |
-| **Agent Protocol Support** | Native FastMCP 3.1 & REST integration | Standard REST / SDK wrappers | Requires custom tool wrapper scripts |
-| **Latency Profile** | Low-to-medium (200ms–800ms parallel fetch) | Very low (100ms–300ms cached API) | High (1s–5s browser render time) |
+| Feature / Dimension | SearXNG | Commercial Search APIs (Tavily/Perplexity) | Brave Search API | Raw HTML Scraping (Playwright) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Privacy & Anonymity** | Complete IP & Header stripping; zero telemetry | Telemetry logged for service optimization | Query telemetry logged | High exposure; exposes scraper IP to anti-bot |
+| **Pricing Model** | 100% Free & Open Source (Self-hosted) | Per-query API charges ($0.005–$0.02 / query) | $0.003–$0.005 per query | Free code, high compute/proxy infrastructure cost |
+| **Data Format** | Native standardized JSON payload | Proprietary agent-optimized JSON | Clean structured JSON | Unstructured HTML requires DOM parsing |
+| **Multi-Engine Aggregation**| Aggregates 70+ engines in parallel | Single backend aggregator | Single independent index | Single targeted domain per scraper session |
+| **Agent Protocol Support** | Native FastMCP 3.1 & REST integration | Standard REST / SDK wrappers | REST API | Requires custom tool wrapper scripts |
+| **Latency Profile** | Low-to-medium (200ms–650ms parallel fetch) | Very low (100ms–300ms cached API) | Low (150ms–350ms) | High (1s–5s browser render time) |
+| **Internal Doc Integration**| Turnkey JSON engine wrapper | Not supported | Not supported | Custom scraper required |
 
 ## Typical use cases
 - **Privacy-First Search Infrastructure**: Secure search backend for enterprise networks and self-hosted environments without tracking or analytics leakage.
-- **Agentic Web Retrieval**: Providing structured search capabilities to FastMCP 3.1 tools for [Claude 5.1](../tools/providers/anthropic.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
+- **Agentic Web Retrieval**: Providing structured search capabilities to FastMCP 3.1 tools for [Claude 5.6](../tools/providers/anthropic.md), [GPT-5.6](../tools/ai_knowledge/openai.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
 - **Domain-Specific Aggregation**: Filtering and weighting results across specialized sources (e.g., GitHub, StackOverflow, ArXiv, Wikipedia) for developer research loops.
-- **RAG Context Expansion**: Fetching real-time web citations and context snippets to augment prompt context windows for local models like Gemma 3 and Llama 4.
+- **RAG Context Expansion**: Fetching real-time web citations and context snippets to augment prompt context windows for local models like Gemma 4 and Llama 4.
 - **Unified Internal & External Search**: Integrating local documentation JSON endpoints alongside public search providers.
 
 ## Strengths
@@ -166,43 +195,47 @@ curl -s "http://localhost:8080/search?q=DeepSeek-V4+architecture&categories=it&f
 curl -s "http://localhost:8080/search?q=SearXNG&engines=wikipedia&format=json"
 
 # Extract top 5 result URLs and titles for agent processing
-curl -s "http://localhost:8080/search?q=Gemma+3+benchmarks&format=json" | \
+curl -s "http://localhost:8080/search?q=Gemma+4+benchmarks&format=json" | \
   jq -r '.results[:5][] | "[\(.engine)] \(.title) -> \(.url)"'
 ```
 
 ## API examples
 
 ### Python FastMCP 3.1 Integration
-Exposing SearXNG as a standard tool for autonomous AI agents using FastMCP 3.1:
+Exposing SearXNG as a standard tool for autonomous AI agents using FastMCP 3.1 with strict schema enforcement:
 
 ```python
-import requests
+import httpx
+from typing import Optional, List
+from pydantic import BaseModel, ConfigDict, Field
 from fastmcp import FastMCP
 
 mcp = FastMCP("SearXNG-Search-Server", version="3.1.0")
 
-@mcp.tool()
-def search_web(query: str, category: str = "general", max_results: int = 5) -> str:
-    """Performs a privacy-preserving metasearch query using SearXNG.
+class SearchParameters(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    Args:
-        query: The search query string.
-        category: Search category ('general', 'it', 'science', 'news').
-        max_results: Maximum number of search results to return.
-    """
+    query: str = Field(..., min_length=2, max_length=500, description="The search query string")
+    category: str = Field(default="general", pattern=r"^(general|it|science|news|files)$")
+    max_results: int = Field(default=5, ge=1, le=20)
+
+@mcp.tool()
+async def search_web(params: SearchParameters) -> str:
+    """Performs a privacy-preserving metasearch query using SearXNG."""
     url = "http://localhost:8080/search"
-    params = {
-        "q": query,
-        "categories": category,
+    query_params = {
+        "q": params.query,
+        "categories": params.category,
         "format": "json"
     }
 
     try:
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=query_params)
+            response.raise_for_status()
+            data = response.json()
 
-        results = data.get("results", [])[:max_results]
+        results = data.get("results", [])[:params.max_results]
         formatted = []
         for item in results:
             title = item.get("title", "No Title")
@@ -220,14 +253,16 @@ if __name__ == "__main__":
 ```
 
 ### Response Validation using Pydantic v2
-Validating aggregated SearXNG search responses using Pydantic v2 schemas:
+Validating aggregated SearXNG search responses using strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`):
 
 ```python
 import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError
 
 class SearchResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     title: str = Field(..., description="The title of the search result")
     url: HttpUrl = Field(..., description="The source URL of the search result")
     content: Optional[str] = Field(None, description="Text snippet or summary")
@@ -235,6 +270,8 @@ class SearchResultItem(BaseModel):
     score: Optional[float] = Field(None, description="Aggregated relevance score")
 
 class SearXNGQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str = Field(..., description="The original search query executed")
     results: List[SearchResultItem] = Field(default_factory=list, description="Validated search results")
     unresponsive_engines: List[str] = Field(default_factory=list, description="Timed out or failed engines")
@@ -246,20 +283,108 @@ def parse_searxng_response(raw_json: str) -> Optional[SearXNGQueryResponse]:
     except (ValidationError, json.JSONDecodeError) as e:
         print(f"Validation failure: {e}")
         return None
+
+if __name__ == "__main__":
+    mock_payload = {
+        "query": "FastMCP 3.1 specification",
+        "results": [
+            {
+                "title": "Model Context Protocol Spec 3.1",
+                "url": "https://modelcontextprotocol.io/spec",
+                "content": "Official specification for MCP 3.1 tooling and tasks.",
+                "engine": "github",
+                "score": 0.95
+            }
+        ],
+        "unresponsive_engines": []
+    }
+    validated = parse_searxng_response(json.dumps(mock_payload))
+    if validated:
+        print(f"Validated query '{validated.query}' with {len(validated.results)} results.")
 ```
 
-## Operational Best Practices & Troubleshooting
+## Production Systemd Daemon Unit (`searxng-engine.service`)
 
-### Engine Reliability & CAPTCHA Mitigation
-When running SearXNG in cloud hosting environments (AWS, Hetzner, DigitalOcean), upstream providers (Google, Bing) may block cloud IP ranges.
-1. **Egress Proxy Rotation**: Route SearXNG outgoing requests through a rotating residential proxy pool or WireGuard VPN tunnel to prevent IP blocks.
-2. **Selective Engine Activation**: Disable unstable or heavily throttled engines in `settings.yml` under the `engines` block (`disabled: true`).
-3. **Timeout Tuning**: Increase `request_timeout` to 4.0–6.0 seconds when querying slow academic databases like ArXiv.
+For bare-metal or container-runtime hosts running SearXNG under systemd:
 
-### Common Error Resolutions
-- **`HTTP 429 Too Many Requests`**: Triggered when upstream search engines rate limit SearXNG egress IPs. Fix by enabling proxy rotation or increasing engine query intervals.
-- **`JSONDecodeError / Empty Response`**: Ensure `format: json` is explicitly enabled in `settings.yml` under `search.formats`.
-- **`Unresponsive Engine Alerts`**: Check local network DNS resolution and ensure container outbound firewall rules permit outbound port 443 HTTPS traffic.
+```ini
+[Unit]
+Description=SearXNG Metasearch Engine Daemon
+After=network.target network-online.target docker.service
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=searxng
+Group=docker
+WorkingDirectory=/opt/searxng-stack
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Production Cluster
+
+Deploy SearXNG with Redis caching and automated Valkey session storage for high-throughput agent retrieval:
+
+```yaml
+version: "3.8"
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng_metasearch
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./searxng:/etc/searxng:ro
+    environment:
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+      - SEARXNG_SECRET=a_very_secure_random_secret_key_2027
+      - SEARXNG_REDIS_URL=redis://searxng-redis:6379/0
+    depends_on:
+      - searxng-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  searxng-redis:
+    image: redis:7.2-alpine
+    container_name: searxng_redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - searxng_redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  searxng_redis_data:
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **HTTP 429 Too Many Requests from Upstream Engines** | Cloud provider IP range blocked by Google, Bing, or Yahoo. | Configure outbound proxy rotation in `settings.yml` (`outgoing.proxies`) or route via residential VPN. |
+| **JSONDecodeError / Empty Response on `/search`** | `format: json` is missing from `search.formats` in `settings.yml`. | Add `- json` under `search.formats` and restart the SearXNG service container. |
+| **High Search Latency (> 3.5s)** | Straggler engines (e.g. academic or slow code repositories) delaying response aggregation. | Lower `request_timeout` to `2.5` seconds or disable slow engines in `engines` configuration. |
+| **All Results Empty for Specific Engine** | Upstream HTML structure changed, breaking the SearXNG scraping parser. | Pull latest Docker image `searxng/searxng:latest` containing updated engine parsers. |
+| **CAPTCHA Triggered Repeatedly on Google Engine** | Aggressive concurrent requests from parallel agent loops. | Decrease engine weight (`weight: 0.5`) or substitute Google with DuckDuckGo and Brave engines. |
+| **SearXNG Secret Key Warning at Boot** | Missing or default `SEARXNG_SECRET` environment variable. | Generate secure 32-byte secret with `openssl rand -hex 32` and set `SEARXNG_SECRET`. |
+| **Pydantic Validation Error on Empty Snippet** | Upstream engine returned `null` content field violating strict model requirements. | Set `content: Optional[str] = Field(None)` to handle null snippets cleanly. |
+| **Redis Cache Connection Timeout** | Redis container unreachable or internal Docker bridge DNS lookup failed. | Verify `SEARXNG_REDIS_URL` matches network service name and port (`redis://searxng-redis:6379/0`). |
 
 ## Related tools / concepts
 - [Authentik](authentik.md) — Identity provider securing SearXNG endpoints.
