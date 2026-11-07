@@ -1,9 +1,9 @@
 # llama-swap
 
 ## What it is
-llama-swap is an open-source, lightweight model proxy and routing engine designed to hot-swap local GGUF models on demand behind a single OpenAI-compatible API endpoint. Built primarily for resource-constrained home labs, edge deployments, and developer workstations running `llama.cpp` backends, it automatically manages loading, serving, and unloading model processes based on incoming API request parameters.
+llama-swap is an open-source, lightweight model proxy and routing engine designed to dynamically hot-swap local GGUF models on demand behind a single OpenAI-compatible API endpoint. Built primarily for resource-constrained home labs, edge deployments, and developer workstations running `llama.cpp` backends, it automatically manages loading, serving, and unloading model processes based on incoming API request parameters.
 
-By managing backend process lifecycles and isolating model loading from client API logic, llama-swap provides an intelligent abstraction layer for hosting multiple LLMs on consumer hardware.
+By managing backend process lifecycles and isolating model loading from client API logic, llama-swap provides an intelligent abstraction layer for hosting multiple LLMs on consumer hardware without manual intervention.
 
 ## What problem it solves
 Running multiple local LLMs concurrently requires significant VRAM or RAM, which quickly exhausts hardware capacity on consumer GPUs or single-board computers. Manually starting and stopping different model server instances creates operational friction, consumes admin effort, and breaks automated agent workflows that expect an always-available, unified API endpoint.
@@ -78,6 +78,50 @@ graph TD
 ## Where it fits in the stack
 **Infrastructure / Model Routing & Serving**. llama-swap sits between AI clients, agents, and IDE extensions and underlying `llama.cpp` server backends, acting as a dynamic, VRAM-conscious proxy and process orchestration layer.
 
+## Mathematical Formulations: VRAM Bounds, Swap Latency & Cache Eviction
+
+Operating model hot-swapping efficiently requires balancing GPU memory ceilings and swap penalties.
+
+### 1. VRAM Memory Allocation Bounds
+Let $V_{\text{total}}$ represent the total physical VRAM available on the target GPU. For any requested model $m_k$, its required VRAM $V_{\text{req}}(m_k)$ is partitioned into weight parameters, KV cache allocation, and CUDA runtime context:
+
+$$
+V_{\text{req}}(m_k) = V_{\text{weights}}(m_k) + V_{\text{kv}}(c_{\text{ctx}}, b_{\text{batch}}, n_{\text{layers}}) + V_{\text{overhead}}
+$$
+
+Where $V_{\text{kv}} = 2 \times n_{\text{layers}} \times n_{\text{heads}} \times d_{\text{head}} \times c_{\text{ctx}} \times b_{\text{batch}} \times \text{precision\_bytes}$. llama-swap guarantees safe single-model execution by enforcing:
+
+$$
+V_{\text{req}}(m_k) \le V_{\text{total}} - V_{\text{reserve}}
+$$
+
+Where $V_{\text{reserve}}$ (typically 512 MB to 1 GB) prevents CUDA Out-Of-Memory (OOM) faults caused by runtime memory fragmentation.
+
+### 2. Cold-Start Model Swap Latency Model
+When a request triggers a model transition from $m_i \to m_j$, the total swap delay $T_{\text{swap}}$ is modeled as:
+
+$$
+T_{\text{swap}} = T_{\text{sigterm}}(m_i) + T_{\text{drain}} + T_{\text{mmap\_read}}(m_j) + T_{\text{gpu\_vram\_transfer}}(m_j) + T_{\text{health\_check}}
+$$
+
+Where:
+- $T_{\text{mmap\_read}} = \frac{\text{FileSize}_{\text{GGUF}}}{B_{\text{disk\_throughput}}}$
+- $T_{\text{gpu\_vram\_transfer}} = \frac{V_{\text{weights}}(m_j)}{B_{\text{PCIe\_throughput}}}$
+
+With PCIe 4.0 x16 ($B_{\text{PCIe}} \approx 31.5 \text{ GB/s}$) and NVMe SSDs ($B_{\text{disk}} \approx 5.0 \text{ GB/s}$), loading an 8B Q4_K_M GGUF (~4.8 GB) incurs $T_{\text{swap}} \approx 1.2 - 2.5 \text{ seconds}$.
+
+### 3. Least Recently Used (LRU) Inactivity Eviction Policy
+To reclaim GPU memory automatically without disrupting active agent loops, llama-swap tracks time-since-last-request $\Delta t = t_{\text{current}} - t_{\text{last\_request}}$. Eviction is governed by the step decision function:
+
+$$
+E(m_k) = \begin{cases}
+1 & \text{if } \Delta t > \tau_{\text{ttl}} \text{ and } Q_{\text{active}} = 0 \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+Where $\tau_{\text{ttl}}$ is the configured time-to-live threshold and $Q_{\text{active}}$ is the count of currently in-flight streaming requests.
+
 ## Feature & Operational Comparison
 
 | Feature / Metric | llama-swap | Ollama | vLLM | LiteLLM |
@@ -87,7 +131,7 @@ graph TD
 | **Hot-Swapping Mechanism** | Process SIGTERM & spawn | Built-in VRAM unloader | Requires pre-allocated VRAM | Proxies to external |
 | **Memory Footprint** | Minimal (~15MB Go proxy) | Medium (~300MB daemon) | High (Multi-GB framework) | Low-Medium (Python/Go) |
 | **Startup Overhead** | Minimal (Direct binary start) | Medium (API layer abstraction) | High (CUDNN/TensorRT init) | Zero (Pure Proxy) |
-| **Concurreny Strategy** | Request queuing during swap | Internal model queuing | Continuous batching | Client-side fan-out |
+| **Concurrency Strategy** | Request queuing during swap | Internal model queuing | Continuous batching | Client-side fan-out |
 | **Configuration Style** | Declarative YAML | CLI / Modelfile | CLI / Python config | YAML proxy config |
 
 ## Typical use cases
@@ -95,6 +139,7 @@ graph TD
 - **OpenAI API Proxying**: Intercepting requests from tools like Open WebUI, LiteLLM, LibreChat, or Cursor to dynamically load target models on demand.
 - **Automated Memory Reclamation**: Automatically unloading idle models after a configurable Time-To-Live (TTL) timeout to free system resources for other workloads.
 - **Multi-Agent Orchestration**: Allowing multi-agent workflows (e.g. CrewAI, AutoGen, or FastMCP pipelines) to switch between different model sizes (7B, 14B, 32B) seamlessly.
+- **Cost Reduction on Edge Hardware**: Eliminating the need to deploy multiple dedicated physical GPU nodes for distinct conversational and coding assistants.
 
 ## Strengths
 - **VRAM & Hardware Optimization**: Maximizes memory efficiency by ensuring only active models reside in VRAM.
@@ -117,6 +162,7 @@ graph TD
 ## When not to use it
 - When running enterprise inference clusters where all models must remain warm with zero load latency.
 - When using high-concurrency model servers like vLLM or TGI that manage continuous batching across shared multi-GPU setups.
+- In distributed environments where models are distributed across separate physical worker nodes.
 
 ## Getting started
 
@@ -138,10 +184,10 @@ port: 8080
 ttl: 300 # Unload model after 5 minutes of inactivity
 models:
   llama-3:
-    cmd: "llama-server -m /models/llama-3-8b.gguf --port 8081"
+    cmd: "llama-server -m /models/llama-3-8b.gguf --port 8081 -ngl 99 -c 8192"
     port: 8081
   qwen-coder:
-    cmd: "llama-server -m /models/qwen2.5-coder-7b.gguf --port 8082"
+    cmd: "llama-server -m /models/qwen2.5-coder-7b.gguf --port 8082 -ngl 99 -c 8192"
     port: 8082
 ```
 
@@ -189,12 +235,14 @@ Frequent hot-swapping on Linux NVIDIA systems can cause VRAM fragmentation or re
 ## API examples
 
 ### 1. Pydantic v2 Schema for llama-swap Configuration & Status Validation
+Enforce strict validation (`extra="forbid"`, `frozen=True`) for declarative model configuration and telemetry tracking:
+
 ```python
 from typing import Dict, Optional, List, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 class ModelEndpointConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     cmd: str = Field(..., description="Execution command for launching backend llama-server instance")
     port: int = Field(..., ge=1024, le=65535, description="Local port for the backend instance")
@@ -202,14 +250,14 @@ class ModelEndpointConfig(BaseModel):
     ttl_override: Optional[int] = Field(default=None, ge=0, description="Custom TTL override for specific model")
 
 class LlamaSwapConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     port: int = Field(default=8080, ge=1024, le=65535, description="Proxy listening port")
     ttl_seconds: int = Field(default=300, ge=0, description="Idle timeout before unloading model")
     models: Dict[str, ModelEndpointConfig] = Field(..., description="Registry of available models")
 
 class ModelSwapStatus(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     active_model: Optional[str] = Field(default=None, description="Currently loaded model name in VRAM")
     status: Literal["idle", "loading", "ready", "error"] = Field(..., description="State of the model server")
@@ -239,13 +287,15 @@ if __name__ == "__main__":
 ```
 
 ### 2. FastMCP 3.1 Task Protocol Integration
+Exposing dynamic model hot-swapping and status monitoring directly into MCP agent pipelines:
+
 ```python
 from typing import Dict, Any
 from mcp.server.fastmcp import FastMCP
 import urllib.request
 import json
 
-mcp = FastMCP("llama-swap-manager")
+mcp = FastMCP("llama-swap-manager", version="3.1.0")
 
 PROXY_URL = "http://localhost:8080"
 
@@ -288,14 +338,98 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Service Unit Configuration
+
+Manage the llama-swap routing proxy as a reliable Linux system daemon (`/etc/systemd/system/llama-swap.service`):
+
+```ini
+[Unit]
+Description=llama-swap Dynamic GGUF Model Proxy Service
+After=network.target local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=simple
+User=llmrunner
+Group=ai-infrastructure
+WorkingDirectory=/opt/llama-swap
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="CUDA_MODULE_LOADING=LAZY"
+ExecStart=/usr/local/bin/llama-swap --config /etc/llama-swap/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+KillMode=mixed
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+
+Serve multiple GGUF backends with llama-swap proxy and health monitoring:
+
+```yaml
+version: "3.8"
+
+services:
+  llama-swap:
+    image: ghcr.io/sammcj/llama-swap:latest
+    container_name: llama_swap_proxy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yaml:/etc/llama-swap/config.yaml:ro
+      - /models:/models:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - LLAMA_SWAP_CONFIG=/etc/llama-swap/config.yaml
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  model-cache-cleaner:
+    image: alpine:latest
+    container_name: llama_cache_monitor
+    command: >
+      sh -c "while true; do
+        sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true;
+        sleep 3600;
+      done"
+    restart: unless-stopped
+```
+
+## Systematic Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic & Resolution Strategy |
+| :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM) during Swap** | Prior `llama-server` process did not release VRAM before new process spawned. | Verify SIGTERM propagation in proxy logs. Add `sleep 2` or check `nvidia-smi` to ensure memory clears before spawning next binary. |
+| **Port Address Already in Use (EADDRINUSE)** | Zombie `llama-server` PID holding designated port (e.g. 8081). | Run `lsof -i :8081` and execute `kill -9 <PID>`. Configure unique non-overlapping ports per model definition in `config.yaml`. |
+| **Client HTTP Timeout during First Request** | Large model (32B/70B) cold load takes longer than client socket timeout. | Increase client-side timeout in Open WebUI/FastMCP to $\ge 120$s. Pre-warm model using `/v1/models/<name>/load`. |
+| **Failed to mmap GGUF Weights** | File system permissions or missing OS memory lock capability (`mlock`). | Verify file readability with `ls -lh /models`. Ensure user is in `ai-infrastructure` group and set `LimitMEMLOCK=infinity`. |
+| **High CPU Usage with Low GPU Utilization** | Missing `-ngl 99` flag in `cmd`, causing layers to run on host CPU instead of CUDA/Metal. | Inspect model invocation string in `config.yaml` to confirm `-ngl` (number of GPU layers) is passed. |
+| **Model Fails to Unload after Inactivity** | Persistent HTTP keep-alive connections or active SSE streams keeping $Q_{\text{active}} > 0$. | Ensure clients close inactive SSE event streams. Decrease `ttl` in `config.yaml` to force clean shutdown. |
+| **Corrupted GGUF Format Error** | Incomplete download or incompatible GGUF file quantization version. | Re-validate SHA256 checksum of GGUF file and confirm `llama-server --version` matches model architecture. |
+| **404 Not Found on Requested Model** | Model string mismatch between client request and `config.yaml` key. | Query `curl http://localhost:8080/v1/models` to inspect exact registered model IDs and align client prompts. |
+
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Core backend execution engine for GGUF models.
 - [Ollama](../../services/ollama.md) — Alternative local model runner with built-in model management.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Architectural patterns for local model routing.
 - [LM Studio](lm-studio.md) — Cross-platform desktop local inference application.
+- [vLLM](vllm.md) — High-throughput continuous batching inference server.
+- [ExLlamaV3](exllamav3.md) — High-performance quantized inference backend for modern GPUs.
 
 ## Sources / references
 - [llama-swap GitHub Repository](https://github.com/sammcj/llama-swap)
+- [llama.cpp Server Documentation](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
+- [GGUF Specification Guide](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md)
 
 ---
 ## Contribution Metadata
