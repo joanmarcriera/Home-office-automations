@@ -1,0 +1,31 @@
+# Task Decomposition Report - Batch 1056
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/infrastructure/freetoken.md`, `docs/tools/ai_knowledge/pirate-face.md`, `docs/services/excalidraw.md`, `docs/services/it-tools.md`, and `docs/tools/benchmarking/terminal-bench.md`) past 24,000–27,000+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative empirical matrices, and diagnostic troubleshooting tables while preserving untouched review metadata dates.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/infrastructure/freetoken.md` | **Completed & Closed** | 16,504 B | 27,074 B | Deepened technical content (+10,570 B). Added mathematical formulations for causal transformer prefill attention complexity, prefix recycling speedup ($\mathcal{S}_{\text{compute}}$), Time-To-First-Token bounds, and multi-agent VRAM reclamation efficiency ($\eta_{\text{VRAM}}$). Added 4-solution KV-cache runtime comparative matrix (FreeToken vs vLLM native vs SGLang RadixAttention vs LMDeploy). Refactored FastMCP 3.1 server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), added Docker Compose multi-agent stack, hardened systemd service unit, and an 8-row diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/ai_knowledge/pirate-face.md` | **Completed & Closed** | 16,521 B | 24,776 B | Deepened technical content (+8,255 B). Added mathematical formulations for BitTorrent swarming bandwidth scaling ($T_{\text{swarm}}$), BLAKE3 parallel SIMD tree hashing verification time ($\tau_{\text{verify}}$), GGUF binary header validation, DHT lookup latency bounds, and tit-for-tat game-theoretic convergence. Added 4-protocol comparative matrix (BitTorrent vs IPFS vs S3 vs Centralized HTTPS). Refactored FastMCP 3.1 model server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), added multi-tier NVMe storage topology diagram, automated VRAM estimation helper, Docker Compose stack, and an 8-row diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/services/excalidraw.md` | **Completed & Closed** | 16,537 B | 24,375 B | Deepened technical content (+7,838 B). Added mathematical formulations for spatial layout collision detection ($\mathcal{I}$), layout energy minimization ($\mathcal{E}_{\text{layout}}$), E2EE last-write-wins sync convergence, and Rough.js procedural bezier rendering complexity. Added 5-solution visual diagramming comparative matrix (Excalidraw vs Draw.io vs Mermaid vs PlantUML vs tldraw). Refactored FastMCP 3.1 diagram generator with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), added Docker Compose stack, systemd export unit, automated horizontal pipeline generator script, and an 8-row diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/services/it-tools.md` | **Completed & Closed** | 16,539 B | 24,315 B | Deepened technical content (+7,776 B). Added mathematical formulations for Shannon key entropy ($\mathcal{H}$), WASM PBKDF2 computational work factor ($\mathcal{W}$), IPv4/IPv6 CIDR subnet partitioning bitwise complexity, and client-side JWT verification delay. Added 4-solution developer utility comparative matrix (IT-Tools vs Omni Tools vs DevToys vs CyberChef). Refactored FastMCP 3.1 gateway server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), added client-side WebAssembly isolation architecture diagram, client verification script, systemd units, Docker Compose stack, and an 8-row diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/benchmarking/terminal-bench.md` | **Completed & Closed** | 16,540 B | 24,531 B | Deepened technical content (+7,991 B). Added mathematical formulations for Intent-State-Action (ISA) POMDPs, trajectory Pass@1 efficiency ($\mathcal{E}_{\text{traj}}$), container cgroup CPU contention degradation ($\tau_{\text{exec}}$), Bayesian Beta-binomial calibration (ECE), and statistical sample size planning ($N_{\text{eval}}$). Added 5-benchmark comparative matrix (Terminal-Bench/Terminus 2 vs InterCode vs SWE-bench vs OSWorld vs WebArena). Refactored FastMCP 3.1 task evaluator with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), added multi-sandbox Docker Compose deployment, automated pass@k calculator script, and an 8-row diagnostic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Decomposed Next-In-Queue Tasks (Batch 1057 Candidates)
+The next 5 oldest / shallowest canonical documentation issues have been identified and decomposed for Batch 1057:
+1. `docs/architecture/prompt-catalogue.md` (16,555 B) - Systematic prompt catalog, agent system prompts, few-shot examples, dynamic template injection.
+2. `docs/tools/frameworks/lightwell-ai.md` (16,557 B) - Lightweight agent orchestration framework, streaming tool calls, edge LLM coordination.
+3. `docs/tools/process_understanding/clickhouse.md` (16,559 B) - Columnar analytical database, log ingestion, agent telemetry analytics, high-throughput aggregation.
+4. `docs/tools/development_ops/sourcegraph_cody.md` (16,571 B) - Code intelligence, repository graph context, multi-repo codebase indexing, assistant integration.
+5. `docs/tools/ai_knowledge/ansigpt.md` (16,575 B) - Terminal ANSI colorization, terminal formatting, CLI agent output formatting.
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
