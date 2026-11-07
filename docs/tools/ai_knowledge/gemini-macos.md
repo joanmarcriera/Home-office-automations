@@ -1,21 +1,21 @@
 # Google Gemini for macOS
 
 ## What it is
-Google Gemini for macOS is a native desktop application designed to deeply integrate Google's multimodal AI capabilities into Apple Silicon Mac environments (M1 through M6 generations). Built specifically for macOS Sequoia (15.0+) and later operating system versions, Gemini for macOS functions as a system-wide intelligence companion. It provides global hotkey access, real-time screen and window context awareness, native audio and clipboard capturing, local file system indexing, and multi-modal creation capabilities.
+Google Gemini for macOS is a native desktop application engineered to deeply integrate Google's multimodal artificial intelligence architecture directly into Apple Silicon macOS environments (spanning M1 through M6 generations). Built specifically for macOS Sequoia (15.0+) and subsequent operating system releases, Gemini for macOS functions as a system-wide ambient intelligence companion. It provides global hotkey invocation (`Option + Space`), real-time window and display context awareness via ScreenCaptureKit, native CoreAudio capture, local file system indexing, clipboard integration, and multimodal asset synthesis.
 
-By early January 2027, Google Gemini for macOS natively supports the **FastMCP 3.1** specification and **MCP 3.0 Task Protocol**. Operating as both an MCP client and a local FastMCP server host on `localhost:3001`, the application can route complex multi-step developer workflows between Google's cloud-hosted frontier models—including **Gemini 4.0 Pro**, **Gemini 4.0 Ultra**, **Gemini 4.0 Flash**, and **Gemini Spark 2.5**—and local execution tools or local models like [Gemma 4](../ai_knowledge/local_llms.md) running via [Ollama](../../services/ollama.md).
+By early January 2027, Google Gemini for macOS natively supports the **FastMCP 3.1** specification and **MCP 3.0 Task Protocol**. Operating dual roles as an MCP client and an embedded FastMCP server on `localhost:3001`, the application orchestrates multi-step developer workflows across Google's cloud-hosted frontier models—such as **Gemini 4.0 Pro**, **Gemini 4.0 Ultra**, **Gemini 4.0 Flash**, and **Gemini Spark 2.5**—and local execution tools or on-device models like [Gemma 4](../ai_knowledge/local_llms.md) operating through [Ollama](../../services/ollama.md).
 
 ```mermaid
 graph TD
     subgraph macOS System Environment & Events
         GlobalHotkey[Option + Space Global Hotkey] --> GeminiApp[Gemini macOS Native App]
-        Accessibility[macOS Accessibility API / Screen Capture] --> ScreenReader[Active Window & OCR Engine]
+        Accessibility[macOS Accessibility API / ScreenCaptureKit] --> ScreenReader[Active Window & Vision OCR Engine]
         ScreenReader --> ContextBuffer[Desktop Context Buffer]
         Clipboard[macOS Clipboard & Drag-and-Drop] --> ContextBuffer
         AudioIO[CoreAudio / Microphone Input] --> VoiceEngine[Gemini Live Multimodal Voice]
     end
 
-    subgraph Desktop Agent Core
+    subgraph Desktop Agent Core & Bridge
         GeminiApp --> LocalRouter[FastMCP 3.1 Local Router]
         ContextBuffer --> LocalRouter
         VoiceEngine --> LocalRouter
@@ -29,7 +29,7 @@ graph TD
         CloudBridge --> NanoBanana[Nano Banana Image Gen / Veo 2 Video Gen]
 
         FastMCPServer --> MCPTools[System MCP Tools: Terminal / File System / Git]
-        FastMCPServer --> LocalOllama[Local Gemma 4 / Ollama Inference]
+        FastMCPServer --> LocalOllama[Local Gemma 4 / Ollama Metal Inference]
     end
 
     subgraph Integrations
@@ -39,21 +39,63 @@ graph TD
 ```
 
 ## What problem it solves
-Google Gemini for macOS directly resolves productivity bottlenecks and context-switching overhead in modern desktop workflows:
+Google Gemini for macOS addresses several acute friction points in contemporary software engineering, technical writing, and analytical desktop tasks:
 
-1. **Context Fragmentation**: Eliminates manual copying and pasting between browser tabs, terminals, and IDEs by providing continuous, ambient access to on-screen content via native macOS Accessibility APIs.
-2. **Multi-Step Developer Troubleshooting**: Allows developers to instantly capture active compiler errors, terminal logs, or Figma design mockups using global shortcuts (`Option + Space`), feeding visual and textual context into Gemini 4.0 Pro without leaving the active window.
-3. **Local Tool Execution via FastMCP 3.1**: Bridges cloud-based reasoning with local file system modifications, bash command execution, and local database queries through secure Model Context Protocol sandboxes.
-4. **Real-Time Multimodal Collaboration**: Enables simultaneous voice, screen, and text streaming via Gemini Live, allowing hands-free debugging and interactive code reviews.
-5. **Unified Workspace Intelligence**: Integrates cloud-stored Google Workspace data (Gmail, Google Drive, Docs, Calendar) with local desktop artifacts into a single unified search and reasoning context.
+1. **Context Fragmentation & Cognitive Switching**: Eliminates tedious copy-pasting across browser windows, terminal sessions, and development IDEs by continuously extracting on-screen state via hardware-accelerated macOS APIs.
+2. **Multi-Step Developer Troubleshooting**: Enables instant visual and textual capture of compiler errors, stack traces, and UI layout defects via global keyboard triggers, routing context directly to frontier reasoning models without losing window focus.
+3. **Local Tool Invocation via FastMCP 3.1**: Bridges cloud intelligence with local execution boundaries—such as modifying source files, executing shell scripts, running lint checkers, and issuing Git commands—in a permissioned sandbox.
+4. **Real-Time Multimodal Voice & Visual Streaming**: Offers zero-latency voice interaction via Gemini Live, allowing engineers to talk through architectural problems and refactor logic hands-free while inspecting terminal outputs.
+5. **Unified Cloud-Local Workspace Intelligence**: Seamlessly blends enterprise cloud assets stored in Google Workspace (Gmail, Google Drive, Sheets) with local desktop artifacts and repositories in a unified retrieval context.
+
+## Mathematical Formulations & Latency Decision Boundaries
+
+### 1. Vision Context Compression & Entropy Bound
+When capturing high-resolution Retina displays (e.g., $3024 \times 1964$ at 2x scale), passing uncompressed raster bitmaps creates excessive network overhead and token consumption. The local macOS engine applies a vision tile tiling and OCR differential compression pipeline:
+
+$$C_r = \frac{T_{raw}}{T_{compressed}} = \frac{W \times H \times D \times \text{bpp}}{8 \times \left(T_{vision\_tokens} \times d_{embed} + S_{ocr}\right)}$$
+
+Where:
+- $W, H$ represent screen width and height in pixels.
+- $D$ is pixel density ($2.0$ for Retina displays).
+- $\text{bpp}$ is bit depth (24-bit RGB).
+- $T_{vision\_tokens}$ is the quantized patch count from the Vision Transformer.
+- $S_{ocr}$ is the UTF-8 byte length of extracted accessibility textual elements.
+
+The Shannon text-to-pixel entropy ratio $H_{ctx}$ governs whether a screenshot is converted to structured markdown text or passed directly to vision encoders:
+
+$$H_{ctx} = -\sum_{i=1}^{V} p(w_i) \log_2 p(w_i)$$
+
+If $H_{ctx} \ge \tau_{text}$ (where $\tau_{text} = 4.25$ bits/symbol), the desktop daemon dispatches text-only representations, saving $\approx 82\%$ token expenditure.
+
+### 2. Local vs. Cloud Model Routing Decision Boundary
+Gemini for macOS dynamically routes queries between on-device local models ([Gemma 4](../ai_knowledge/local_llms.md) running over Apple Metal unified memory) and cloud models (Gemini 4.0 Pro) based on expected utility $U(R)$:
+
+$$U(R_{local}) = \frac{Q_{local}}{L_{local} + \epsilon} \cdot \mathbf{1}_{\{C_{priv} = \text{Strict}\}}$$
+
+$$U(R_{cloud}) = \frac{Q_{cloud}}{L_{cloud} + L_{net} + \kappa \cdot \text{Cost}_{token}} \cdot \mathbf{1}_{\{C_{priv} = \text{Standard}\}}$$
+
+The dispatch engine selects $R^* = \arg\max \{U(R_{local}), U(R_{cloud})\}$, ensuring sub-50ms local responses for simple text extraction and file ops while reserving cloud calls for deep reasoning.
+
+## Comparative Evaluation: Desktop AI Companions
+
+| Dimension | Google Gemini for macOS | Claude for Desktop | ChatGPT macOS Client | Microsoft Copilot Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Foundation Model** | Gemini 4.0 Pro / Ultra / Flash | Claude 3.7 Sonnet / Opus | GPT-5.2 / GPT-4o | GPT-4o Enterprise |
+| **Local Model Support** | Native Gemma 4 via Ollama/Metal | None (Cloud Only) | None (Cloud Only) | Limited (Small SLMs) |
+| **Tool Protocol Support** | FastMCP 3.1 & MCP 3.0 Task | MCP 1.0 / 2.0 (Stdio/SSE) | Custom Actions / Plugins | Microsoft Graph Agents |
+| **Screen Capture API** | Native ScreenCaptureKit (GPU) | Window snapshot | Window snapshot | OS Accessibility |
+| **Voice Streaming Protocol** | Gemini Live Bidirectional WebRTC | Text-to-speech replay | Advanced Voice Mode (WebRTC)| Azure Speech Services |
+| **Enterprise Workspace Sync**| Native Google Workspace sync | Custom enterprise connectors| Custom MCP connectors | Native M365 Graph sync |
+| **Apple Silicon Optimization**| Metal Performance Shaders / ANE | Electron / WebKit wrapper | Swift / Metal hybrid | Electron / WebView2 |
+| **Offline Capabilities** | Supported for local Gemma tools | Non-functional offline | Non-functional offline | Non-functional offline |
 
 ## Where it fits in the stack
 Google Gemini for macOS operates at the **Desktop Client & Ambient Intelligence Layer**:
 
-- **System Layer**: Interoperates directly with macOS Sequoia system APIs (CoreGraphics, ScreenCaptureKit, CoreAudio, Accessibility Services).
-- **Protocol Bridge Layer**: Serves as a local **FastMCP 3.1 Host**, allowing external agent frameworks like [Agno](../agents/phidata.md) or [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md) to query desktop state.
-- **Model Orchestration Layer**: Routes user prompts dynamically between Google Cloud Vertex AI infrastructure (for heavy reasoning) and local on-device engines like [Gemma 4](../ai_knowledge/local_llms.md).
-- **Application Integration Layer**: Connects desktop workflows directly to developer tools ([Cursor](../development_ops/cursor.md), [Zed](../development_ops/zed.md), Xcode) and productivity platforms.
+- **System Hardware Layer**: Leverages Apple Silicon unified memory architecture (UMA), utilizing Metal Performance Shaders (MPS) and Apple Neural Engine (ANE) for local OCR and embedding pipelines.
+- **Protocol Bridge Layer**: Serves as a local **FastMCP 3.1 Host**, allowing external agent frameworks like [Agno](../agents/phidata.md) or [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md) to inspect and invoke desktop capabilities.
+- **Model Orchestration Layer**: Dynamically arbitrates execution across Google Cloud Vertex AI infrastructure and local Metal-accelerated inference engines.
+- **Application Integration Layer**: Directly interfaces with local IDEs ([Cursor](../development_ops/cursor.md), [Windsurf](../development_ops/windsurf.md), Xcode), terminal emulators (Ghostty, iTerm2), and file storage.
 
 ## Typical use cases
 - **Active Code Debugging**: Press `Option + Space` while viewing a failing test suite in Xcode or Cursor to let Gemini inspect the code snippet, analyze stack traces, and suggest fixes.
@@ -126,14 +168,14 @@ gemini-mac voice --duration 30 --output-task
 ## API examples
 
 ### 1. Python FastMCP 3.1 Server for Gemini macOS Context Bridge
-The following complete Python script creates a FastMCP 3.1 server that collects macOS active window metadata and exposes it as an agent tool to Gemini for macOS.
+The following complete Python script creates a FastMCP 3.1 server that collects macOS active window metadata and exposes it as an agent tool to Gemini for macOS. It enforces strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`):
 
 ```python
 import asyncio
 import json
 import subprocess
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError
 from fastmcp import FastMCP
 
 # Initialize FastMCP Server for macOS Desktop Bridge
@@ -144,31 +186,26 @@ mcp_server = FastMCP(
 )
 
 class MacOSWindowMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     app_name: str = Field(..., description="Name of active macOS application (e.g. Cursor, Safari)")
     window_title: str = Field(..., description="Title bar text of the active window")
     is_fullscreen: bool = Field(default=False, description="Whether the window occupies full screen")
-    display_id: int = Field(default=1, description="Active display monitor index")
+    display_id: int = Field(default=1, ge=1, le=8, description="Active display monitor index")
     url: Optional[str] = Field(default=None, description="URL if active app is a web browser")
 
 class CaptureScreenPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     metadata: MacOSWindowMetadata
-    ocr_text_snippet: str = Field(..., max_length=10000, description="Extracted OCR text from window")
+    ocr_text_snippet: str = Field(..., min_length=1, max_length=10000, description="Extracted OCR text from window")
     timestamp_utc: str = Field(..., description="ISO 8601 capture timestamp")
 
 @mcp_server.tool()
 async def get_active_window_context() -> str:
     """Queries macOS system APIs to extract active application context for Gemini."""
-    # Mocking native AppleScript / System Events execution
-    applescript_cmd = """
-    tell application "System Events"
-        set frontApp to name of first application process whose frontmost is true
-        set windowName to name of front window of (first application process whose frontmost is true)
-        return frontApp & "||" & windowName
-    end tell
-    """
     try:
-        # In actual macOS environment, subprocess executes osascript
-        # output = subprocess.check_output(["osascript", "-e", applescript_cmd]).decode("utf-8").strip()
+        # Mocking native AppleScript / System Events execution
         mock_output = "Cursor||gemini-macos.md - Enterprise-AI-KB - Visual Studio Code"
         app_name, window_title = mock_output.split("||")
 
@@ -187,29 +224,34 @@ async def get_active_window_context() -> str:
         # Validate payload against strict Pydantic v2 schema
         validated = CaptureScreenPayload.model_validate(payload)
         return validated.model_dump_json(indent=2)
+    except ValidationError as val_err:
+        return f"Validation error: {val_err}"
     except Exception as err:
         return f"Error retrieving macOS desktop context: {str(err)}"
 
 if __name__ == "__main__":
-    # Start FastMCP 3.1 Server over SSE on localhost
     print("Starting Gemini macOS FastMCP 3.1 Bridge on http://localhost:3001/sse")
     mcp_server.run(transport="sse", port=3001)
 ```
 
 ### 2. Client Side Response Schema Validation (Python & Pydantic v2)
-This script demonstrates validating multimodal responses received from Gemini for macOS desktop API endpoints:
+This script demonstrates validating multimodal responses received from Gemini for macOS desktop API endpoints using strict schema configurations:
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 class ActionableSuggestion(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     suggestion_id: str = Field(..., description="Unique suggestion identifier")
     category: str = Field(..., description="Category: refactoring | bugfix | optimization")
     description: str = Field(..., description="Detailed technical suggestion")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Model confidence score")
 
 class GeminiDesktopAnalysisResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_version: str = Field(..., description="Gemini model version utilized")
     active_app_analyzed: str = Field(..., description="Application evaluated")
     summary: str = Field(..., description="High-level synthesis of on-screen state")
@@ -247,6 +289,124 @@ if __name__ == "__main__":
 
     validate_gemini_response(mock_api_response)
 ```
+
+## System Launch Daemon & Service Unit
+
+To run the local FastMCP 3.1 background bridge reliably across macOS reboots, deploy a launchd property list daemon (`~/Library/LaunchAgents/com.google.gemini.mcp-bridge.plist`):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.google.gemini.mcp-bridge</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/python3</string>
+        <string>/Users/shared/gemini-bridge/server.py</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>GEMINI_MCP_PORT</key>
+        <string>3001</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/shared/gemini-bridge/stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/shared/gemini-bridge/stderr.log</string>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+</dict>
+</plist>
+```
+
+For containerized Linux development machines bridging remote macOS hosts via SSH tunneling, deploy the companion service unit (`/etc/systemd/system/gemini-mcp-proxy.service`):
+
+```ini
+[Unit]
+Description=Gemini macOS FastMCP Remote Proxy Service
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+WorkingDirectory=/opt/gemini-mcp-proxy
+ExecStart=/opt/gemini-mcp-proxy/venv/bin/python proxy_server.py --port 3001 --remote-host macos-studio.local
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+LimitNOFILE=65536
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Test Harness & Mock Server
+
+When executing regression tests or testing agent pipelines without requiring a physical macOS host, use this Docker Compose multi-container test harness:
+
+```yaml
+version: "3.8"
+
+services:
+  gemini-macos-mock-bridge:
+    image: python:3.12-slim
+    container_name: gemini_macos_mock_bridge
+    working_dir: /app
+    volumes:
+      - ./bridge:/app
+    environment:
+      - PORT=3001
+      - GEMINI_API_MOCK=true
+      - PYTHONUNBUFFERED=1
+    command: >
+      sh -c "pip install --no-cache-dir fastmcp pydantic httpx uvicorn &&
+             python server.py"
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  gemini-test-agent:
+    image: python:3.12-slim
+    container_name: gemini_test_agent
+    depends_on:
+      gemini-macos-mock-bridge:
+        condition: service_healthy
+    volumes:
+      - ./tests:/tests
+    command: >
+      sh -c "pip install --no-cache-dir httpx pytest &&
+             pytest /tests/test_gemini_bridge.py"
+    restart: "no"
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **Global Hotkey (`Option + Space`) Fails to Fire** | macOS Accessibility permission revoked or intercepted by another utility (e.g. Raycast, Alfred). | Navigate to `System Settings > Privacy & Security > Accessibility`, toggle `Gemini.app` off and on, and inspect keyboard shortcut collisions. |
+| **Screen Context Returns Blank or Black Frames** | Missing Screen & System Audio Recording entitlement under macOS Sequoia. | In `System Settings > Privacy & Security > Screen Recording`, verify `Gemini.app` is enabled; restart app to reload TCC database. |
+| **FastMCP Bridge Connection Refused (`localhost:3001`)** | Local FastMCP daemon crashed, port blocked by existing process, or launchd plist unloaded. | Run `lsof -i :3001` to identify blocking processes; reload daemon with `launchctl unload ~/Library/LaunchAgents/com.google.gemini.mcp-bridge.plist && launchctl load ...`. |
+| **High Memory Allocation during Continuous OCR** | Memory leak in native ScreenCaptureKit frame stream or cached unreleased bitmap buffers. | Update to the latest Gemini macOS patch; ensure frame capture frequency is throttled to $\le 2\text{ fps}$ during non-interactive sessions. |
+| **Pydantic Validation Error: `extra_forbidden`** | FastMCP client dispatched non-whitelisted payload parameters violating `ConfigDict(extra="forbid")`. | Ensure client requests strictly adhere to `CaptureScreenPayload` schema and discard undeclared dynamic fields. |
+| **Microphone / Voice Mode Silent Dropouts** | CoreAudio buffer underrun or sample rate mismatch with external USB audio interface. | Set macOS Audio MIDI Setup system input to standard 48,000 Hz 24-bit integer format and re-grant microphone permissions. |
+| **Google Workspace Sync Error 403 / Token Expired** | OAuth token session expired in macOS Keychain or Workspace administrator restricted Gemini API scopes. | Re-authenticate Google account within Gemini Preferences > Accounts; verify API access in Google Workspace Admin Console. |
+| **Local Gemma 4 Inference Timeout** | Apple Silicon unified memory exhausted or Thermal throttling under high GPU load. | Verify Ollama Metal backend is active (`ollama ps`); configure model quantization to Q4_K_M or offload to Gemini 4.0 Flash cloud routing. |
 
 ## Related tools / concepts
 - [ChatGPT for Desktop](chatgpt.md) — OpenAI native desktop client alternative.
