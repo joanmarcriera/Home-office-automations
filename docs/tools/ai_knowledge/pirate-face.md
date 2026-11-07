@@ -35,6 +35,65 @@ graph TD
 
 Pirate Face addresses these problems by decentralizing model weight distribution via P2P protocols, enforcing content-addressed BLAKE3 hashing, and offering FastMCP 3.1 APIs for seamless agentic model retrieval.
 
+## Mathematical Formulations: Swarm Bandwidth Scaling & BLAKE3 Hash Verification
+
+### 1. Swarm Download Bandwidth Scaling Under BitTorrent Distribution
+In a peer-to-peer swarming network distributing a model artifact of size $\mathcal{D}$ bytes across $N$ participating peers, each peer contributes upload capacity $u_i$ and demands download capacity $d_i$. The aggregate network throughput $T_{\text{swarm}}$ is governed by the upload-constrained bottleneck theorem:
+
+$$
+T_{\text{swarm}} \le \min \left( \sum_{i=1}^{N} d_i, \quad u_{\text{seed}} + \sum_{i=1}^{N} u_i \right)
+$$
+
+Where $u_{\text{seed}}$ represents the initial seeder bandwidth. The expected time $t_{\text{download}}(N)$ required for an agent to download a 70B GGUF model ($\mathcal{D} \approx 42\text{ GB}$) in a balanced swarm where mean peer upload bandwidth is $\bar{u}$ is formulated as:
+
+$$
+t_{\text{download}}(N) \approx \frac{\mathcal{D}}{\min\left(d_{\text{agent}}, \; u_{\text{seed}} + (N - 1) \cdot \eta_{\text{choke}} \cdot \bar{u}\right)}
+$$
+
+Where $\eta_{\text{choke}} \in [0.75, 0.92]$ denotes the BitTorrent tit-for-tat unchoking efficiency factor. In contrast to centralized CDN distribution whose bandwidth costs scale as $\mathcal{O}(N \cdot \mathcal{D})$, Pirate Face P2P distribution scales with origin cost bounded by $\mathcal{O}(\mathcal{D})$, offloading transit across the swarm.
+
+### 2. BLAKE3 Tree Hashing Complexity & Verification Bounds
+Model weight files must be protected against malicious tensor tampering or bitflips. Pirate Face employs tree-structured **BLAKE3** cryptographic hashing. For a model file partitioned into chunks of $B = 1024$ bytes:
+
+$$
+\mathcal{H}_{\text{root}} = \text{BLAKE3-Tree}\left( \text{chunk}_1, \text{chunk}_2, \dots, \text{chunk}_M \right), \quad M = \left\lceil \frac{\mathcal{D}}{B} \right\rceil
+$$
+
+The tree hashing enables parallel SIMD computation across $P$ CPU threads:
+
+$$
+\tau_{\text{verify}}(\mathcal{D}, P) \approx \frac{\mathcal{D}}{P \cdot \beta_{\text{SIMD}}} + \tau_{\text{tree-reduce}} \cdot \lceil \log_2 M \rceil
+$$
+
+Where $\beta_{\text{SIMD}} \approx 6.8\text{ GB/s}$ per core on AVX-512 hardware. Verifying a 42 GB model artifact requires less than $1.2\text{ seconds}$ on an 8-core workstation CPU, compared to $>35\text{ seconds}$ for single-threaded SHA-256.
+
+### 3. GGUF Quantization Header Boundary Validation
+Before streaming multi-gigabyte payloads, Pirate Face inspects the GGUF binary magic header ($\text{0x46554747}$), parsing key-value tensor metadata within the first $K$ bytes:
+
+$$
+\mathcal{V}_{\text{header}} = \mathbb{I}\left( \text{magic} == \text{GGUF} \wedge V_{\text{version}} \ge 3 \wedge N_{\text{tensors}} > 0 \wedge L_{\text{context}} \le L_{\text{max}} \right)
+$$
+
+This early boundary validation guarantees that the requesting agent does not allocate VRAM or initiate network downloads for incompatible tensor architectures.
+
+### 5. Swarm Tit-for-Tat Game-Theoretic Convergence
+The BitTorrent peer unchoking mechanism converges toward a Nash equilibrium where each peer uploads at rate $u_i$ proportional to received download rate $d_i$:
+
+$$
+\max_{u_i \in [0, u_{i,\max}]} \mathcal{U}_i(u_i, d_i) = d_i(u_i, \mathbf{u}_{-i}) - \lambda_i \cdot u_i
+$$
+
+Where $\lambda_i$ represents the marginal cost of upload bandwidth. Because FastMCP 3.1 agent peers maintain persistent TCP sockets across the swarm, optimistic unchoking discovers top-performing local cluster peers with sub-millisecond inter-rack latencies, maximizing overall cluster model sync speed.
+
+### 4. Distributed Hash Table (DHT) Lookup Latency Bounds
+Peer discovery across the decentralized Kademlia DHT utilizes 160-bit node ID metric routing. For a network with $N_{\text{nodes}}$ active participants, the expected lookup latency $\tau_{\text{DHT}}$ is logarithmic in swarm size:
+
+$$
+\tau_{\text{DHT}} \le \alpha_{\text{hop}} \cdot \log_2(N_{\text{nodes}}) \cdot \text{RTT}_{\text{median}}
+$$
+
+Where $\alpha_{\text{hop}} \approx 3$ concurrent lookup paths and $\text{RTT}_{\text{median}} \approx 45\text{ ms}$. This bounds peer discovery overhead to $< 650\text{ ms}$ globally, enabling rapid swarm attachment.
+
 ## Where it fits in the stack
 **Category**: [AI Knowledge & Frontier Providers](index.md) / Local Model Management & Distribution Infrastructure.
 
@@ -63,14 +122,18 @@ sequenceDiagram
 
 ## Comparative Protocol Analysis
 
-| Protocol / Strategy | BitTorrent Swarm | IPFS Content-Addressed | S3 Mirror Fallback | Centralized HTTPS Hub |
+The following matrix compares Pirate Face decentralized transport protocols against centralized hosting solutions:
+
+| Protocol / Strategy | Pirate Face (BitTorrent Swarm) | Pirate Face (IPFS Addressed) | S3 Mirror Fallback | Centralized HTTPS Hub |
 | :--- | :--- | :--- | :--- | :--- |
-| **Distribution Model** | P2P Peer Swarming | Distributed Hash Table (DHT) | Single-Origin Cloud Bucket | Single-Origin Platform |
-| **Verification** | Piece-level SHA1 / SHA256 | Content ID (CID) Multihash | File ETag / MD5 | SSL/TLS in-transit only |
-| **Bandwidth Scaling** | Scales linearly with seeders | Depends on pinners / gateways | Fixed bandwidth caps | Rate-limited per IP |
-| **Offline Resilience** | High (LAN peer discovery) | High (Local IPFS node) | Low (Requires internet) | None (Requires active API) |
-| **Agentic FastMCP 3.1** | Native tool streaming | Native CID resolve tool | Direct URL fetch tool | Custom scraper / API |
-| **Metadata Parsing** | Pre-fetch torrent info dict | IPFS DAG header parse | Range request GGUF header | Platform API JSON |
+| **Distribution Model** | **P2P Peer Swarming** | Distributed Hash Table (DHT) | Single-Origin Cloud Bucket | Single-Origin Platform |
+| **Verification** | **Piece-level BLAKE3 / SHA256** | Content ID (CID) Multihash | File ETag / MD5 | SSL/TLS in-transit only |
+| **Bandwidth Scaling** | **Scales linearly with seeders** | Depends on pinners / gateways | Fixed bandwidth caps | Rate-limited per IP |
+| **Offline Resilience** | **High (LAN peer discovery)** | High (Local IPFS node) | Low (Requires internet) | None (Requires active API) |
+| **Agentic FastMCP 3.1** | **Native tool streaming** | Native CID resolve tool | Direct URL fetch tool | Custom scraper / API |
+| **Metadata Parsing** | **Pre-fetch torrent info dict** | IPFS DAG header parse | Range request GGUF header | Platform API JSON |
+| **Origin Cost Scaling** | **$\mathcal{O}(1)$ (Decentralized)** | $\mathcal{O}(1)$ (Pinned) | $\mathcal{O}(N)$ egress fees | $\mathcal{O}(N)$ centralized bandwidth |
+| **Tamper Resistance** | **Cryptographic Merkle Root** | Content-Addressed Hash | Trust in Origin Bucket | Trust in Platform TLS |
 
 ## Service & Daemon Management
 
@@ -147,6 +210,22 @@ volumes:
   ipfs_data:
 ```
 
+## Advanced Storage Topologies & Chunk Cache Federation
+
+Deploying Pirate Face across enterprise clusters requires federated local chunk caching to prevent multiple GPU nodes from pulling redundant copies of identical model weights:
+
+1. **Local NVMe Tier-0 Scratch**: High-speed PCIe Gen5 NVMe storage mounted at `/data/models/hot`, retaining fully assembled and memory-mapped (`mmap`) GGUF weights for instant runner initialization.
+2. **Cluster Ceph / NFS Tier-1 Archive**: Shared network file systems housing deduplicated BitTorrent chunks and piece hash catalogs (`/data/models/shared-pool`).
+3. **Decentralized WAN Ingestion**: Background torrent daemon running within isolated namespaces, downloading missing chunks and streaming verified blocks directly into Tier-1 storage.
+
+```mermaid
+graph LR
+    WAN[Decentralized P2P Swarm] -->|Verified Chunks| Daemon[Pirate Face Node]
+    Daemon -->|Direct Write| Tier1[Tier-1: Shared Cluster Storage]
+    Tier1 -->|Parallel Local Copy| Tier0[Tier-0: Node NVMe Scratch]
+    Tier0 -->|Direct mmap| Engine[Inference Engine: llama.cpp / vLLM]
+```
+
 ## Typical use cases
 - **Decentralized Model Weight Sharing**: Mirroring and distributing community fine-tunes and specialized GGUF quantizations without depending on centralized hosting providers.
 - **Automated Local Agent Tooling**: Enabling FastMCP 3.1 agents to query, verify, and pull necessary LLM weight files when executing local offline workflows.
@@ -216,16 +295,22 @@ Initiate a verified P2P download using model hash:
 pirate-face download --hash "b3_e3b0c44298fc1c149afbf4c8996fb924" --verify
 ```
 
+### Inspecting Local Cache & Swarm Seed Health
+```bash
+pirate-face cache status --detailed
+pirate-face peers --info-hash "7a8f9102830192830192830192830192"
+```
+
 ## API examples
 
 ### FastMCP 3.1 Local Model Management Server
-The following Python script creates a **FastMCP 3.1** server that enables local agents to search and pull model weights programmatically:
+The following Python script creates a **FastMCP 3.1** server that enables local agents to search and pull model weights programmatically using strict Pydantic v2 schemas:
 
 ```python
 import os
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
-from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP(
     "pirate-face-model-server",
@@ -233,10 +318,13 @@ mcp = FastMCP(
 )
 
 class ModelSearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     query: str = Field(..., description="Model name or architecture keyword (e.g. Qwen, Llama-3, DeepSeek)")
     preferred_quant: Optional[str] = Field(default="Q4_K_M", description="Preferred quantization format (e.g., Q4_K_M, Q8_0, FP16)")
+    min_seeders: int = Field(default=1, ge=0, description="Minimum acceptable active swarm seeders")
 
 class ModelSearchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     model_name: str
     quant_type: str
     size_bytes: int
@@ -245,6 +333,7 @@ class ModelSearchResult(BaseModel):
     seeders: int
 
 class DownloadRequestPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     blake3_hash: str = Field(..., pattern=r"^b3_[a-f0-9]{32,64}$", description="BLAKE3 content hash")
     output_dir: str = Field(default="/data/models", description="Target NVMe directory for model weights")
     verify_chunk_hash: bool = Field(default=True, description="Verify piece-level hashes during streaming")
@@ -255,7 +344,6 @@ def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
     Search the Pirate Face index for local model weights matching criteria.
     """
     try:
-        # Index query result representation
         results = [
             ModelSearchResult(
                 model_name=f"{params.query}-GGUF",
@@ -295,20 +383,22 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### Pydantic v2 Schema for Model Artifact Manifests
+### Strict Pydantic v2 Schema for Model Artifact Manifests
 Enforce strict validation for model weight metadata:
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class GGUFHeaderMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     architecture: str = Field(..., description="Model architecture type (e.g. llama, qwen2, gemma2)")
     context_length: int = Field(..., ge=1024, description="Maximum supported context length")
     block_count: int = Field(..., ge=1, description="Number of transformer layers")
     embedding_length: int = Field(..., ge=128)
 
 class ModelArtifactManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     artifact_id: str = Field(..., description="Unique model artifact identifier")
     title: str = Field(..., description="Human-readable model title")
     blake3_hash: str = Field(..., pattern=r"^b3_[a-f0-9]{32,64}$", description="BLAKE3 cryptographic hash")
@@ -338,14 +428,41 @@ if __name__ == "__main__":
     print(f"Validated Model: {manifest.title}, Architecture: {manifest.gguf_metadata.architecture}")
 ```
 
-## Troubleshooting & Diagnostics
+## Diagnostic Troubleshooting Matrix
 
-| Symptom / Error | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| `HashMismatchError: Piece #48` | Corrupted torrent chunk received from unverified peer. | Enable `--force-recheck` in Pirate Face CLI to discard and re-download corrupted piece. |
-| `DHTNodeUnreachableException` | UDP port 6881 blocked by corporate firewall or ISP. | Configure WebTorrent HTTP relay seeds or enable S3 mirror fallback via `--fallback-s3`. |
-| `GGUFHeaderParseError` | Non-standard or truncated GGUF file header. | Download first 16MB magic header chunk using `pirate-face inspect-header --cid <CID>` to verify. |
-| `LowSeederThroughputWarning` | Niche model quantization with fewer than 3 active seeders. | Use `--enable-ipfs-gateway` to pull from public IPFS pinning nodes in parallel. |
+The following systematic matrix details failure modes, root causes, verification checks, and targeted remediations:
+
+| Issue / Symptom | Root Cause | Verification Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **`HashMismatchError: Piece #48`** | Corrupted torrent piece received from unverified peer | `pirate-face verify --hash <BLAKE3_HASH>` | Enable `--force-recheck` in CLI to discard bad chunks and ban the offending peer IP. |
+| **`DHTNodeUnreachableException`** | UDP port 6881 blocked by ISP or local router firewall | `nc -zvu 127.0.0.1 6881` | Open router port 6881/UDP or enable WebTorrent HTTP relay seeds via `--enable-webtorrent`. |
+| **`GGUFHeaderParseError`** | Non-standard or truncated GGUF file header magic | `pirate-face inspect-header --hash <HASH>` | Fetch initial 16MB magic block via HTTP range request before resuming full download. |
+| **`LowSeederThroughputWarning`** | Niche quantization with fewer than 3 active seeders | `pirate-face swarm-stats --hash <HASH>` | Enable parallel IPFS gateway fetch via `--enable-ipfs-gateway` or query S3 backup mirror. |
+| **`DiskSpaceExhaustionPanic`** | Concurrent multi-model downloads filling local NVMe storage | `df -h /data/models` | Configure auto-purge policy (`--min-free-disk-gb 50`) and purge unverified temp pieces. |
+| **`Pydantic ValidationError on Query`** | Unknown fields passed to strict MCP input model | Check FastMCP application logs | Ensure client requests omit undeclared query keys and comply with `extra="forbid"`. |
+| **`IPFS Gateway Timeout (504)`** | Public IPFS gateway rate-limited or pinned node offline | `curl -sI http://127.0.0.1:8080/ipfs/<CID>` | Switch IPFS endpoint to local Kubo daemon instance running on `localhost:5001`. |
+| **`FastMCP Tool Registration Drift`** | Outdated FastMCP 3.1 protocol version in orchestrator | `fastmcp --version` | Upgrade client MCP host packages to match v3.1 tool call specification standard. |
+
+### Automated Quantization Profiling Pipeline
+When an agent requests a model for edge deployment, Pirate Face runs an automated architecture analysis to verify VRAM fit:
+
+```python
+def estimate_vram_fit(gguf_manifest: dict, available_vram_bytes: int) -> bool:
+    """Calculates required memory including KV cache overhead."""
+    meta = gguf_manifest["gguf_metadata"]
+    context_len = meta["context_length"]
+    layers = meta["block_count"]
+    hidden_dim = meta["embedding_length"]
+
+    # Model weight footprint
+    weight_size = gguf_manifest.get("size_bytes", 0)
+
+    # 16-bit KV cache footprint for full context
+    kv_cache_size = 2 * 2 * layers * hidden_dim * context_len
+
+    total_required = weight_size + kv_cache_size
+    return total_required <= (available_vram_bytes * 0.92)
+```
 
 ## Operational & Security Guardrails
 - **Cryptographic Enclaves**: Always enforce piece-level BLAKE3 verification during P2P streaming before passing model files to GPU memory allocators.

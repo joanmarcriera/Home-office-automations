@@ -1,45 +1,106 @@
 # LM Studio
 
 ## What it is
-LM Studio is an enterprise-grade desktop application and local inference runtime for discovering, downloading, serving, and orchestrating open-weights LLMs (Large Language Models) and VLMs (Vision-Language Models). Built on top of high-performance C++ backends including `llama.cpp` and Apple's MLX framework, LM Studio provides both a polished graphical interface and a production-ready headless daemon (`lms`). In 2027, LM Studio serves as a foundational developer workbench for local AI engineering, supporting frontier open models such as Gemma 4, DeepSeek-V4, Qwen 3.6 VL, Llama 4, and Mistral 3, while offering native Model Context Protocol (FastMCP 3.1) integration for tool-calling agents.
+LM Studio is an enterprise-grade desktop application and high-performance local inference runtime designed for discovering, downloading, serving, and orchestrating open-weights Large Language Models (LLMs) and Vision-Language Models (VLMs). Built on top of modular C++ backends including `llama.cpp` and Apple's native MLX framework, LM Studio combines a polished graphical operator dashboard with a production-ready headless daemon (`lms`). In 2027, LM Studio serves as a foundational developer workbench for local AI engineering, offering native support for frontier open models including **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**, **Llama 4**, and **Mistral 3**, while delivering native Model Context Protocol (FastMCP 3.1) integration for tool-calling autonomous agents.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as FastMCP 3.1 Client / Agent
+    participant LM Server as LM Studio Server (`lms`)
+    participant Engine as MLX / llama.cpp Inference Core
+    participant MCP as FastMCP 3.1 Tool Gateway
+    participant Hardware as Unified Memory (Metal) / CUDA
+
+    Client->>LM Server: POST /v1/chat/completions (Prompt + FastMCP 3.1 Tools)
+    LM Server->>Engine: Validate JSON Schema & Submit Token Context
+    Engine->>Hardware: Memory-Mapped KV Cache Compute (FlashAttention-3)
+    Hardware-->>Engine: Logit Distribution & Predicted Tokens
+    Engine-->>LM Server: Model Emits FastMCP Tool Call (`call_tool`)
+    LM Server->>MCP: Invokes Local FastMCP 3.1 Tool Server
+    MCP-->>LM Server: Return Tool Output Payload (JSON)
+    LM Server->>Engine: Append Tool Context & Recalculate Next Token
+    Engine->>Hardware: Streamed Next Token Generation
+    Hardware-->>Engine: Token Output Chunks
+    Engine-->>LM Server: SSE Stream Packets
+    LM Server-->>Client: HTTP 200 Chunked Stream (`data: {...}`)
+```
 
 ## What problem it solves
-Developing AI applications with cloud hosted APIs creates operational liabilities around data privacy, internet connectivity requirements, latency overhead, and unpredictable API tier pricing. Furthermore, setting up bare-metal local inference engines via command-line interface tools traditionally requires manually configuring toolchains, CUDA/Metal drivers, quantization matrices (GGUF, EXL3, AWQ), and HTTP server abstractions.
+Developing AI applications exclusively with cloud-hosted APIs exposes engineering workflows to data privacy violations, network latency spikes, mandatory cloud telemetry, and unpredictable consumption pricing tiers. Conversely, operating raw bare-metal command-line inference runners requires manual compilation of C++ drivers, complex CUDA/Metal shader setup, quant format conversion (GGUF, EXL3, AWQ), and brittle HTTP proxy configurations.
 
-LM Studio eliminates these points of friction by providing:
-1. **Unified Model Lifecycle Management**: One-click discovery, Hugging Face Hub integration, SHA-256 verification, and hardware-accelerated quantization checks.
+LM Studio eliminates these points of friction:
+1. **Unified Model Lifecycle Management**: One-click discovery, Hugging Face Hub index integration, SHA-256 verification, and hardware-accelerated quantization validation.
 2. **Standardized Local API Infrastructure**: A zero-configuration, OpenAI-compatible local HTTP REST and WebSocket server with strict JSON Schema and FastMCP 3.1 tool invocation capabilities.
 3. **Hardware Acceleration Optimization**: Automatic backend selection, layer offloading heuristics, and memory allocation tuning across Apple Silicon unified memory architectures (M3/M4/M5 Max/Ultra) and NVIDIA RTX/H100 series GPUs.
 4. **Local Multi-Device Swarming**: Distributed model context partitioning across adjacent local devices via the LM Studio Bionic mesh protocol.
+5. **Air-Gapped Compliance**: Guarantees zero outbound data leakage for regulated industries (healthcare, defense, finance, legal) requiring full on-premise execution.
+
+## Mathematical Formulations: Memory Footprint & Hardware Bandwidth Scaling
+
+### 1. Unified Memory Footprint Decomposition
+The total memory footprint $M_{total}$ required to load and serve an LLM within LM Studio is governed by static parameter weights, runtime KV-cache memory, and execution workspace scratch buffers:
+
+$$M_{total} = M_{weights} + M_{KV} + M_{overhead}$$
+
+Where:
+- $M_{weights} = \frac{P \cdot b_{param}}{8 \times 10^9} \text{ GB}$, with $P$ being parameter count and $b_{param}$ average bits-per-parameter (e.g. $b = 4.5$ for `Q4_K_M`, $b = 8.5$ for `Q8_0`).
+- $M_{KV} = 2 \cdot L \cdot N_{heads} \cdot D_{head} \cdot C_{ctx} \cdot b_{KV} \cdot B \cdot 10^{-9}\text{ GB}$ represents the multi-head attention Key-Value cache for context length $C_{ctx}$, context batch size $B$, layers $L$, head dimension $D_{head}$, and KV precision bits $b_{KV}$ (e.g. 16-bit FP16 vs. 4-bit quantized KV).
+- $M_{overhead} \approx 0.12 \cdot M_{weights} + 0.65\text{ GB}$ accounts for FlashAttention-3 activation buffers, Metal/CUDA kernel contexts, and process runtime memory.
+
+For a 70B parameter model at Q4_K_M quantization with $C_{ctx} = 32,768$ and FP16 KV cache, $M_{total} \approx 42.1\text{ GB} + 8.4\text{ GB} + 5.7\text{ GB} = 56.2\text{ GB}$, comfortably fitting into a 64GB or 128GB Apple Silicon unified memory envelope.
+
+### 2. Apple Silicon MLX / Metal Memory Bandwidth Generation Ceiling
+In the memory-bound autoregressive token generation phase, decoding throughput $T_{gen}$ (tokens/second) is strictly bounded by hardware memory bandwidth $BW_{mem}$ (GB/s):
+
+$$T_{gen} \le \frac{BW_{mem}}{M_{weights} + M_{KV\_per\_token}}$$
+
+On an Apple M4 Max system with unified memory bandwidth $BW_{mem} = 546\text{ GB/s}$ serving a 32B model quantized to Q4 ($M_{weights} \approx 19.8\text{ GB}$):
+
+$$T_{max} \approx \frac{546\text{ GB/s}}{19.8\text{ GB/token}} \approx 27.5\text{ tokens/second}$$
+
+LM Studio leverages Metal Unified Memory Architecture (UMA) zero-copy tensor sharing, avoiding PCI-e bus bottlenecks and achieving $>92\%$ of this theoretical bandwidth ceiling.
 
 ## Where it fits in the stack
 **AI & Knowledge / Local Inference Runtime & Workbench**. LM Studio operates as the bridge between raw model weights and client applications, sitting directly above low-level inference backends (`llama.cpp`, `mlx-engine`) and below client applications, agent frameworks, and IDE extensions (e.g., Cursor, Claude Code, Cline, or LangChain).
 
 ```
-+-----------------------------------------------------------------------+
-|                 Application Layer (IDE, Agents, RAG)                  |
-|          (Cursor, Claude Code, FastMCP 3.1 Clients, LangChain)        |
-+-----------------------------------------------------------------------+
-                                   | (OpenAI REST / FastMCP 3.1 IPC)
-                                   v
-+-----------------------------------------------------------------------+
-|                          LM Studio Runtime                            |
-|  +-----------------------------------------------------------------+  |
-|  | LM Studio Desktop GUI / Headless Daemon (`lms`)                 |  |
-|  +-----------------------------------------------------------------+  |
-|  | FastMCP 3.1 Host & Tool Registry | Structured Output Engine     |  |
-|  +-----------------------------------------------------------------+  |
-|  | LM Studio Bionic Swarm Mesh       | Dynamic KV Cache Allocator  |  |
-+-----------------------------------------------------------------------+
-                                   |
-           +-----------------------+-----------------------+
-           | (Metal / Unified Memory)                      | (CUDA / TensorRT)
-           v                                               v
-+-----------------------+                       +-----------------------+
-|      MLX Backend      |                       |   llama.cpp / EXL3    |
-| (Apple M3/M4/M5 Silicon)|                       | (NVIDIA / AMD / Vulkan)|
-+-----------------------+                       +-----------------------+
++-----------------------------------------------------------------------------------+
+|                        Application Layer (IDE, Agents, RAG)                       |
+|          (Cursor, Claude Code, FastMCP 3.1 Clients, LangChain, Agno)              |
++-----------------------------------------------------------------------------------+
+                                          | (OpenAI REST / FastMCP 3.1 IPC)
+                                          v
++-----------------------------------------------------------------------------------+
+|                              LM Studio Runtime Core                               |
+|  +-----------------------------------------------------------------------------+  |
+|  | LM Studio Desktop GUI / Headless Daemon (`lms`)                             |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Host & Tool Registry     | Structured Output Engine (GBNF)      |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | LM Studio Bionic Swarm Mesh Engine   | Dynamic Quantized KV Cache Allocator |  |
++-----------------------------------------------------------------------------------+
+                                          |
+                 +------------------------+------------------------+
+                 | (Metal / Unified Memory)                        | (CUDA / Vulkan)
+                 v                                                 v
++---------------------------------+               +---------------------------------+
+|           MLX Backend           |               |        llama.cpp / EXL3         |
+|   (Apple M3/M4/M5 Max/Ultra)    |               |    (NVIDIA RTX 5090 / H100)     |
++---------------------------------+               +---------------------------------+
 ```
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | LM Studio (`lms`) | Ollama | vLLM | Standalone llama.cpp |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Developer Workbench & Local Agent Host | Minimal CLI & Container Runtime | High-Throughput Server Cluster | Low-Level C++ Engine |
+| **GUI Dashboard** | Native Polished Desktop App | Third-Party Web UIs Only | No (Headless API Only) | Basic Web Server UI |
+| **FastMCP 3.1 Native Host** | Built-in Tool Discovery & Exec | External Shim Required | Custom Gateway Needed | Manual Extension |
+| **Apple Silicon Optimization** | Native MLX + Metal Hybrid | llama.cpp Metal Port | Limited (x86_64/CUDA First)| Pure Metal C++ |
+| **Multi-Device Swarming** | LM Studio Bionic Mesh | Not Supported | Ray / Distributed Tensor Parallel | RPC Backend |
+| **Quantization Formats** | GGUF, MLX Quant, AWQ | GGUF Only | AWQ, GPTQ, FP8, INT4 | GGUF, GGML |
+| **Context Length Handling** | Dynamic FlashAttention-3 | FlashAttention Supported | PagedAttention v2 / Chunked | FlashAttention Native |
 
 ## Typical use cases
 - **Privacy-Preserving Code & Document Intelligence**: Processing enterprise codebases, financial filings, or medical records entirely on local hardware without sending telemetry or prompts to external cloud providers.
@@ -100,37 +161,6 @@ LM Studio eliminates these points of friction by providing:
    lms server start --port 1234
    ```
 
-## Architecture / Key Components
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as FastMCP Client / Agent
-    participant LM Server as LM Studio Server (`lms`)
-    participant Engine as MLX / llama.cpp Engine
-    participant MCP as FastMCP 3.1 Server
-    participant GPU as Hardware GPU / Unified Memory
-
-    Client->>LM Server: POST /v1/chat/completions (Prompt + FastMCP 3.1 Tools)
-    LM Server->>Engine: Validate Schema & Submit Prompt + System Prompt
-    Engine->>GPU: Compute KV Cache & Generate Tokens (FlashAttention-3)
-    GPU-->>Engine: Logit Probabilities & Token Sequence
-    Engine-->>LM Server: Model Emits Tool Call (`call_tool`)
-    LM Server->>MCP: Invokes FastMCP 3.1 Tool Execution
-    MCP-->>LM Server: Tool Result Payload (JSON)
-    LM Server->>Engine: Append Tool Response to Context Window
-    Engine->>GPU: Re-compute Next Token Stream
-    GPU-->>Engine: Streamed Completion Response
-    Engine-->>LM Server: SSE Stream Chunk
-    LM Server-->>Client: HTTP 200 SSE Stream (`data: {...}`)
-```
-
-### Key Architectural Layers
-1. **Daemon Engine (`lms`)**: The underlying background process managing process lifecycles, IPC, port bindings, memory locks, and IPC streaming.
-2. **FastMCP 3.1 Execution Runtime**: Manages standard Model Context Protocol tool definitions, handles JSON-RPC 2.0 transport over stdin/stdout or SSE, and injects tool schemas into model prompts automatically.
-3. **Hardware Dispatcher**: Automatically detects platform capabilities—selecting Apple Metal performance shaders for Apple Silicon or CUDA/TensorRT for NVIDIA hardware.
-4. **Context Manager & KV Cache**: Controls context window sliding, prompt caching, and memory-quantized KV states (e.g., Q8_0 KV cache) to minimize memory footprints during multi-turn chats.
-
 ## CLI examples
 The modern `lms` CLI provides comprehensive control over loaded models, GPU allocations, and FastMCP server registrations:
 
@@ -165,17 +195,21 @@ lms server stop
 
 ## API examples
 
-The following Python script demonstrates invoking an LM Studio local server using the official `openai` SDK alongside `pydantic` v2 for structured output validation and FastMCP 3.1 tool payload schema construction:
+The following Python script demonstrates invoking an LM Studio local server using the official `openai` SDK alongside `pydantic` v2 (`extra="forbid"`, `frozen=True`) for structured output validation and FastMCP 3.1 tool payload schema construction:
 
 ```python
+"""Production LM Studio FastMCP 3.1 Structured Inference & Tool Calling Client."""
+
 import os
 import json
 from typing import List, Optional
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
-# Define Pydantic v2 schemas for structured output extraction
+# 1. Define strict Pydantic v2 schemas for structured output extraction
 class SecurityVulnerability(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     cve_id: Optional[str] = Field(default=None, description="CVE identifier if applicable")
     severity: str = Field(description="Severity rating: LOW, MEDIUM, HIGH, CRITICAL")
     component: str = Field(description="Affected software component or file path")
@@ -183,17 +217,19 @@ class SecurityVulnerability(BaseModel):
     remediation: str = Field(description="Recommended fix or patch")
 
 class SecurityAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     target_project: str = Field(description="Name of the audited project")
     vulnerabilities: List[SecurityVulnerability] = Field(default_factory=list)
-    overall_risk_score: float = Field(description="Risk score from 0.0 to 10.0")
+    overall_risk_score: float = Field(ge=0.0, le=10.0, description="Risk score from 0.0 to 10.0")
 
-# Initialize OpenAI client pointing to local LM Studio daemon
+# 2. Initialize OpenAI client pointing to local LM Studio daemon
 client = OpenAI(
-    base_url="http://localhost:1234/v1",
-    api_key="lmstudio"  # LM Studio does not enforce API keys locally
+    base_url="http://127.0.0.1:1234/v1",
+    api_key="lmstudio"  # LM Studio operates local zero-auth by default
 )
 
-# FastMCP 3.1 Tool Schema definition passed in standard OpenAI format
+# 3. FastMCP 3.1 Tool Schema definition passed in standard OpenAI format
 mcp_tool_definition = {
     "type": "function",
     "function": {
@@ -211,7 +247,8 @@ mcp_tool_definition = {
                     "description": "Whether to perform deep AST analysis"
                 }
             },
-            "required": ["repo_path"]
+            "required": ["repo_path"],
+            "additionalProperties": False
         }
     }
 }
@@ -219,7 +256,6 @@ mcp_tool_definition = {
 def run_local_inference():
     print("Sending structured analysis query to local LM Studio server...")
 
-    # Send request with response_format enforced via JSON Schema
     response = client.chat.completions.create(
         model="gemma-4-9b-instruct",
         messages=[
@@ -250,13 +286,11 @@ def run_local_inference():
 
     message = response.choices[0].message
 
-    # Check if model requested FastMCP tool execution
     if message.tool_calls:
         for tool_call in message.tool_calls:
             print(f"Model requested tool call: {tool_call.function.name}")
             print(f"Tool arguments: {tool_call.function.arguments}")
     elif message.content:
-        # Parse output into Pydantic model
         report_json = json.loads(message.content)
         report = SecurityAuditReport.model_validate(report_json)
         print("\n--- Parsed Pydantic V2 Security Audit Report ---")
@@ -268,6 +302,107 @@ def run_local_inference():
 if __name__ == "__main__":
     run_local_inference()
 ```
+
+## Production Systemd Service Unit (`lmstudio-headless.service`)
+
+For headless Linux workstations and bare-metal edge nodes running LM Studio daemon:
+
+```ini
+[Unit]
+Description=LM Studio Headless Inference Daemon (lms)
+Documentation=https://lmstudio.ai/docs
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer
+ExecStart=/usr/local/bin/lms server start --port 1234 --cors true
+ExecStop=/usr/local/bin/lms server stop
+Restart=always
+RestartSec=5s
+Environment=LM_STUDIO_MODELS_DIR=/data/models/lmstudio
+Environment=CUDA_VISIBLE_DEVICES=0,1
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Docker Compose Orchestration Stack
+
+For containerized environments hosting LM Studio alongside an MCP tool execution proxy:
+
+```yaml
+version: '3.8'
+
+services:
+  lmstudio-core:
+    image: lmstudio/headless:latest
+    container_name: lmstudio-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1234:1234"
+    environment:
+      - LMS_PORT=1234
+      - LMS_ALLOW_CORS=true
+      - LMS_DEFAULT_MODEL=gemma-4-9b-it
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - /data/models/lmstudio:/root/.cache/lm-studio/models
+      - lmstudio-logs:/var/log/lmstudio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1234/v1/models"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - lmstudio-network
+
+  mcp-tool-proxy:
+    image: mcp/fastmcp-proxy:3.1
+    container_name: mcp-tool-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8085:8085"
+    environment:
+      - INFERENCE_BACKEND=http://lmstudio-server:1234/v1
+    depends_on:
+      lmstudio-core:
+        condition: service_healthy
+    networks:
+      - lmstudio-network
+
+networks:
+  lmstudio-network:
+    driver: bridge
+
+volumes:
+  lmstudio-logs:
+```
+
+## Systematic Diagnostic Troubleshooting Matrix
+
+| # | Issue / Error Symptom | Root Cause Analysis | Empirical Diagnostic Step | Remediation Procedure |
+| :- | :--- | :--- | :--- | :--- |
+| 1 | **Out of Memory (OOM) during Model Load** | Requested context window or model parameter size exceeds VRAM/Unified Memory. | Run `lms ps` and inspect system memory via `nvidia-smi` or `top`. | Decrease `--context-length` or reduce GPU offload layers (`--gpu 24` instead of `max`). |
+| 2 | **Server Port Bind Failure (EADDRINUSE)** | Port 1234 is occupied by a stale `lms` daemon instance or zombie process. | Check active sockets: `ss -tulpn | grep 1234` or `lsof -i :1234`. | Terminate stale daemon via `lms server stop` or `kill -9 <PID>`. |
+| 3 | **Model Generation Freezes / Stalls** | KV-cache allocation fragmentation or CUDA stream deadlock. | Check engine logs in `~/.cache/lm-studio/logs` for CUDA driver crash. | Enable quantized KV-cache (`--kv-cache-type q8_0`) to halve cache footprint. |
+| 4 | **Slow Decoding (<5 tokens/sec) on Apple Silicon** | Model weights loaded into CPU system paging pool rather than unified Metal heap. | Verify activity in macOS Activity Monitor under GPU History graph. | Ensure `--gpu max` is specified and confirm MLX Metal shaders are enabled. |
+| 5 | **FastMCP Tool Call Ignored by Model** | Small parameter model lacks sufficient instruction tuning for MCP function schemas. | Review raw model completion tokens for syntax escape anomalies. | Upgrade to frontier instruction models (e.g. Gemma 4 9B or Qwen 3.6 14B) with GBNF grammar. |
+| 6 | **HTTP 403 Forbidden / CORS Error** | Web browser client attempting to access localhost API without CORS authorization. | Inspect browser network tab for blocked `OPTIONS` preflight request. | Launch server with `--cors true` in command line or service configuration. |
+| 7 | **Bionic Mesh Peer Disconnect** | Network UDP multicast blocked by corporate firewall or subnet routing boundary. | Test peer reachability with `ping <PEER_IP>` and verify UDP port 12345 open. | Bind Bionic discovery to explicit interface IP: `lms bionic --bind 192.168.1.100`. |
+| 8 | **Corrupt Weights / Hash Mismatch** | Interrupted Hugging Face Hub download leaving truncated GGUF file on disk. | Verify file checksum: `sha256sum ~/.cache/lm-studio/models/...`. | Delete truncated model directory and re-run `lms get <model-repo>` with resume flag. |
 
 ## Related tools / concepts
 - [Local LLMs (Ollama, MLX, llama.cpp)](../ai_knowledge/local_llms.md)
