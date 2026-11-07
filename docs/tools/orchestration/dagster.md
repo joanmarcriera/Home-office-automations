@@ -11,23 +11,96 @@ It clarifies the relationship between computational code and the resulting data 
 ## Where it fits in the stack
 **Orchestration / Data Asset Management**. It serves as the coordination layer for modern data platforms, sitting above data transformation tools (dbt, SQLMesh, Spark) and below business intelligence (BI) or AI consumer applications. It is frequently employed as an orchestrator for **Agentic Data Engineering**, where reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** interact with the Dagster asset graph via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
+```
++-----------------------------------------------------------------------------------+
+|                        AUTONOMOUS AGENTS & ANALYTICS USERS                        |
+|             (Claude 5.6 / GPT-5.6 / FastMCP 3.1 / BI Dashboards)                  |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           DAGSTER ASSET CONTROL PLANE                             |
+|  - Declarative Asset Lineage Graph                                                |
+|  - Freshness Policy & Staleness Evaluator                                         |
+|  - Native Asset Checks & Row-Level Data Quality Gates                             |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          DAGSTER PIPES EXECUTION LAYER                            |
+|         [dbt / SQLMesh]       [Snowflake / BigQuery]       [Kubernetes / Spark]   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           STORAGE & PERSISTENCE LAYER                             |
+|          (PostgreSQL State / DuckDB / S3 Lakehouse / Parquet Assets)               |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Declarative Asset Materialization**: Automatically materializing downstream database tables as soon as upstream source files are validated or updated.
 - **Continuous Quality Observability**: Running automated validation checks (such as null-value checks, row-count thresholds, and schema audits) directly inside the asset execution pipeline.
 - **Agentic Pipeline Management**: Enabling AI agents to inspect, materialize, and troubleshoot data assets using standard system tools.
 - **External Environment Execution (Pipes)**: Launching secure pipelines across heterogeneous compute clusters (such as Kubernetes, AWS ECS, or Snowflake) via **Dagster Pipes** while keeping a single pane of glass.
+- **Automated Partition Backfills**: Coordinating distributed backfills across time-partitioned datasets with dynamic concurrency limits.
+- **Multi-Tenant Data Warehouse Synchronization**: Ensuring synchronization across enterprise data lakes with automated schema drift alerts.
 
 ## Strengths
 - **Asset-First Framework**: Tracks lineage, metadata, and data quality directly on the asset level for easier auditing.
 - **Declarative Automation**: Uses high-level freshness requirements rather than explicit schedules, reducing code complexity.
 - **FastMCP 3.1 Ready**: Exposes your entire data asset graph to frontier AI agents as secure, executable tools.
 - **Local Developer Experience**: Features a high-performance local UI with integrated asset execution, debugging, and mock testing.
-- **v1.9+ Overhauls**: Streamlined declarative automation, native powerBI/Tableau integration, and compatibility with standard metadata libraries.
+- **v1.9+ Overhauls**: Streamlined declarative automation, native PowerBI/Tableau integration, and compatibility with standard metadata libraries.
 
 ## Limitations
 - **Python Dependency**: Requires a strong working knowledge of Python and object decorators to declare assets.
 - **Resource Footprint**: The webserver and monitoring daemons require continuous CPU/Memory resources to trace schedules and asset conditions.
 - **Complexity for Basic Shell Runs**: May represent excessive overhead for simple, non-data-centric automation tasks where [Prefect](prefect.md) or [Kestra](kestra.md) would be lighter.
+
+## Mathematical Formulations: DAG Topological Makespan, Freshness Decay & Backfills
+
+Orchestrating large asset dependency graphs relies on strict graph theory and scheduling math:
+
+### 1. Asset Dependency Graph Topological Makespan
+Let $G = (V, E)$ represent a Directed Acyclic Graph (DAG) of data assets, where vertices $v_i \in V$ correspond to discrete materializable assets with compute execution durations $t(v_i)$, and directed edges $e_{ij} = (v_i, v_j) \in E$ indicate that asset $v_j$ depends directly on $v_i$.
+
+The total minimum completion time (makespan $M(G)$) under unconstrained parallel resources corresponds to the longest critical path from any source asset $v_{\text{src}}$ to terminal leaf asset $v_{\text{leaf}}$:
+
+$$
+M(G) = \max_{p \in \mathcal{P}} \sum_{v \in p} t(v)
+$$
+
+Where $\mathcal{P}$ represents the set of all valid topological paths connecting input sources to target endpoints. Under bounded worker concurrency $W$, the materialization makespan is bounded by Brent's Theorem:
+
+$$
+\frac{M(G)}{W} \le T_W \le M(G) + \frac{\sum_{v \in V} t(v) - M(G)}{W}
+$$
+
+### 2. Asset Staleness & Freshness Policy Decay
+Dagster's Declarative Automation engine evaluates whether an asset $a_k$ violates its specified freshness policy $\tau_{\text{freshness}}$. Let $T_{\text{last\_mat}}(a_k)$ be the Unix timestamp of the most recent materialization, and $t_{\text{current}}$ be the daemon evaluation time:
+
+$$
+\Delta t_{\text{stale}}(a_k) = t_{\text{current}} - T_{\text{last\_mat}}(a_k)
+$$
+
+An automated materialization trigger $\mathcal{T}_{\text{mat}}(a_k)$ is asserted when:
+
+$$
+\mathcal{T}_{\text{mat}}(a_k) = \begin{cases}
+1 & \text{if } \Delta t_{\text{stale}}(a_k) > \tau_{\text{freshness}} \lor \exists u \in \text{Parents}(a_k): T_{\text{mat}}(u) > T_{\text{last\_mat}}(a_k) \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+### 3. Partitioned Backfill Concurrency Optimization
+When backfilling partitioned assets across time window $P = \{p_1, p_2, \dots, p_N\}$, Dagster balances worker saturation against rate limits via Little's Law:
+
+$$
+L = \lambda \cdot W_{\text{wait}} \implies \mathcal{C}_{\text{opt}} = \min \left( C_{\text{max}}, \, \left\lfloor \frac{R_{\text{target}}}{\mathbb{E}[t_{\text{partition}}]} \right\rfloor \right)
+$$
+
+Where $\mathcal{C}_{\text{opt}}$ is the maximum parallel active partition runs permitted to avoid exhausting database connection pools.
 
 ## When to use it
 - When building a data platform where data should be treated, versioned, and audited as standard code assets.
@@ -46,7 +119,7 @@ It clarifies the relationship between computational code and the resulting data 
 Deploy Dagster and its web development server locally:
 
 ```bash
-pip install dagster dagster-webserver
+pip install dagster dagster-webserver pydantic fastmcp requests
 ```
 
 ### Basic Declarative Asset Example
@@ -100,7 +173,7 @@ sequenceDiagram
 ```
 
 ## CLI examples
-The `dagster` command surface is used to coordinate local backfills, execution states, and model registries:
+The `dagster` command surface coordinates local backfills, execution states, and model registries:
 
 ```bash
 # 1. List all active data assets in the workspace
@@ -120,28 +193,26 @@ dagster mcp register --server http://localhost:3000 --output-dir ./mcp-configs
 ```
 
 ## API examples
-Dagster provides a GraphQL interface and a Python client for programmatic interaction. Below is an orchestration example utilizing **Pydantic v2** to programmatically trigger asset materializations and validate the run's metadata:
 
-### 1. Python: Trigger Dagster Run and Validate Response Metadata
+### 1. Python: Trigger Dagster Run and Validate Response Metadata with Pydantic v2
+Strict schema validation (`extra="forbid"`, `frozen=True`) for Dagster GraphQL API responses:
+
 ```python
 import os
 import requests
 from typing import Optional, List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-# Define strict schemas matching Dagster's GraphQL API (Pydantic v2)
 class DagsterRunMetadata(BaseModel):
-    run_id: str = Field(..., alias="runId", description="Unique UUID for the initiated asset run")
-    status: str = Field(..., description="The status of the run (e.g. STARTING, SUCCESS, FAILURE)")
-    asset_keys: List[str] = Field(default=[], alias="assetKeys", description="List of target assets to materialize")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    class Config:
-        populate_by_name = True
+    run_id: str = Field(..., description="Unique UUID for the initiated asset run")
+    status: str = Field(..., description="The status of the run (e.g. STARTING, SUCCESS, FAILURE)")
+    asset_keys: List[str] = Field(default_factory=list, description="List of target assets to materialize")
 
 def trigger_dagster_materialization(server_url: str, repository: str, asset_name: str) -> Optional[DagsterRunMetadata]:
     endpoint = f"{server_url}/graphql"
 
-    # GraphQL mutation to trigger manual asset run execution
     query = """
     mutation TriggerMaterialize($assetKey: [AssetKeyInput!]!) {
       launchPipelineExecution(
@@ -173,7 +244,6 @@ def trigger_dagster_materialization(server_url: str, repository: str, asset_name
         response.raise_for_status()
         raw_data = response.json()
 
-        # Handle GraphQL error payloads gracefully
         if "errors" in raw_data:
             print(f"GraphQL execution errors: {raw_data['errors']}")
             return None
@@ -183,11 +253,10 @@ def trigger_dagster_materialization(server_url: str, repository: str, asset_name
             print("Failed to launch pipeline execution.")
             return None
 
-        # Build raw dict to validate using Pydantic v2
         validated_run = DagsterRunMetadata(
-            runId=run_data.get("runId"),
+            run_id=run_data.get("runId"),
             status=run_data.get("status"),
-            assetKeys=[asset_name]
+            asset_keys=[asset_name]
         )
         return validated_run
     except requests.exceptions.RequestException as e:
@@ -200,7 +269,6 @@ def trigger_dagster_materialization(server_url: str, repository: str, asset_name
 if __name__ == "__main__":
     dagster_host = os.environ.get("DAGSTER_URL", "http://localhost:3000")
     print(f"Connecting to Dagster server at: {dagster_host}...")
-
     run_info = trigger_dagster_materialization(dagster_host, "my_data_repository", "filtered_events")
     if run_info:
         print(f"Successfully initiated run {run_info.run_id}")
@@ -217,7 +285,7 @@ import os
 import requests
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 mcp = FastMCP(
     name="Dagster Orchestration Gateway",
@@ -226,10 +294,14 @@ mcp = FastMCP(
 )
 
 class AssetMaterializeInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     asset_key: str = Field(..., description="Target asset key (e.g. 'raw_user_logs' or 'analytics/monthly_sales')")
     repository_name: Optional[str] = Field("my_data_repository", description="Target Dagster repository name")
 
 class AssetFreshnessQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     asset_key: str = Field(..., description="Asset key to check for staleness or materialization timestamp")
 
 @mcp.tool(name="materialize_dagster_asset", description="Triggers a Dagster asset materialization run for target asset key")
@@ -237,7 +309,6 @@ async def materialize_dagster_asset(params: AssetMaterializeInput, ctx: Context)
     dagster_url = os.getenv("DAGSTER_URL", "http://localhost:3000")
     await ctx.info(f"Triggering materialization for {params.asset_key} on {dagster_url}")
 
-    # FastMCP wrapper around Dagster GraphQL execution
     res = trigger_dagster_materialization(dagster_url, params.repository_name, params.asset_key)
     if res:
         return {
@@ -262,6 +333,96 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
+## Systemd Service Unit Configuration
+
+Manage the Dagster Daemon as a background service (`/etc/systemd/system/dagster-daemon.service`):
+
+```ini
+[Unit]
+Description=Dagster Automation and Sensor Daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=dagster
+Group=dagster
+WorkingDirectory=/opt/dagster/app
+Environment="DAGSTER_HOME=/opt/dagster/dagster_home"
+Environment="PYTHONPATH=/opt/dagster/app"
+ExecStart=/opt/dagster/venv/bin/dagster-daemon run
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+
+Run Dagster webserver, daemon, and PostgreSQL backend in a synchronized multi-container cluster:
+
+```yaml
+version: "3.8"
+
+services:
+  dagster-postgresql:
+    image: postgres:16-alpine
+    container_name: dagster_postgres
+    environment:
+      POSTGRES_USER: dagster
+      POSTGRES_PASSWORD: dagster_password
+      POSTGRES_DB: dagster_storage
+    volumes:
+      - dagster_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  dagster-webserver:
+    image: python:3.12-slim
+    container_name: dagster_webserver
+    working_dir: /opt/dagster/app
+    volumes:
+      - .:/opt/dagster/app
+      - dagster_home:/opt/dagster/dagster_home
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_PG_HOST: dagster-postgresql
+    command: >
+      sh -c "pip install --no-cache-dir dagster dagster-webserver dagster-postgres pydantic &&
+             dagster-webserver -h 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dagster-postgresql
+    restart: unless-stopped
+
+  dagster-daemon:
+    image: python:3.12-slim
+    container_name: dagster_daemon
+    working_dir: /opt/dagster/app
+    volumes:
+      - .:/opt/dagster/app
+      - dagster_home:/opt/dagster/dagster_home
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_PG_HOST: dagster-postgresql
+    command: >
+      sh -c "pip install --no-cache-dir dagster dagster-postgres pydantic &&
+             dagster-daemon run"
+    depends_on:
+      - dagster-postgresql
+    restart: unless-stopped
+
+volumes:
+  dagster_pgdata:
+  dagster_home:
+```
+
 ## Orchestrator Comparison Matrix
 
 | Orchestrator | Paradigm Focus | Lineage & Asset Graph | MCP 3.1 Integration | Primary Language | Best Use Case |
@@ -281,10 +442,14 @@ if __name__ == "__main__":
 
 | Issue / Symptom | Root Cause | Resolution Strategy |
 | :--- | :--- | :--- |
-| `AssetKeyNotFound` in GraphQL responses | Target asset key path mismatch or repository not loaded in workspace | Run `dagster asset list` or check `workspace.yaml` to confirm asset key path strings match exactly. |
-| `DagsterDaemonNotRunningError` | Daemon process stopped or unresponsive | Check daemon health via `dagster-daemon health_check` and restart daemon service. |
-| Memory usage spikes on Dagster Webserver | Webserver attempting to parse massive run event log streams | Adjust log retention rules or configure PostgreSQL / MySQL as the run storage backend instead of SQLite. |
-| Asset declarative automation not triggering | `AutomationCondition` missing or daemon schedule worker disabled | Confirm `dagster-daemon` has `DeclarativeAutomationDaemon` worker enabled in `dagster.yaml`. |
+| **AssetKeyNotFound in GraphQL responses** | Target asset key path mismatch or repository not loaded in workspace. | Run `dagster asset list` or check `workspace.yaml` to confirm asset key path strings match exactly. |
+| **DagsterDaemonNotRunningError** | Daemon process stopped, deadlocked, or unresponsive. | Check daemon health via `dagster-daemon health_check` and restart daemon service. |
+| **Memory usage spikes on Dagster Webserver** | Webserver attempting to parse massive run event log streams into memory. | Adjust log retention rules or configure PostgreSQL / MySQL as the run storage backend instead of SQLite. |
+| **Asset declarative automation not triggering** | `AutomationCondition` missing or daemon schedule worker disabled. | Confirm `dagster-daemon` has `DeclarativeAutomationDaemon` worker enabled in `dagster.yaml`. |
+| **Database Pool Exhaustion on Postgres** | Unbounded parallel asset partition runs exceeding `max_connections`. | Set `max_concurrent_runs` in `dagster.yaml` and configure PgBouncer connection pooling. |
+| **Asset Check Failure Blocking Downstream** | Strict blocking asset checks failing on non-critical data quality anomalies. | Configure `blocking=False` on non-critical `@asset_check` decorators to allow downstream materialization. |
+| **Dagster Pipes IPC Timeout** | Remote container or Kubernetes pod took too long to initialize communication. | Increase pipe execution timeout via `PipesSubprocessClient(context_injector=...)` configuration. |
+| **FastMCP Schema Validation Error** | Input payload to MCP tool missing required asset key strings. | Validate payload schema using `AssetMaterializeInput` prior to issuing GraphQL mutation. |
 
 ## Related tools / concepts
 - [Apache Airflow](apache-airflow.md) — The veteran task-based alternative.

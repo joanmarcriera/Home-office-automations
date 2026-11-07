@@ -72,6 +72,51 @@ In the 2027 technology stack, Datadog operates as the primary telemetry control 
 +-----------------------------------------------------------------------+
 ```
 
+## Mathematical Formulations: Adaptive Trace Sampling, Token Economics & PII Entropy
+
+Observability at scale requires statistical trace sampling, fine-grained token cost accounting, and entropy-based PII leak detection.
+
+### 1. Dynamic Adaptive Trace Sampling Probability
+To control SaaS telemetry ingestion costs while preserving statistical significance during latency spikes or error storms, Datadog APM utilizes priority sampling:
+
+$$
+P(\text{sample} \mid \text{span}) = \min \left( 1.0, \, \alpha \cdot \frac{L(\text{span})}{\bar{L}} + \beta \cdot \mathbb{I}(\text{error} = 1) + \gamma \cdot \frac{1}{\sqrt{N_{\text{service}}}} \right)
+$$
+
+Where:
+- $L(\text{span})$ is the span execution duration, and $\bar{L}$ is the baseline moving average latency.
+- $\mathbb{I}(\text{error} = 1)$ guarantees that failed agent or tool spans are sampled at 100%.
+- $N_{\text{service}}$ is the instantaneous request rate for the monitored microservice.
+
+### 2. Multi-Model Token Cost Accumulation
+For an agentic workflow spanning $K$ sequential reasoning and tool-calling turns across heterogeneous model providers:
+
+$$
+\mathcal{C}_{\text{total}} = \sum_{k=1}^{K} \left( T_{\text{prompt}}^{(k)} \cdot c_{p}(m_k) + T_{\text{completion}}^{(k)} \cdot c_{c}(m_k) - T_{\text{cached}}^{(k)} \cdot \delta_{\text{cache}}(m_k) \right)
+$$
+
+Where $c_p(m_k)$ and $c_c(m_k)$ represent the per-token pricing for prompt and completion tokens on model $m_k$, and $\delta_{\text{cache}}(m_k)$ represents the cache discount factor ($75\% - 90\%$ cost reduction under prompt caching).
+
+### 3. Shannon Entropy Scanning for Sensitive Data / PII Leaks
+Datadog Sensitive Data Scanner detects high-entropy secrets (API tokens, private keys, session tokens) embedded in prompts or tool call inputs using Shannon entropy over token character distributions:
+
+$$
+H(X) = - \sum_{i=1}^{V} p(x_i) \log_2 p(x_i)
+$$
+
+Where strings exceeding threshold $H(X) \ge 4.5$ across length $L \ge 24$ are flagged and masked with `[REDACTED_SECRET]` before transmission to Datadog SaaS endpoints.
+
+## Observability Platform Comparison Matrix
+
+| Feature / Metric | Datadog LLMObs | Langfuse | Arize Phoenix | OpenTelemetry + Grafana |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hosting Model** | Enterprise SaaS | Open Source / Cloud | Open Source / Cloud | Self-Hosted Open Source |
+| **Infra & APM Correlation** | Native full-stack (Infra to LLM) | LLM trace focus only | LLM trace & eval focus | High (via Grafana Alloy/Tempo) |
+| **FastMCP 3.1 Native Tracing** | Yes (`ddtrace.llmobs`) | Partial (custom spans) | Partial (OpenInference) | Requires manual OTel spans |
+| **DogStatsD High-Throughput** | Native (UDP sub-millisecond) | No (HTTP batch API) | No (OTLP export) | Prometheus / StatsD exporter |
+| **PII & Secret Redaction** | Built-in Sensitive Data Scanner | Regex client masking | Client-side filters | Regex collector processors |
+| **Operational Overhead** | Low (managed SaaS) | Medium (Docker/K8s) | Medium (Self-hosted) | High (Multi-cluster Grafana) |
+
 ## Typical use cases
 - **Multi-Agent Session Replay**: Tracing complex multi-agent interactions (e.g. CrewAI or LangGraph crews) where an orchestrator agent delegates tasks to sub-agents and FastMCP tools, rendering the execution as a unified timeline.
 - **MCP 3.1 Tool Invocation Monitoring**: Measuring latency, success/failure rates, and payload schema drift for FastMCP tool calls executed across external databases or APIs.
@@ -118,7 +163,7 @@ bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
 Install `ddtrace` alongside required dependencies:
 
 ```bash
-pip install ddtrace datadog pydantic fastmcp
+pip install ddtrace datadog pydantic fastmcp httpx
 ```
 
 #### 3. Environment Variable Configuration
@@ -175,7 +220,7 @@ print('Synthetic trace submitted successfully.')
 ## API examples
 
 ### Python FastMCP 3.1 Server Instrumented with Datadog LLMObs
-This example demonstrates a FastMCP 3.1 server where tool calls and LLM generation steps are instrumented with Datadog LLM Observability spans and custom metrics.
+This example demonstrates a FastMCP 3.1 server where tool calls and LLM generation steps are instrumented with Datadog LLM Observability spans and custom metrics:
 
 ```python
 import os
@@ -184,7 +229,7 @@ from fastmcp import FastMCP
 from ddtrace.llmobs import LLMObs
 from ddtrace import tracer
 from datadog import initialize, statsd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # Initialize Datadog StatsD client
 initialize(statsd_host="127.0.0.1", statsd_port=8125)
@@ -196,9 +241,11 @@ LLMObs.enable(
     ml_app="agentic-research-pipeline"
 )
 
-mcp = FastMCP("Datadog Instrumented FastMCP Server")
+mcp = FastMCP("Datadog Instrumented FastMCP Server", version="3.1.0")
 
 class VectorSearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     query: str = Field(..., min_length=3, description="Search query string")
     top_k: int = Field(default=5, ge=1, le=20)
 
@@ -233,11 +280,11 @@ async def execute_vector_retrieval(params: VectorSearchRequest) -> dict:
         return {"results": results, "latency_ms": duration_ms}
 
 if __name__ == "__main__":
-    mcp.run(transport="sse", port=8000)
+    mcp.run()
 ```
 
 ### Production Pydantic v2 Telemetry Schema Validation for Datadog LLMObs
-This production script validates Datadog LLM Observability trace payloads, token usage breakdown, and FastMCP 3.1 metadata prior to forwarding metrics to the Datadog API.
+Validate Datadog LLM Observability trace payloads, token usage breakdown, and FastMCP 3.1 metadata with strict validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 from datetime import datetime
@@ -258,6 +305,8 @@ class ModelProvider(str, Enum):
     LOCAL_VLLM = "local_vllm"
 
 class TokenUsage(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     prompt_tokens: int = Field(..., ge=0)
     completion_tokens: int = Field(..., ge=0)
     total_tokens: int = Field(..., ge=0)
@@ -273,7 +322,7 @@ class TokenUsage(BaseModel):
         return v
 
 class DatadogLLMTracePayload(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     trace_id: str = Field(..., pattern=r"^[0-9a-fA-F]{16,32}$")
     span_id: str = Field(..., pattern=r"^[0-9a-fA-F]{16,32}$")
@@ -291,7 +340,9 @@ class DatadogLLMTracePayload(BaseModel):
     @classmethod
     def ensure_environment_tag(cls, tags: List[str]) -> List[str]:
         if not any(t.startswith("env:") for t in tags):
-            tags.append("env:production")
+            new_tags = list(tags)
+            new_tags.append("env:production")
+            return new_tags
         return tags
 
 # Example Usage & Verification
@@ -299,8 +350,8 @@ if __name__ == "__main__":
     raw_telemetry = {
         "trace_id": "a1b2c3d4e5f678901234567890abcdef",
         "span_id": "f0e9d8c7b6a54321",
-        "span_kind": "agent",
-        "provider": "anthropic",
+        "span_kind": SpanKind.AGENT,
+        "provider": ModelProvider.ANTHROPIC,
         "model_name": "claude-5-6-sonnet",
         "latency_ms": 1280.4,
         "tokens": {
@@ -318,6 +369,104 @@ if __name__ == "__main__":
     print(f"Model: {trace.model_name} | Total Tokens: {trace.tokens.total_tokens}")
     print(f"JSON Payload:\n{trace.model_dump_json(indent=2)}")
 ```
+
+## Systemd Service Unit Configuration
+
+The following unit runs the Datadog instrumentation daemon alongside the agent runtime (`/etc/systemd/system/datadog-agent-llmobs.service`):
+
+```ini
+[Unit]
+Description=Datadog LLMObs Telemetry & Agent Instrumentation Bridge
+After=network.target datadog-agent.service
+Wants=datadog-agent.service
+
+[Service]
+Type=simple
+User=dd-agent
+Group=dd-agent
+WorkingDirectory=/opt/datadog-llmobs-bridge
+Environment="PYTHONUNBUFFERED=1"
+Environment="DD_LLMOBS_ENABLED=1"
+Environment="DD_AGENT_HOST=127.0.0.1"
+Environment="DD_DOGSTATSD_PORT=8125"
+ExecStart=/opt/datadog-llmobs-bridge/venv/bin/python bridge_daemon.py
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Multi-Container Stack
+
+Run a complete multi-container telemetry stack containing the Datadog Agent, an instrumented FastMCP service, and Redis caching:
+
+```yaml
+version: "3.8"
+
+services:
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7.54.0
+    container_name: datadog_telemetry_agent
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=datadoghq.com
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      - DD_LLMOBS_ENABLED=true
+    ports:
+      - "8125:8125/udp"
+      - "8126:8126/tcp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    restart: unless-stopped
+
+  fastmcp-agent-service:
+    image: python:3.12-slim
+    container_name: fastmcp_agent_service
+    working_dir: /app
+    volumes:
+      - ./src:/app
+    environment:
+      - DD_AGENT_HOST=datadog-agent
+      - DD_TRACE_AGENT_PORT=8126
+      - DD_ENV=production
+      - DD_SERVICE=fastmcp-ai-agent
+      - REDIS_URL=redis://redis-state:6379/0
+    command: >
+      sh -c "pip install --no-cache-dir ddtrace datadog fastmcp redis pydantic &&
+             ddtrace-run python server.py"
+    depends_on:
+      - datadog-agent
+      - redis-state
+    restart: unless-stopped
+
+  redis-state:
+    image: redis:7.2-alpine
+    container_name: redis_state_store
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+```
+
+## Systematic Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **Spans Missing in Datadog UI** | `DD_LLMOBS_ENABLED=1` missing or local agent APM receiver blocked on port 8126. | Confirm agent status via `datadog-agent status`. Verify `apm_config.enabled: true` in `datadog.yaml`. |
+| **UDP Metrics Dropped on DogStatsD** | UDP buffer size exceeded or packet fragmentation under high throughput. | Increase OS socket receive buffer `sysctl -w net.core.rmem_max=26214400` and enable DogStatsD SO_RCVBUF in config. |
+| **Out-of-Memory / High Trace Memory Usage** | In-memory span buffering unbounded during prolonged downstream network disconnection. | Set `DD_TRACE_PARTIAL_FLUSH_ENABLED=true` and limit trace buffer via `DD_TRACE_WRITER_BUFFER_SIZE_BYTES`. |
+| **High Monthly Bill from LLMObs Spans** | 100% trace sampling configured during high-frequency micro-prompts. | Configure adaptive priority sampling in `ddtrace` settings, dropping health check spans and low-latency embeddings. |
+| **Sensitive PII / API Keys Captured in Logs** | Sensitive Data Scanner rules not mapped to prompt span payload fields. | Define custom regex scanner patterns in Datadog UI and configure client-side Pydantic sanitization filters. |
+| **FastMCP Schema Serialization Failure** | Tool return type contains non-serializable objects (generators, raw sockets). | Return validated Pydantic model dictionaries (`model_dump()`) from all FastMCP tool handlers. |
+| **Latency Mismatch between LLM & Agent Trace** | Client network round-trip overhead not isolated from model inference time. | Use `LLMObs.annotate` to separate `time_to_first_token`, total generation time, and external HTTP network latency. |
+| **DogStatsD Connection Refused** | Agent container listening on 127.0.0.1 instead of 0.0.0.0 inside Docker. | Set `DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true` in Datadog agent environment variables. |
 
 ## Related tools / concepts
 - [Sentry](sentry.md) — Application error and crash reporting platform.

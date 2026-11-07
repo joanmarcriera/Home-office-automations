@@ -30,19 +30,19 @@ Evaluation operates within the **Quality, Observability & Governance Layer** of 
 +-----------------------------------------------------------------------------------+
 |                        ENTERPRISE EVALUATION & BENCHMARKING ENGINE                |
 |           (MMLU-Pro, Terminal-Bench 2.0, SWE-bench Verified, GPQA, HLE)            |
-+-----------------------------------------------------------------------------------+
++-----------------------------------------+-----------------------------------------+
                                           |
                                           v
 +-----------------------------------------------------------------------------------+
 |                           PROFILING & METRICS COLLECTION                          |
 |         (Pass@k Accuracy, TTFT Latency, Tokens/Sec, Tool Schema Accuracy)         |
-+-----------------------------------------------------------------------------------+
++-----------------------------------------+-----------------------------------------+
                                           |
                                           v
 +-----------------------------------------------------------------------------------+
 |                          DYNAMIC ROUTING & POLICY LAYER                           |
 |       (Router dispatches complex reasoning to Claude 5.6/GPT-5.6, fast to Gemma 3)|
-+-----------------------------------------------------------------------------------+
++-----------------------------------------+-----------------------------------------+
                                           |
                                           v
 +-----------------------------------------------------------------------------------+
@@ -57,6 +57,9 @@ Evaluation operates within the **Quality, Observability & Governance Layer** of 
 - **Reasoning Chain Verification**: Assessing chain-of-thought (CoT) transparency and step-by-step logical accuracy in deep reasoning architectures (e.g., DeepSeek-V4 R1, OpenAI o5).
 - **Tool-Calling Reliability**: Quantifying schema adherence and function execution accuracy when integrating FastMCP 3.1 tools.
 - **Continuous Regression Monitoring**: Running automated evaluation pipelines during fine-tuning or prompt iterations to prevent behavioral regression.
+- **Safety & Alignment Auditing**: Measuring compliance with safety boundary specifications and red-teaming prompt suites prior to production rollouts.
+- **Context Window Faithfulness**: Evaluating recall accuracy across 128k–1M context windows using needle-in-a-haystack synthetic assertions.
+- **Multi-Tenant Cost Attribution**: Profiling cost-per-successful-task across heterogeneous enterprise workloads to optimize inference budget allocation.
 
 ## Strengths
 - **Empirical Rigor**: Replaces subjective evaluation with statistically validated metrics (Pass@k, Elo ratings, normalized win rates).
@@ -69,16 +72,60 @@ Evaluation operates within the **Quality, Observability & Governance Layer** of 
 - **Eval Cost Overhead**: Running end-to-end evaluations like SWE-bench or agentic sandbox execution can require significant compute and time resources.
 - **Verbosity & Formatting Bias**: Preference arenas (Chatbot Arena) can inadvertently reward longer responses or stylistic formatting over concise correctness.
 
-## When to use it
-- When selecting baseline LLM/VLM providers for new enterprise agentic systems or local LLM deployments.
-- During the development of [Agentic RAG](patterns/data-copilot-agentic-rag.md) pipelines to quantify context retrieval vs. generation accuracy.
-- When evaluating the impact of updating tool specifications in [FastMCP 3.1](patterns/tool-calling-and-mcp.md).
-- Before migrating enterprise workloads to newly released model versions (e.g., Claude 5.6 or Gemini 4.0 Ultra).
+## Mathematical Formulations: Pass@k Estimators, Bradley-Terry Elo & MMLU-Pro Scoring
 
-## When not to use it
-- For open-ended creative brainstorming where subjective human feedback is the primary quality measure.
-- When the compute cost of running the benchmark suite exceeds the potential optimization savings.
-- Don't rely solely on static public leaderboards for domain-specific enterprise requirements without running custom internal evals.
+Rigorous model benchmarking relies on unbiased statistical estimators and probabilistic comparison equations:
+
+### 1. Unbiased Pass@k Statistical Estimator
+When evaluating coding benchmarks (such as HumanEval, MBPP, or SWE-bench), drawing $n$ candidate completions ($n \ge k$) per problem and counting the number of correct completions $c \le n$ allows estimating Pass@k without high variance:
+
+$$
+\text{pass}@k = \mathbb{E}\left[ 1 - \frac{\binom{n - c}{k}}{\binom{n}{k}} \right] = 1 - \frac{\prod_{i=0}^{k-1} (n - c - i)}{\prod_{i=0}^{k-1} (n - i)}
+$$
+
+This minimum-variance unbiased estimator avoids evaluating all $\binom{n}{k}$ subsets directly, providing robust sampling confidence intervals.
+
+### 2. Bradley-Terry Elo Rating Updates (Chatbot Arena)
+In crowdsourced pairwise model blind evaluations, given Model $A$ and Model $B$ with latent skill ratings $R_A$ and $R_B$, the expected probability that Model $A$ defeats Model $B$ is:
+
+$$
+P(A > B) = \frac{1}{1 + 10^{(R_B - R_A)/400}} = \frac{e^{R_A / \xi}}{e^{R_A / \xi} + e^{R_B / \xi}}
+$$
+
+Where $\xi = 400 / \ln(10) \approx 173.72$. Following an observed pairwise outcome $S_A \in \{1, 0.5, 0\}$ (Win, Tie, Loss), the rating is iteratively updated via:
+
+$$
+R_A \leftarrow R_A + K \cdot (S_A - P(A > B))
+$$
+
+Where $K$ is the rating volatility constant ($K = 32$ for unranked entrants, $K = 16$ for stabilized models).
+
+### 3. MMLU-Pro Normalized Multi-Choice Discrimination
+MMLU-Pro expands 4-choice MMLU into 10-choice options ($K=10$), reducing random guessing baseline from $25\%$ down to $10\%$. The normalized accuracy score $\mathcal{S}_{\text{norm}}$ adjusted for chance is calculated as:
+
+$$
+\mathcal{S}_{\text{norm}} = \frac{\mathcal{A}_{\text{raw}} - \frac{1}{K}}{1 - \frac{1}{K}} = \frac{10 \cdot \mathcal{A}_{\text{raw}} - 1}{9}
+$$
+
+Where $\mathcal{A}_{\text{raw}}$ is the raw proportion of correctly answered questions.
+
+### 4. FastMCP 3.1 Tool Schema Conformance Ratio
+To evaluate tool-calling reliability across agentic execution frameworks, the Schema Adherence Score ($S_{\text{mcp}}$) evaluates syntactic validity, required parameter completeness, and type conformance:
+
+$$
+S_{\text{mcp}} = \frac{1}{N_{\text{invocations}}} \sum_{j=1}^{N_{\text{invocations}}} \left( w_1 \cdot \mathbb{I}_{\text{valid\_json}} + w_2 \cdot \frac{|P_{\text{req}} \cap P_{\text{passed}}|}{|P_{\text{req}}|} + w_3 \cdot \mathbb{I}_{\text{type\_correct}} \right)
+$$
+
+Where weights satisfy $\sum_{i=1}^3 w_i = 1$ (typically $w_1 = 0.3, w_2 = 0.4, w_3 = 0.3$).
+
+### 5. Multi-Turn Context Degradation Decay
+In prolonged agentic conversations, context retention degrades over sequence length $L$. The retention score $R(L)$ is modeled as an exponential decay function:
+
+$$
+R(L) = R_0 \cdot \exp\left( - \lambda_{\text{ctx}} \cdot \frac{L}{L_{\text{max}}} \right)
+$$
+
+Where $\lambda_{\text{ctx}}$ represents the model's empirical context drift parameter and $L_{\text{max}}$ is the supported window boundary.
 
 ## Enterprise Evaluation Benchmark Matrix
 
@@ -119,6 +166,52 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ```
 
+## Docker Compose Multi-Container Stack
+
+Run parallelized evaluation runners across isolated sandboxes with a centralized Redis metric coordinator:
+
+```yaml
+version: "3.8"
+
+services:
+  eval-coordinator:
+    image: redis:7.2-alpine
+    container_name: eval_redis_coordinator
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  inspect-ai-runner:
+    image: python:3.12-slim
+    container_name: inspect_ai_eval_worker
+    working_dir: /evals
+    volumes:
+      - ./benchmarks:/evals
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - REDIS_URL=redis://eval-coordinator:6379/0
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: >
+      sh -c "pip install --no-cache-dir inspect-ai pydantic fastmcp redis &&
+             python -m inspect_ai eval terminal_bench --model anthropic/claude-5-6-sonnet"
+    depends_on:
+      - eval-coordinator
+    restart: on-failure
+```
+
+## When to use it
+- When selecting baseline LLM/VLM providers for new enterprise agentic systems or local LLM deployments.
+- During the development of [Agentic RAG](patterns/data-copilot-agentic-rag.md) pipelines to quantify context retrieval vs. generation accuracy.
+- When evaluating the impact of updating tool specifications in [FastMCP 3.1](patterns/tool-calling-and-mcp.md).
+- Before migrating enterprise workloads to newly released model versions (e.g., Claude 5.6 or Gemini 4.0 Ultra).
+
+## When not to use it
+- For open-ended creative brainstorming where subjective human feedback is the primary quality measure.
+- When the compute cost of running the benchmark suite exceeds the potential optimization savings.
+- Don't rely solely on static public leaderboards for domain-specific enterprise requirements without running custom internal evals.
+
 ## Getting started
 
 ### Key Benchmarks (2027)
@@ -133,7 +226,7 @@ Using the `inspect-ai` framework:
 
 ```bash
 # Install inspect evaluation tooling
-pip install inspect-evals
+pip install inspect-evals pydantic fastmcp
 
 # Run Terminal-Bench evaluation on Claude 5.6
 inspect eval terminal_bench --model anthropic/claude-5-6-sonnet
@@ -162,7 +255,7 @@ The following Python script implements a FastMCP 3.1 server exposing tools for a
 ```python
 import os
 from typing import List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP(
@@ -172,12 +265,16 @@ mcp = FastMCP(
 )
 
 class BenchmarkScore(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     benchmark_name: str
     pass_rate: float = Field(..., ge=0.0, le=1.0)
     latency_p95_ms: float
     token_cost_per_m: float
 
 class ModelEvalReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_id: str
     scores: List[BenchmarkScore]
     recommended_routing_tier: str
@@ -202,16 +299,18 @@ if __name__ == "__main__":
 ## API examples
 
 ### Programmatic Evaluation with RAGAS and Pydantic v2
-Evaluating RAG accuracy and enforcing strict score validation with Pydantic v2 schemas:
+Evaluating RAG accuracy and enforcing strict score validation with Pydantic v2 schemas (`extra="forbid"`, `frozen=True`):
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy
 
 class EvalResultSchema(BaseModel):
     """Pydantic v2 schema for validating evaluation output metrics."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     model_name: str = Field(..., description="Name of the model evaluated.")
     faithfulness_score: float = Field(..., ge=0.0, le=1.0, description="Faithfulness metric score.")
     relevancy_score: float = Field(..., ge=0.0, le=1.0, description="Relevancy metric score.")
@@ -259,6 +358,10 @@ print(f"Relevancy Score: {validated_eval.relevancy_score:.4f}")
 | **Eval Timeout in Terminal Sandbox** | Non-deterministic long-running subprocess spawned in test container. | Set strict per-command execution timeout (e.g., 30s) in Docker runner. |
 | **Rate Limit / HTTP 429 During Eval** | Excessive parallel threads querying cloud model endpoint during benchmark. | Implement token bucket rate-limiting or route through LiteLLM load balancer. |
 | **Pydantic Validation Failures** | Evaluated model output violates requested JSON output schema contract. | Wrap model output parser with retry hooks or lower temperature setting. |
+| **Benchmark Metric Memorization** | Model was pre-trained or fine-tuned on public test set splits. | Generate synthetic holdout test sets using dynamic multi-agent generators. |
+| **Out of Memory on Host Runner** | Docker container spawned without cgroup memory ceilings during compilation. | Configure `mem_limit: 4g` in Docker Compose service definitions for runners. |
+| **FastMCP Handshake Hang** | FastMCP server listening on wrong transport or port collision on 8000. | Check process bindings with `lsof -i :8000` and confirm matching `sse` or `stdio` flags. |
+| **Negative Elo Score Drift** | Insufficient sample volume leading to erratic Elo adjustments on new releases. | Require minimum $N \ge 100$ pairwise blind evaluations before publishing official Elo standings. |
 
 ## Operational Best Practices & Troubleshooting
 
@@ -269,6 +372,9 @@ print(f"Relevancy Score: {validated_eval.relevancy_score:.4f}")
 ### 2. Guarding Against Model-as-a-Judge Bias
 - **Position & Self-Enhancement Bias**: When using frontier LLMs as evaluators (e.g., GPT-5.6 or Claude 5.6 judging outputs), shuffle the pair order and mask model identity tags to eliminate preference bias.
 
+### 3. Cost-Efficient Continuous Evaluation
+- **Two-Stage Screening**: Filter fine-tuned checkpoints or prompt candidate variants through rapid lightweight unit tests (such as GSM8K subset and synthetic syntax checks) before triggering expensive, full-scale SWE-bench or Terminal-Bench evaluations.
+
 ## Related tools / concepts
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md) — Directory of evaluation tools.
 - [Model Routing Guide](model_routing_guide.md) — Dynamic model routing strategies based on eval data.
@@ -276,6 +382,7 @@ print(f"Relevancy Score: {validated_eval.relevancy_score:.4f}")
 - [Chatbot Arena](../tools/benchmarking/chatbot-arena.md) — Crowdsourced LLM evaluation platform.
 - [Terminal-bench](../tools/benchmarking/terminal-bench.md) — Interactive terminal agent evaluation.
 - [SWE-bench](../tools/benchmarking/swe-bench.md) — Autonomous software bug fixing evaluation.
+- [InterCode](../tools/benchmarking/intercode.md) — Interactive coding benchmark environment.
 
 ## Sources / references
 - [Chatbot Arena (LMSYS)](https://chat.lmsys.org/)
