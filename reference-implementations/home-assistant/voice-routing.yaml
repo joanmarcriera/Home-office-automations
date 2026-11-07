@@ -1,0 +1,31 @@
+# Home Assistant Voice Command Routing to Ralph
+
+# This configuration goes into Home Assistant's configuration.yaml
+# or as separate files in the includes directory.
+
+# 1. Define a Rest Command to talk to the Ralph Agent API
+rest_command:
+  ralph_chat:
+    url: "http://<RALPH_AGENT_IP>:8000/chat"
+    method: post
+    content_type: "application/json"
+    payload: '{"message": "{{ message }}", "user_id": "{{ user_id }}"}'
+
+# 2. Automation to trigger when Home Assistant Assist (voice) receives a command
+# This requires using the 'Sent to Assist' trigger or similar,
+# but a more common way is to use the 'conversation' integration.
+
+# 3. Custom Intent Script to route everything unknown to Ralph
+intent_script:
+  RalphIntent:
+    description: "Ask Ralph the Home Admin Agent"
+    speech:
+      text: "{{ value }}"
+    action:
+      - service: rest_command.ralph_chat
+        data:
+          message: "{{ text }}"
+          user_id: "voice_user"
+        response_variable: ralph_response
+      - stop: "Ralph handled it"
+        value: "{{ ralph_response['content'] }}"

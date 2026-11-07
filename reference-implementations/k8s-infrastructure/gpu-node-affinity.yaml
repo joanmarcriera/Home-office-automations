@@ -1,0 +1,52 @@
+# Example: Kubernetes GPU Node Affinity and Taints
+# This manifest demonstrates how to target specialized GPU hardware in a K3s cluster.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-worker-example
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-app
+  template:
+    metadata:
+      labels:
+        app: gpu-app
+    spec:
+      containers:
+      - name: cuda-container
+        image: nvidia/cuda:12.0-base
+        command: ["nvidia-smi"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1 # requesting 1 GPU
+
+      # Node Affinity: Ensure the pod only runs on nodes with GPU labels
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: hardware-type
+                operator: In
+                values:
+                - gpu
+
+      # Tolerations: Allow the pod to run on nodes that are tainted (e.g., to keep non-GPU pods off)
+      tolerations:
+      - key: "hardware-type"
+        operator: "Equal"
+        value: "gpu"
+        effect: "NoSchedule"
+
+---
+# Instructions to label/taint nodes:
+#
+# Label:
+# kubectl label nodes <node-name> hardware-type=gpu
+#
+# Taint (to reserve the node for GPU workloads only):
+# kubectl taint nodes <node-name> hardware-type=gpu:NoSchedule
