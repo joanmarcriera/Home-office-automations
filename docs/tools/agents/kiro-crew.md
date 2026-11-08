@@ -57,7 +57,7 @@ sequenceDiagram
         Sup-->>Dev: Merge Ready PR Signal
     else Vulnerability / Test Failure
         QA-->>Sup: Return Diagnostic Feedback
-        Sup->>DevAgent: Re-assign Remediation Task
+        Sup-->>DevAgent: Re-assign Remediation Task
     end
 ```
 
@@ -67,16 +67,46 @@ Managing multiple autonomous agents on complex codebases often leads to context 
 ## Where it fits in the stack
 **Agent Orchestration and Execution Layer**. Kiro Crew operates above individual LLM foundation models and MCP tool servers, serving as the multi-agent control plane that schedules, monitors, and evaluates multi-agent task execution.
 
+## Mathematical Formulations of Multi-Agent Consensus & Synchronization
+
+### 1. Multi-Agent DAG Consensus Entropy
+In multi-agent collaborative workflows, a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ orchestrates task execution, where each node $v_i \in \mathcal{V}$ corresponds to an agent task and directed edges $e_{ij} \in \mathcal{E}$ represent output-to-input dependencies. The uncertainty and consensus alignment across agent decisions is quantified using decision entropy:
+
+$$\mathcal{H}_{\text{crew}}(\mathcal{G}) = - \sum_{i=1}^{|\mathcal{V}|} \sum_{c \in \mathcal{C}_i} p(c \mid v_i) \log_2 p(c \mid v_i)$$
+
+Where:
+- $\mathcal{C}_i$ denotes the set of possible categorical outcomes or architectural design proposals emitted by agent node $v_i$.
+- $p(c \mid v_i)$ is the softmax consensus probability over peer agent evaluations:
+
+$$p(c \mid v_i) = \frac{\exp\left(\frac{1}{\tau} \sum_{j \in \mathcal{N}(i)} w_{ji} \cdot s(c, v_j)\right)}{\sum_{c' \in \mathcal{C}_i} \exp\left(\frac{1}{\tau} \sum_{j \in \mathcal{N}(i)} w_{ji} \cdot s(c', v_j)\right)}$$
+
+Here, $\mathcal{N}(i)$ is the neighborhood of review agents validating node $v_i$, $w_{ji}$ represents historical agent credibility weights, and $\tau > 0$ represents the temperature parameter. Low entropy $\mathcal{H}_{\text{crew}} \to 0$ signifies unanimous consensus on architectural decisions.
+
+### 2. Worktree Merge Conflict Probability Dynamics
+When $N$ specialized agents execute code edits concurrently in isolated Git worktree branches, the likelihood of file collision follows a spatial Poisson distribution over modified AST tokens. Assuming an active codebase of $F$ files with average modification rate $\lambda$ modifications per unit time $T$:
+
+$$\mathcal{P}_{\text{conflict}}(N, T) = 1 - \exp\left( - \frac{\binom{N}{2} \cdot (\lambda T)^2}{F} \cdot \theta_{\text{overlap}} \right)$$
+
+Where $\theta_{\text{overlap}} \in [0, 1]$ represents the semantic file overlap factor determined by task decomposition boundaries. Kiro Crew actively minimizes $\theta_{\text{overlap}} \to 0$ by enforcing strict file-path isolation partitions in supervisor task allocation.
+
+### 3. Agent Task Queue Throughput ($M/M/k$ Queueing Bounds)
+Kiro Crew worker pools process incoming subtasks through an $M/M/k$ multi-server queue model, where $k$ represents concurrent agent sandboxes, $\lambda_{\text{task}}$ is the task arrival rate, and $\mu_{\text{task}}$ is the agent completion rate:
+
+$$W_q = \frac{P_0 \left(\frac{\lambda}{\mu}\right)^k \rho}{k! \, (1 - \rho)^2 \, \lambda}, \quad \text{where } \rho = \frac{\lambda}{k \mu} < 1$$
+
+To guarantee total turnaround latency $W = W_q + \frac{1}{\mu} \le W_{\max}$ during high-volume enterprise software generation, Kiro Crew dynamically scales worker capacity $k$ when utilization $\rho > 0.85$.
+
 ## Performance & Feature Benchmark Matrix
 
-| Feature / Metric | Kiro Crew | CrewAI | Agency Swarm | LangGraph |
-| :--- | :--- | :--- | :--- | :--- |
-| **Topology** | Hierarchical / Supervisor | Sequential & Hierarchical | Swarm / Directed Graph | Arbitrary Stateful Graph |
-| **FastMCP 3.1 Support** | Native First-Class | Extension Adapter | Custom Wrapper | MCP Agent Nodes |
-| **Workspace Isolation**| Native Git Worktrees | Directory Sandboxing | None | Virtual File System |
-| **Model Heterogeneity**| Multi-Model Dynamic Routing | Multi-Model Support | OpenAI Focused | Any LLM Model |
-| **State Persistence** | SQLite / Redis Sync | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer |
-| **Target Scale** | Enterprise Codebases | Lightweight Agent Teams | Conversational Swarms | Production Workflows |
+| Feature / Dimension | Kiro Crew 3.1 | CrewAI 0.95+ | Agency Swarm | LangGraph 0.3+ | AutoGen Studio |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Topology** | Hierarchical Supervisor-Worker | Sequential & Hierarchical | Swarm / Directed Graph | Arbitrary Stateful Graph | Multi-Agent Group Chat |
+| **FastMCP 3.1 Support** | Native First-Class (Streaming) | External Extension | Custom Wrapper | MCP Agent Nodes | Experimental Extension |
+| **Workspace Isolation**| Native Git Worktree Sandboxes | Directory Sandboxing | None (Shared OS) | Virtual File System | Docker Sandboxing |
+| **Model Heterogeneity**| Multi-Model Dynamic Routing | Multi-Model Support | OpenAI Focused | Any LLM Model | Multi-Model Support |
+| **State Persistence** | SQLite / Redis Sync & Flight Log | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer | SQLite / Local File |
+| **Merge Dispute Resolution** | Automated AST-Aware Remediation | Manual Fallback | None | Graph Branching Logic | Human-in-the-Loop Prompt |
+| **Target Scale** | Enterprise Software Repositories | Lightweight Agent Teams | Conversational Swarms | Production Workflows | Academic Prototyping |
 
 ## Service & Daemon Management
 
@@ -118,7 +148,7 @@ WantedBy=multi-user.target
 ```
 
 ### Docker Compose Multi-Agent Runtime (`docker-compose.yml`)
-Deploy Kiro Crew alongside Redis state checkpointer and FastMCP 3.1 proxy:
+Deploy Kiro Crew alongside Redis state checkpointer, OpenTelemetry tracing, and FastMCP 3.1 proxy:
 
 ```yaml
 version: '3.8'
@@ -132,9 +162,10 @@ services:
     environment:
       - FASTMCP_PORT=8092
       - REDIS_URL=redis://kiro-redis:6379/0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - LOG_LEVEL=info
     volumes:
-      - ./crew.yaml:/etc/kiro-crew/crew.yaml
+      - ./crew.yaml:/etc/kiro-crew/crew.yaml:ro
       - kiro_worktree_data:/opt/kiro-crew/sandboxes
     depends_on:
       - kiro-redis
@@ -154,14 +185,69 @@ volumes:
   kiro_redis_store:
 ```
 
-## Diagnostic & Troubleshooting Matrix
+## Automated Service Verification Probe
+Validate orchestrator daemon responsiveness, Git worktree pool allocation, and Redis state checkpointer connectivity with this standalone verification script:
 
-| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+```python
+#!/usr/bin/env python3
+"""Automated Health & Telemetry Verification Probe for Kiro Crew Multi-Agent Daemon."""
+
+import sys
+import time
+import json
+import urllib.request
+import urllib.error
+
+def probe_kiro_orchestrator(base_url: str = "http://localhost:8092") -> bool:
+    print(f"[*] Probing Kiro Crew Orchestrator at: {base_url}")
+    t0 = time.perf_counter()
+
+    # 1. Probe health check endpoint
+    health_url = f"{base_url}/health"
+    try:
+        req = urllib.request.Request(health_url, headers={"User-Agent": "KiroProbe/3.1"})
+        with urllib.request.urlopen(req, timeout=5.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            elapsed_ms = (time.perf_counter() - t0) * 1000.0
+            print(f"[+] Health OK ({elapsed_ms:.2f} ms): {data}")
+    except urllib.error.URLError as e:
+        print(f"[!] Health check failed at {health_url}: {e}")
+        return False
+
+    # 2. Probe active sandboxes and agent status
+    try:
+        status_url = f"{base_url}/api/v1/crews/status"
+        req = urllib.request.Request(status_url, headers={"User-Agent": "KiroProbe/3.1"})
+        with urllib.request.urlopen(req, timeout=5.0) as resp:
+            status_data = json.loads(resp.read().decode("utf-8"))
+            active_crews = status_data.get("active_crews", 0)
+            worktrees_locked = status_data.get("locked_worktrees", 0)
+            print(f"[+] Active Crews: {active_crews}, Locked Worktrees: {worktrees_locked}")
+    except Exception as e:
+        print(f"[!] Crew status probe failed: {e}")
+        return False
+
+    print("[SUCCESS] Kiro Crew daemon operational verification completed.")
+    return True
+
+if __name__ == "__main__":
+    url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8092"
+    if not probe_kiro_orchestrator(url):
+        sys.exit(1)
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Failure Mode / Error | Root Cause | Immediate Diagnostic Action | Permanent Resolution Strategy |
 | :--- | :--- | :--- | :--- |
-| **Git Worktree Lock Conflict** | Stale `.git/worktrees/<agent>/index.lock` left after process crash | Run `git worktree list` to inspect lock state | Execute `kiro-crew workspace unlock --crew-id <id> --force` |
-| **Agent Handoff Context Truncation** | Accumulated raw chat history exceeded model context window | Check `total_token_count` in telemetry output | Enable `summarize_on_handoff` in `crew.yaml` config |
-| **FastMCP Tool Execution Timeout** | Integration test suite exceeded default 30s tool response timeout | Inspect stderr log for `MCPToolTimeoutError` | Set `mcp_tool_timeout: 120` in agent role declaration |
-| **Role Permission Denial** | Agent attempted to invoke tool outside assigned `allowed_tools` | Check role policy log for `UnauthorizedToolCall` | Add target tool ID to agent persona definition in `crew.yaml` |
+| **`GIT_WORKTREE_LOCK_CONFLICT`** | Stale `.git/worktrees/<agent>/index.lock` left after crash. | Run `git worktree list` and inspect lock timestamps. | Execute `kiro-crew workspace unlock --crew-id <id> --force` and configure prune traps. |
+| **`AGENT_HANDOFF_CONTEXT_OVERFLOW`** | Accumulated raw conversation tokens exceed model window limit. | Check `total_token_count` across agent telemetry logs. | Enable `summarize_on_handoff: true` and configure dynamic memory truncation in config. |
+| **`FASTMCP_TOOL_TIMEOUT`** | Integration test suite exceeded default 30s tool response deadline. | Inspect orchestrator stderr for `MCPToolTimeoutError`. | Increase `mcp_tool_timeout: 120` in agent role declaration block. |
+| **`ROLE_PERMISSION_DENIAL`** | Agent attempted invocation of unassigned tool name. | Check agent policy audit logs for `UnauthorizedToolCall`. | Add target tool identifier to agent persona definition in `crew.yaml`. |
+| **`REDIS_STATE_DESYNC`** | Network partition between orchestrator and Redis checkpointer. | Probe Redis ping using `redis-cli ping` on container port. | Verify Docker network bridge configuration and restart `kiro-redis` container. |
+| **`MERGE_CONFLICT_DEADLOCK`** | Concurrent agents edited overlapping AST function lines. | Inspect git diff branch heads for overlapping tokens. | Configure supervisor AST partitioner to isolate file paths before subtask dispatch. |
+| **`MODEL_RATE_LIMIT_429`** | DeepSeek-V4 or Claude 5.6 API concurrency quotas saturated. | Check HTTP 429 response headers and backoff timings. | Configure token bucket rate limiters and multi-provider failover routing in gateway. |
+| **`AST_VALIDATION_FAILURE`** | Coding agent emitted syntactically malformed code patch. | Run `python -m py_compile <file>` or linter on output patch. | Trigger automatic self-correction cell loop before applying patch to git worktree. |
 
 ## Typical use cases
 - **Autonomous Feature Delivery**: Orchestrating a crew consisting of a Product Manager Agent (specs), Software Architecture Agent (design), Coding Agent (implementation), and QA Agent (test generation & verification).
@@ -224,72 +310,107 @@ kiro-crew telemetry export --crew-id crew-8841 --format json > crew_trace.json
 
 ## API examples
 
-### FastMCP 3.1 Crew Tool Server & Orchestration Engine
-Below is a full Python integration demonstrating a **FastMCP 3.1** server providing multi-agent crew execution, status monitoring, and role-based tool delegation.
+### 1. FastMCP 3.1 Crew Tool Server & Orchestration Engine
+Below is a full Python integration demonstrating a **FastMCP 3.1** server providing multi-agent crew execution, status monitoring, and role-based tool delegation with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`).
 
 ```python
 import os
 import json
 from typing import List, Dict, Any, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 # Initialize FastMCP Server
-mcp = FastMCP("Kiro Crew Orchestrator", dependencies=["pydantic", "fastmcp"])
+mcp = FastMCP(
+    name="Kiro Crew Orchestrator",
+    version="3.1.0",
+    description="FastMCP server for multi-agent enterprise workforce orchestration."
+)
 
 class AgentPersona(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
     name: str = Field(..., description="Agent role name, e.g. Architect, Developer, Reviewer")
     model: str = Field("claude-5.6", description="Target model ID for agent persona")
     allowed_tools: List[str] = Field(default_factory=list, description="Permitted MCP tool IDs")
 
 class CrewTaskConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
     task_id: str = Field(..., description="Unique task identifier")
     description: str = Field(..., min_length=10, description="Task goal description")
     assigned_role: str = Field(..., description="Target agent persona role")
     dependencies: List[str] = Field(default_factory=list, description="IDs of prerequisite tasks")
 
 class CrewDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
     crew_id: str = Field(..., description="Unique crew workspace identifier")
-    agents: List[AgentPersona] = Field(..., min_items=1)
-    tasks: List[CrewTaskConfig] = Field(..., min_items=1)
+    agents: List[AgentPersona] = Field(..., min_length=1)
+    tasks: List[CrewTaskConfig] = Field(..., min_length=1)
 
-@mcp.tool()
-def deploy_kiro_crew(crew_config: CrewDefinition) -> dict:
+class CrewDeployResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(...)
+    crew_id: str = Field(...)
+    agents_active: int = Field(...)
+    total_tasks: int = Field(...)
+    sandbox_path: str = Field(...)
+
+@mcp.tool(
+    name="deploy_kiro_crew",
+    description="Deploys a multi-agent crew in isolated Git worktree sandboxes with strict schema validation."
+)
+def deploy_kiro_crew(crew_config: CrewDefinition) -> CrewDeployResponse:
     """Deploys a multi-agent crew in isolated Git worktree sandboxes."""
-    # Process crew startup logic
-    return {
-        "status": "deployed",
-        "crew_id": crew_config.crew_id,
-        "agents_active": len(crew_config.agents),
-        "total_tasks": len(crew_config.tasks),
-        "sandbox_path": f"/tmp/kiro_sandboxes/{crew_config.crew_id}"
-    }
+    return CrewDeployResponse(
+        status="deployed",
+        crew_id=crew_config.crew_id,
+        agents_active=len(crew_config.agents),
+        total_tasks=len(crew_config.tasks),
+        sandbox_path=f"/opt/kiro-crew/sandboxes/{crew_config.crew_id}"
+    )
 
-@mcp.tool()
-def fetch_crew_telemetry(crew_id: str) -> dict:
+class CrewTelemetryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    crew_id: str = Field(...)
+    active_status: str = Field(...)
+    completed_tasks: int = Field(...)
+    pending_tasks: int = Field(...)
+    total_token_count: int = Field(...)
+    cost_estimate_usd: float = Field(...)
+
+@mcp.tool(
+    name="fetch_crew_telemetry",
+    description="Fetch real-time agent token usage and task completion metrics."
+)
+def fetch_crew_telemetry(crew_id: str) -> CrewTelemetryResponse:
     """Fetch real-time agent token usage and task completion metrics."""
-    return {
-        "crew_id": crew_id,
-        "active_status": "running",
-        "completed_tasks": 2,
-        "pending_tasks": 1,
-        "total_token_count": 42100,
-        "cost_estimate_usd": 0.126
-    }
+    return CrewTelemetryResponse(
+        crew_id=crew_id,
+        active_status="running",
+        completed_tasks=2,
+        pending_tasks=1,
+        total_token_count=42100,
+        cost_estimate_usd=0.126
+    )
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Multi-Agent Verification Schemas (Pydantic v2)
-To guarantee payload safety across agentic workflows, complex crew outputs are verified using Pydantic v2:
+### 2. Multi-Agent Verification Schemas (Strict Pydantic v2)
+To guarantee payload safety across agentic workflows, complex crew outputs are verified using Pydantic v2 with immutable constraints:
 
 ```python
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from typing import List, Optional
-from datetime import datetime
 
 class CodeReviewFeedback(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
     reviewer_agent: str = Field(..., description="Name of QA or Reviewer agent")
     file_path: str = Field(..., description="Path to reviewed file")
     severity: str = Field(..., pattern=r"^(info|warning|critical)$")
@@ -297,6 +418,8 @@ class CodeReviewFeedback(BaseModel):
     line_number: Optional[int] = Field(None, ge=1)
 
 class AgentExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_id: str = Field(..., description="Task UUID")
     agent_name: str = Field(..., description="Executing agent role")
     status: str = Field(..., pattern=r"^(completed|failed|halted)$")
@@ -310,27 +433,35 @@ class AgentExecutionResult(BaseModel):
             raise ValueError("Failed agent execution cannot return valid artifacts.")
         return self
 
-# Example execution validation
-sample_result = {
-    "task_id": "task-402",
-    "agent_name": "Developer Agent",
-    "status": "completed",
-    "artifacts_created": ["src/auth/jwt.py", "tests/test_jwt.py"],
-    "review_comments": [
-        {
-            "reviewer_agent": "Security QA Agent",
-            "file_path": "src/auth/jwt.py",
-            "severity": "warning",
-            "comment": "Ensure secret key expiration is configured via environment variable.",
-            "line_number": 24
-        }
-    ],
-    "execution_time_seconds": 12.4
-}
+if __name__ == "__main__":
+    sample_result = {
+        "task_id": "task-402",
+        "agent_name": "Developer Agent",
+        "status": "completed",
+        "artifacts_created": ["src/auth/jwt.py", "tests/test_jwt.py"],
+        "review_comments": [
+            {
+                "reviewer_agent": "Security QA Agent",
+                "file_path": "src/auth/jwt.py",
+                "severity": "warning",
+                "comment": "Ensure secret key expiration is configured via environment variable.",
+                "line_number": 24
+            }
+        ],
+        "execution_time_seconds": 12.4
+    }
 
-validated_output = AgentExecutionResult.model_validate(sample_result)
-print("Validated Agent Result:", validated_output.model_dump_json(indent=2))
+    validated_output = AgentExecutionResult.model_validate(sample_result)
+    print("Validated Agent Result:", validated_output.model_dump_json(indent=2))
 ```
+
+## Production Deployment Guardrails
+
+1. **Strict Worktree Cleanliness**: Always execute `git status --porcelain` prior to switching branches in agent sandboxes; uncommitted state triggers automatic stash quarantine.
+2. **Deterministic Task Deadlines**: Set per-agent timeouts (`task_timeout_seconds <= 180`) to prevent infinite reasoning or self-healing recursion loops.
+3. **Automated AST Diff Linting**: Enforce Python/TypeScript AST parse tree validation before merging agent worktrees back into main feature branches.
+4. **Token Usage Circuit Breakers**: Abort multi-agent task execution if cumulative token consumption exceeds configured budget limits (e.g. 250,000 tokens).
+5. **Human-in-the-Loop Escalation**: Flag security-critical edits (e.g., changes to authentication middleware or DB migration scripts) for mandatory human approval.
 
 ## Related tools / concepts
 - [Agency Swarm](agency-swarm.md) — Collaborative multi-agent framework built on OpenAI Assistants API.
@@ -343,7 +474,7 @@ print("Validated Agent Result:", validated_output.model_dump_json(indent=2))
 ## Sources / references
 - [InfoQ: Kiro Crew Coding Agents Announcement](https://www.infoq.com/news/2026/08/kiro-crew-coding-agents/)
 - [Kiro Crew GitHub Organization](https://github.com/kiro-crew)
-- [FastMCP 3.1 Specification](https://github.com/jina-ai/fastmcp)
+- [FastMCP 3.1 Specification](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
