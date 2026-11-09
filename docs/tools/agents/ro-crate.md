@@ -452,7 +452,7 @@ if __name__ == "__main__":
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — FastMCP 3.1 protocol for transferring task artifacts.
 - [FastMCP](../frameworks/fastmcp.md) — Python framework for building agent tool servers.
 - [Pydantic](../frameworks/pydantic.md) — Data validation engine for semantic metadata parsing.
-- [Zenodo Integration](../../services/zenodo.md) — Open research repository supporting RO-Crate imports.
+- [Zenodo Integration](https://zenodo.org) — Open research repository supporting RO-Crate imports.
 
 ## Sources / references
 - [RO-Crate Specification 1.1](https://www.researchobject.org/ro-crate/1.1/)
