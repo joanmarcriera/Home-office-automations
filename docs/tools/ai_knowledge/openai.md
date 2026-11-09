@@ -94,14 +94,13 @@ sequenceDiagram
 
 ## Getting started
 
-### 1. SDK Installation
-Install the official OpenAI Python SDK alongside Pydantic v2 for structured data modeling:
+### Installation
+Install the official OpenAI Python SDK alongside Pydantic v2 for structured data modeling and FastMCP for agent tooling:
 
 ```bash
 pip install openai pydantic fastmcp
 ```
 
-### 2. Setting API Credentials
 Configure your environment variables with your OpenAI API key:
 
 ```bash
@@ -109,7 +108,9 @@ export OPENAI_API_KEY="sk-proj-109283019823019283019283019283"
 export OPENAI_ORG_ID="org-enterprise9021"  # Optional
 ```
 
-### 3. Basic Client Initialization
+### Hello-world example
+Create a minimal client and send a prompt using the Responses API:
+
 ```python
 from openai import OpenAI
 
@@ -119,7 +120,7 @@ response = client.chat.completions.create(
     model="gpt-5",
     messages=[
         {"role": "system", "content": "You are an expert enterprise knowledge engineer."},
-        {"role": "user", "content": "Explain the role of FastMCP 3.1 in modern agent stacks."}
+        {"role": "user", "content": "Hello, world! Explain the role of FastMCP 3.1 in modern agent stacks."}
     ]
 )
 print(response.choices[0].message.content)
@@ -127,20 +128,27 @@ print(response.choices[0].message.content)
 
 ## CLI examples
 
-### Inspecting API Health and Models
+### 1. Inspecting Available Models
 List available models and inspect platform access:
 
 ```bash
-# Query active models list via curl
 curl https://api.openai.com/v1/models \
   -H "Authorization: Bearer $OPENAI_API_KEY"
 ```
 
-### Submitting Batch Jobs via CLI
+### 2. Generating Chat Completions via OpenAI CLI
+Send a quick prompt directly from your terminal using the OpenAI CLI:
+
+```bash
+openai api chat.completions.create \
+  --model gpt-5 \
+  --message "user: Explain zero-trust workload identity in 2 sentences."
+```
+
+### 3. Submitting Asynchronous Batch Jobs
 Submit asynchronous batch jobs for high-throughput, non-latency-sensitive workloads at a 50% discount:
 
 ```bash
-# Create batch processing job from JSONL input file
 curl https://api.openai.com/v1/batches \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \

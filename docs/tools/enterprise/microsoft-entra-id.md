@@ -47,6 +47,44 @@ flowchart TD
 - For entirely AWS-centric, Google Workspace-centric, or open-source homelab stacks that already utilize native identity tools (e.g., AWS IAM, Google Identity, or a self-hosted [Headscale](../../services/headscale.md) / OIDC solution).
 
 ## Getting started
+
+### Installation
+Install the Microsoft Authentication Library (MSAL) and Azure Identity client SDK:
+
+```bash
+pip install msal azure-identity pydantic
+```
+
+For administration via CLI tools:
+
+```bash
+# Install Azure CLI
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+```
+
+### Hello-world example
+Acquire an OAuth 2.0 access token using client credentials via MSAL:
+
+```python
+import os
+from msal import ConfidentialClientApplication
+
+# Initialize confidential client with tenant credentials
+app = ConfidentialClientApplication(
+    client_id=os.environ.get("ENTRA_CLIENT_ID", "mock-client-id"),
+    authority=f"https://login.microsoftonline.com/{os.environ.get('ENTRA_TENANT_ID', 'common')}",
+    client_credential=os.environ.get("ENTRA_CLIENT_SECRET", "mock-secret")
+)
+
+# Acquire token for Microsoft Graph
+result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
+if "access_token" in result:
+    print("Authentication successful! Acquired bearer token.")
+else:
+    print(f"Error acquiring token: {result.get('error_description')}")
+```
+
+### Registration & Configuration
 1. **Register Your Application**: Navigate to the [Microsoft Entra Admin Center](https://entra.microsoft.com/), go to **Identity > Applications > App registrations**, and create a new registration.
 2. **Configure API Permissions**: Under **API Permissions**, add required Microsoft Graph scopes (e.g., `User.Read`, `Mail.Read.All`) and seek admin consent.
 3. **Set Up Workload Identity**: To secure your agents, navigate to **Certificates & secrets** and add a Federated Credential linked to your Kubernetes ServiceAccount or GitHub Actions runner.
@@ -54,30 +92,31 @@ flowchart TD
 
 ## CLI examples
 
-### Using Azure CLI (Workload / User Authentication)
-```bash
-# Login interactively using your Entra ID credentials
-az login
+### 1. Interactive Developer Login
+Authenticate interactively using your Entra ID user credentials:
 
-# Create a service principal for an autonomous agent with a 1-year secret expiration
+```bash
+az login
+```
+
+### 2. Service Principal Creation for Autonomous Agents
+Create an RBAC service principal with designated reader scopes for non-interactive automation:
+
+```bash
 az ad sp create-for-rbac \
   --name "AutonomousAgent" \
   --role "Reader" \
   --scopes "/subscriptions/00000000-0000-0000-0000-000000000000"
-
-# List all enterprise applications with a specific display name
-az ad app list --display-name "AutonomousAgent"
 ```
 
-### Using Microsoft Graph CLI (mgc v1.x+)
-```bash
-# Authenticate the Graph CLI using device code flow
-mgc login
+### 3. Microsoft Graph Identity Introspection
+Query current user profile or list tenant enterprise directory groups using Microsoft Graph CLI (`mgc`):
 
-# Get the current authenticated user's profile metadata
+```bash
+# Get authenticated profile
 mgc users get --user-id me
 
-# List all secure groups available within the tenant
+# List secure directory groups
 mgc groups list --select id,displayName,mailNickname
 ```
 

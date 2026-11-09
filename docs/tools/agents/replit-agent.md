@@ -99,14 +99,21 @@ Once the application functions correctly in preview, Replit Agent provisions glo
 
 ## Getting started
 
-### 1. Workspace Initialization
-1. Log into your account at [Replit](https://replit.com).
-2. Ensure your account possesses an active Replit Core or Pro subscription.
-3. Click **+ Create Repl** and select the **Replit Agent** workspace option.
-4. Enter your desired project prompt in the agent chat drawer:
-   > *"Build a task management dashboard using FastAPI, PostgreSQL, and Tailwind CSS. Include JWT authentication and CSV data export."*
+### Installation
+Replit Agent runs natively within Replit's managed cloud development environment. To interact with Replit workspaces and deployments from your local machine, install the official Replit CLI:
 
-### 2. FastMCP 3.1 External Tool Configuration
+```bash
+npm install -g @replit/cli
+```
+
+### Hello-world example
+1. Navigate to [Replit](https://replit.com) and log into your account with an active Core or Pro plan.
+2. Click **+ Create Repl** and select **Replit Agent**.
+3. In the agent prompt drawer, enter:
+   > *"Create a Hello World web application using Python FastAPI that displays system status and a welcome greeting."*
+4. Replit Agent provisions the virtual machine sandbox, writes `main.py`, configures dependencies, runs the development server, and provides an instant preview URL.
+
+### FastMCP 3.1 External Tool Configuration
 To connect external tools into Replit Agent, create `.replit/mcp.json` in your workspace root:
 
 ```json
