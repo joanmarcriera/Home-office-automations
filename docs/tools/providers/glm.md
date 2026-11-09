@@ -96,24 +96,54 @@ It solves the latency, pricing, and compliance challenges associated with closed
 - If you lack the local VRAM capacity (minimum 16GB) to run the medium-to-large quantized GLM-5.3 model variations.
 
 ## Getting started
-The open-weights versions of the GLM family can be run locally using Ollama or served as high-throughput endpoints via vLLM.
+The open-weights versions of the GLM family can be served locally via vLLM or SGLang, or executed through Ollama.
 
-### Run with Ollama
+### Installation
+Install `vllm` for serving and the `openai` client library for issuing standard chat completion requests:
+
 ```bash
-# Pull and start ChatGLM model
-ollama run glm4
+pip install vllm openai pydantic
 ```
 
-### High-Throughput Serving with vLLM
-Serve the open-weights GLM checkpoints on compatible GPUs using the following command:
+For container-native deployments:
+
 ```bash
-vllm serve THUDM/glm-5.3-instruct --port 8000
+docker pull vllm/vllm-openai:latest
+```
+
+### Hello-world example
+Query a locally served GLM-5.3 endpoint using Python and the OpenAI SDK:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8000/v1",
+    api_key="local-glm-key"
+)
+
+response = client.chat.completions.create(
+    model="glm-5.3-instruct",
+    messages=[
+        {"role": "user", "content": "Hello, world! Introduce the GLM family in one sentence."}
+    ]
+)
+print(response.choices[0].message.content)
 ```
 
 ## CLI examples
-Since GLM models served via vLLM expose OpenAI-compliant endpoints, they can be queried easily in the terminal using curl.
+Since GLM models served via vLLM or SGLang expose standard OpenAI-compliant REST endpoints, they can be managed and queried using standard command-line tools.
 
-### 1. OpenAI-Compatible Chat Completion Query
+### 1. Launching vLLM Serving Daemon
+Serve the open-weights GLM-5.3 checkpoint across GPU accelerators:
+
+```bash
+vllm serve zai-org/GLM-5.3 --port 8000 --trust-remote-code
+```
+
+### 2. OpenAI-Compatible Chat Completion Query
+Send a chat completion request to the running GLM endpoint using curl:
+
 ```bash
 curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -126,9 +156,12 @@ curl http://localhost:8000/v1/chat/completions \
   }'
 ```
 
-### 2. Check local vLLM Server Health
+### 3. Checking Server Health and Loaded Models
+Verify daemon responsiveness and model registry readiness:
+
 ```bash
 curl http://localhost:8000/health
+curl http://localhost:8000/v1/models
 ```
 
 ## API examples

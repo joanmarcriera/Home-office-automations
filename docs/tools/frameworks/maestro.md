@@ -127,41 +127,61 @@ Maestro manages the full task lifecycle across three distinct operational stages
 
 ## Getting started
 
-### 1. Clojure Dependency Configuration
-Add Maestro to your `deps.edn` or `project.clj`:
+### Installation
+Add Maestro to your Clojure project's `deps.edn` dependencies map:
+
 ```clojure
 ;; deps.edn
-{:deps {yogthos/maestro {:mvn/version "0.1.0"}}}
+{:deps {io.github.yogthos/maestro {:git/tag "v0.2.1"
+                                   :git/sha "b54011a"}}}
 ```
 
-### 2. Basic Worker Pool Initialization
+Or in `project.clj` for Leiningen:
+
+```clojure
+[io.github.yogthos/maestro "0.2.1"]
+```
+
+### Hello-world example
+Define, compile, and run a minimal workflow state machine that transitions through states until completion:
+
 ```clojure
 (ns my-app.core
-  (:require [maestro.core :as maestro]))
+  (:require [maestro.core :as fsm]))
 
-;; Initialize a worker pool with 4 threads
-(def pool (maestro/create-pool {:threads 4}))
+;; A simple FSM that increments a counter until reaching the end state
+(def workflow
+  (fsm/compile
+   {:fsm {::fsm/start {:handler    (fn [_resources data]
+                                     (update data :count (fnil inc 0)))
+                       :dispatches [[::fsm/end (fn [state] (> (:count state) 3))]
+                                    [::fsm/start (constantly true)]]}}}))
 
-;; Submit an asynchronous task
-(maestro/submit pool (fn [] (println "Executing async task in Maestro pool")))
+;; Execute workflow and output result: {:count 4}
+(println (fsm/run workflow))
 ```
 
 ## CLI examples
 
-### 1. Run Clojure Project with Maestro
-Execute application using Clojure CLI:
+### 1. Run Clojure Workflow with Maestro
+Execute the workflow application using the Clojure CLI:
+
 ```bash
 clj -M:run
 ```
 
-### 2. Run Test Suite
+### 2. Run Maestro Automated Test Suite
+Execute the test suite verifying state machine transitions and async handlers:
+
 ```bash
 clj -M:test
 ```
 
-### 3. Check Active Thread Pool Diagnostics
+### 3. Static Analysis of Workflow FSM via CLI
+Run static reachability and cycle analysis directly from the command line:
+
 ```bash
-clj -e "(require '[maestro.core :as m]) (println (m/status-summary))"
+clj -e "(require '[maestro.core :as fsm]) (println (fsm/analyze {:fsm {::fsm/start {:handler identity :dispatches [[::fsm/end (constantly true)]]}}}))"
 ```
 
 ## API examples
