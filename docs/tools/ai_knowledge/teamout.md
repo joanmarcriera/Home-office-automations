@@ -358,7 +358,7 @@ WantedBy=multi-user.target
 - [Pydantic V2](../frameworks/pydantic.md) — Standard schema and validation library for Python.
 - [Claude 5.1](../providers/anthropic.md) — Frontier LLM engine powering complex logistics reasoning.
 - [Make](../automation_orchestration/make.md) — Visual workflow automation for travel intake forms.
-- [Google Calendar Sync](gcal-sync.md) — Calendar scheduling and attendee availability coordination.
+- [Google Calendar](../calendar_tasks/google_calendar.md) — Calendar scheduling and attendee availability coordination.
 
 ## Sources / references
 - [TeamOut Enterprise Portal](https://app.teamout.com/)
