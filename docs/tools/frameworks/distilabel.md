@@ -1,7 +1,14 @@
 # Distilabel
 
 ## What it is
-Distilabel is an open-source framework designed for scalable, high-fidelity synthetic data generation and structured AI feedback (RLHF / RLAIF). As of early 2027, Distilabel has progressed to **v2.5.0+**, establishing itself as an industry standard for preparing training and fine-tuning datasets for frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4. It enables developers to construct complex multi-step pipelines that orchestrate LLMs to generate, mutate, score, and filter datasets using advanced "LLM-as-a-judge" patterns.
+Distilabel is an open-source framework designed for scalable, high-fidelity synthetic data generation and structured AI feedback (RLHF / RLAIF / DPO). As of early 2027, Distilabel has progressed to **v2.5.0+**, establishing itself as an industry standard for preparing training and fine-tuning datasets for frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4. It enables developers to construct complex multi-step pipelines that orchestrate LLMs to generate, mutate, score, and filter datasets using advanced "LLM-as-a-judge" patterns.
+
+Key capabilities include:
+- **Declarative DAG Pipelines**: Standardized Python and YAML pipeline definitions composing generator steps, critique steps, and quality filters into directed acyclic graphs.
+- **Provider-Agnostic Model Execution**: Concurrent batch inference across commercial cloud APIs (Anthropic, OpenAI, Google) and high-throughput local inference engines ([vLLM](../../tools/infrastructure/vllm.md), TGI, Ollama).
+- **Automated Preference & DPO Generation**: Pairwise preference creation with automated chosen vs. rejected scoring according to configurable rubrics.
+- **Dynamic Tool Calling**: Native Model Context Protocol (FastMCP 3.1) integration allowing synthetic agents to execute live tools during training trajectory generation.
+- **Strict Data Contracts**: Full integration with Pydantic v2 schemas (`extra="forbid"`, `frozen=True`) preventing corrupt data from poisoning training clusters.
 
 ## What problem it solves
 Creating high-quality instruction and preference datasets for model training is a major bottleneck in AI development. Manual labeling is expensive and slow, while raw synthetic generation without filtering is prone to redundancy and noise. Distilabel solves these problems by:
@@ -40,6 +47,46 @@ Distilabel sits in the **Frameworks / Data-Generation** layer. It serves as the 
 +-------------------------------+                               +-------------------+
 ```
 
+### Mathematical Foundations of Synthetic Preference Alignment & DPO
+
+Distilabel structures synthetic data generation around mathematical formulations for preference optimization and LLM-as-a-judge score convergence.
+
+#### 1. Bradley-Terry Preference Modeling & Reward Formulation
+Given a prompt $x$ and a pair of generated responses $(y_w, y_l)$, where $y_w$ is the winning (chosen) completion and $y_l$ is the losing (rejected) completion, the probability of preference under a latent reward function $r^*(x, y)$ is parameterized via the Bradley-Terry model:
+
+$$
+P(y_w \succ y_l \mid x) = \sigma\big(r^*(x, y_w) - r^*(x, y_l)\big) = \frac{1}{1 + e^{-(r^*(x, y_w) - r^*(x, y_l))}}
+$$
+
+Where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the logistic sigmoid function.
+
+#### 2. Direct Preference Optimization (DPO) Loss Formulation
+When generating alignment corpora for direct preference optimization without training an intermediate reward model, Distilabel optimizes data generation to satisfy the closed-form DPO objective $\mathcal{L}_{\text{DPO}}(\theta; \pi_{\text{ref}})$:
+
+$$
+\mathcal{L}_{\text{DPO}}(\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)} \right) \right]
+$$
+
+Where:
+- $\pi_\theta(y \mid x)$ is the policy model being aligned.
+- $\pi_{\text{ref}}(y \mid x)$ is the frozen reference base model.
+- $\beta \in [0.05, 0.5]$ is the temperature coefficient penalizing drift from the reference distribution.
+
+#### 3. LLM-as-a-Judge Score Divergence & Confidence Bounds
+When utilizing frontier judges (Claude 5.6, GPT-5.6) to score synthetic completions $y$ across $K$ criteria rubrics $c_k \in \{c_1, \dots, c_K\}$, the composite quality score $S(x, y)$ is computed as:
+
+$$
+S(x, y) = \sum_{k=1}^K w_k \cdot s_k(x, y) \quad \text{subject to} \quad \sum_{k=1}^K w_k = 1
+$$
+
+To eliminate stochastic judge hallucination, Distilabel computes the Jensen-Shannon Divergence ($D_{\text{JS}}$) across $M$ ensemble judge evaluations:
+
+$$
+D_{\text{JS}}(P_1 \parallel P_2 \parallel \dots \parallel P_M) = H\left(\sum_{m=1}^M \frac{1}{M} P_m\right) - \frac{1}{M}\sum_{m=1}^M H(P_m)
+$$
+
+Records with $D_{\text{JS}} > \tau_{\text{threshold}}$ (where typically $\tau = 0.15$) are automatically routed to human-in-the-loop audit queues or discarded by pipeline filters.
+
 ## Distilabel Execution Pipeline DAG
 
 ```mermaid
@@ -55,6 +102,19 @@ graph TD
     H --> I[FastMCP 3.1 Synthetic Dataset Exporter]
     I --> J[Hugging Face Hub / Unsloth Trainer]
 ```
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Distilabel 2.5 | DeepSpeed-Data | Argilla Feedback | NeMo Curator | TRL (Hugging Face) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Pipeline Style** | **Declarative DAG** | Imperative Batch | Annotation Centric | Distributed Ray DAG | Python Training Loop |
+| **LLM-as-a-Judge** | **Native UltraFeedback**| Custom Scripts | Manual / Heuristic | Rule-Based Classifiers| Basic Reward Scorer |
+| **FastMCP 3.1 Native** | **Yes (Tool Gateway)** | No | No | No | No |
+| **Pydantic v2 Schema** | **Strict (extra='forbid')**| Raw Dict / Arrow | Pydantic v1 / v2 | Dict / JSON | Dataclass / Tensors |
+| **Backend Agnostic** | **vLLM / Ollama / APIs** | Local DeepSpeed | Cloud / REST APIs | Local Ray Slurm | Local PyTorch |
+| **MinHash / LSH Filter**| **Built-in Step** | External Module | No | Distributed Spark | Manual Scripting |
+| **Preference Datasets**| **Pairwise & K-wise** | Pairwise Only | Pairwise Feedback | Text Cleansing Only | Pairwise Buffer |
+| **Docker Compose CI** | **Built-in Orchestration**| Custom Docker | Docker Compose | Kubernetes / Slurm | Dockerfile Only |
 
 ## Typical use cases
 - **Evol-Instruct Pipelines**: Taking simple prompt seeds and evolving them into highly complex multi-turn instructions using frontier models.
@@ -108,14 +168,98 @@ sudo systemctl start distilabel-pipeline.service
 sudo journalctl -u distilabel-pipeline.service -f
 ```
 
+## Docker Compose Multi-Service Architecture
+
+```yaml
+version: "3.8"
+
+services:
+  distilabel-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: distilabel-worker
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - VLLM_URL=http://local-vllm:8000/v1
+      - DISTILABEL_PORT=8092
+    depends_on:
+      - distilabel-cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - data-net
+
+  distilabel-cache:
+    image: redis:7-alpine
+    container_name: distilabel-cache
+    restart: unless-stopped
+    volumes:
+      - distilabel-redis-data:/data
+    networks:
+      - data-net
+
+networks:
+  data-net:
+    driver: bridge
+
+volumes:
+  distilabel-redis-data:
+```
+
+### Automated Daemon Health Probe Script
+Production probe script for CI/CD runners and Kubernetes liveness checks:
+
+```python
+#!/usr/bin/env python3
+"""Automated Health Verification Probe for Distilabel Server."""
+
+import sys
+import time
+import requests
+
+PROBE_URL = "http://127.0.0.1:8092/health"
+
+def run_probe(retries: int = 3, timeout_sec: float = 2.0) -> bool:
+    for attempt in range(1, retries + 1):
+        try:
+            start_time = time.monotonic()
+            resp = requests.get(PROBE_URL, timeout=timeout_sec)
+            elapsed_ms = (time.monotonic() - start_time) * 1000
+            if resp.status_code == 200:
+                print(f"[OK] Distilabel server healthy (latency: {elapsed_ms:.1f}ms)")
+                return True
+            else:
+                print(f"[WARN] Attempt {attempt}: Received HTTP {resp.status_code}")
+        except requests.RequestException as e:
+            print(f"[WARN] Attempt {attempt}: Connection failed ({e})")
+        time.sleep(1.0)
+    print("[ERROR] Distilabel health check failed after maximum retries.")
+    return False
+
+if __name__ == "__main__":
+    if not run_probe():
+        sys.exit(1)
+```
+
 ## Diagnostic & Troubleshooting Matrix
 
 | Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
 | :--- | :--- | :--- | :--- |
-| `HTTP 429 Too Many Requests` during step generation | Provider rate limit exceeded on generator or judge LLM | `journalctl -u distilabel-pipeline -f` | Increase step retry backoff multipliers or configure vLLM local backend. |
+| `HTTP 429 Too Many Requests` | Provider rate limit exceeded on generator or judge LLM | `journalctl -u distilabel-pipeline -f` | Increase step retry backoff multipliers or configure vLLM local backend. |
 | Pipeline step times out during LLM-as-a-judge | Unbounded response generation or hanging API request | Check `distilabel pipeline status` | Set explicit `timeout=120.0` in `AnthropicLLM` or `OpenAILLM` step initializations. |
 | Memory leak / Disk full during large batch | Cache directory accumulating uncompressed intermediate step outputs | `df -h /opt/cache/distilabel` | Enable `pipeline.run(clean_cache=True)` or run periodic cache cleanup scripts. |
 | Schema validation failure on generated output | LLM output missing mandatory Pydantic fields | Inspect failed row logs in `/opt/cache/distilabel` | Provide explicit JSON schema system prompts or enable strict guided-decoding backend. |
+| `ERR_DIVERGENCE_THRESHOLD_EXCEEDED` | High Jensen-Shannon divergence across judge ensemble | Inspect score distribution in log output | Discard high-variance samples and refine evaluation rubrics in judge prompt. |
+| `REDIS_CACHE_TIMEOUT` | State checkpoint store unreachable on port 6379 | `docker ps -f name=distilabel-cache` | Restart Redis container and verify volume disk write permissions. |
+| `HF_HUB_AUTHENTICATION_ERROR` | Hugging Face token expired or lacks dataset write scopes | `huggingface-cli whoami` | Refresh `HF_TOKEN` secret and grant repository write permissions. |
+| `VLLM_CONNECTION_REFUSED` | Local vLLM instance crashed due to out-of-memory (OOM) | `docker logs local-vllm` | Lower `max-model-len` or configure tensor parallelism across available GPUs. |
 
 ## When to use it
 - When you need to scale fine-tuning data from hundreds of seeds to tens of thousands of highly varied instruction-response pairs.
@@ -165,16 +309,18 @@ python3 -m distilabel.mcp_server --port 8092
 
 ### FastMCP 3.1 Synthetic Data Pipeline Server
 
-The following example demonstrates serving a Distilabel synthetic instruction generation pipeline as a FastMCP 3.1 tool server with Pydantic v2 validation:
+The following example demonstrates serving a Distilabel synthetic instruction generation pipeline as a FastMCP 3.1 tool server with strict Pydantic v2 validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 import json
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-# Define Pydantic v2 models for synthetic instruction data
+# Define strict Pydantic v2 models for synthetic instruction data
 class SyntheticInstructionItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     instruction_id: str = Field(..., description="Unique instruction identifier")
     seed_prompt: str = Field(..., description="Original seed prompt")
     evolved_instruction: str = Field(..., description="Evolved complex instruction")
@@ -189,6 +335,8 @@ class SyntheticInstructionItem(BaseModel):
         return v
 
 class BatchSyntheticGenerationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     pipeline_name: str = Field(..., description="Distilabel pipeline identifier")
     items_processed: int = Field(..., description="Total seeds processed")
     valid_items: List[SyntheticInstructionItem] = Field(default_factory=list)
@@ -253,21 +401,24 @@ if __name__ == "__main__":
     pipeline.run()
 ```
 
-### Python (Preference Dataset Record Validation with Pydantic v2)
-To ensure downstream training runs do not crash due to malformed JSON, synthetic records (such as UltraFeedback-style preference scores or DPO pairs) should be validated using **Pydantic v2**:
+### Python (Preference Dataset Record Validation with Strict Pydantic v2)
+To ensure downstream training runs do not crash due to malformed JSON, synthetic records (such as UltraFeedback-style preference scores or DPO pairs) should be validated using **Pydantic v2** with strict schemas:
 
 ```python
 import json
 from typing import List, Dict, Any, Optional, Literal
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-# 1. Define the validation schema for a Preference alignment pair
 class PreferenceEvaluation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     judge_model: str = Field(..., serialization_alias="judgeModel", validation_alias="judgeModel")
     score: float = Field(..., ge=1.0, le=10.0)
     critique: str
 
 class PreferenceDatasetRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     record_id: str = Field(..., serialization_alias="recordId", validation_alias="recordId")
     instruction: str
     chosen_response: str = Field(..., serialization_alias="chosenResponse", validation_alias="chosenResponse")
@@ -281,7 +432,7 @@ class PreferenceDatasetRecord(BaseModel):
             raise ValueError("Response text is too short to be viable training data.")
         return v
 
-# 2. Simulated Distilabel pipeline output payload for a single synthetic instruction
+# Simulated Distilabel pipeline output payload for a single synthetic instruction
 distilabel_record_payload = {
     "recordId": "rec-distilabel-552",
     "instruction": "Explain quantum superposition in simple words.",
@@ -294,9 +445,8 @@ distilabel_record_payload = {
     }
 }
 
-# 3. Perform strict validation
 try:
-    record = PreferenceDatasetRecord(**distilabel_record_payload)
+    record = PreferenceDatasetRecord.model_validate(distilabel_record_payload)
     print("Distilabel synthetic dataset record validated successfully via Pydantic v2!")
     print(f"Record ID: {record.record_id}")
     print(f"Instruction: {record.instruction}")
@@ -305,16 +455,6 @@ try:
 except Exception as e:
     print(f"Record validation failed: {e}")
 ```
-
-## Matrix Comparison with Synthetic Data Frameworks
-
-| Feature | Distilabel | Unsloth Synth | Instructor | Custom Python Scripts |
-| :--- | :--- | :--- | :--- | :--- |
-| **Pipeline Architecture** | Declarative DAG | Training Integrated | Pydantic Extractor | Imperative Code |
-| **LLM-as-a-Judge Native** | Built-in UltraFeedback / DEITA | Basic Heuristics | Pydantic Validation | Custom Implementation |
-| **FastMCP 3.1 Support** | Native Tool Support | No | No | Custom |
-| **Parallel Execution** | Native vLLM / API Pools | Local GPU Only | Sync / Async API | ThreadPoolExecutor |
-| **Hugging Face Integration** | Push / Pull Native | Dataset Export | Raw JSON Output | Manual Scripting |
 
 ## Related tools / concepts
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The primary training method utilizing generated data.

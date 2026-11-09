@@ -5,6 +5,13 @@
 
 In modern multi-agent systems and agentic platforms (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**), Malli provides runtime boundary validation and schema serialization, ensuring structured tool calls, agent responses, and FastMCP 3.1 task payloads satisfy strict type contracts before execution.
 
+Key capabilities include:
+- **Vector-Based Schema ASTs**: Pure EDN/Clojure data structure definitions (`[:map [:id :uuid] [:status [:enum :active :paused]]]`) that can be transformed, inspected, and serialized at runtime.
+- **Ahead-of-Time (AOT) Compilation**: Compiles declarative schema vectors into high-throughput JVM bytecode and optimized predicate functions.
+- **Bi-directional Value Coercion**: Automates data coercion across HTTP query strings, JSON payloads, and relational database records.
+- **Dynamic FastMCP 3.1 Tool Schema Generation**: Exports Malli vector ASTs to JSON Schema formats for seamless MCP 3.1 tool calling and Pydantic v2 cross-language validation.
+- **Property-Based Value Generation**: Automatically generates synthetic valid/invalid test payloads via `test.check` and Hypothesis bridges.
+
 ```
 +-----------------------------------------------------------------------------------+
 |                                 MALLI SCHEMA ENGINE                               |
@@ -24,6 +31,51 @@ In modern multi-agent systems and agentic platforms (**Claude 5.6**, **GPT-5.6**
 |         (Structured LLM Outputs, Tool Arguments, API Endpoints, Databases)         |
 +-----------------------------------------------------------------------------------+
 ```
+
+### Mathematical Foundations of Schema Vector AST Validation & Lattice Type Theory
+
+Malli treats schema evaluation as membership verification within a bounded distributive type lattice $\mathcal{L} = (\mathcal{T}, \sqsubseteq, \sqcup, \sqcap, \bot, \top)$.
+
+#### 1. Lattice Ordering & Schema Subsumption
+Let $\mathcal{T}$ denote the universe of schema types, where $\bot$ represents the empty type (`:nothing`) and $\top$ represents the universal type (`:any`). For any two schemas $S_1, S_2 \in \mathcal{T}$, $S_1$ is a subtype of $S_2$ (subsumption denoted $S_1 \sqsubseteq S_2$) if and only if every valid value under $S_1$ is valid under $S_2$:
+
+$$
+S_1 \sqsubseteq S_2 \iff \forall v \in \mathcal{V}, \quad (v \models S_1 \implies v \models S_2)
+$$
+
+The meet ($\sqcap$, conjunction/intersection via `[:and ...]`) and join ($\sqcup$, disjunction/union via `[:or ...]`) operations satisfy:
+
+$$
+v \models (S_1 \sqcap S_2) \iff v \models S_1 \land v \models S_2
+$$
+
+$$
+v \models (S_1 \sqcup S_2) \iff v \models S_1 \lor v \models S_2
+$$
+
+#### 2. Regular Expression Sequence Derivatives
+When validating heterogeneous sequences and vectors (e.g., `[:cat :keyword [:* :int] :string]`), Malli computes Brzozowski derivatives $\partial_a(R)$ over sequence expressions $R$:
+
+$$
+\partial_a(R) = \{ w \in \Sigma^* \mid a w \in R \}
+$$
+
+The membership predicate $\delta(R)$ determines whether the empty sequence $\epsilon$ belongs to $R$:
+
+$$
+\delta(\epsilon) = \text{true}, \quad \delta(a) = \text{false}, \quad \delta(R_1 \cdot R_2) = \delta(R_1) \land \delta(R_2)
+$$
+
+This allows linear time validation $\mathcal{O}(N)$ over arbitrary length sequential tool payloads emitted by LLMs.
+
+#### 3. Generator Distribution Entropy in Property-Based Fuzzing
+When sampling synthetic test fixtures from a schema $S$, the probability density function $P(v \mid S)$ over generated values $v \in \mathcal{V}_S$ is optimized to maximize Shannon entropy $\mathcal{H}(S)$ across edge-case boundary conditions:
+
+$$
+\mathcal{H}(S) = -\sum_{v \in \mathcal{V}_S} P(v \mid S) \log_2 P(v \mid S)
+$$
+
+Ensuring boundary cases (e.g., empty strings, MAX_INT, boundary decimals, nulls) receive non-zero exploration probability $\min_{v \in \text{Edges}} P(v \mid S) \ge \epsilon > 0$.
 
 ## Architecture & Schema Validation Flow
 Malli processes validation by compiling pure vector AST declarations into optimized validator functions that execute against incoming nested data structures.
@@ -89,14 +141,15 @@ Because Malli schemas are declarative data structures, Malli can automatically i
 
 ## Schema & Validation Library Comparison Matrix
 
-| Feature / Dimension | Malli (Clojure) | Clojure Spec | Pydantic v2 (Python) | Zod (TypeScript) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Representation** | Pure Data Vectors | Macro Definitions | Python Classes | TypeScript Chainable AST |
-| **Serializable** | Yes (Pure EDN / JSON) | No (Functions/Macros)| Via JSON Schema export | Via Zod-to-JSON-Schema |
-| **Value Coercion** | Built-in (HTTP/JSON)| Manual wrappers | Built-in (Type casting) | Built-in (Coerce methods)|
-| **Performance** | Fast (Ahead-of-time) | Medium | Native C/Rust core | Fast V8 execution |
-| **Generator Support**| Automatic test.check| Automatic test.check| Via Hypothesis strategy| Via polyfills / plugins |
-| **FastMCP 3.1 Bridge**| EDN Vector Translation | Custom Macro Wrapper | Native Pydantic v2 | Zod Schema Adapter |
+| Feature / Dimension | Malli (Clojure) | Clojure Spec 2 | Pydantic v2 (Python) | Zod (TypeScript) | TypeBox (TypeScript) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Representation** | **Pure Data Vectors** | Macro Definitions | Python Classes | TypeScript Chainable AST | JSON Schema Objects |
+| **Serializable** | **Yes (Pure EDN / JSON)**| No (Functions/Macros)| Via JSON Schema export | Via Zod-to-JSON-Schema | Native JSON Schema |
+| **Value Coercion** | **Built-in (HTTP/JSON)**| Manual wrappers | Built-in (Type casting) | Built-in (Coerce methods)| Manual Cleaners |
+| **Performance** | **Fast (AOT Bytecode)**| Medium | Native C/Rust core | Fast V8 execution | Extremely Fast |
+| **Generator Support**| **Automatic test.check**| Automatic test.check| Via Hypothesis strategy| Via polyfills / plugins | JSON-Schema-Faker |
+| **FastMCP 3.1 Bridge**| **EDN Vector AST Bridge**| Custom Macro Wrapper | Native Pydantic v2 | Zod Schema Adapter | Direct JSON Schema |
+| **Strict Schema Mode**| **Yes (`:closed true`)**| Disallowed keys error| `extra='forbid'` | `.strict()` | `additionalProperties: false` |
 
 ## Typical use cases
 - **Structured LLM Tool Call Validation**: Validating that JSON tool call parameters emitted by LLMs conform to declared tool schemas.
@@ -197,7 +250,7 @@ clj -e "(require '[malli.generator :as mg]) (println (mg/generate [:map [:user/i
 ```
 
 ### 2. Advanced FastMCP 3.1 & Python Pydantic v2 Bridge
-The following FastMCP 3.1 Python server translates EDN-styled Malli schema vectors into dynamic Pydantic v2 schemas for cross-language verification:
+The following FastMCP 3.1 Python server translates EDN-styled Malli schema vectors into dynamic Pydantic v2 schemas (`extra="forbid"`, `frozen=True`) for cross-language verification:
 
 ```python
 import sys
@@ -206,29 +259,39 @@ import logging
 from typing import Dict, Any, List, Optional
 import mcp.server.fastmcp as fastmcp
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, Field, create_model, ConfigDict
 
 logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 logger = logging.getLogger("MalliBridgeFastMCP")
 
 mcp_server = FastMCP(
     "Malli Schema Bridge Server",
-    version="3.1",
+    version="3.1.0",
     instructions="Bridges Clojure Malli data vector schemas into FastMCP 3.1 validation models."
 )
 
 class MalliSchemaBridgeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     schema_name: str = Field(..., description="Target schema identifier (e.g. 'UserTaskSchema')")
     vector_schema: List[Any] = Field(..., description="Malli vector schema definition (e.g. [':map', [':id', ':string']])")
     data_payload: Dict[str, Any] = Field(..., description="Input JSON payload to validate")
 
+class MalliSchemaBridgeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    valid: bool
+    schema_name: str
+    validated_data: Optional[Dict[str, Any]] = None
+    errors: Optional[str] = None
+    mcp_version: str = "3.1"
+
 @mcp_server.tool()
-async def validate_malli_payload(request: MalliSchemaBridgeRequest, ctx: Context) -> Dict[str, Any]:
+async def validate_malli_payload(request: MalliSchemaBridgeRequest, ctx: Context) -> str:
     """Validates an incoming JSON dictionary against a Clojure Malli vector schema representation."""
     await ctx.report_progress(10, 100)
     ctx.info(f"Parsing Malli schema vector for '{request.schema_name}'")
 
-    # Map primitive Malli types to Python types
     type_map = {
         ":string": str,
         ":int": int,
@@ -250,24 +313,30 @@ async def validate_malli_payload(request: MalliSchemaBridgeRequest, ctx: Context
     ctx.info("Building dynamic Pydantic v2 model from Malli fields...")
 
     try:
-        DynamicModel = create_model(request.schema_name, **fields)
+        DynamicModel = create_model(
+            request.schema_name,
+            __config__=ConfigDict(extra="forbid", frozen=True),
+            **fields
+        )
         validated_instance = DynamicModel(**request.data_payload)
 
         await ctx.report_progress(100, 100)
-        return {
-            "valid": True,
-            "schema_name": request.schema_name,
-            "validated_data": validated_instance.model_dump(),
-            "mcp_version": "3.1"
-        }
+        res = MalliSchemaBridgeResponse(
+            valid=True,
+            schema_name=request.schema_name,
+            validated_data=validated_instance.model_dump(),
+            mcp_version="3.1"
+        )
+        return res.model_dump_json(indent=2)
     except Exception as exc:
         ctx.warning(f"Validation failed for schema '{request.schema_name}': {exc}")
-        return {
-            "valid": False,
-            "schema_name": request.schema_name,
-            "errors": str(exc),
-            "mcp_version": "3.1"
-        }
+        res = MalliSchemaBridgeResponse(
+            valid=False,
+            schema_name=request.schema_name,
+            errors=str(exc),
+            mcp_version="3.1"
+        )
+        return res.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp_server.run(transport="stdio")
@@ -326,21 +395,59 @@ NoNewPrivileges=true
 ProtectSystem=full
 ProtectHome=true
 PrivateTmp=true
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-## Troubleshooting & Diagnostic Matrix
+### Automated Daemon Health Probe Script
+Production probe script for CI/CD runners and Kubernetes liveness checks:
+
+```python
+#!/usr/bin/env python3
+"""Automated Health Verification Probe for Malli Validator Service."""
+
+import sys
+import time
+import requests
+
+PROBE_URL = "http://127.0.0.1:8009/health"
+
+def run_probe(retries: int = 3, timeout_sec: float = 2.0) -> bool:
+    for attempt in range(1, retries + 1):
+        try:
+            start_time = time.monotonic()
+            resp = requests.get(PROBE_URL, timeout=timeout_sec)
+            elapsed_ms = (time.monotonic() - start_time) * 1000
+            if resp.status_code == 200:
+                print(f"[OK] Malli validator healthy (latency: {elapsed_ms:.1f}ms)")
+                return True
+            else:
+                print(f"[WARN] Attempt {attempt}: Received HTTP {resp.status_code}")
+        except requests.RequestException as e:
+            print(f"[WARN] Attempt {attempt}: Connection failed ({e})")
+        time.sleep(1.0)
+    print("[ERROR] Malli validator health check failed after maximum retries.")
+    return False
+
+if __name__ == "__main__":
+    if not run_probe():
+        sys.exit(1)
+```
+
+## Diagnostic & Troubleshooting Matrix
 
 | Issue Symptom / Error | Root Cause | Verification Command | Remediation Action |
 | :--- | :--- | :--- | :--- |
-| **`Schema Parsing Exception`** | Invalid vector AST structure | `clj -e "(require '[malli.core :as m]) (m/schema [:map])"` | Ensure vector declarations start with valid schema type keyword (`:map`, `:vector`, `:tuple`) |
-| **`Coercion Mismatch`** | Raw string cannot be coerced to target keyword/UUID | Inspect raw input map in REPL | Verify transformer matchers (`mt/string-transformer` or `mt/json-transformer`) are explicitly passed |
-| **`Humanize Error Null`** | Custom schema lacks explanation formatter | `m/explain schema data` | Check schema syntax or register custom error formatter for domain types |
-| **`JVM Memory Pressure`** | Massive schema generation loop in property tests | `top -b -n 1 \| grep java` | Bound generator size using `mg/generate schema {:size 10}` |
-| **`JSON Schema Export Failure`** | Custom predicate function cannot be serialized | Inspect schema for inline lambda functions | Use named Malli registry properties instead of opaque anonymous functions |
-| **`FastMCP Bridge Type Error`** | Unmapped Clojure keyword in Python interop bridge | Inspect `type_map` dictionary in FastMCP server | Register custom type handler in Python Pydantic bridge |
+| **`Schema Parsing Exception`** | Invalid vector AST structure | `clj -e "(require '[malli.core :as m]) (m/schema [:map])"` | Ensure vector declarations start with valid schema type keyword (`:map`, `:vector`, `:tuple`). |
+| **`Coercion Mismatch`** | Raw string cannot be coerced to target keyword/UUID | Inspect raw input map in REPL | Verify transformer matchers (`mt/string-transformer` or `mt/json-transformer`) are explicitly passed. |
+| **`Humanize Error Null`** | Custom schema lacks explanation formatter | `m/explain schema data` | Check schema syntax or register custom error formatter for domain types. |
+| **`JVM Memory Pressure`** | Massive schema generation loop in property tests | `top -b -n 1 \| grep java` | Bound generator size using `mg/generate schema {:size 10}`. |
+| **`JSON Schema Export Failure`** | Custom predicate function cannot be serialized | Inspect schema for inline lambda functions | Use named Malli registry properties instead of opaque anonymous functions. |
+| **`FastMCP Bridge Type Error`** | Unmapped Clojure keyword in Python interop bridge | Inspect `type_map` dictionary in FastMCP server | Register custom type handler in Python Pydantic bridge. |
+| **`EXTRA_KEYS_DISALLOWED_FAIL`** | Closed map received unrecognized keys from agent output | `(m/explain [:map {:closed true} ...] data)` | Filter out extraneous parameters or loosen map schema constraint. |
+| **`RECURSIVE_SCHEMA_OVERFLOW`** | Self-referential schema AST lacks recursive delay wrapper | Check schema tree for circular definition | Wrap recursive references using `[:schema {:registry ...} :ref]` lazy combinator. |
 
 ## Related tools / concepts
 - [Mycelium](mycelium.md) — Clojure multi-agent framework utilizing Malli schemas.
