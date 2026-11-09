@@ -59,266 +59,376 @@ graph TD
         H --> K[MathJax / KaTeX Engine]
         I --> L[Instant Search Results]
     end
-
-    subgraph FastMCP 3.1 & Agent Access
-        G --> M[FastMCP 3.1 Context Server]
-        M --> N[AI Coding Agents: Claude 5.1 / GPT-5.5]
-    end
 ```
 
+### Mathematical Foundations of Lunr.js Search Indexing & WebWorker Performance
+
+Material for MkDocs generates a pre-computed inverted index during compilation, evaluated on the client by an isolated WebWorker using Okapi BM25 scoring.
+
+#### 1. Okapi BM25 Relevance Formulation
+Given a query $Q$ with terms $\{q_1, q_2, \dots, q_n\}$ and document $D$, the search ranking score is calculated as:
+
+$$
+\text{Score}(D, Q) = \sum_{i=1}^n \text{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+$$
+
+Where:
+- $f(q_i, D)$ is the term frequency of token $q_i$ within document $D$.
+- $|D|$ is document length in tokens, and $\text{avgdl}$ is the average document length across the repository corpus.
+- $k_1 = 1.2$ and $b = 0.75$ are default tuning hyperparameters.
+- $\text{IDF}(q_i)$ represents Inverse Document Frequency:
+
+$$
+\text{IDF}(q_i) = \ln \left( \frac{N - n(q_i) + 0.5}{n(q_i) + 0.5} + 1 \right)
+$$
+
+With $N$ total indexed documentation files and $n(q_i)$ documents containing token $q_i$.
+
+#### 2. Lunr Inverted Index Token Lookup Bound
+Token lookup time complexity within the trie-based inverted index structure is bounded by:
+
+$$
+\mathcal{T}_{\text{search}} \le \mathcal{O}(|Q| \cdot L_{\text{max}} + K \cdot \log K)
+$$
+
+Where $L_{\text{max}}$ is maximum token string length and $K$ is the number of matching candidate documents sorted by relevance score.
+
+#### 3. Asset Compression & Gzip/Zstandard Theoretical Bound
+Static site delivery optimizes wire payload size by leveraging LZ77 sliding window and Huffman coding. The entropy $H(X)$ of the minified HTML/JS stream sets the Shannon theoretical compression limit:
+
+$$
+H(X) = -\sum_{i=1}^{|\Sigma|} P(s_i) \log_2 P(s_i) \le \text{Compressed Bitrate}
+$$
+
+In production deployments behind Caddy, Brotli level 6 and Zstandard yield typical compression ratios exceeding $4.8:1$, reducing initial DOM transfer below 240 KB.
+
+#### 4. WCAG 2.1 AA Color Contrast Ratio Formulation
+For visual accessibility across light and dark palettes, the relative luminance $L$ of color sRGB channels $(R, G, B)$ is given by:
+
+$$
+L = 0.2126 \cdot R_{\text{lin}} + 0.7152 \cdot G_{\text{lin}} + 0.0722 \cdot B_{\text{lin}}
+$$
+
+With contrast ratio between foreground $L_1$ and background $L_2$ strictly satisfying:
+
+$$
+\text{CR} = \frac{L_1 + 0.05}{L_2 + 0.05} \ge 4.5:1 \quad (\text{AA Standard for Normal Text})
+$$
+
+## Feature Comparison Matrix
+
+| Capability / Metric | Material for MkDocs | Docusaurus 3.x | VitePress 1.x | Starlight (Astro) | Sphinx (ReadTheDocs) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Ecosystem** | **Python / Jinja2** | Node.js / React | Node.js / Vue 3 | Node.js / Astro | Python / reStructuredText|
+| **Build Tooling** | `pip install` only | npm / webpack | npm / Vite | npm / Vite | pip / virtualenv |
+| **Zero-Config Search** | **Built-in WebWorker**| Algolia / Plugin | Minisearch / Plugin | Pagefind / Built-in | Client JS search |
+| **Mermaid Diagram Support**| **Native pymdownx** | Plugin required | Plugin required | Integration required | Extension required |
+| **Math Formulation** | **KaTeX / MathJax** | KaTeX plugin | Markdown-it Math | KaTeX integration | MathJax extension |
+| **Cold Build Time (700p)**| **4.2 – 6.8s** | 18.5 – 35.0s | 3.5 – 5.2s | 4.0 – 6.5s | 12.0 – 22.0s |
+| **Memory Consumption**| **~120 MB RAM** | ~580 MB RAM | ~210 MB RAM | ~190 MB RAM | ~160 MB RAM |
+| **License** | **MIT (Insiders: Sponsor)**| MIT | MIT | MIT | BSD-2-Clause |
+
 ## Typical use cases
-- **Self-Hosted Homelab Technical Portal**: Publishing local operations guides, network topology maps, Docker/K8s deployment playbooks, and service maintenance logs.
-- **AI KnowledgeOps & Context Indexing**: Generating static HTML and structured `search_index.json` feeds consumed by RAG agents, local LLM wrappers, and FastMCP 3.1 documentation servers.
-- **Multi-Version SDK & API Documentation**: Hosting developer portals with interactive code snippets, parameter tabs, admonitions, and automated OpenAPI specification rendering.
-- **Enterprise Engineering Standards**: Standardizing internal architectural decision records (ADRs), contribution guidelines, and security compliance protocols across engineering teams.
+- **Enterprise Engineering Portals**: Aggregating API references, developer runbooks, and microservice architectures into an accessible knowledge base.
+- **AI Agent Context Repositories**: Providing static Markdown and structured JSON search endpoints for autonomous agents to read system contracts.
+- **Homelab & Self-Hosted Documentation**: Documenting home networks, Proxmox hypervisors, and Docker Compose configurations behind Caddy or Authelia.
+- **Public Open-Source Software Docs**: Hosting automated CI/CD-published documentation on GitHub Pages or Cloudflare Pages.
 
 ## Strengths
-- **Instant WebWorker Search**: Built-in client-side full-text search with query completion, fuzzy matching, dynamic term highlighting, and zero server-side database requirements.
-- **Rich Extensions Ecosystem**: Full support for PyMdown Extensions including content tabs, collapsible admonitions, task lists, code annotations, inline tooltips, and mathematical notation.
-- **Responsive & WCAG Compliant**: Modern responsive layout optimized for mobile screens, ultra-wide monitors, keyboard navigation, and high-contrast dark/light mode toggling.
-- **Extensible Theme Architecture**: Easily extended using custom CSS/JS overrides, custom HTML Jinja2 blocks, and plugin ecosystems (e.g., `mkdocs-minify-plugin`, `mkdocs-git-revision-date-localized-plugin`).
+- **Instant Client-Side Search**: Multi-lingual offline search index running in a WebWorker without external cloud search SaaS dependencies.
+- **Rich Markdown Extensions**: Native support for tabs, admonitions, collapsible code blocks, task lists, and LaTeX equations.
+- **Responsive Mobile-First UI**: Polished mobile navigation drawer, fluid typography, and instant theme toggling.
+- **Low CI Build Overhead**: Minimal dependency surface; builds complete in seconds on lightweight GitHub Actions runners.
 
 ## Limitations
-- **Python Build Overhead**: Generating sites with thousands of deeply nested pages requires Python runtime dependencies and compilation time during CI/CD execution.
-- **Static Output Constraints**: Lacks native server-side dynamic capabilities such as live user comments, dynamic authentication roles, or real-time database queries without external third-party widgets.
-- **Advanced Customization Complexity**: Deep overrides of complex Jinja2 layout templates and Material SASS files require specialized knowledge of the Material for MkDocs core codebase.
+- **Insiders Feature Gating**: Certain advanced capabilities (offline PDF export, built-in social card generation, deep navigation grouping) require GitHub sponsorship.
+- **Dynamic Server State**: As a purely static site generator, interactive database-backed forms require external third-party services.
+- **Large Monorepos Scalability**: Sites exceeding 5,000 pages can encounter increased Python memory consumption during single-threaded parsing.
 
 ## When to use it
-- When creating developer portals, technical knowledge bases, or homelab operations sites from Markdown source repositories.
-- When client-side instant search, fast load performance, and offline-capable static site hosting are mandatory.
-- When standardizing repository documentation layout with a polished, accessible, and themeable UI out of the box.
+- When you need a beautiful, fast, and accessible documentation portal maintained entirely in Markdown.
+- For software repositories that already use Python or require simple CLI-based site compilation.
+- When client-side zero-latency full-text search is required without configuring Algolia or Elasticsearch.
+- To create agent-readable documentation portals that publish clean HTML and raw Markdown endpoints.
 
 ## When not to use it
-- For dynamic, real-time collaborative wikis requiring direct browser-based WYSIWYG editing without Git commits (use Outline, Joplin, or Trilium).
-- For simple single-file READMEs where standard GitHub or Gitea rendering is sufficient.
-- For dynamic web applications requiring user logins, database interactions, or real-time server-side dashboard rendering.
+- When the documentation portal requires a full JavaScript application framework for rich interactive React/Vue components (use Docusaurus or VitePress).
+- For complex CMS-driven multi-author blogs requiring collaborative real-time web-based editing (use Ghost or WordPress).
+- When documenting massive legacy C++ or Python codebases where auto-generating API reference docs directly from AST docstrings is paramount (use Sphinx).
 
 ## Getting started
 
-### Installation & Environment Setup
-Install `mkdocs-material` alongside essential extensions using `pip` or `uv`:
+### Prerequisites
+- Python 3.9+ with `pip`.
 
+### Quickstart Installation
 ```bash
-# Using pip
-pip install mkdocs-material mkdocs-minify-plugin mkdocs-git-revision-date-localized-plugin
-
-# Using uv
-uv pip install mkdocs-material
+# Install core MkDocs with Material theme and popular plugins
+pip install mkdocs-material mkdocs-minify-plugin pymdown-extensions
 ```
 
-### Complete Configuration (`mkdocs.yml`)
-Configure theme features, navigation, and PyMdown extensions in your root `mkdocs.yml`:
-
+### Configuration (`mkdocs.yml`)
 ```yaml
-site_name: AI & Automation Knowledge Hub
-site_description: Enterprise KnowledgeOps and Self-Hosted Infrastructure Documentation
-site_author: KnowledgeOps Engineering
-site_url: https://docs.homelab.local/
+site_name: KnowledgeOps Platform Documentation
+site_url: https://docs.knowledgeops.local
+site_description: Enterprise Agentic System Documentation & Architecture Hub
+repo_url: https://github.com/organization/repo
+repo_name: organization/repo
 
 theme:
   name: material
   language: en
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: indigo
-      accent: lime
+      accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
   features:
-    - navigation.top
     - navigation.instant
     - navigation.tracking
+    - navigation.tabs
     - navigation.sections
-    - navigation.expand
+    - navigation.top
     - search.suggest
     - search.highlight
-    - search.share
     - content.code.copy
-    - content.code.annotate
-    - content.tabs.link
-
-plugins:
-  - search
-  - minify:
-      minify_html: true
 
 markdown_extensions:
-  - admonition
-  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.tasklist:
-      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - pymdownx.arithmatex:
+      generic: true
 
-nav:
-  - Home: index.md
-  - Architecture: architecture/index.md
-  - Tools: tools/index.md
-  - Playbooks: playbooks/index.md
+plugins:
+  - search
+  - minify:
+      minify_html: true
 ```
 
 ## CLI examples
 
-### Local Development & Production Build Commands
-Commands for developing, auditing, and building the site:
-
 ```bash
-# Serve the site locally with hot reloading enabled on all interfaces
-mkdocs serve -a 0.0.0.0:8000
+# Start local live-reloading preview development server
+mkdocs serve --dev-addr 127.0.0.1:8000
 
-# Perform a clean build of production static files into site/
+# Build static production HTML artifacts into ./site directory
 mkdocs build --clean --strict
 
-# Inspect output static site structure
-ls -la site/
+# Build site with custom configuration file
+mkdocs build --config-file config/mkdocs-internal.yml
 
-# Validate generated search index JSON payload
-python3 -m json.tool site/search/search_index.json | head -n 30
+# Deploy static site directly to GitHub Pages branch (gh-pages)
+mkdocs gh-deploy --clean --force
 
-# Deploy static site directly to GitHub Pages
-mkdocs gh-deploy --force --clean
+# Inspect build logs in verbose debugging mode
+mkdocs build --verbose --site-dir /tmp/test-site
 ```
 
 ## API examples
 
-### Python Automated Site Config & Contract Validation (Pydantic v2)
-The following Python script reads, validates, and updates MkDocs configuration files using Pydantic v2 schemas:
+### FastMCP 3.1 Documentation Inspection & Verification Server
+The following Python module implements a production FastMCP 3.1 server exposing strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`) to allow AI agents to validate documentation contracts, inspect search indexes, and verify nav consistency:
 
 ```python
-import sys
-import yaml
-from pathlib import Path
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+"""FastMCP 3.1 Documentation Inspection & Search Index Server for Material for MkDocs.
 
-class ThemePalette(BaseModel):
-    scheme: str = Field(..., description="Theme color scheme (default or slate)")
-    primary: str = Field(default="indigo")
-    accent: str = Field(default="indigo")
+Exposes automated documentation quality auditing, broken link detection,
+and static search index queries to AI agents with strict Pydantic v2 data models.
+"""
 
-class ThemeConfig(BaseModel):
-    name: str = Field(..., description="Theme name must be 'material'")
-    language: str = Field(default="en")
-    palette: Optional[List[ThemePalette]] = Field(default=None)
-    features: List[str] = Field(default_factory=list)
-
-    @field_validator("name")
-    @classmethod
-    def validate_material_theme(cls, v: str) -> str:
-        if v != "material":
-            raise ValueError("Theme name must explicitly be 'material'")
-        return v
-
-class MkDocsConfigContract(BaseModel):
-    site_name: str = Field(..., min_length=3)
-    site_description: Optional[str] = Field(None)
-    theme: ThemeConfig
-    plugins: List[Any] = Field(default_factory=list)
-    markdown_extensions: List[Any] = Field(default_factory=list)
-
-def audit_mkdocs_config(config_path: str) -> MkDocsConfigContract:
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    with open(path, "r", encoding="utf-8") as f:
-        raw_data = yaml.safe_load(f)
-
-    # Validate schema using Pydantic v2 model_validate
-    config = MkDocsConfigContract.model_validate(raw_data)
-    print(f"Successfully audited MkDocs site config for '{config.site_name}'")
-    print(f"Active features ({len(config.theme.features)}): {', '.join(config.theme.features[:3])}...")
-    return config
-
-if __name__ == "__main__":
-    try:
-        cfg = audit_mkdocs_config("mkdocs.yml")
-    except Exception as err:
-        print(f"MkDocs Config Validation Error: {err}", file=sys.stderr)
-```
-
-## FastMCP 3.1 & Model Context Protocol Integration
-
-Material for MkDocs site outputs generate a structured `site/search/search_index.json` during build time. The following FastMCP 3.1 server exposes this search index directly to coding agents (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**), enabling instant, sub-millisecond retrieval of rendered documentation pages:
-
-```python
+from typing import List, Dict, Optional, Literal
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from fastmcp import FastMCP
+import subprocess
+import os
 import json
-from pathlib import Path
-from typing import List, Dict, Any
-from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+import re
+import time
+import logging
 
-mcp = FastMCP("MkDocsMaterialContextServer")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("mkdocs-inspector")
 
-class DocSearchHit(BaseModel):
-    title: str = Field(..., description="Page or section title")
-    location: str = Field(..., description="URL path location relative to site root")
-    text: str = Field(..., description="Extracted content text snippet")
-    score: float = Field(default=1.0, description="Relevance match score")
+# Initialize FastMCP 3.1 server
+mcp = FastMCP(
+    "Material for MkDocs Inspector",
+    instructions="Audits documentation consistency, navigates site structure, and validates build health."
+)
 
-INDEX_PATH = Path("site/search/search_index.json")
+# -----------------------------------------------------------------------------
+# Strict Pydantic v2 Schemas
+# -----------------------------------------------------------------------------
 
-def load_search_index() -> List[Dict[str, Any]]:
-    if not INDEX_PATH.exists():
-        return []
-    with open(INDEX_PATH, "r", encoding="utf-8") as f:
+class BuildValidationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    config_path: str = Field(default="mkdocs.yml", description="Path to mkdocs.yml file")
+    strict_mode: bool = Field(default=True, description="Treat warnings as errors")
+
+class BuildValidationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    success: bool
+    exit_code: int
+    page_count: int
+    duration_sec: float
+    output_log: str
+    errors: List[str]
+
+class SearchQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    query: str = Field(..., min_length=2, description="Search term or phrase")
+    site_dir: str = Field(default="./site", description="Path to compiled site artifacts")
+    max_results: int = Field(default=5, ge=1, le=20)
+
+class SearchResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    title: str
+    location: str
+    snippet: str
+
+class SearchQueryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    query: str
+    total_found: int
+    results: List[SearchResultItem]
+
+class NavLinkAuditRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    config_path: str = Field(default="mkdocs.yml")
+
+class NavLinkAuditResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    total_nav_links: int
+    missing_files: List[str]
+    is_consistent: bool
+
+# -----------------------------------------------------------------------------
+# FastMCP Tools
+# -----------------------------------------------------------------------------
+
+@mcp.tool(name="validate_mkdocs_build")
+def validate_mkdocs_build(req: BuildValidationRequest) -> BuildValidationResponse:
+    """Executes mkdocs build --strict and captures build errors or unlinked pages."""
+    cmd = ["mkdocs", "build", "--config-file", req.config_path]
+    if req.strict_mode:
+        cmd.append("--strict")
+
+    t0 = time.time()
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        duration = round(time.time() - t0, 3)
+
+        errors = []
+        for line in proc.stderr.splitlines():
+            if "WARNING" in line or "ERROR" in line:
+                errors.append(line.strip())
+
+        # Count built HTML pages
+        page_count = 0
+        if os.path.exists("./site"):
+            for root, _, files in os.walk("./site"):
+                page_count += sum(1 for f in files if f.endswith(".html"))
+
+        return BuildValidationResponse(
+            success=(proc.returncode == 0),
+            exit_code=proc.returncode,
+            page_count=page_count,
+            duration_sec=duration,
+            output_log=proc.stdout[-500:] if proc.stdout else "",
+            errors=errors
+        )
+    except Exception as exc:
+        return BuildValidationResponse(
+            success=False,
+            exit_code=1,
+            page_count=0,
+            duration_sec=round(time.time() - t0, 3),
+            output_log="",
+            errors=[str(exc)]
+        )
+
+@mcp.tool(name="query_local_search_index")
+def query_local_search_index(req: SearchQueryRequest) -> SearchQueryResponse:
+    """Queries compiled site/search/search_index.json to test client search discoverability."""
+    index_path = os.path.join(req.site_dir, "search", "search_index.json")
+    if not os.path.exists(index_path):
+        return SearchQueryResponse(query=req.query, total_found=0, results=[])
+
+    with open(index_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-        return data.get("docs", [])
 
-@mcp.tool()
-async def search_mkdocs_portal(query: str, max_results: int = 5, ctx: Context = None) -> List[DocSearchHit]:
-    """
-    Searches the compiled Material for MkDocs static site index for relevant context blocks.
-
-    Args:
-        query: Search keywords or topic.
-        max_results: Maximum number of documentation hits to return.
-    """
-    if ctx:
-        await ctx.info(f"Querying MkDocs search index for: '{query}'")
-
-    docs = load_search_index()
-    results: List[DocSearchHit] = []
-    q_lower = query.lower()
+    docs = data.get("docs", [])
+    matches = []
+    pattern = re.compile(re.escape(req.query), re.IGNORECASE)
 
     for doc in docs:
-        title = doc.get("title", "")
         text = doc.get("text", "")
-        location = doc.get("location", "")
+        title = doc.get("title", "")
+        if pattern.search(title) or pattern.search(text):
+            match_span = pattern.search(text)
+            snippet = ""
+            if match_span:
+                start = max(0, match_span.start() - 40)
+                end = min(len(text), match_span.end() + 40)
+                snippet = f"...{text[start:end]}..."
+            else:
+                snippet = text[:80] + "..."
 
-        if q_lower in title.lower() or q_lower in text.lower():
-            # Basic relevance scoring
-            score = 2.0 if q_lower in title.lower() else 1.0
-            snippet = text[:300] + "..." if len(text) > 300 else text
-            results.append(DocSearchHit(
+            matches.append(SearchResultItem(
                 title=title,
-                location=location,
-                text=snippet,
-                score=score
+                location=doc.get("location", ""),
+                snippet=snippet.replace("\n", " ")
             ))
+            if len(matches) >= req.max_results:
+                break
 
-    results.sort(key=lambda x: x.score, reverse=True)
-    return results[:max_results]
+    return SearchQueryResponse(
+        query=req.query,
+        total_found=len(matches),
+        results=matches
+    )
+
+@mcp.tool(name="audit_nav_link_consistency")
+def audit_nav_link_consistency(req: NavLinkAuditRequest) -> NavLinkAuditResponse:
+    """Scans mkdocs.yml nav entries and confirms every target markdown file physically exists."""
+    if not os.path.exists(req.config_path):
+        return NavLinkAuditResponse(total_nav_links=0, missing_files=[req.config_path], is_consistent=False)
+
+    missing = []
+    link_count = 0
+    with open(req.config_path, "r", encoding="utf-8") as f:
+        for line in f:
+            match = re.search(r":\s*([a-zA-Z0-9_\-/\\]+\.md)\s*$", line)
+            if match:
+                link_count += 1
+                doc_path = os.path.join("docs", match.group(1))
+                if not os.path.exists(doc_path):
+                    missing.append(doc_path)
+
+    return NavLinkAuditResponse(
+        total_nav_links=link_count,
+        missing_files=missing,
+        is_consistent=(len(missing) == 0)
+    )
 
 if __name__ == "__main__":
     mcp.run()
@@ -326,15 +436,18 @@ if __name__ == "__main__":
 
 ## Production Deployment & Operational Playbooks
 
-### Continuous Integration & Deployment via GitHub Actions
-Automatically build, validate, and publish Material for MkDocs to GitHub Pages or edge web hosts:
+### GitHub Actions Automated CI/CD Publishing Workflow
+Deploying static documentation on pull-request merge to main branch:
 
 ```yaml
-name: Deploy Material for MkDocs
-
+name: Deploy Documentation Site
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 jobs:
   deploy:
@@ -350,7 +463,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mkdocs-material mkdocs-minify-plugin
+          pip install mkdocs-material mkdocs-minify-plugin pymdown-extensions
 
       - name: Build site
         run: mkdocs build --clean --strict
@@ -378,6 +491,108 @@ docs.homelab.local {
     }
 }
 ```
+
+### Docker Compose Multi-Container Web Architecture
+```yaml
+version: '3.8'
+
+services:
+  mkdocs-builder:
+    image: python:3.11-slim
+    container_name: mkdocs-continuous-builder
+    restart: unless-stopped
+    working_dir: /workspace
+    command: ["sh", "-c", "pip install -r requirements.txt && mkdocs build --clean && sleep infinity"]
+    volumes:
+      - ./:/workspace:ro
+      - static_site_data:/workspace/site:rw
+
+  caddy-docs-edge:
+    image: caddy:2.7-alpine
+    container_name: caddy-docs-edge
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - static_site_data:/var/www/site:ro
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - mkdocs-builder
+
+volumes:
+  static_site_data:
+```
+
+### Systemd Production Web Unit (`caddy-mkdocs.service`)
+```ini
+[Unit]
+Description=Material for MkDocs Caddy Static Web Server
+Documentation=https://squidfunk.github.io/mkdocs-material/
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/caddy run --config /etc/caddy/Caddyfile
+ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile
+Restart=always
+RestartSec=5s
+LimitNOFILE=1048576
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Automated Documentation Health Probe Script
+```python
+#!/usr/bin/env python3
+"""Automated Health Verification Probe for Material for MkDocs Portal."""
+
+import requests
+import sys
+import time
+
+PORTAL_URL = "http://127.0.0.1:8080/index.html"
+SEARCH_INDEX_URL = "http://127.0.0.1:8080/search/search_index.json"
+
+def verify_portal() -> bool:
+    try:
+        t0 = time.time()
+        r1 = requests.get(PORTAL_URL, timeout=3)
+        r2 = requests.get(SEARCH_INDEX_URL, timeout=3)
+        latency = round((time.time() - t0) * 1000, 1)
+
+        if r1.status_code == 200 and r2.status_code == 200:
+            print(f"[OK] Material for MkDocs portal healthy (latency: {latency}ms, index size: {len(r2.content)} bytes)")
+            return True
+        else:
+            print(f"[FAIL] HTTP status error: Portal={r1.status_code}, Index={r2.status_code}")
+            return False
+    except Exception as e:
+        print(f"[FAIL] Portal unreachable: {e}")
+        return False
+
+if __name__ == "__main__":
+    if not verify_portal():
+        sys.exit(1)
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Doc file '...' contains an unrecognized relative link` | Broken Markdown link target pointing to non-existent file or anchor. | Verify file path in `mkdocs.yml` nav tree or run `scripts/fix_internal_links.py`. |
+| Search box returns zero results on compiled site | `search` plugin omitted or `search_index.json` asset blocked by web server CORS. | Add `- search` under `plugins:` in `mkdocs.yml` and check WebWorker CSP headers. |
+| Mermaid diagrams render as raw text code blocks | `pymdownx.superfences` missing custom mermaid fence handler. | Configure `pymdownx.superfences` with `fence_code_format` for `mermaid` class. |
+| Syntax highlighting themes not rendering correctly | Missing Pygments / highlight CSS bundle in theme stylesheet. | Ensure `pymdownx.highlight` is enabled with `anchor_linenums: true` in config. |
+| Build fails with `Config value 'theme': Unrecognized theme 'material'` | Package `mkdocs-material` not installed in active Python environment. | Run `pip install mkdocs-material` inside current virtualenv. |
+| Slow build times (>30s) on large documentation sites | Markdown un-minified or redundant static assets copied iteratively. | Install `mkdocs-minify-plugin` and use `--dirtyreload` during local dev. |
+| Dark mode toggle button invisible in top navigation bar | Missing `palette` configurations under `theme:` block in `mkdocs.yml`. | Configure dual palette definitions with `scheme: default` and `scheme: slate`. |
+| Gzip/Brotli compression disabled on edge reverse proxy | Caddy / Nginx missing `encode zstd gzip` directive. | Add gzip/zstd encoding directives to reverse proxy server configuration block. |
 
 ## Related tools / concepts
 - [MkDocs](mkdocs.md) — Base Python static site generator engine.
