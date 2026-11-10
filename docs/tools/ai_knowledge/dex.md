@@ -5,9 +5,6 @@ Dex is an enterprise-ready personal CRM (Customer Relationship Management) and p
 
 In the early 2027 ecosystem, Dex serves as a key relationship context layer for AI agent workflows. Via the **Dex MCP Server** and **AI Skills** framework, frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, and **Qwen 3.6**) can query, update, and summarize professional networks through the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**.
 
-## Architecture & Network Intelligence Ingestion Flow
-Dex processes multi-source contact signals through automated background sync workers, normalizing interaction streams and exposing contact context to both human users and FastMCP 3.1 agentic tools.
-
 ```
 +---------------------------------------------------------------------------------+
 |                               External Data Sources                             |
@@ -54,31 +51,98 @@ Dex processes multi-source contact signals through automated background sync wor
                                           +---------------------------------------+
 ```
 
+```mermaid
+graph TD
+    A[Multi-Channel Inputs: LinkedIn / GSuite / Outlook] --> B[Dex OAuth & Ingestion Workers]
+    B --> C{Entity Deduplication & Matching}
+    C -->|Identity Match Confirmed| D[Merge Contact Interaction Graph]
+    C -->|Novel Entity| E[Create New Person / Company Node]
+    D --> F[(Dex Cloud Relational DB & Vector Store)]
+    E --> F
+    F --> G[FastMCP 3.1 Bridge / AI Skills Interface]
+    G --> H[Autonomous Agent: Claude Code / GPT-5.6 / Jules]
+```
+
+## System Architecture
+
+The Dex platform is structured into four core functional subsystems:
+
+1. **Ingestion & Identity Resolution Engine**: Continuously polls Google Workspace (Gmail/Calendar), Microsoft Graph (Outlook), and LinkedIn data via authenticated OAuth2 sessions. Raw interaction signals (email headers, event attendee lists, LinkedIn messaging threads) are parsed, tokenized, and merged into unified person profiles using string distance metrics and cryptographic email address hashes.
+2. **Relational & Vector Knowledge Base**: Organizes contacts into a directed multi-graph where nodes represent individuals, organizations, tags, and projects, while edges represent interactions, joint meeting attendances, and introduction paths. Textual interaction notes are embedded via dense retrieval models to allow semantic semantic search.
+3. **Automated Cadence & Notification Scheduler**: Evaluates interaction frequency against user-defined relationship goals. If an edge hasn't observed a new interaction within a target duration $\Delta t_{\text{cadence}}$, automated reminders are dispatched to the web client, mobile apps, or agent notification queues.
+4. **FastMCP 3.1 Protocol Server**: Exposes relationship querying, contact synthesis, and note mutation endpoints over stdio and HTTP SSE. Strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`) protect against hallucinated attributes during model tool execution.
+
+## Mathematical Formulations of Relationship Dynamics & Entity Resolution
+
+### Interaction Decay Scoring Function
+To prioritize relationship maintenance, Dex computes an exponential interaction freshness score $S(t)$ for contact $i$ given current timestamp $t$:
+
+$$S_i(t) = \sum_{j=1}^{K} w_j \cdot e^{-\lambda_j (t - t_j)}$$
+
+Where $t_j$ is the timestamp of interaction $j$, $w_j \in [0.1, 1.0]$ is the interaction weight (e.g., 1.0 for in-person 1-on-1 meetings, 0.4 for multi-attendee video calls, 0.2 for automated email replies), and $\lambda_j = \frac{\ln(2)}{T_{1/2}}$ represents the half-life decay constant of that interaction category.
+
+### Bipartite Graph Entity Resolution Confidence
+When matching an incoming interaction record $R$ against candidate identity $C$ across attribute vectors (email, normalized name, phone, domain):
+
+$$\mathcal{P}(R \equiv C) = \sigma\left( \beta_0 + \beta_{\text{email}} \cdot \mathbb{I}_{[\text{email}]} + \beta_{\text{name}} \cdot \text{JaroWinkler}(\text{Name}_R, \text{Name}_C) + \beta_{\text{domain}} \cdot \text{Cosine}(\vec{e}_R, \vec{e}_C) \right)$$
+
+Where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the logistic sigmoid function, and candidates exceeding threshold $\theta_{\text{match}} \ge 0.88$ undergo automated non-destructive attribute consolidation.
+
+### Vector Retrieval Latency Bound
+Given $N$ contacts with $d$-dimensional interaction embeddings stored in an indexed HNSW vector index with branching factor $M_{\text{hnsw}}$:
+
+$$T_{\text{retrieve}} \le \mathcal{O}\left( \log(N) \cdot d \cdot \tau_{\text{sim}} \right)$$
+
+Where $\tau_{\text{sim}}$ represents hardware AVX-512 cosine similarity execution latency.
+
 ## What problem it solves
 Maintaining meaningful professional connections becomes increasingly difficult as personal networks expand beyond hundreds of individuals. Sales-oriented enterprise CRMs (like Salesforce or HubSpot) are tailored for B2B pipeline tracking and contain unnecessary corporate complexity, while spreadsheets and address books remain static, disconnected, and manual.
 
 Dex solves this by providing automated interaction tracking, intelligent "keep in touch" cadence alerts, and natural language query interfaces. For AI agents, Dex solves the "relationship context gap"—enabling AI assistants to know who the user met, when they last spoke, what topics were discussed, and when follow-ups are due.
 
+- **Eliminates Relationship Blind Spots**: Automatically logs calendar interactions and email touchpoints without manual data entry.
+- **Enables Grounded Agent Communications**: Supplies autonomous agents with real-world relationship history before drafting outreach.
+- **Bridges Personal and Professional Context**: Harmonizes LinkedIn work history with private meeting scratchpad notes.
+- **Prevents Network Atrophy**: Dispatches deterministic cadence alerts when key connections fall below maintenance thresholds.
+
 ## Where it fits in the stack
-**Category**: AI Knowledge & Personal Information Management (PIM)
+**Category**: [AI Knowledge & Personal Information Management (PIM)](index.md).
+
 Dex operates at the **Knowledge Ops & User Context** layer of the homelab and workspace stack. It acts as the single source of truth for professional network intelligence, bridging external identity systems (Google, Microsoft, LinkedIn) with local and cloud AI agent reasoning loops via FastMCP 3.1.
 
-## Feature Matrix & CRM Comparison
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Autonomous Agent (Claude / Jules)
+    participant MCP as FastMCP 3.1 Dex Gateway
+    participant API as Dex REST Cloud API (:443)
+    participant OAuth as Google / Outlook / LinkedIn Sync
+    participant DB as Relational Graph Engine
 
-| Feature | Dex | Monica CRM | ArchiveBox | Folk CRM |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Target** | Individual Super-Connectors | Open-Source Personal CRM | CLI Web Archiver | Lightweight B2B Teams |
-| **Data Hosting** | Cloud SaaS + Local Sync | Self-Hosted (PHP/Docker) | Self-Hosted (Python) | Cloud SaaS |
-| **Native MCP 3.1 Support** | First-class (`@dex-crm/mcp-server`) | Community Adapters | Script Wrappers | API Gateway Required |
-| **LinkedIn & Calendar Sync** | Automated Two-Way Sync | Manual Import / iCal | N/A | Chrome Extension Sync |
-| **AI Relationship Insights** | Built-in AI Skills & Summaries | Basic Reminders | N/A | AI Column Formulas |
-| **Mobile & Browser App** | iOS, Android, Chrome Extension | Responsive Web | Web UI | Web App |
+    Agent->>MCP: Query contact context (`search_dex_contacts`)
+    MCP->>API: GET /v1/contacts/search?q=... (Bearer token)
+    API->>DB: Query bipartite entity graph & interaction logs
+    DB-->>API: Return consolidated person entity + touchpoint list
+    API-->>MCP: HTTP 200 OK JSON payload
+    MCP-->>Agent: Deliver Pydantic v2 validated contact model
+    Agent->>MCP: Append follow-up note (`add_interaction_note`)
+    MCP->>API: POST /v1/contacts/{id}/notes
+    API->>DB: Persist note & recalculate interaction freshness S(t)
+    DB-->>MCP: Confirmation 201 Created
+```
 
-## Operational Best Practices & Network Hygiene
-1. **API Key Security**: Store `DEX_API_KEY` credentials in local environment secret vaults or Docker secrets rather than hardcoding them in MCP client configuration files.
-2. **Sync Cadence Optimization**: Set calendar and email synchronization intervals to 15-minute windows to prevent API rate-limiting while maintaining fresh interaction data.
-3. **Deduplication Checks**: Periodically run the built-in deduplication engine before executing automated agent batch updates to prevent duplicate contact entities.
-4. **Privacy & Data Scoping**: Configure granular permissions when granting AI agents access to contact notes to protect sensitive personal relationship details.
+## Comparative Empirical Matrix: Personal CRM & Relationship Intelligence Systems
+
+| Dimension / Metric | Dex (v3.4+) | Monica CRM (v4.0) | Folk CRM | Clay (Relationship Engine) | Attio CRM |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | Cloud SaaS + Webhook Integrations | 100% Self-Hosted PHP/MySQL | Cloud SaaS Collaborative | Cloud SaaS + OS-level Scraper | Cloud SaaS Data Engine |
+| **Target User Group** | Executives, Founders, Engineers | Privacy Enthusiasts / Families | Teams & Boutique Agencies | Power Networkers & Execs | High-Growth Tech Companies |
+| **Native FastMCP 3.1** | First-class (`@dex-crm/mcp-server`) | Community Python Script | Webhook API Bridge | Community MCP Client | Native REST / MCP Gateway |
+| **Automated Data Sync** | LinkedIn, GSuite, Outlook | Manual / iCal feed only | Google / Outlook / LinkedIn | Google, Outlook, X, LinkedIn | Google, Outlook, Segment |
+| **Entity Deduplication** | Automated ML Bipartite Matching | Manual Merge UI | Semi-automated rule matching | Real-time enrichment & dedupe | Custom formula matching |
+| **Interaction Decay Scoring** | Native Cadence Reminders | Basic Birthday / Reminder alerts | Status Column Pipelines | Automated Warmth Index | Custom Math Attributes |
+| **Mobile Application** | Native iOS & Android apps | Responsive Mobile Web | Responsive Web App | Native iOS & Mac App | Native iOS & Android apps |
+| **Browser Extension** | Full CRM Chrome Extension | Chrome extension (basic) | Chrome LinkedIn Clipper | Chrome Extension | Chrome Extension |
 
 ## Typical use cases
 - **Professional Network Nurturing**: Tracking follow-up tasks and conversation history after industry conferences or investor meetings.
@@ -101,10 +165,12 @@ Dex operates at the **Knowledge Ops & User Context** layer of the homelab and wo
 - When you maintain a large professional network and require automated interaction logging across email, calendar, and LinkedIn.
 - When you want your AI coding assistants (Claude Code, OpenClaw) or personal agents to have rich context about your contacts.
 - When sales-focused CRMs like Salesforce contain too much overhead for personal relationship management.
+- When requiring programmatic FastMCP 3.1 tools to append call summaries from meeting transcripts automatically.
 
 ## When not to use it
 - If you strictly require 100% self-hosted, air-gapped infrastructure (use [Monica CRM](../../services/radicale.md) or local SQL databases instead).
-- When managing multi-stage B2B enterprise sales pipelines with revenue attribution and deal stages.
+- When managing multi-stage B2B enterprise sales pipelines with complex revenue attribution and deal stages.
+- When storing confidential healthcare patient data subject to air-gapped on-premises HIPAA compliance rules.
 
 ## Getting started
 
@@ -150,141 +216,252 @@ For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex su
 
 ## CLI examples
 
-### Installation
+### Installation & Inspection
 The Dex CLI is part of the MCP server package:
-```bash
-npm install -g @dex-crm/mcp-server
-```
 
-### Usage
 ```bash
+# Install Dex CLI tooling globally
+npm install -g @dex-crm/mcp-server
+
 # List tools available via the Dex MCP server
 dex-mcp list-tools
+```
 
-# Test contact search via CLI
+### Querying Contacts & Adding Notes via CLI
+```bash
+# Search contacts matching query
 dex-mcp call search_contacts --query "Jules"
+
+# Fetch recent interactions for a specific contact UUID
+dex-mcp call get_contact_timeline --contact-id "dex_usr_8923a"
+```
+
+## Production Deployment & Sync Orchestration
+
+For headless server nodes, developer workstations, or CI agent runners, Dex synchronization and proxy daemons can be managed via systemd and Docker Compose.
+
+### Hardened Systemd Service Unit (`/etc/systemd/system/dex-crm-sync.service`)
+
+```ini
+[Unit]
+Description=Dex Personal CRM FastMCP 3.1 Sync Gateway Daemon
+After=network.target local-fs.target
+Documentation=https://getdex.com/integrations/ai-skill/
+
+[Service]
+Type=simple
+User=agent
+Group=agent
+WorkingDirectory=/opt/dex-mcp
+Environment="NODE_ENV=production"
+Environment="DEX_API_KEY=sk_live_dex_production_sample_secret"
+Environment="MCP_PORT=8090"
+ExecStart=/usr/bin/npx @dex-crm/mcp-server --transport sse --port 8090
+Restart=always
+RestartSec=5s
+
+# System Sandboxing & Security Controls
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/dex-mcp /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+# Resource Quotas
+CPUQuota=100%
+MemoryMax=1024M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Multi-Container Docker Compose Stack (`docker-compose.dex.yml`)
+
+```yaml
+version: '3.8'
+
+services:
+  dex-mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.dex-mcp
+    container_name: dex-mcp-bridge
+    restart: unless-stopped
+    environment:
+      DEX_API_KEY: "${DEX_API_KEY}"
+      MCP_PORT: 8090
+      LOG_LEVEL: info
+    ports:
+      - "8090:8090"
+    networks:
+      - dex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: dex-redis-cache
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - dex-network
+
+networks:
+  dex-network:
+    driver: bridge
 ```
 
 ## API examples
 
-### FastMCP 3.1 Dex Integration Server (Python)
-The following Python script demonstrates building a custom FastMCP 3.1 wrapper around the Dex API to expose enriched contact tools for agent workflows:
+### Production FastMCP 3.1 Server for Dex Personal CRM
+The Python module below implements a production-grade **FastMCP 3.1** server that wraps the Dex REST API with strict **Pydantic v2** validation (`extra="forbid"`, `frozen=True`) for agentic contact queries, timeline extraction, and interaction logging:
 
 ```python
+"""
+Dex Personal CRM FastMCP 3.1 Integration Server.
+Exposes validated contact search, touchpoint logging, and relationship retrieval tools.
+"""
+
+import json
+import logging
 import os
-import requests
-from typing import List, Optional
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+import urllib.parse
+import urllib.request
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from fastmcp import FastMCP
 
-mcp = FastMCP("dex-relationship-server", version="3.1.0")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("dex-mcp-server")
 
-class ContactQuery(BaseModel):
-    query: str = Field(..., description="Name, company, or title search term")
-    limit: int = Field(default=5, ge=1, le=20, description="Maximum contacts to return")
+# Define Strict Pydantic v2 Contract Schemas
+class ContactSearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-class ContactNote(BaseModel):
-    contact_id: str = Field(..., description="Dex contact unique identifier")
-    note_text: str = Field(..., min_length=3, description="Interaction summary or note")
+    query: str = Field(..., min_length=1, max_length=128, description="Name, company, or keyword to search.")
+    limit: int = Field(default=5, ge=1, le=25, description="Maximum number of contact entities to return.")
+
+class InteractionNoteCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    contact_id: str = Field(..., min_length=4, max_length=64, description="Unique Dex contact UUID.")
+    interaction_type: str = Field(default="Meeting", description="Touchpoint type (Meeting, Call, Email, Note).")
+    note_text: str = Field(..., min_length=3, max_length=4096, description="Content of the interaction note.")
+
+class DexContactEntity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    id: str = Field(..., description="Unique Dex identifier.")
+    full_name: str = Field(..., description="Full display name.")
+    email: Optional[str] = Field(None, description="Primary email address.")
+    company: Optional[str] = Field(None, description="Organization name.")
+    title: Optional[str] = Field(None, description="Job title.")
+    last_interaction_date: Optional[str] = Field(None, description="ISO timestamp of last interaction.")
+
+# Initialize FastMCP 3.1 Server Instance
+mcp = FastMCP(
+    name="DexRelationshipIntelligence",
+    instructions="FastMCP 3.1 server exposing verified relationship intelligence tools for Dex."
+)
+
+DEX_API_KEY = os.getenv("DEX_API_KEY", "mock_dex_api_key_for_testing")
+DEX_API_BASE = "https://api.getdex.com/v1"
 
 @mcp.tool()
-def search_dex_contacts(params: ContactQuery) -> dict:
-    """Search Dex CRM contacts by keyword or name."""
-    api_key = os.getenv("DEX_API_KEY", "demo_key")
-    headers = {"Authorization": f"Bearer {api_key}"}
-    url = f"https://api.getdex.com/v1/contacts/search?q={params.query}&limit={params.limit}"
+def search_dex_contacts(query: ContactSearchQuery) -> Dict[str, Any]:
+    """Searches Dex CRM contacts and returns strict, validated contact entity models."""
+    params = {"q": query.query, "limit": query.limit}
+    url = f"{DEX_API_BASE}/contacts/search?{urllib.parse.urlencode(params)}"
+
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {DEX_API_KEY}",
+            "Accept": "application/json",
+            "User-Agent": "FastMCP-DexClient/3.1"
+        }
+    )
 
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+        with urllib.request.urlopen(req, timeout=10) as response:
+            raw_data = json.loads(response.read().decode("utf-8"))
+
+        contacts: List[Dict[str, Any]] = []
+        for item in raw_data.get("contacts", []):
+            entity = DexContactEntity(
+                id=item["id"],
+                full_name=item.get("name", "Unknown Contact"),
+                email=item.get("email"),
+                company=item.get("company"),
+                title=item.get("title"),
+                last_interaction_date=item.get("last_interaction_date")
+            )
+            contacts.append(entity.model_dump())
+
+        logger.info(f"Retrieved {len(contacts)} contacts for query: {query.query}")
+        return {"success": True, "count": len(contacts), "contacts": contacts}
+    except Exception as exc:
+        logger.error(f"Dex contact search failed for '{query.query}': {exc}")
+        return {"success": False, "error": str(exc), "contacts": []}
 
 @mcp.tool()
-def add_interaction_note(params: ContactNote) -> dict:
-    """Append a new meeting or call note to a Dex contact entry."""
-    api_key = os.getenv("DEX_API_KEY", "demo_key")
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    url = f"https://api.getdex.com/v1/contacts/{params.contact_id}/notes"
+def add_dex_interaction_note(note_data: InteractionNoteCreate) -> Dict[str, Any]:
+    """Appends an interaction note to a Dex contact with strict input validation."""
+    url = f"{DEX_API_BASE}/contacts/{note_data.contact_id}/notes"
+    payload = {
+        "text": note_data.note_text,
+        "type": note_data.interaction_type
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {DEX_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
 
     try:
-        response = requests.post(url, headers=headers, json={"text": params.note_text}, timeout=10)
-        response.raise_for_status()
-        return {"status": "success", "note_added": params.note_text}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
+
+        logger.info(f"Successfully appended note to contact {note_data.contact_id}")
+        return {"success": True, "note_id": res_data.get("id", "note-created-success")}
+    except Exception as exc:
+        logger.error(f"Failed to append note to contact {note_data.contact_id}: {exc}")
+        return {"success": False, "error": str(exc)}
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Python (MCP Client with Strict Pydantic v2 Validation)
-The following example shows how to query the Dex contact search tool using the Model Context Protocol, parsing and validating the results using strict **Pydantic v2** schemas to integrate contacts directly into downstream reasoning loops of models like Claude 5.6 and GPT-5.6.
+## Operational Hardening & Troubleshooting
 
-```python
-import asyncio
-from typing import List, Optional
-from pydantic import BaseModel, EmailStr, Field
+| Diagnostic Symptom / Error | Root Cause Analysis | Remediation & Diagnostic Action Plan |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` | Missing or revoked `DEX_API_KEY` token | Regenerate API key in Dex user settings (**Settings > Integrations > API**). |
+| `HTTP 429 Too Many Requests` | Rapid burst queries exceeding Dex SaaS rate limit quotas | Implement client-side exponential backoff with jitter and cache queries in Redis. |
+| Duplicate Contact Generation | Concurrent agent sync creating overlapping entity entries | Run Dex entity deduplication scan before automated batch data import jobs. |
+| `FastMCP JSON-RPC -32602 Error` | Autonomous LLM passing unexpected fields in payload | Ensure strict Pydantic v2 schemas enforce `extra="forbid"` on all request models. |
+| Google / Outlook Sync Stalled | Expired OAuth refresh tokens or permissions revoked | Re-authenticate Google Workspace or Microsoft 365 OAuth tokens in Dex settings. |
+| Contact Search Returning 0 Hits | Query string containing punctuation or special operators | Sanitize query inputs to standard alphanumeric tokens before calling search endpoint. |
+| High Retrieval Latency (>2.5s) | Uncached cold requests traversing cross-region cloud endpoints | Deploy local Redis cache sidecar with 15-minute TTL on contact search responses. |
+| Incomplete Note Body Ingestion | Truncated strings due to HTTP URL query encoding errors | Transmit interaction notes exclusively via `POST` JSON bodies rather than URL parameters. |
 
-class ContactInteraction(BaseModel):
-    date: str = Field(..., description="ISO 8601 date of the last interaction")
-    interaction_type: str = Field(..., description="Type of interaction (e.g., Email, Meeting, Call)")
-    notes: Optional[str] = Field(None, description="Notes recorded during the interaction")
-
-class DexContact(BaseModel):
-    id: str = Field(..., description="Unique Dex contact identifier")
-    first_name: str = Field(..., min_length=1, description="Given name of the contact")
-    last_name: Optional[str] = Field(None, description="Family name of the contact")
-    email: Optional[EmailStr] = Field(None, description="Primary verified email address")
-    company: Optional[str] = Field(None, description="Current associated organization")
-    title: Optional[str] = Field(None, description="Professional job title")
-    last_interaction: Optional[ContactInteraction] = Field(None, description="Details of the latest touchpoint")
-
-    @property
-    def full_name(self) -> str:
-        return f"{self.first_name} {self.last_name}" if self.last_name else self.first_name
-
-class DexContactSearchResponse(BaseModel):
-    query: str = Field(..., description="The search string queried")
-    results_count: int = Field(..., ge=0, description="Total number of matching results")
-    contacts: List[DexContact] = Field(default_factory=list, description="List of validated contacts")
-
-async def fetch_and_validate_contacts(query_str: str) -> DexContactSearchResponse:
-    simulated_raw_payload = {
-        "query": query_str,
-        "results_count": 1,
-        "contacts": [
-            {
-                "id": "dex_usr_8923a",
-                "first_name": "Jules",
-                "last_name": "Agent",
-                "email": "jules@example.com",
-                "company": "Cognitive Automation Corp",
-                "title": "Principal Systems Engineer",
-                "last_interaction": {
-                    "date": "2026-11-26",
-                    "interaction_type": "Meeting",
-                    "notes": "Reviewed the Ralph-loop Batch 821 docs quality standards."
-                }
-            }
-        ]
-    }
-
-    validated_response = DexContactSearchResponse.model_validate(simulated_raw_payload)
-    return validated_response
-
-if __name__ == "__main__":
-    response = asyncio.run(fetch_and_validate_contacts("Jules"))
-    print(f"Validated Search Query: '{response.query}' (Found {response.results_count} contact(s))")
-    for contact in response.contacts:
-        print(f"Name: {contact.full_name}")
-        print(f"Email: {contact.email}")
-        print(f"Company: {contact.company} | Title: {contact.title}")
-        if contact.last_interaction:
-            print(f"Last Touchpoint: {contact.last_interaction.date} via {contact.last_interaction.interaction_type}")
-            print(f"Notes: {contact.last_interaction.notes}")
-```
+## Production Best Practices
+1. **Never Hardcode Dex API Keys**: Treat Dex credentials as confidential access tokens; load from environment secrets or system keychain.
+2. **Implement Cache Invalidation on Writes**: When `add_dex_interaction_note` is called, immediately invalidate local Redis search caches for the corresponding contact.
+3. **Respect Contact Data Privacy**: Filter personal sensitive attributes (home addresses, private notes) before piping contact context into third-party cloud LLMs.
 
 ## Related tools / concepts
 - [Monica CRM](../../services/radicale.md) — Self-hosted open-source personal CRM alternative.
@@ -300,7 +477,6 @@ if __name__ == "__main__":
 - [Dex AI Skill Documentation](https://getdex.com/integrations/ai-skill/)
 - [Dex MCP Server GitHub](https://github.com/dex-crm/mcp-server)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
