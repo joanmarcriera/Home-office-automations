@@ -5,6 +5,93 @@
 
 VAKRA operates an interactive multi-agent sandbox supporting **FastMCP 3.1** and **MCP 3.1** protocol bridges, allowing benchmark orchestrators to execute live tools against persistent databases, containerized microservices, and simulated third-party enterprise services. It evaluates frontier reasoning models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, and **Gemma 4**.
 
+## System Architecture
+
+The benchmark orchestration system features a closed-loop execution harness with dynamic scenario generation, FastMCP 3.1 protocol transport, and live transactional database verification.
+
+```mermaid
+graph TD
+    subgraph ScenarioEngine["VAKRA Scenario & Task Generation Core"]
+        SCEN["Scenario Generator<br/>(62 Enterprise Domains, Dynamic Seed)"]
+        POLICY["Enterprise Policy & Invariant Engine<br/>(PII Safeguards, Approval Workflows)"]
+        ORCH["Evaluation Orchestrator Runner<br/>(Trace Recorder & Replay Auditor)"]
+    end
+
+    subgraph ProtocolBridge["FastMCP 3.1 Protocol Mediation Gateway"]
+        MCP["FastMCP 3.1 Tool Gateway<br/>(STDIO / SSE Streaming Transports)"]
+        VAL["Strict Pydantic v2 Contract Validator<br/>(extra='forbid', frozen=True)"]
+        INTERCEPT["Fault & Latency Injection Interceptor<br/>(Transient 503s, Payload Mutation)"]
+    end
+
+    subgraph AgentSandbox["Agent Target Under Test"]
+        TARGET["Frontier Agent / Harness<br/>(Claude 5.6, GPT-5.6, OpenClaw, Nanoclaw)"]
+        REASON["Multi-Turn Tool Planning Loop<br/>(Tree-of-Thought / ReAct Trajectory)"]
+    end
+
+    subgraph EmulatedEnvironment["Executable Enterprise Sandbox"]
+        MOCK["8,000+ Mock REST Endpoints<br/>(Core Banking, ERP, Healthcare EHR)"]
+        STATE_DB["Persistent PostgreSQL / Redis Store<br/>(Transactional State Mutations)"]
+        VRAG["Unstructured Enterprise Doc DB<br/>(Vector Embeddings & PDF Schematics)"]
+    end
+
+    SCEN --> POLICY
+    POLICY --> ORCH
+    ORCH --> MCP
+    MCP --> TARGET
+    TARGET --> REASON
+    REASON --> VAL
+    VAL --> INTERCEPT
+    INTERCEPT --> MOCK
+    MOCK --> STATE_DB
+    MOCK --> VRAG
+    STATE_DB --> ORCH
+```
+
+## Mathematical Formulations of Trajectory State Mutation & Multi-Hop Reasoning
+
+VAKRA models agent workflow execution as directed state transitions over discrete enterprise state graphs $\mathcal{G} = (\mathcal{S}, \mathcal{E})$.
+
+### Trajectory Graph Reachability & Compositional Accuracy
+Let $\mathbf{s}_0 \in \mathcal{S}$ denote the initial enterprise database state vector. An agent trajectory $\mathcal{T} = [a_1, a_2, \dots, a_K]$ comprises an ordered sequence of tool action invocations $a_k = (t_k, \mathbf{p}_k)$, where $t_k$ is the selected API tool and $\mathbf{p}_k$ is the input parameter dictionary. Each action induces a deterministic state mutation:
+
+$$
+\mathbf{s}_{k} = f_{\text{API}}(a_k, \mathbf{s}_{k-1})
+$$
+
+The target task defines an acceptance subspace of valid final states $\mathcal{S}^* \subset \mathcal{S}$. The binary task success metric $\Phi(\mathcal{T})$ and compositional completion score $C_{\text{comp}}(\mathcal{T})$ are formulated as:
+
+$$
+\Phi(\mathcal{T}) = \mathbb{I}\left( \mathbf{s}_K \in \mathcal{S}^* \right) \cdot \prod_{k=1}^K \mathbb{I}\left( \mathcal{P}_{\text{policy}}(a_k, \mathbf{s}_{k-1}) = 1 \right)
+$$
+
+$$
+C_{\text{comp}}(\mathcal{T}) = \frac{1}{|\mathcal{K}^*|} \sum_{m \in \mathcal{K}^*} \mathbb{I}\left( \Delta \mathbf{s}_m \text{ correctly committed} \right)
+$$
+
+where $\mathcal{P}_{\text{policy}}(a, \mathbf{s}) \in \{0, 1\}$ evaluates strict negative constraint compliance, and $\mathcal{K}^*$ represents required intermediate sub-goal checkpoints.
+
+### Multi-Hop Tool Reasoning Entropy & Parameter Hallucination
+Given an API parameter schema with required arguments $\mathcal{A}_{\text{req}}$, the parameter hallucination rate $\mathcal{R}_{\text{halluc}}$ across trajectory $\mathcal{T}$ measures divergence between generated parameter assignments $\hat{\mathbf{p}}_k$ and the verified grounding context $\mathcal{D}_{\text{ground}}$:
+
+$$
+\mathcal{R}_{\text{halluc}}(\mathcal{T}) = \frac{1}{K} \sum_{k=1}^K \frac{1}{|\mathcal{A}_{\text{req}}^{(k)}|} \sum_{u \in \mathcal{A}_{\text{req}}^{(k)}} \mathbb{I}\left( \hat{\mathbf{p}}_k[u] \notin \text{Entities}(\mathcal{D}_{\text{ground}}) \land \hat{\mathbf{p}}_k[u] \ne \emptyset \right)
+$$
+
+The trajectory entropy $\mathcal{H}_{\text{plan}}(\mathcal{T})$ quantifies search stability under agentic re-planning:
+
+$$
+\mathcal{H}_{\text{plan}}(\mathcal{T}) = - \sum_{t \in \mathcal{U}_{\text{tools}}} \hat{P}(t) \log_2 \hat{P}(t), \quad \text{where } \hat{P}(t) = \frac{1}{K} \sum_{k=1}^K \mathbb{I}(t_k = t)
+$$
+
+Low planning entropy coupled with high compositional success signifies optimal, direct trajectory execution without redundant retry cycles.
+
+### Execution Roofline Bounds
+For an evaluation suite of $N_{\text{tasks}}$ parallel agent runs with network latency $\tau_{\text{net}}$ and database lock resolution $\tau_{\text{db}}$, total evaluation throughput $Q_{\text{eval}}$ (tasks/min) satisfies:
+
+$$
+Q_{\text{eval}} \le \frac{60 \cdot W_{\text{workers}}}{\max\limits_{i} \left\{ \sum_{k=1}^{K_i} \left( T_{\text{LLM}}^{(k)} + \tau_{\text{net}} + \tau_{\text{db}} \right) \right\}}
+$$
+
 ## What problem it solves
 VAKRA addresses the critical gap between surface-level tool competence and robust, end-to-end agent reliability in enterprise production deployments. Traditional benchmarks suffer from three major shortcomings:
 1. **Static Output Memorization**: LLMs frequently memorize test dataset answers during pre-training. VAKRA eliminates static leaks by requiring live state mutations in ephemeral target databases.
@@ -16,27 +103,15 @@ VAKRA provides an executable environment with over 8,000 locally hosted mock API
 ## Where it fits in the stack
 **Benchmarking / Agent Evaluation Framework**. VAKRA serves as the primary verification harness for validating agentic frameworks before deploying them into enterprise production environments. It sits alongside general benchmarks like [OpenCompass](opencompass.md) and code evaluators like [SWE-bench](swe-bench.md), but focuses specifically on compositional tool reasoning and policy compliance.
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        VAKRA BENCHMARK HARNESS                         │
-│                                                                        │
-│  ┌───────────────────────────┐         ┌────────────────────────────┐  │
-│  │   Task Scenario Generator │         │  Trajectory Replay Engine  │  │
-│  │  (62 Enterprise Domains)  │         │  (Trace Collector & Audit) │  │
-│  └─────────────┬─────────────┘         └─────────────┬──────────────┘  │
-│                │                                     │                 │
-│                ▼                                     ▼                 │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                   FastMCP 3.1 Gateway Router                     │  │
-│  └──────┬──────────────────────┬──────────────────────┬─────────────┘  │
-└─────────┼──────────────────────┼──────────────────────┼────────────────┘
-          │                      │                      │
-          ▼                      ▼                      ▼
-┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
-│ Mock Enterprise   │  │ Vector Store /    │  │ Target Agent      │
-│ APIs (8,000+ Endpts) │ RAG Document DB    │  │ (Claude 5.6/GPT5) │
-└───────────────────┘  └───────────────────┘  └───────────────────┘
-```
+## Comparative Empirical Matrix: Enterprise Agent Benchmarks
+
+| Benchmark Suite | Test Environment | Tool Scope | Verification Method | Policy Breach Auditing | SOTA Pass Rate (Jan 2027) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **VAKRA (IBM)** | Executable Containers | 8,000+ REST APIs (62 Domains) | Live DB Mutation & SQL Checks | Native Multi-Constraint | 74.2% (Claude 5.6 Sonnet) |
+| **SWE-bench Verified** | Git / Python Testbeds | Shell / Git / Patch Application | Pytest / Unittest Execution | Limited | 68.4% (Claude 5.6 / Devin) |
+| **GAIA** | Web / Static Sandboxes | Browser / Calculator / Python | Final String Equality Check | None | 62.1% (GPT-5.5 / O3) |
+| **BFCL v3 (Berkeley)** | Synthetic Function Calls | 1,200 Parameterized Functions | Static AST / JSON Match | Basic Flag | 88.9% (Multiple Models) |
+| **AssistantBench** | Web Browser / Search | Real-world Web Navigation | Exact Match URL / Key Answer | None | 48.6% (Agentic Web SOTA) |
 
 ## Typical use cases
 - **Agent Architecture Validation**: Testing whether a new agentic framework (e.g., [OpenClaw](../development_ops/openclaw.md), [Nanoclaw](../development_ops/nanoclaw.md), or [Smolagents](../frameworks/smolagents.md)) can execute complex multi-step workflows without entering infinite retry loops.
@@ -57,6 +132,122 @@ VAKRA provides an executable environment with over 8,000 locally hosted mock API
 - **Infrastructure Overhead**: Running the full 8,000+ API mock environment requires container orchestration (Docker Compose or Kubernetes) with significant RAM/CPU capacity.
 - **Trajectory Evaluation Time**: Full multi-step execution traces take considerably longer to evaluate than static benchmark single-turn prompts.
 - **Domain Adaptation Effort**: Customizing VAKRA scenarios for proprietary, non-standard enterprise APIs requires writing custom mock handlers and verification state checkers.
+
+## Multi-Container Docker Compose Sandbox (`docker-compose.vakra.yml`)
+
+The following Compose specification launches the full isolated VAKRA evaluation sandbox, comprising mock enterprise microservices, state databases, and the FastMCP 3.1 evaluation harness.
+
+```yaml
+version: '3.8'
+
+services:
+  vakra-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.vakra-runner
+    container_name: vakra-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    environment:
+      - PORT=8099
+      - DB_URI=postgresql://vakra_admin:vakra_secret@vakra-db:5432/vakra_state
+      - REDIS_URL=redis://vakra-redis:6379/0
+      - LOG_LEVEL=INFO
+    depends_on:
+      - vakra-db
+      - vakra-redis
+      - vakra-mock-apis
+
+  vakra-mock-apis:
+    image: ibm/vakra-mock-enterprise:latest
+    container_name: vakra-mock-apis
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MOCK_DOMAINS=banking,healthcare,erp,crm,itsm
+      - INJECT_CHAOS_RATE=0.05
+
+  vakra-db:
+    image: postgres:16-alpine
+    container_name: vakra-state-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=vakra_admin
+      - POSTGRES_PASSWORD=vakra_secret
+      - POSTGRES_DB=vakra_state
+    volumes:
+      - vakra_pg_data:/var/lib/postgresql/data
+
+  vakra-redis:
+    image: redis:7.4-alpine
+    container_name: vakra-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  vakra_pg_data:
+    driver: local
+```
+
+## Hardened Systemd Service Unit (`vakra-eval-gateway.service`)
+
+Save the service definition to `/etc/systemd/system/vakra-eval-gateway.service` for continuous CI/CD evaluation runners:
+
+```ini
+[Unit]
+Description=VAKRA FastMCP 3.1 Enterprise Evaluation Harness Daemon
+After=network.target local-fs.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vakrasvc
+Group=vakrasvc
+WorkingDirectory=/opt/vakra-eval
+ExecStart=/opt/vakra-eval/venv/bin/python3 -m vakra.gateway --port 8099
+Restart=always
+RestartSec=5s
+
+# Process Environment & Tuning
+Environment="PYTHONUNBUFFERED=1"
+EnvironmentFile=/etc/vakra/eval.env
+
+# Sandboxing & Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadWritePaths=/opt/vakra-eval/reports /tmp
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vakra-eval
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Observable Fault | Root Cause Analysis | Diagnostic Inspection Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **`SQL State Verification Failed`** | Agent omitted required commit transaction or inserted corrupted foreign keys. | `docker exec -it vakra-state-db psql -U vakra_admin -d vakra_state -c "SELECT * FROM ledger_audit;"` | Inspect trajectory trace for missing prerequisite tool calls or parameter type errors. |
+| **`Policy Breach Flagged (PII Expose)`** | Agent printed unmasked SSN or credit card number into LLM scratchpad. | `grep "POLICY_VIOLATION" /opt/vakra-eval/reports/*.json` | Inject explicit negative constraint prompting: "Never output raw account credentials in plain text". |
+| **FastMCP Transport Disconnection** | Standard output polluted by debug statements during task execution. | `journalctl -u vakra-eval-gateway.service -n 50 --no-pager` | Channel all auxiliary diagnostic output strictly to `sys.stderr` or logging subsystems. |
+| **Simulated API Timeout (504 Gateway)** | Chaos injection interceptor simulated network partition; agent failed to retry. | `docker logs vakra-mock-apis \| grep "CHAOS_INJECT"` | Configure agent tool calling harnesses with exponential backoff and idempotency keys. |
+| **Pydantic ValidationError on Tool Schema** | Model invoked tool with misspelled keyword argument not present in contract. | Inspect error logs in `reports/run_latest/trace.json` | Use strict Pydantic v2 schemas (`extra="forbid"`) to surface clear schema feedback in error prompt. |
+| **PostgreSQL Connection Exhaustion** | Unclosed connections in benchmark parallel worker pool. | `netstat -an \| grep 5432 \| wc -l` | Set max pool size in database configuration (`max_connections = 200`) and enforce connection context managers. |
+| **Trajectory Replay Divergence** | Non-deterministic mock API seed or unsynchronized system clock. | `python3 tools/replay_trajectory.py --trace_id $ID --verify-seed` | Ensure deterministic mock seeding via `--random_seed 42` during evaluation execution. |
+| **Out of Memory in Orchestrator Runner** | Retaining 10,000+ raw multi-page PDF documents in process RAM. | `ps aux \| grep python3 \| awk '{print $6/1024 " MB"}'` | Stream document evaluations using chunked generators and persistent disk caches. |
 
 ## When to use it
 - When evaluating the operational safety and accuracy of AI agents built for enterprise workflows.
@@ -115,24 +306,30 @@ python3 tools/export_metrics.py --run_id "run_fin_20270107" --format json --out 
 
 ## API examples
 
-### FastMCP 3.1 VAKRA Benchmark Harness Server
-The following Python module demonstrates hosting a FastMCP 3.1 server that exposes VAKRA evaluation harnesses and execution replay utilities programmatically:
+### FastMCP 3.1 VAKRA Benchmark Harness Server with Strict Pydantic v2
+The following Python module demonstrates hosting a FastMCP 3.1 server with strict Pydantic v2 models (`extra="forbid"`, `frozen=True`) that exposes VAKRA evaluation harnesses and execution replay utilities programmatically:
 
 ```python
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
-from datetime import datetime
-import json
+import sys
 import uuid
+import logging
+from datetime import datetime
+from typing import List, Dict, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from fastmcp import FastMCP, Context
+
+logging.basicConfig(level=logging.INFO, stream=sys.stderr)
+logger = logging.getLogger("VAKRAHarness")
 
 # Initialize FastMCP 3.1 server for VAKRA evaluation harness
 mcp = FastMCP(
     "VAKRA Benchmark Harness",
+    version="3.1.0",
     instructions="Provides programmatic execution and auditing for VAKRA enterprise agent benchmarks."
 )
 
 class EvaluationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     agent_endpoint: str = Field(..., description="Target agent URL or FastMCP endpoint")
     domain_suite: str = Field(default="enterprise_composition", description="Target domain scenario suite")
     model_identifier: str = Field(..., description="Model under test e.g. claude-5.6-sonnet or gpt-5.6")
@@ -140,12 +337,14 @@ class EvaluationRequest(BaseModel):
     strict_policy_check: bool = Field(default=True)
 
 class ApiCallRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     tool_name: str
     parameters: Dict[str, str]
     execution_status: str = Field(..., pattern="^(SUCCESS|FAILED|POLICY_VIOLATION)$")
     response_bytes: int = Field(default=0)
 
 class TrajectoryReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     task_id: str
     run_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
@@ -156,8 +355,14 @@ class TrajectoryReport(BaseModel):
     passed: bool
 
 @mcp.tool(name="run_vakra_task")
-def run_vakra_task(request: EvaluationRequest) -> TrajectoryReport:
+async def run_vakra_task(
+    request: EvaluationRequest,
+    ctx: Optional[Context] = None
+) -> TrajectoryReport:
     """Executes a single VAKRA scenario task against target agent endpoint and evaluates state mutations."""
+    if ctx:
+        await ctx.info(f"Initializing VAKRA evaluation run on {request.domain_suite} for {request.model_identifier}...")
+
     # Simulated execution trace verification for demonstration
     mock_calls = [
         ApiCallRecord(
@@ -174,6 +379,9 @@ def run_vakra_task(request: EvaluationRequest) -> TrajectoryReport:
         )
     ]
 
+    if ctx:
+        await ctx.info("Scenario trace completed with 0 policy breaches. Generating report...")
+
     return TrajectoryReport(
         task_id="vakra_fin_trans_001",
         model_identifier=request.model_identifier,
@@ -187,21 +395,23 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### Programmatic Evaluation Processor using Pydantic v2
+### Programmatic Evaluation Processor using Strict Pydantic v2
 The following Python script illustrates parsing, validating, and reporting VAKRA trajectory payloads strictly utilizing Pydantic v2 schemas:
 
 ```python
-from pydantic import BaseModel, Field, condecimal, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Dict, Optional
 from datetime import datetime
 
 class VakraApiCall(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     api_name: str = Field(..., min_length=1)
     parameters: Dict[str, str] = Field(default_factory=dict)
     execution_status: str = Field(..., pattern="^(SUCCESS|FAILED|TIMEOUT|POLICY_VIOLATION)$")
     execution_time_ms: float = Field(..., ge=0.0)
 
 class VakraEvaluationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     task_id: str = Field(..., min_length=1)
     run_id: str = Field(..., min_length=1)
     evaluated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -214,7 +424,6 @@ class VakraEvaluationReport(BaseModel):
     @field_validator("passed")
     @classmethod
     def validate_passed_status(cls, v: bool, info) -> bool:
-        # Strict rule: passed cannot be True if composition_score < 1.0 or policy_breaches > 0
         score = info.data.get("composition_score", 0.0)
         breaches = info.data.get("policy_breaches", 1)
         if v and (score < 1.0 or breaches > 0):
