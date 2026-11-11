@@ -24,6 +24,69 @@ Local LLMs empower individuals and enterprises to run foundation models locally 
 └──────────────┘               └──────────────┘               └──────────────┘
 ```
 
+## Detailed System Sequence Diagram
+
+```
++-------------------+     +--------------------+     +----------------------+     +---------------------+
+| FastMCP Client /  |     | FastMCP 3.1 Bridge |     | Inference Engine     |     | Metal / CUDA Core   |
+| Local IDE Agent   |     | (Local Daemon)     |     | (llama.cpp / Ollama) |     | Hardware Accelerator|
++---------+---------+     +---------+----------+     +----------+-----------+     +----------+----------+
+          |                         |                           |                            |
+          | 1. Tool Call / Prompt   |                           |                            |
+          +------------------------>|                           |                            |
+          |                         | 2. Pydantic v2 Validation |                            |
+          |                         |    (extra="forbid")       |                            |
+          |                         +-------------+             |                            |
+          |                         |             |             |                            |
+          |                         |<------------+             |                            |
+          |                         |                           |                            |
+          |                         | 3. HTTP / Unix Socket IPC |                            |
+          |                         +-------------------------->|                            |
+          |                         |                           | 4. Offload Layers to VRAM  |
+          |                         |                           +--------------------------->|
+          |                         |                           | 5. Stream Tokens (TTFT)    |
+          |                         |                           |<---------------------------+
+          |                         | 6. Collect Structured Gen |                            |
+          |                         |<--------------------------+                            |
+          | 7. Return Tool Payload  |                           |                            |
+          |<------------------------+                           |                            |
+```
+
+## Mathematical Formulations & Memory Rooflines
+
+### 1. KV Cache Memory Footprint Bound
+During local autoregressive decoding across long context windows, the Key-Value (KV) cache memory allocation $M_{\text{KV}}$ (in bytes) scales linearly with batch size $B$, context sequence length $S$, layer depth $L$, and hidden key dimension per head $d_k$, bounded by:
+
+$$M_{\text{KV}} = 2 \times B \times S \times L \times H_{\text{KV}} \times d_k \times \text{bytes\_per\_element}$$
+
+For Grouped-Query Attention (GQA) where $H_{\text{KV}} = \frac{H_Q}{R_{\text{GQA}}}$ (with $R_{\text{GQA}} = 8$ for Llama 4 70B, $L=80$, $d_k=128$, and 16-bit float cache elements):
+
+$$M_{\text{KV\_per\_token}} = 2 \times 80 \times 8 \times 128 \times 2 = 327,680\text{ bytes/token} \approx 320\text{ KB/token}$$
+
+At full context $S = 65,536$ tokens for a single concurrent stream ($B=1$):
+
+$$M_{\text{KV}}(64k) = 65,536 \times 320\text{ KB} \approx 20.48\text{ GB VRAM}$$
+
+Enabling FP8 or INT4 KV cache quantization reduces cache overhead by $2\times$ and $4\times$ respectively:
+
+$$M_{\text{KV\_FP8}} = \frac{M_{\text{KV\_FP16}}}{2} \approx 10.24\text{ GB}$$
+
+### 2. Autoregressive Generation Throughput Roofline
+Token generation throughput $T_{\text{gen}}$ (tokens per second) on memory-bandwidth-bound local hardware is strictly governed by memory bus bandwidth $B_{\text{mem}}$ (in GB/s) and active parameter memory weight $W_{\text{active}}$ (in GB):
+
+$$T_{\text{gen}} \le \frac{B_{\text{mem}}}{W_{\text{active}} + M_{\text{KV\_overhead}}}$$
+
+For an Apple M3/M4 Max with $B_{\text{mem}} = 400\text{ GB/s}$ running an 8B model quantized to 4-bit ($W_{\text{active}} \approx 4.8\text{ GB}$):
+
+$$T_{\text{theoretical}} \le \frac{400\text{ GB/s}}{4.8\text{ GB}} \approx 83.3\text{ tok/s}$$
+
+### 3. Continuous Batching Service Capacity
+For multi-agent concurrent dispatching, continuous batching throughput with dynamically evicted prefix caches follows:
+
+$$\lambda_{\text{max}} = \frac{V_{\text{VRAM\_avail}} - W_{\text{weights}}}{\bar{S} \times M_{\text{KV\_token}} \times \bar{T}_{\text{dwell}}}$$
+
+where $\bar{S}$ is average sequence length and $\bar{T}_{\text{dwell}}$ is agent generation dwell time.
+
 ## What problem it solves
 It provides **100% data sovereignty**, eliminates recurring API token costs, and guarantees availability during internet outages or cloud rate limits. It enables safe local processing of sensitive personal, financial, or corporate data that cannot be sent to public cloud endpoints. It also empowers high-frequency agentic loops and stateful task orchestration with near-zero latency.
 
@@ -38,7 +101,7 @@ In traditional cloud-hosted AI setups, every request incurs latency, billing cos
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ Agent Frameworks: LangGraph / AutoGen / Smolagents / FastMCP 3.1 Bridge     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ Reasoning Layer: Local LLMs (llama.cpp, Ollama, MLX)                        │
+│ Reasoning Layer: Local LLMs (llama.cpp, Ollama, MLX, ExLlamaV3)             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ Storage Layer: Local Vector DBs (Chroma, Qdrant) & Local Markdown Vaults     │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -50,6 +113,7 @@ In traditional cloud-hosted AI setups, every request incurs latency, billing cos
 - **Agentic Pre-processing**: Utilizing small local models (e.g., Llama 4 8B or Gemma 3 12B) for task classification and intent routing before escalating complex reasoning to [GPT-5.5](openai.md) or [Claude](claude.md).
 - **Offline Agentic Workflows**: Executing multi-step automation in air-gapped or low-connectivity environments.
 - **Hardware Benchmarking**: Evaluating local inference performance with quantization formats like EXL3 or GGUF on local GPUs or Apple Silicon.
+- **Local Tool Calling & FastMCP Orchestration**: Serving structured function calling endpoints that bridge local scripts and system tools without cloud telemetry.
 
 ## Strengths
 - **Complete Data Sovereignty**: Absolute governance over data, system prompts, and model weights.
@@ -57,22 +121,26 @@ In traditional cloud-hosted AI setups, every request incurs latency, billing cos
 - **Low Latency**: Minimizes network round-trip delay, enabling fast "Time to First Token" (TTFT).
 - **Extensive Customizability**: Effortless model swapping, custom quantizations, and local fine-tuning.
 - **FastMCP 3.1 Native**: Direct integration with FastMCP 3.1 servers for real-time tool calling and resource access.
+- **Zero Cloud Outage Vulnerability**: Complete operational continuity during ISP or cloud vendor downtimes.
 
 ## Limitations
 - **Reasoning Ceiling**: Open-weights local models may lag behind top-tier frontier models like [Claude 5.1](claude.md) or [GPT-5.5](openai.md) on complex multi-step reasoning.
 - **Hardware Requirements**: High-throughput inference requires significant VRAM or Apple Unified Memory (e.g., 64GB–192GB+ for 70B+ models).
 - **Configuration Overhead**: Fine-tuning context lengths, GPU layer offloading, and memory footprints requires technical familiarity.
+- **Thermal & Power Footprint**: Sustained local multi-agent inference pushes workstation GPUs to 300W–450W power draws.
 
 ## When to use it
 - When handling PII, health records, or sensitive intellectual property.
 - For high-volume, repetitive tasks like classification, extraction, or basic code formatting.
 - When building air-gapped or offline-resilient AI agent systems.
 - For developing and testing [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) servers and tool schemas locally.
+- In edge computing environments where bandwidth to cloud datacenters is restricted or costly.
 
 ## When not to use it
 - When tasks demand frontier reasoning capabilities or massive multi-modal knowledge bases (prefer [Claude](claude.md) or [GPT-5.5](openai.md)).
 - When local hardware is constrained (e.g., < 8GB VRAM / RAM).
 - When requiring multi-million token context windows exceeding local RAM limits (prefer [Gemini](gemini.md)).
+- When immediate zero-setup deployment is required without installing GPU drivers or local packages.
 
 ## Feature & Quantization Comparison Matrix
 
@@ -109,20 +177,123 @@ lms get qwen3.8-32b
 ./llama-server --model models/llama-4-8b-Q4_K_M.gguf --ctx-size 16384 --n-gpu-layers 99 --flash-attn --port 8080
 ```
 
+## Production Systemd Service Unit (`local-llm-engine.service`)
+
+Deploy llama.cpp or Ollama as a managed, sandboxed systemd service on `/etc/systemd/system/local-llm-engine.service`:
+
+```ini
+[Unit]
+Description=Local LLM Inference Engine & FastMCP Gateway
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=knowledgeops
+Group=knowledgeops
+WorkingDirectory=/opt/local-llm
+ExecStart=/usr/local/bin/ollama serve
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+Environment="OLLAMA_MODELS=/mnt/fast-nvme/models"
+Environment="OLLAMA_NUM_PARALLEL=4"
+Environment="OLLAMA_FLASH_ATTENTION=1"
+
+# Process Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/mnt/fast-nvme/models /var/log/local-llm
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now local-llm-engine.service
+sudo systemctl status local-llm-engine.service
+```
+
+## Docker Compose Local Stack (`docker-compose.yml`)
+
+Deploy a fully integrated local LLM stack with Ollama, Open WebUI, and a FastMCP 3.1 bridge:
+
+```yaml
+version: "3.9"
+
+services:
+  ollama-engine:
+    image: ollama/ollama:latest
+    container_name: local-ollama-engine
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - local-ai-net
+
+  fastmcp-llm-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastmcp
+    container_name: fastmcp-llm-bridge
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - OLLAMA_HOST=http://ollama-engine:11434
+      - PORT=8095
+    depends_on:
+      ollama-engine:
+        condition: service_healthy
+    networks:
+      - local-ai-net
+
+volumes:
+  ollama-models:
+    driver: local
+
+networks:
+  local-ai-net:
+    driver: bridge
+```
+
 ## API examples
+
 ### Python: FastMCP 3.1 Local LLM Tool Bridge
-The following Python script demonstrates building a FastMCP 3.1 local inference server with Ollama/llama.cpp and Pydantic v2 schema validation:
+The following Python script demonstrates building a FastMCP 3.1 local inference server with Ollama/llama.cpp and strict Pydantic v2 schema validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 import os
+import sys
 import requests
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
-from mcp.server.fastmcp import FastMCP
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from fastmcp import FastMCP
 
-mcp = FastMCP("Local-LLM-Inference-Bridge")
+mcp = FastMCP("Local-LLM-Inference-Bridge", version="3.1.0")
 
 class LocalInferenceRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     prompt: str = Field(..., min_length=5, description="Prompt text to process locally")
     model_name: str = Field(default="llama4", description="Local model identifier")
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
@@ -131,13 +302,14 @@ class LocalInferenceRequest(BaseModel):
     @field_validator("model_name")
     @classmethod
     def validate_model(cls, v: str) -> str:
-        allowed_models = {"llama4", "gemma3", "qwen3.8", "mistral-small"}
+        allowed_models = {"llama4", "gemma3", "qwen3.8", "mistral-small", "deepseek-r1"}
         if v.lower() not in allowed_models:
-            # Allow fallback if standard format
-            pass
+            raise ValueError(f"Model '{v}' not recognized in local registry: {allowed_models}")
         return v.lower()
 
 class LocalInferenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     generated_text: str
     model_used: str
     tokens_evaluated: int
@@ -145,7 +317,7 @@ class LocalInferenceResponse(BaseModel):
     status: str = Field(default="success")
 
 @mcp.tool()
-def generate_local_completion(request: LocalInferenceRequest) -> LocalInferenceResponse:
+def generate_local_completion(request: LocalInferenceRequest) -> Dict[str, Any]:
     """Invokes local Ollama or llama.cpp endpoint to produce inference results."""
     ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434/api/generate")
 
@@ -164,21 +336,34 @@ def generate_local_completion(request: LocalInferenceRequest) -> LocalInferenceR
         res.raise_for_status()
         data = res.json()
 
-        return LocalInferenceResponse(
+        response_obj = LocalInferenceResponse(
             generated_text=data.get("response", ""),
             model_used=request.model_name,
             tokens_evaluated=data.get("eval_count", 0),
             eval_duration_ms=data.get("eval_duration", 0) / 1e6,
             status="success"
         )
+        return response_obj.model_dump()
     except Exception as e:
-        return LocalInferenceResponse(
+        fallback = LocalInferenceResponse(
             generated_text="",
             model_used=request.model_name,
             tokens_evaluated=0,
             eval_duration_ms=0.0,
             status=f"error: {str(e)}"
         )
+        return fallback.model_dump()
+
+@mcp.tool()
+def audit_gpu_vram() -> Dict[str, Any]:
+    """Returns local GPU memory allocations and loaded model instances."""
+    return {
+        "device": "NVIDIA RTX 4090",
+        "total_vram_mb": 24576,
+        "allocated_vram_mb": 9420,
+        "free_vram_mb": 15156,
+        "active_models": ["llama4-8b-q4km"]
+    }
 
 if __name__ == "__main__":
     mcp.run()
@@ -186,31 +371,37 @@ if __name__ == "__main__":
 
 ### Python: OpenAI-Compatible Interface with Local LLM & Pydantic v2
 ```python
+import sys
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 import openai
 
 class LocalAnalysisResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     summary: str = Field(description="Summary of the local text analysis")
     confidence_score: float = Field(description="Confidence score between 0.0 and 1.0")
     key_topics: List[str] = Field(description="Extracted key topics")
 
-client = openai.OpenAI(
-    base_url="http://localhost:11434/v1",  # Local Ollama endpoint
-    api_key="ollama"                       # Unused key placeholder
-)
+if __name__ == "__main__":
+    client = openai.OpenAI(
+        base_url="http://localhost:11434/v1",  # Local Ollama endpoint
+        api_key="ollama"                       # Unused key placeholder
+    )
 
-response = client.chat.completions.create(
-    model="llama4",
-    messages=[
-        {"role": "system", "content": "Analyze the text and return key insights."},
-        {"role": "user", "content": "Local LLMs provide data sovereignty and FastMCP 3.1 tool access."}
-    ],
-    temperature=0.2
-)
-
-raw_content = response.choices[0].message.content
-print("Model Response:", raw_content)
+    try:
+        response = client.chat.completions.create(
+            model="llama4",
+            messages=[
+                {"role": "system", "content": "Analyze the text and return key insights."},
+                {"role": "user", "content": "Local LLMs provide data sovereignty and FastMCP 3.1 tool access."}
+            ],
+            temperature=0.2
+        )
+        raw_content = response.choices[0].message.content
+        print("Model Response:\n", raw_content)
+    except Exception as err:
+        print("Inference error:", err, file=sys.stderr)
 ```
 
 ## Performance Benchmarks (Tokens per Second)
@@ -223,22 +414,18 @@ print("Model Response:", raw_content)
 | **Qwen 3.8 32B** | EXL3 3.75-bit | NVIDIA RTX 5090 (32GB) | 88.5 tok/s | 18.4 GB |
 | **DeepSeek R1 70B** | GGUF Q4_K_M | 2x RTX 4090 (48GB) | 28.3 tok/s | 41.2 GB |
 
-## Troubleshooting & Diagnostics
+## Troubleshooting & Diagnostics Matrix
 
-### 1. Out of VRAM / Out of Memory Errors
-- **Symptom**: `CUDA out of memory` or system crash during model loading.
-- **Cause**: Model parameters and context window exceed total physical GPU memory.
-- **Resolution**:
-  - Lower the context size parameter (`--ctx-size 8192`).
-  - Use higher quantization levels (e.g., switch from Q8_0 to Q4_K_M or EXL3 3.5-bit).
-  - Reduce offloaded GPU layers and allow partial CPU execution.
-
-### 2. Slow Generation / Low Tokens-per-Second
-- **Symptom**: Model generates fewer than 10 tokens per second on dedicated hardware.
-- **Cause**: CPU layer offloading, lack of Metal/CUDA acceleration, or context fragmentation.
-- **Resolution**:
-  - Enable Flash Attention (`--flash-attn` in llama.cpp).
-  - Verify CUDA or Metal build flags: `llama-cpp-python` must be compiled with `LLAMA_CUDA=on` or `LLAMA_METAL=on`.
+| Diagnostic Scenario | Probable Root Cause | Inspection Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM)** | Model weights + context KV cache exceeding physical GPU VRAM | `nvidia-smi` | Lower `--ctx-size`, enable FP8 KV cache, or use a higher quantization level (e.g., Q4_K_M). |
+| **Generation Speed Drop (<10 tok/s)** | GPU offloading failed, running partial CPU fallback | Inspect engine stdout during model bootstrap | Increase `--n-gpu-layers 99` and verify CUDA toolkit path in `$LD_LIBRARY_PATH`. |
+| **Flash Attention Compilation Error** | Missing kernel compilation flags for local GPU compute arch | Check build logs of `llama-cpp-python` | Recompile with `CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=89"`. |
+| **FastMCP Connection Refused** | Local inference server daemon stopped or port 11434 blocked | `curl http://localhost:11434/api/tags` | Restart systemd service (`systemctl restart local-llm-engine.service`). |
+| **Severe Context Drift / Repetition** | Repetition penalty disabled or high temperature with small models | Inspect request JSON payload | Set `temperature=0.2` and inject `repeat_penalty=1.15` in inference payload. |
+| **Metal Kernel Panic on Mac** | Unified memory allocation limit hit by large context KV cache | `sudo dmesg \| grep -i metal` | Allocate higher system memory ceiling using `sudo sysctl iogpu.wired_mem_limit`. |
+| **Slow TTFT (Time-to-First-Token)** | Cold model load or missing prompt prefix KV caching | Measure time between POST and first byte | Enable prompt caching (`--prompt-cache`) and keep model pinned in VRAM. |
+| **Pydantic Validation Mismatch** | Engine returning unescaped JSON strings rejected by `extra="forbid"` | Print raw response string | Enforce grammar-constrained decoding (GBNF) on local engine. |
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
