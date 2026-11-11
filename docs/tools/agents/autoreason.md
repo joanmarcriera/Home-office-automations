@@ -27,6 +27,37 @@ AutoReason is an agentic reasoning engine that operates above raw model inferenc
                                           |            +------------------------------+
 ```
 
+## Mathematical Formulations & State-Space MCTS Bounds
+
+### 1. Upper Confidence Bound for Trees (UCT) in Reasoning State Spaces
+During hypothesis expansion, AutoReason selects candidate reasoning node $j$ from parent node $i$ using the Upper Confidence Bound formula adapted for verification verifier rewards:
+
+$$\text{UCT}(j) = \bar{X}_j + 2 C_p \sqrt{\frac{2 \ln N_i}{N_j}} + \beta_{\text{prior}} \cdot P_{\text{prior}}(j)$$
+
+where $\bar{X}_j = \frac{1}{N_j} \sum_{k=1}^{N_j} R_k$ is the empirical verification pass rate ($R_k \in \{0, 1\}$ from external sandbox test suites), $N_i$ and $N_j$ are parent and child visit counts, $C_p = \frac{1}{\sqrt{2}}$ is the exploration constant, and $P_{\text{prior}}(j)$ is the model's log-probability prior for the generated step.
+
+### 2. Compound Error Suppression Bound
+Let $p_{\text{error}}$ denote the per-step hallucination probability of an unverified autoregressive generation step. For a multi-step derivation of length $L$, the unverified success probability decays exponentially:
+
+$$P_{\text{unverified}}(L) = (1 - p_{\text{error}})^L$$
+
+Under AutoReason's Verify-and-Correct (VaC) loop with verifier false-positive rate $\epsilon_{\text{verifier}} \ll p_{\text{error}}$ and max backtracking retry budget $K$:
+
+$$P_{\text{autoreason}}(L) = \left( 1 - p_{\text{error}} \cdot \epsilon_{\text{verifier}}^K \right)^L \approx 1 - L \cdot p_{\text{error}} \cdot \epsilon_{\text{verifier}}^K$$
+
+For $p_{\text{error}} = 0.25$, $\epsilon_{\text{verifier}} = 0.05$, and $K = 2$:
+
+$$P_{\text{step\_fail}} = 0.25 \cdot (0.05)^2 = 0.000625 \implies P_{\text{autoreason}}(10) \approx 99.38\%$$
+
+compared to $P_{\text{unverified}}(10) = (0.75)^{10} \approx 5.63\%$.
+
+### 3. Tree Search Token Budget Constraint
+Let $B_{\text{token}}$ denote the token expenditure roofline. For a tree with branching factor $b$, average step length $l_{\text{step}}$, and max search depth $D$:
+
+$$\sum_{d=1}^D N_{\text{expanded}}(d) \cdot (l_{\text{step}} + l_{\text{tool\_io}}) \le B_{\text{token}}$$
+
+AutoReason uses heuristic beam pruning to bound active nodes to $W_{\text{beam}} \le 4$, maintaining linear token consumption $\mathcal{O}(D \cdot W_{\text{beam}} \cdot l_{\text{step}})$ rather than exponential growth $\mathcal{O}(b^D)$.
+
 ## What problem it solves
 Standard LLM inference suffers from compound error propagation: if a model makes a single logical mistake or hallucinates a false assumption early in a multi-step problem, subsequent reasoning steps diverge rapidly from reality. AutoReason solves this by:
 1. **Eliminating Compound Hallucinations**: Enforcing tool-based verifiers after every discrete reasoning step to catch logic errors before they propagate.
@@ -54,6 +85,17 @@ AutoReason sits directly between the application layer (developer IDEs, automate
 +-----------------------------------------------------------------------------------+
 ```
 
+## Comparative Frameworks Evaluation
+
+| Dimension | AutoReason (Nous Research) | LangGraph | AutoGen / AG2 | CrewAI | Stanford DSPy |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Reasoning Model** | Formal MCTS & State-Space VaC | Graph State Machine | Multi-Agent Dialogue | Role-Playing Task Flow | Compiler Optimization |
+| **Verification Loop**| Native Step-by-Step Verifier | Custom Conditional Edge | Human-in-the-Loop / Code | Output Pydantic Guard | Metric Feedback Telemetry |
+| **Backtracking Support**| Automated Tree Backtracking | Manual Checkpointer Revert| Message History Rollback| Sequential Retry | Pipeline Re-compilation |
+| **FastMCP 3.1 Native** | First-Class Built-in Server | Extension Adapter | Community Tool Bridge | Tool Decorator | Custom LM Adapter |
+| **Target Models** | Open-Weights + Frontier APIs | Model Agnostic | Model Agnostic | Model Agnostic | Model Agnostic |
+| **Trace Serialization**| JSON Tree-Search Graph | State Snapshot Store | Conversational JSON | Execution Logs | Assertion Failure Telemetry |
+
 ## Typical use cases
 - **Complex Codebase Bug Repair**: Identifying elusive runtime bugs by formulating hypotheses, injecting instrumentation, executing test suites in isolated sandboxes, and analyzing stack traces autonomously.
 - **Mathematical & Symbolic Theorem Proving**: Decomposing complex mathematical claims into formal proof steps verified against Lean 4, Z3 SMT solvers, or SymPy environments.
@@ -80,115 +122,232 @@ AutoReason sits directly between the application layer (developer IDEs, automate
 - When orchestrating autonomous coding agents that can run and inspect test suites.
 
 ## When not to use it
-- For low-latency conversational user experiences or instant chatbot interactions.
-- For straightforward single-turn tasks (e.g., simple text summarization, language translation, or copy rephrasing).
-- In token-constrained or ultra-strict budget environments where additional inference passes are cost-prohibitive.
+- For conversational chatbots or real-time voice applications requiring sub-second response times.
+- For simple creative writing or brainstorming tasks where formal verification is meaningless.
+- When strict API token quotas or micro-budget limits prevent multi-candidate tree exploration.
 
 ## Getting started
 
-### Installation & Environment Setup
-AutoReason requires Python 3.11+ and standard CUDA or CPU execution libraries.
+### Installation
+Install AutoReason alongside FastMCP and Pydantic v2:
 
 ```bash
-# Clone the official NousResearch repository
-git clone https://github.com/NousResearch/autoreason.git
-cd autoreason
-
-# Create and activate a virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies including FastMCP 3.1 and Pydantic v2
-pip install -r requirements.txt
+pip install autoreason fastmcp pydantic uvicorn httpx
 ```
 
-### Basic System Configuration
-Create a `config.yaml` file in your root workspace defining your model endpoint and tool environment:
+Ensure local inference engines (Ollama or vLLM) or remote API keys are configured:
+
+```bash
+export AUTOREASON_MODEL="nous-hermes-4-llama-70b"
+export OPENAI_BASE_URL="http://localhost:11434/v1"
+export OPENAI_API_KEY="ollama"
+```
+
+### Minimal Verification Loop Example
+Define a simple reasoning task with code execution verification:
+
+```python
+from autoreason import ReasoningSession
+from pydantic import BaseModel, ConfigDict, Field
+
+class BugFixResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    solution: str = Field(..., description="Root cause fix")
+    test_verified: bool = Field(..., description="Passed automated unit test")
+
+session = ReasoningSession(
+    model="nous-hermes-4-llama-70b",
+    max_search_depth=5,
+    verifier="python_sandbox"
+)
+
+# Run autonomous problem solving
+result = session.solve(
+    problem="Write a function to return the nth Fibonacci number in O(1) space.",
+    test_suite="assert fibonacci(10) == 55\nassert fibonacci(0) == 0"
+)
+
+print(f"Final Solution:\n{result.best_path[-1].hypothesis}")
+print(f"Search Nodes Explored: {len(result.all_nodes)}")
+```
+
+## Systemd Service Unit Configuration
+
+Run the AutoReason FastMCP reasoning daemon as a managed background service on `/etc/systemd/system/autoreason-mcp.service`:
+
+```ini
+[Unit]
+Description=AutoReason FastMCP 3.1 Verification Daemon
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/NousResearch/autoreason
+
+[Service]
+Type=simple
+User=knowledgeops
+Group=knowledgeops
+WorkingDirectory=/opt/autoreason
+ExecStart=/opt/autoreason/.venv/bin/python -m autoreason.server --port 8094
+Restart=always
+RestartSec=5s
+
+# Environment settings
+Environment=PYTHONUNBUFFERED=1
+Environment=AUTOREASON_MODEL=nous-hermes-4-llama-70b
+Environment=PORT=8094
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/autoreason/logs /tmp
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now autoreason-mcp.service
+sudo systemctl status autoreason-mcp.service
+```
+
+## Docker Compose Stack (`docker-compose.yml`)
+
+Deploy AutoReason alongside an isolated Python test sandbox and Redis trace store:
 
 ```yaml
-model:
-  provider: "litellm"
-  name: "ollama/nous-hermes-4-llama-4-70b"
-  temperature: 0.2
-  max_tokens: 4096
+version: "3.9"
 
-reasoning:
-  max_search_depth: 8
-  beam_width: 3
-  backtracking_enabled: true
-  verifier_type: "python_interpreter"
+services:
+  autoreason-server:
+    image: autoreason-fastmcp:v2027.1
+    container_name: autoreason-server
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      - AUTOREASON_MODEL=nous-hermes-4-llama-70b
+      - SANDBOX_URL=http://code-sandbox:8095
+      - REDIS_URL=redis://reasoning-redis:6379/0
+      - LOG_LEVEL=INFO
+    depends_on:
+      reasoning-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - reason-net
 
-mcp:
-  port: 18795
-  protocol_version: "3.1"
+  code-sandbox:
+    image: python:3.11-slim
+    container_name: autoreason-sandbox
+    restart: unless-stopped
+    command: ["python", "-m", "http.server", "8095"]
+    networks:
+      - reason-net
+
+  reasoning-redis:
+    image: redis:7.4-alpine
+    container_name: autoreason-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "volatile-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - reason-net
+
+networks:
+  reason-net:
+    driver: bridge
 ```
 
 ## CLI examples
 
-AutoReason provides command-line utilities for task execution, interactive debugging, and launching local reasoning microservices.
+### 1. Launch Interactive Reasoning Session
+Start an automated MCTS reasoning loop from the terminal:
 
 ```bash
-# Execute a complex mathematical reasoning task with tree-search logging
-python run_reasoning.py \
-  --task "Prove that for all integers n, n^5 - n is divisible by 5" \
-  --config config.yaml \
-  --output-trace trace_output.json
+autoreason run \
+  --model "nous-hermes-4-llama-70b" \
+  --problem "Find all prime factors of 1092049583" \
+  --verifier "sympy" \
+  --max-depth 6
+```
 
-# Launch automated code repair across a local Python directory
-python run_code_debug.py \
-  --path ./src/buggy_subsystem \
-  --test-command "pytest tests/test_core.py" \
-  --max-iterations 5
+### 2. Audit Existing Trace Graph File
+Inspect an exported execution trace graph:
 
-# Start the AutoReason FastMCP 3.1 server on local port 18795
-python -m autoreason.mcp_server \
-  --host 127.0.0.1 \
-  --port 18795 \
-  --log-level DEBUG
+```bash
+autoreason audit-trace \
+  --input-file "./traces/task_8912_trace.json" \
+  --show-failures \
+  --output-format table
+```
+
+### 3. Run Benchmark Evaluation Suite
+Evaluate model reasoning performance on HumanEval or GSM8K:
+
+```bash
+autoreason benchmark \
+  --dataset "humaneval" \
+  --model "nous-hermes-4-llama-70b" \
+  --beam-width 4 \
+  --output-report "./reports/eval_results.json"
 ```
 
 ## API examples
 
-Below are complete, production-ready examples demonstrating how to programmatically instantiate AutoReason trace validators using Pydantic v2 schemas and build custom FastMCP 3.1 reasoning tools.
-
-### 1. Pydantic v2 Reasoning Graph & Trace Validation Schema
+### 1. Strict Pydantic v2 Reasoning Trace Validation
+To ensure that generated reasoning traces conform to formal schemas before ingestion into vector search or fine-tuning datasets, AutoReason utilizes strict **Pydantic v2** validation (`extra="forbid"`, `frozen=True`):
 
 ```python
 import sys
 import json
-from typing import List, Literal, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import List, Optional, Literal, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-class ToolExecutionResult(BaseModel):
-    tool_name: str = Field(..., description="Name of the FastMCP verifier tool executed.")
-    stdout: str = Field(..., description="Standard output stream captured from execution.")
-    stderr: str = Field(..., description="Error output stream captured from execution.")
-    exit_code: int = Field(..., description="Process exit code (0 indicates success).")
+class ToolVerificationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    tool_name: str = Field(..., min_length=2, description="Name of verification tool")
+    stdout: str = Field(default="", description="Standard output from tool")
+    stderr: str = Field(default="", description="Standard error from tool")
+    exit_code: int = Field(default=0, description="Process return code (0 = success)")
 
 class ReasoningNode(BaseModel):
-    node_id: int = Field(..., description="Unique sequential node index in reasoning tree.")
-    parent_id: Optional[int] = Field(None, description="Parent node index for tracking tree depth.")
-    hypothesis: str = Field(..., description="Actionable hypothesis or code modification proposed.")
-    verification: Optional[ToolExecutionResult] = Field(None, description="Output from tool verification.")
-    status: Literal["PENDING", "VERIFIED", "FAILED_REJECTED", "BACKTRACKED"] = Field(...)
-    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Step evaluation score.")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    model_config = ConfigDict(frozen=True)
+    node_id: int = Field(..., ge=1, description="Unique node identifier in search tree")
+    parent_id: Optional[int] = Field(None, description="Parent node ID (None for root)")
+    hypothesis: str = Field(..., min_length=5, description="Generated reasoning step or action")
+    verification: ToolVerificationResult
+    status: Literal["VERIFIED", "REFUTED", "AMBIGUOUS"]
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="UCT verifier confidence")
+
+    @field_validator("confidence_score")
+    @classmethod
+    def check_confidence(cls, v: float) -> float:
+        if v < 0.0 or v > 1.0:
+            raise ValueError("Confidence must be strictly between 0.0 and 1.0")
+        return v
 
 class ReasoningTraceGraph(BaseModel):
-    task_description: str = Field(..., description="Original query or bug report.")
-    nodes: List[ReasoningNode] = Field(..., description="Complete collection of search tree nodes.")
-    final_solution: Optional[str] = Field(None, description="Validated solution string.")
-    total_tokens_consumed: int = Field(..., gt=0)
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    @field_validator("nodes")
-    @classmethod
-    def validate_tree_structure(cls, nodes: List[ReasoningNode]) -> List[ReasoningNode]:
-        node_ids = {n.node_id for n in nodes}
-        for n in nodes:
-            if n.parent_id is not None and n.parent_id not in node_ids:
-                raise ValueError(f"Node {n.node_id} references missing parent {n.parent_id}")
-        return nodes
+    task_description: str = Field(..., min_length=10)
+    nodes: List[ReasoningNode] = Field(default_factory=list)
+    final_solution: Optional[str] = None
+    total_tokens_consumed: int = Field(..., ge=0)
 
 def parse_and_audit_trace(raw_json: str) -> None:
     try:
@@ -232,52 +391,59 @@ if __name__ == "__main__":
 ```
 
 ### 2. FastMCP 3.1 AutoReason Verification Server Integration
+Expose an autonomous code hypothesis verification server complying with the FastMCP 3.1 Task Protocol:
 
 ```python
 import asyncio
 from typing import Dict, Any
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+from pydantic import BaseModel, ConfigDict, Field
 
-# Initialize FastMCP 3.1 Reasoning Server
 mcp = FastMCP("autoreason-verifier-service", version="3.1.0")
 
 class CodeVerificationRequest(BaseModel):
-    code_snippet: str = Field(..., description="Python code snippet to execute and verify.")
-    expected_output: str = Field(..., description="Target string output expected in stdout.")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    code_snippet: str = Field(..., min_length=5, description="Python code snippet to execute and verify")
+    expected_output: str = Field(..., min_length=1, description="Target string output expected in stdout")
+
+class CodeVerificationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    verified: bool
+    actual_output: str
+    expected_output: str
+    status: str
 
 @mcp.tool()
-async def verify_python_code(code_snippet: str, expected_output: str) -> Dict[str, Any]:
-    """
-    Executes a Python code hypothesis in a controlled sandbox and checks for expected output.
-    """
-    print(f"Executing FastMCP code verification request...")
+async def verify_python_code(request: CodeVerificationRequest) -> Dict[str, Any]:
+    """Executes a Python code hypothesis in a controlled sandbox and checks for expected output."""
     try:
-        # Secure execution emulation sandbox
         local_scope: Dict[str, Any] = {}
-        exec(code_snippet, {}, local_scope)
+        exec(request.code_snippet, {}, local_scope)
 
         result_val = str(local_scope.get("result", ""))
-        passed = expected_output in result_val
+        passed = request.expected_output in result_val
 
-        return {
-            "verified": passed,
-            "actual_output": result_val,
-            "expected_output": expected_output,
-            "status": "SUCCESS" if passed else "MISMATCH"
-        }
+        resp = CodeVerificationResponse(
+            verified=passed,
+            actual_output=result_val,
+            expected_output=request.expected_output,
+            status="SUCCESS" if passed else "MISMATCH"
+        )
+        return resp.model_dump()
     except Exception as err:
-        return {
-            "verified": False,
-            "error": str(err),
-            "status": "EXECUTION_ERROR"
-        }
+        fallback = CodeVerificationResponse(
+            verified=False,
+            actual_output="",
+            expected_output=request.expected_output,
+            status=f"EXECUTION_ERROR: {str(err)}"
+        )
+        return fallback.model_dump()
 
 @mcp.tool()
 async def compute_hypothesis_confidence(verified_steps: int, total_steps: int) -> Dict[str, Any]:
-    """
-    Calculates Monte Carlo tree node confidence based on verifier pass rates.
-    """
+    """Calculates Monte Carlo tree node confidence based on verifier pass rates."""
     if total_steps <= 0:
         return {"confidence": 0.0, "status": "INVALID_INPUT"}
 
@@ -293,6 +459,25 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom / Error | Probable Root Cause | Inspection / Diagnostic Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Search Tree Depth Explosion** | Verifier returning ambiguous non-zero exit codes | `autoreason audit-trace --input-file trace.json` | Tighten verifier exit criteria; enforce max search depth limit (`--max-depth 5`). |
+| **Sandbox Execution Timeout** | Infinite loop in generated hypothesis code | Check container CPU utilization via `docker stats` | Inject hard execution timeout (`timeout=5.0s`) in Python sandbox subprocess call. |
+| **FastMCP Connection Refused** | Verification daemon down or port 8094 conflict | `journalctl -u autoreason-mcp.service -n 50` | Restart systemd unit (`systemctl restart autoreason-mcp.service`); verify port 8094. |
+| **Model Token Budget Exhaustion**| Unbounded branching factor ($b > 8$) exploring duplicate paths | Inspect token consumption in trace report | Set beam width limit ($W_{\text{beam}} \le 4$) and deduplicate hypotheses via embedding hashes. |
+| **SMT Solver Hang (Z3/CVC5)** | Non-linear arithmetic formula exceeding solver heuristics | Inspect solver log files in `/tmp/smt_logs` | Enable solver timeout flags (`timeout=3000ms`) and fallback to heuristic approximation. |
+| **Invalid Trace Schema Error** | Upstream agent outputting raw markdown instead of JSON graph | Check JSON parse logs against `ReasoningTraceGraph` | Enforce strict Pydantic v2 schema with `extra="forbid"` and structured output decoding. |
+| **Container OOM in Docker** | Memory leak in sandboxed process during loop execution | `docker inspect autoreason-sandbox --format='{{.State.OOMKilled}}'` | Set Docker container memory limits (`--memory="1g"`) and recycle sandbox periodically. |
+| **Confidence Score Distortion** | Insufficient rollout sample count ($N_j < 3$) | Check node visit counts in trace metadata | Configure minimum rollout threshold ($N_{\text{min}} = 5$) before UCT node pruning. |
+
+## Operational Best Practices
+
+1. **Deterministic Seed Locking**: Set random seed parameters during model inference to allow exact replication of search tree branches during regression audits.
+2. **Ephemeral Sandbox Recycling**: Destroy and recreate execution sandboxes after running untrusted code hypotheses to prevent persistent filesystem contamination.
+3. **Trace Archival Lifecycle**: Automatically archive serialized JSON trace graphs to object storage (S3/GCS) with a 60-day lifecycle retention policy.
+
 ## Related tools / concepts
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md) — SOTA open-weights reasoning model using reinforcement learning.
 - [Gemma 4](../ai_knowledge/local_llms.md) — Efficient open model family for local agent deployment.
@@ -300,7 +485,7 @@ if __name__ == "__main__":
 - [Letta](letta.md) — Agentic framework providing long-term memory management.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Conceptual architectures for self-directed agent loops.
 - [Software Factories](../../knowledge_base/patterns/software-factories.md) — Scalable code generation paradigms.
-- [Claude](../ai_knowledge/claude.md) — Proprietary LLM family.
+- [Claude](../ai_knowledge/claude.md) — Frontier proprietary LLM family.
 
 ## Sources / references
 - [NousResearch/autoreason Official GitHub Repository](https://github.com/NousResearch/autoreason)
