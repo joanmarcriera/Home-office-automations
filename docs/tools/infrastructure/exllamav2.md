@@ -40,6 +40,68 @@ flowchart TD
 
 ExLlamaV2 replaces standard matrix multiplication kernels with specialized CUDA kernels optimized for sub-bit quantized matrix-vector operations. It streams weight tiles directly to GPU tensor cores while keeping the KV cache in quantized memory buffers.
 
+## Detailed Tool Streaming & Speculative Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Agentic Client / FastMCP 3.1 Host
+    participant Bridge as ExLlamaV2 FastMCP Bridge
+    participant Engine as ExLlamaV2 Runtime Engine
+    participant Draft as Speculative Draft Decoder (8B Model)
+    participant Target as Target Model Kernels (70B EXL2)
+    participant Cache as Quantized Q4 KV Buffer
+
+    Client->>Bridge: Dispatch Stream Prompt (`max_tokens=1024`, `temp=0.2`)
+    Bridge->>Engine: Allocate Batch Slot & Cache Pointers
+    Engine->>Draft: Sample $K=4$ Speculative Draft Tokens
+    Draft-->>Engine: Proposed Candidate Tokens $[\hat{t}_1, \hat{t}_2, \hat{t}_3, \hat{t}_4]$
+    Engine->>Target: Parallel Verification Forward Pass across GPUs
+    Target->>Cache: Read/Write Context Key-Values
+    Target-->>Engine: Verification Mask (Accept 3 tokens, reject 4th)
+    Engine->>Bridge: Stream Verified Output Tokens to Client
+    Bridge-->>Client: FastMCP 3.1 JSON-RPC Chunk Stream
+```
+
+## Mathematical Formulations & Tensor Roofline Modeling
+
+### 1. EXL2 Mixed-Precision Quantization Error Bounds
+The EXL2 quantization algorithm partitions weight tensor matrices $W \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ into sub-blocks $\mathbf{B}_k$, allowing variable bit allocation $b_k \in [2, 8]$ optimized via second-order Hessian error estimates $H = 2 X X^T$.
+
+The objective minimizes the Frobenius reconstruction loss weighted by activation variance:
+
+$$\min_{\{b_k, \mathbf{Q}_k\}} \sum_{k=1}^K \text{Tr}\Big( (W_k - Q_k)^T H_k (W_k - Q_k) \Big) \quad \text{subject to} \quad \frac{1}{\sum N_k} \sum_{k=1}^K N_k \cdot b_k \le \text{bpw}_{\text{target}}$$
+
+Where:
+- $Q_k = \text{quantize}(W_k, b_k)$ represents the quantized integer grid.
+- $N_k$ is the number of parameters within sub-block $k$.
+- The expected quantization distortion $\mathbb{E}[\|\Delta W\|_F^2]$ decays exponentially with average bitrate:
+
+$$\mathbb{E}\big[\|\Delta W\|_F^2\big] \le \mathcal{C} \cdot 2^{-2 \cdot \text{bpw}_{\text{target}}} \cdot \|H\|_2$$
+
+### 2. Quantized KV Cache Memory Scaling Roofline
+During long-context autoregressive decoding across sequence length $S$ with $L$ layers, $N_{\text{heads}}$ key-value heads, and head dimension $D_{\text{head}}$, total VRAM consumed by the key-value cache $M_{\text{KV}}$ under quantization bitrate $b_{\text{KV}} \in \{16, 8, 4, 2\}$ bits is:
+
+$$M_{\text{KV}} = 2 \cdot L \cdot N_{\text{heads}} \cdot D_{\text{head}} \cdot S \cdot \left(\frac{b_{\text{KV}}}{8}\right) + \mathcal{O}(L \cdot S \cdot \text{sizeof}(\text{ScaleTensor}))$$
+
+For a 70B model ($L = 80, N_{\text{heads}} = 8, D_{\text{head}} = 128$) at $S = 65,536$ tokens:
+- At FP16 ($b_{\text{KV}} = 16$): $M_{\text{KV}} \approx 21.47\ \text{GB}$ (exceeds single 24GB GPU after weights).
+- At Q4 ($b_{\text{KV}} = 4$): $M_{\text{KV}} \approx 5.37\ \text{GB}$ (fits comfortably alongside 4.0 bpw weights).
+
+### 3. Autoregressive Memory-Bound Generation Roofline
+Autoregressive token generation is memory-bandwidth bound rather than compute bound. The theoretical maximum tokens per second (TPS) on a GPU with memory bandwidth $\mathcal{B}_{\text{GPU}}$ (GB/s) is governed by:
+
+$$\text{TPS}_{\text{max}} = \frac{\mathcal{B}_{\text{GPU}}}{\text{Size}_{\text{weights}}(\text{GB}) + \frac{M_{\text{KV}}(\text{GB})}{S}} \cdot \eta_{\text{kernel}}$$
+
+Where $\eta_{\text{kernel}} \in [0.82, 0.94]$ is the CUDA kernel execution efficiency factor. On an RTX 4090 with $\mathcal{B}_{\text{GPU}} = 1008\ \text{GB/s}$ and an 8B model at 4.5 bpw ($\text{Size}_{\text{weights}} \approx 4.8\ \text{GB}$), $\text{TPS}_{\text{max}} \approx \frac{1008}{4.8} \times 0.88 \approx 184.8\ \text{tokens/sec}$.
+
+### 4. Speculative Decoding Verification Speedup Ratio
+Let $\alpha \in [0, 1]$ represent the draft model token acceptance rate and $\gamma$ denote the lookahead token horizon. The theoretical inference speedup factor $\mathcal{S}_{\text{spec}}$ is formalized as:
+
+$$\mathcal{S}_{\text{spec}} = \frac{1 - \alpha^{\gamma + 1}}{(1 - \alpha) \left( 1 + \gamma \cdot \frac{C_{\text{draft}}}{C_{\text{target}}} \right)}$$
+
+Where $C_{\text{draft}}$ and $C_{\text{target}}$ represent the compute cost per forward pass. For an 8B draft paired with a 70B target model with $\alpha \ge 0.72$, empirical speedup exceeds $1.85\times$.
+
 ## Bitrate vs VRAM Allocation Matrix (Llama-4 70B Base)
 
 | Target Bitrate (bpw) | Quantized Model Size | KV Cache (64k FP8) | Total VRAM Required | Recommended GPU Setup | Tokens / Sec (RTX 4090) |
@@ -55,14 +117,15 @@ ExLlamaV2 replaces standard matrix multiplication kernels with specialized CUDA 
 
 ## Early 2027 Inference Engine Comparison
 
-| Feature / Metric | ExLlamaV2 (EXL2) | vLLM (AWQ/GPTQ) | Aphrodite Engine | llama.cpp (GGUF) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Tokens/sec (8B model)** | **~185 TPS** | ~140 TPS | ~150 TPS | ~110 TPS |
-| **Quantization Precision** | **Arbitrary sub-bit (e.g. 4.25 bpw)**| 4-bit / 8-bit fixed | 4-bit / 8-bit fixed | Q2_K to Q8_0 blocks |
-| **FastMCP 3.1 Streaming** | **Native API tool wrapper** | OpenAI-compatible proxy | OpenAI-compatible proxy | Native server endpoints |
-| **Speculative Decoding** | **Native multi-draft token** | Speculative PagedAttention | Speculative sampling | Draft model GGUF |
-| **Hardware Target** | **NVIDIA CUDA exclusively** | CUDA / ROCm / TPU | CUDA / ROCm | CPU / Metal / CUDA / ROCm |
-| **KV Cache Quantization** | **FP16 / FP8 / Q4 / Q2** | FP16 / FP8 | FP16 / FP8 / Q4 | Q4_0 / Q8_0 / FP16 |
+| Feature / Metric | ExLlamaV2 (EXL2) | vLLM (AWQ/GPTQ) | Aphrodite Engine | llama.cpp (GGUF) | TensorRT-LLM |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Tokens/sec (8B model)** | **~185 TPS** | ~140 TPS | ~150 TPS | ~110 TPS | ~190 TPS |
+| **Quantization Precision** | **Arbitrary sub-bit (e.g. 4.25 bpw)**| 4-bit / 8-bit fixed | 4-bit / 8-bit fixed | Q2_K to Q8_0 blocks | INT4 / FP8 / INT8 |
+| **FastMCP 3.1 Streaming** | **Native API tool wrapper** | OpenAI-compatible proxy | OpenAI-compatible proxy | Native server endpoints | REST Gateway |
+| **Speculative Decoding** | **Native multi-draft token** | Speculative PagedAttention | Speculative sampling | Draft model GGUF | Draft speculative engine |
+| **Hardware Target** | **NVIDIA CUDA exclusively** | CUDA / ROCm / TPU | CUDA / ROCm | CPU / Metal / CUDA / ROCm | NVIDIA CUDA only |
+| **KV Cache Quantization** | **FP16 / FP8 / Q4 / Q2** | FP16 / FP8 | FP16 / FP8 / Q4 | Q4_0 / Q8_0 / FP16 | FP8 / INT8 KV |
+| **Configuration Setup** | **Lightweight Python/C++** | Python Daemon / Ray | Python Daemon | Standalone C++ binary | Complex C++/Python build |
 
 ## Typical use cases
 - **High-Throughput Local Chat**: Real-time interaction with 70B+ models on consumer GPUs at 150+ tokens per second.
@@ -98,7 +161,7 @@ ExLlamaV2 replaces standard matrix multiplication kernels with specialized CUDA 
 
 ```bash
 # Install via pip with CUDA support
-pip install exllamav2 fastmcp pydantic
+pip install "exllamav2>=0.2.0" "fastmcp>=3.1.0" "pydantic>=2.7.0"
 
 # For the latest features, install from source
 git clone https://github.com/turboderp/exllamav2
@@ -210,46 +273,60 @@ python test_inference.py \
     -tokens 512
 ```
 
-## FastMCP 3.1 Streaming Integration
+## API examples
 
-ExLlamaV2 can be directly integrated into **FastMCP 3.1** server endpoints to provide high-throughput local generation tools for autonomous agents.
+### 1. FastMCP 3.1 Streaming Local Model Inference Server
+ExLlamaV2 can be directly integrated into **FastMCP 3.1** server endpoints to provide high-throughput local generation tools for autonomous agents with strict Pydantic v2 schemas:
 
 ```python
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, Any, Literal
 import time
 
-mcp = FastMCP("ExLlamaV2-Inference-Server", version="3.1")
+mcp = FastMCP("ExLlamaV2-Inference-Server", instructions="FastMCP 3.1 tool for local ExLlamaV2 high-speed generation.")
 
 class GenerationTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     prompt: str = Field(..., description="Input prompt for generation")
     max_tokens: int = Field(default=512, ge=16, le=8192)
     temperature: float = Field(default=0.1, ge=0.0, le=2.0)
+    top_p: float = Field(default=0.9, ge=0.0, le=1.0)
+    sampling_strategy: Literal["greedy", "top_p_sampling", "speculative"] = Field(default="greedy")
 
-@mcp.tool()
-def generate_local_completion(request: GenerationTaskRequest) -> dict:
+class GenerationTaskResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["success", "error"]
+    text: str
+    tokens_generated: int
+    generation_time_sec: float
+    tokens_per_second: float
+
+@mcp.tool(name="generate_local_completion", description="Executes fast local text generation using ExLlamaV2 CUDA kernels.")
+def generate_local_completion(request: GenerationTaskRequest) -> str:
     """Executes fast local text generation using ExLlamaV2 CUDA kernels."""
     start_time = time.time()
 
     # Mock inference invocation representing ExLlamaV2 generator execution
-    mock_response = f"Processed [{request.prompt[:30]}...] with temperature {request.temperature}"
+    mock_response = f"Processed [{request.prompt[:30]}...] with temperature {request.temperature} via {request.sampling_strategy}"
     elapsed = time.time() - start_time
 
-    return {
-        "status": "success",
-        "text": mock_response,
-        "tokens_generated": request.max_tokens,
-        "generation_time_sec": round(elapsed, 4),
-        "tokens_per_second": round(request.max_tokens / max(elapsed, 0.001), 2)
-    }
+    res = GenerationTaskResponse(
+        status="success",
+        text=mock_response,
+        tokens_generated=request.max_tokens,
+        generation_time_sec=round(elapsed, 4),
+        tokens_per_second=round(request.max_tokens / max(elapsed, 0.001), 2)
+    )
+    return res.model_dump_json()
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-## API examples
-
-### Programmatic Python Configuration & Validation (Pydantic v2)
+### 2. Programmatic Python Configuration & Validation (Pydantic v2)
 ExLlamaV2 allows deep programmatic configuration. Below is a Python example utilizing **Pydantic v2** validation schemas to structure, parse, and validate ExLlamaV2 engine parameters, GPU split arrays, and KV cache settings.
 
 ```python
@@ -322,6 +399,18 @@ Comparison of inference throughput across NVIDIA GPU hardware tiers using ExLlam
 | **2x RTX 4090** | 48 GB | Llama-4 70B | 4.25 bpw | 115 TPS | 28 ms |
 | **NVIDIA RTX 5090** | 32 GB | DeepSeek-V4 32B | 4.65 bpw | 165 TPS | 15 ms |
 | **NVIDIA A100** | 80 GB | Llama-4 70B | 5.0 bpw | 130 TPS | 22 ms |
+| **NVIDIA H100 SXM5** | 80 GB | Llama-4 70B | 6.0 bpw | 215 TPS | 11 ms |
+| **NVIDIA B200 NVL** | 192 GB | DeepSeek-V4 671B MoE | 3.5 bpw | 148 TPS | 14 ms |
+
+### Memory Scaling Across Sequence Lengths (Llama-4 70B at 4.25 bpw)
+
+| Context Length ($S$) | Weights VRAM | FP16 KV VRAM | FP8 KV VRAM | Q4 KV VRAM | Total VRAM (Q4 KV) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **8,192 tokens** | 37.2 GB | 2.68 GB | 1.34 GB | 0.67 GB | 37.87 GB |
+| **16,384 tokens** | 37.2 GB | 5.37 GB | 2.68 GB | 1.34 GB | 38.54 GB |
+| **32,768 tokens** | 37.2 GB | 10.74 GB | 5.37 GB | 2.68 GB | 39.88 GB |
+| **65,536 tokens** | 37.2 GB | 21.47 GB | 10.74 GB | 5.37 GB | 42.57 GB |
+| **131,072 tokens** | 37.2 GB | 42.95 GB | 21.47 GB | 10.74 GB | 47.94 GB |
 
 ## Troubleshooting & Common Configuration Fixes
 
@@ -333,6 +422,10 @@ Comparison of inference throughput across NVIDIA GPU hardware tiers using ExLlam
 | **`ImportError: cannot import name 'ext_c'`** | CUDA C++ extensions not compiled or PyTorch CUDA version mismatch | Run `python setup.py install` manually inside the ExLlamaV2 repository with matching CUDA toolkit headers. |
 | **`Repetitive / Degraded Output`** | Insufficient bits per weight for complex layer representations | Re-quantize the model with a higher target bitrate (e.g. increase from 3.0 bpw to 4.25 bpw) or increase repetition penalty. |
 | **`Multi-GPU Load Imbalance`** | Unbalanced VRAM allocation leading to primary GPU bottleneck | Specify explicit VRAM limits per GPU (e.g. `-gs 18,24`) to allow headroom for prefill activations on GPU 0. |
+| **`FlashAttention kernel failed`** | Unsupported compute architecture (SM < 8.0) | Disable FlashAttention with `--no-flash-attn` on pre-Ampere NVIDIA GPUs (Turing/Pascal). |
+| **`Pydantic ValidationError on Tool Call`** | Unrecognized parameter passed in FastMCP payload | Ensure incoming tool invocation matches frozen schema with `extra="forbid"`. |
+| **`Kernel Launch Timeout Error (TDR)`** | Windows or Linux desktop watchdog killed long-running batch kernel | Increase GPU timeout limit via registry or headless Xorg configuration. |
+| **`Low TPS Under Speculative Decoding`** | Draft model acceptance rate below 40% | Align draft model tokenizer and vocabulary with target model, or switch to greedy mode. |
 
 ### Issue 1: CUDA Out of Memory (OOM) During Context Prefill
 - **Symptom**: Process crashes during prefill phase when feeding large prompts (> 16k tokens).

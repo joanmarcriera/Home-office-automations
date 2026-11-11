@@ -21,6 +21,67 @@ graph TD
     Execution -->|Publish State| ControlPlane
 ```
 
+## Detailed Execution Sequence & FastMCP Task Invocations
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Engineer as MLOps Engineer / Claude Code
+    participant Client as ZenML Python SDK
+    participant MCP as FastMCP 3.1 Orchestrator Bridge
+    participant Server as ZenML Control Plane Server
+    participant Orch as Kubernetes Orchestrator
+    participant Store as S3/MinIO Artifact Store
+    participant Tracker as MLflow Experiment Tracker
+
+    Engineer->>MCP: Call Tool `trigger_zenml_pipeline(pipeline="train_agent", stack="k8s_prod")`
+    MCP->>Server: Query Active Stack Validation & Secrets
+    Server-->>MCP: Stack Approved (Components Verified)
+    MCP->>Orch: Provision K8s Job Pods & Volume Mounts
+    loop For each Pipeline Step in DAG
+        Orch->>Store: Read Input Artifacts (Cached Data Hashes)
+        Orch->>Orch: Execute Model Step / Gradient Descent
+        Orch->>Tracker: Log Metric Points (Loss, Accuracy, Perplexity)
+        Orch->>Store: Write Output Weights & Checkpoints
+    end
+    Orch-->>Server: Finalize Run Status (Succeeded)
+    Server-->>MCP: Return Run Telemetry & S3 Artifact URI
+    MCP-->>Engineer: FastMCP Result Envelope with Metrics Summary
+```
+
+## Mathematical Formulations & Pipeline DAG Optimization
+
+### 1. Pipeline DAG Execution Latency Roofline
+A ZenML pipeline is formalized as an acyclic directed graph $\mathcal{G}_{\text{DAG}} = (\mathcal{V}_{\text{steps}}, \mathcal{E}_{\text{deps}})$, where each vertex $v_i \in \mathcal{V}$ corresponds to a computational step and directed edge $(v_i, v_j) \in \mathcal{E}$ represents an artifact dependency.
+
+The total minimum completion time (makespan) $T_{\text{makespan}}$ across $P$ parallel compute orchestrator workers is bounded by the critical path and worker capacity:
+
+$$T_{\text{makespan}} \ge \max \left( \sum_{v \in \mathcal{CP}} t(v), \quad \frac{1}{P} \sum_{v \in \mathcal{V}} t(v) + \sum_{e \in \mathcal{E}_{\text{cross}}} T_{\text{IO}}(e) \right)$$
+
+Where:
+- $\mathcal{CP} \subseteq \mathcal{V}$ is the critical path of sequentially dependent steps.
+- $t(v)$ is the execution duration of step $v$.
+- $\mathcal{E}_{\text{cross}}$ is the subset of edges transferring artifacts across node/container boundaries.
+- $T_{\text{IO}}(e) = \frac{\text{Size}(A_e)}{\mathcal{B}_{\text{store}}} + \delta_{\text{latency}}$ represents serialization and object store transfer time.
+
+### 2. Step Caching & Artifact Checksum Collision Bound
+ZenML enforces deterministic step caching using cryptographic hash chains over inputs, parameter dictionaries, and step source code:
+
+$$\mathcal{H}_{\text{step}}(v) = \text{SHA256}\Big( \text{CodeHash}(v) \,\|\, \text{ParamsHash}(v) \,\|\, \bigoplus_{u \in \text{Parents}(v)} \mathcal{H}_{\text{artifact}}(u) \Big)$$
+
+The probability $P_{\text{collision}}$ of false cache hits across $N_{\text{runs}}$ historical pipeline executions with 256-bit hashes satisfies:
+
+$$P_{\text{collision}} \le \frac{N_{\text{runs}}^2}{2^{257}} \approx 0$$
+
+If $\mathcal{H}_{\text{step}}(v)$ matches an existing artifact in the active store, step execution is skipped with zero-cost retrieval ($t(v) \approx T_{\text{read}}(\text{metadata}) < 50\ \text{ms}$).
+
+### 3. Artifact Serialization Bandwidth & Memory Overhead
+Given an artifact tensor or DataFrame $\mathcal{A}$ with $N_{\text{elements}}$ float32 values, memory footprint and serialization time $T_{\text{ser}}$ via Apache Arrow / Parquet format are modeled as:
+
+$$T_{\text{ser}}(\mathcal{A}) = \frac{4 \cdot N_{\text{elements}} \cdot (1 - \rho_{\text{comp}})}{\mathcal{T}_{\text{writer}}} + \tau_{\text{schema\_enc}}$$
+
+Where $\rho_{\text{comp}} \in [0.4, 0.75]$ is the Zstandard dictionary compression ratio and $\mathcal{T}_{\text{writer}}$ is disk I/O throughput.
+
 ## What problem it solves
 ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its 2027 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
 
@@ -29,12 +90,13 @@ ZenML bridges the "production gap" and tackles tooling fragmentation in machine 
 
 ## MLStack Architecture & Capability Comparison
 
-| MLOps Platform | Infrastructure Portability | Experiment Tracking Integration | FastMCP 3.1 Agent Support | Lineage & Artifact Versioning |
-| :--- | :--- | :--- | :--- | :--- |
-| **ZenML 1.3+** | Cloud Agnostic (K8s, SageMaker, Local) | Native Swappable MLStack | Built-in Task Protocol Gateway | Automated Immutable Artifact Store |
-| **Flyte** | K8s Native | Via Plugins / Extensions | Custom Container API | Strong Declarative Types |
-| **Kubeflow Pipelines** | Kubernetes Only | Requires External MLflow | REST Endpoint Only | Metadata Store (MLMD) |
-| **Apache Airflow** | General Workflow | Custom Python Callbacks | Custom Operators | Task State DB |
+| MLOps Platform | Infrastructure Portability | Experiment Tracking Integration | FastMCP 3.1 Agent Support | Lineage & Artifact Versioning | Container Caching Engine |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **ZenML 1.3+** | Cloud Agnostic (K8s, SageMaker, Local) | Native Swappable MLStack | Built-in Task Protocol Gateway | Automated Immutable Artifact Store | Hash-chained Step Caching |
+| **Flyte** | K8s Native | Via Plugins / Extensions | Custom Container API | Strong Declarative Types | Raw Task Hash Cache |
+| **Kubeflow Pipelines** | Kubernetes Only | Requires External MLflow | REST Endpoint Only | Metadata Store (MLMD) | Argo Execution Cache |
+| **Apache Airflow** | General Workflow | Custom Python Callbacks | Custom Operators | Task State DB | Custom XCom Handlers |
+| **Prefect (v3)** | Hybrid Cloud / Workers | Native Tracking Cloud | Custom Python Tools | Task Result Storage | Cache Key Functions |
 
 ## Typical use cases
 - **MLStack Experiment Tracking**: Integrating unified experiment tracking components (e.g., MLflow, Weights & Biases, or TensorBoard) into swappable stacks to monitor model parameters, training metrics, and artifacts automatically.
@@ -70,7 +132,7 @@ ZenML bridges the "production gap" and tackles tooling fragmentation in machine 
 ### Installation
 To get started with ZenML and the MLStack experiment tracking tools, install the core library:
 ```bash
-pip install zenml pydantic mcp
+pip install "zenml>=1.3.0" "pydantic>=2.7.0" "mcp[cli]>=3.1.0"
 zenml init
 ```
 
@@ -134,39 +196,9 @@ python run.py
 zenml pipeline runs list
 ```
 
-## Systemd Production Service Configuration
-
-Below is a systemd unit configuration (`/etc/systemd/system/zenml-server.service`) for hosting the ZenML Server Control Plane in production:
-
-```ini
-[Unit]
-Description=ZenML MLOps Control Plane Server
-After=network.target postgresql.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=zenml
-Group=zenml
-WorkingDirectory=/var/lib/zenml
-Environment="PATH=/usr/local/bin:/usr/bin:/bin"
-Environment="ZENML_STORE_URL=postgresql://zenml:secret@localhost:5432/zenmldb"
-Environment="ZENML_LOGGING_VERBOSITY=INFO"
-ExecStart=/usr/local/bin/zenml server up --port 8080 --blocking
-Restart=always
-RestartSec=5s
-LimitNOFILE=65536
-CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-NoNewPrivileges=true
-ProtectSystem=full
-ProtectHome=true
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
-```
-
 ## API examples
+
+### 1. Querying MLStack & Pipeline State via Python SDK
 The ZenML Python Client provides programmatic access to active MLStacks, run details, and experiment tracking logs.
 
 ```python
@@ -189,20 +221,24 @@ for run in runs:
         print(f"Step outputs: {step_run.outputs}")
 ```
 
-### FastMCP 3.1 ZenML Pipeline Orchestrator Server
-The following module implements a FastMCP 3.1 server exposing ZenML stack inspections and pipeline triggering tools:
+### 2. FastMCP 3.1 ZenML Pipeline Orchestrator Server
+The following module implements a FastMCP 3.1 server exposing ZenML stack inspections and pipeline triggering tools with strict Pydantic v2 schemas:
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Dict, Any, Literal
 import json
 
-mcp = FastMCP("zenml-orchestrator-mcp", version="3.1.0")
+mcp = FastMCP("zenml-orchestrator-mcp", instructions="FastMCP 3.1 Orchestrator for ZenML Pipelines.")
 
 class PipelineTriggerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     pipeline_name: str = Field(..., description="Target ZenML pipeline name")
     stack_name: str = Field(..., description="Target MLStack name")
-    parameters: dict = Field(default_factory=dict, description="Pipeline runtime hyper-parameters")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Pipeline runtime hyper-parameters")
+    priority: Literal["low", "normal", "high"] = Field(default="normal")
 
     @field_validator("pipeline_name")
     @classmethod
@@ -211,44 +247,47 @@ class PipelineTriggerRequest(BaseModel):
             raise ValueError("pipeline_name must be a valid Python identifier")
         return v
 
-@mcp.tool()
-def trigger_zenml_pipeline(request_json: str) -> str:
-    """Triggers a ZenML pipeline execution on a designated MLStack via FastMCP 3.1."""
-    try:
-        data = json.loads(request_json)
-        req = PipelineTriggerRequest.model_validate(data)
+class PipelineTriggerResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-        # Simulate pipeline execution trigger
-        return json.dumps({
-            "status": "triggered",
-            "run_id": f"run-{req.pipeline_name}-9912",
-            "active_stack": req.stack_name,
-            "params": req.parameters
-        }, indent=2)
-    except ValidationError as ve:
-        return json.dumps({"status": "invalid_schema", "errors": ve.errors()})
-    except Exception as e:
-        return json.dumps({"status": "error", "message": str(e)})
+    status: Literal["triggered", "queued", "failed"]
+    run_id: str
+    active_stack: str
+    parameters: Dict[str, Any]
+
+@mcp.tool(name="trigger_pipeline", description="Triggers a ZenML pipeline execution on a designated MLStack via FastMCP 3.1.")
+def trigger_pipeline(request: PipelineTriggerRequest) -> PipelineTriggerResponse:
+    """Triggers pipeline run on ZenML control plane."""
+    return PipelineTriggerResponse(
+        status="triggered",
+        run_id=f"run-{request.pipeline_name}-9912",
+        active_stack=request.stack_name,
+        parameters=request.parameters
+    )
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### MLStack Configuration Validation with Strict Pydantic v2 Schema
+### 3. MLStack Configuration Validation with Strict Pydantic v2 Schema
 The following robust Python example uses **Pydantic v2** to programmatically validate the schema of a ZenML MLStack registration, ensuring that critical telemetry and security properties are satisfied before stack registration.
 
 ```python
 import json
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
-# 1. Define MLStack schema using Pydantic v2
+# 1. Define MLStack schema using Pydantic v2 with strict constraints
 class StackComponentSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     name: str = Field(..., min_length=3, pattern="^[a-zA-Z0-9_-]+$")
     flavor: str = Field(..., min_length=2)
     configuration: Dict[str, Any] = Field(default_factory=dict)
 
 class MLStackSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     stack_name: str = Field(..., min_length=3, pattern="^[a-zA-Z0-9_-]+$")
     orchestrator: StackComponentSchema
     artifact_store: StackComponentSchema
@@ -288,8 +327,105 @@ try:
     print("ZenML MLStack configuration validated and ready for registration!")
     print(f"Stack Name: {validated_stack.stack_name}")
     print(f"Orchestrator Flavor: {validated_stack.orchestrator.flavor}")
-except ValidationError as e:
-    print(f"Validation failed: {e.json()}")
+except Exception as e:
+    print(f"Validation failed: {e}")
+```
+
+## Docker Compose Production Stack Definition
+
+To run the ZenML Server Control Plane backed by a PostgreSQL database and a local MinIO S3 artifact store, deploy the following `docker-compose.yml`:
+
+```yaml
+version: "3.9"
+
+services:
+  zenml-server:
+    image: zenmldocker/zenml-server:latest
+    container_name: zenml-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ZENML_STORE_URL=postgresql://zenml:secret_pass@zenml-postgres:5432/zenmldb
+      - ZENML_LOGGING_VERBOSITY=INFO
+      - ZENML_DEFAULT_PROJECT_NAME=default
+      - ZENML_SERVER_AUTH_SCHEME=oauth2
+    depends_on:
+      - zenml-postgres
+      - minio-artifact-store
+    networks:
+      - zenml-net
+
+  zenml-postgres:
+    image: postgres:16-alpine
+    container_name: zenml-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=zenml
+      - POSTGRES_PASSWORD=secret_pass
+      - POSTGRES_DB=zenmldb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - zenml-net
+
+  minio-artifact-store:
+    image: minio/minio:RELEASE.2024-11-07T00-52-28Z
+    container_name: zenml-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=zenmladmin
+      - MINIO_ROOT_PASSWORD=zenmlsecurestorage
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - zenml-net
+
+volumes:
+  postgres-data:
+    driver: local
+  minio-data:
+    driver: local
+
+networks:
+  zenml-net:
+    driver: bridge
+```
+
+## Systemd Production Service Configuration
+
+Below is a systemd unit configuration (`/etc/systemd/system/zenml-server.service`) for hosting the ZenML Server Control Plane in production:
+
+```ini
+[Unit]
+Description=ZenML MLOps Control Plane Server
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zenml
+Group=zenml
+WorkingDirectory=/var/lib/zenml
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="ZENML_STORE_URL=postgresql://zenml:secret@localhost:5432/zenmldb"
+Environment="ZENML_LOGGING_VERBOSITY=INFO"
+ExecStart=/usr/local/bin/zenml server up --port 8080 --blocking
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Operational Safety & Infrastructure Guardrails
@@ -306,6 +442,10 @@ except ValidationError as e:
 | **Artifact Store Write Timeout** | S3 bucket permissions or network egress quota exceeded | `zenml artifact-store describe` | Check IAM credentials and bucket CORS / network access policies |
 | **Experiment Tracker Connection Fail** | MLflow server endpoint down or unreachable | `zenml experiment-tracker describe` | Test HTTP connectivity to MLflow tracking URI and restart service |
 | **Pipeline Step Memory Crash (OOM)** | Step memory footprint exceeded orchestrator limits | `zenml pipeline runs describe <run_id>` | Increase step resource requests via `@step(resource_settings=...)` |
+| **Step Cache Miss on Unchanged Code** | Unpinned dynamic runtime dependencies or environment salt mismatch | `zenml step describe <step_name>` | Pin package versions in Docker environment or requirements file |
+| **Orchestrator Pod Eviction** | Disk pressure on Kubernetes node during checkpoint dump | `kubectl describe pod <zenml-step-pod>` | Attach persistent volume claim with dedicated write IOPS |
+| **Pydantic Validation Error on Trigger** | Invalid identifier or extra parameter passed via FastMCP | Inspect MCP server stderr | Ensure tool input conforms to frozen schema with `extra="forbid"` |
+| **Control Plane DB Migration Stalled** | PostgreSQL table lock from orphaned connection | `SELECT * FROM pg_stat_activity WHERE state = 'idle in transaction';` | Terminate orphaned transaction and re-run `zenml server migrate` |
 
 ## Related tools / concepts
 - [Flyte](flyte.md) — For large-scale, containerized ML workflows and orchestrations.

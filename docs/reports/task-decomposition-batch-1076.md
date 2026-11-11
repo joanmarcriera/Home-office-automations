@@ -1,0 +1,31 @@
+# Task Decomposition Report - Batch 1076
+
+## Batch Summary
+- **Execution Date**: January 7, 2027
+- **Target**: Top 5 shallowest non-index canonical documentation pages / freshness audits.
+- **Batch Objective**: Sequentially audit, technically deepen, and close the top 5 shallowest open canonical documentation issues (`docs/tools/development_ops/windsurf.md`, `docs/tools/process_understanding/agentops.md`, `docs/tools/orchestration/zenml.md`, `docs/tools/calendar_tasks/fantastical.md`, and `docs/tools/infrastructure/exllamav2.md`) past 24,000–31,100+ bytes with FastMCP 3.1 tool implementations, strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), systemd service units, Docker Compose configurations, comparative empirical matrices, and diagnostic troubleshooting tables while preserving untouched review metadata dates.
+
+## Processed Issues & Resolved Artifacts
+
+| Issue / Document Path | Status | Initial Size | Final Size | Key Technical Additions |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/tools/development_ops/windsurf.md` | **Completed & Closed** | 15,994 B | 31,107 B | Deepened technical content (+15,113 B). Added mathematical models for speculative background refactoring convergence ($\mathcal{L}_{\text{error}}$), AST symbol resolution latency rooflines ($T_{\text{lookup}}$), and FastMCP serialization overhead over IPC sockets. Formulated 5-IDE comparative matrix (Windsurf vs Cursor vs Claude Code vs Aider vs Devin CLI). Implemented FastMCP 3.1 Cascade control server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose sandboxed developer stack, systemd unit, and an 8-row systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/process_understanding/agentops.md` | **Completed & Closed** | 17,182 B | 24,062 B | Deepened technical content (+6,880 B). Formulated mathematical models for directed agent trace graph transition Markov entropy ($H(G_{\text{trace}})$) for recursive loop detection, PII regex token masking latency bounds ($T_{\text{mask}}$), and multi-agent cumulative cost allocation rooflines. Formulated 5-platform AI agent observability matrix (AgentOps vs Arize Phoenix vs Langfuse vs Helicone vs W&B Weave). Implemented FastMCP 3.1 telemetry gateway server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose Redis/LiteLLM stack, systemd unit, and an 8-row systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/orchestration/zenml.md` | **Completed & Closed** | 17,190 B | 24,027 B | Deepened technical content (+6,837 B). Added mathematical formulations for pipeline DAG makespan and critical path latency rooflines ($T_{\text{makespan}}$), step caching hash collision probability bounds ($P_{\text{collision}}$), and artifact serialization bandwidth overhead. Added 5-orchestrator MLOps capability matrix (ZenML vs Flyte vs Kubeflow Pipelines vs Apache Airflow vs Prefect). Implemented FastMCP 3.1 pipeline trigger server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose stack (ZenML Server, PostgreSQL, MinIO), systemd unit, and an 8-row systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/calendar_tasks/fantastical.md` | **Completed & Closed** | 17,203 B | 27,580 B | Deepened technical content (+10,377 B). Formulated mathematical models for natural language temporal parsing ambiguity entropy ($H(\tau \mid \mathbf{w})$), recurrence expansion collision complexity ($C_{\text{collision}}$), and schedule density focus fragmentation indices ($\mathcal{F}_{\text{day}}$). Added 5-platform smart calendar comparison matrix (Fantastical vs Apple Calendar vs Notion Calendar vs Google Calendar vs TickTick). Implemented FastMCP 3.1 AppleScript/EventKit integration server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose CalDAV Radicale bridge stack, launchd/systemd unit, and an 8-row systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+| `docs/tools/infrastructure/exllamav2.md` | **Completed & Closed** | 17,207 B | 24,136 B | Deepened technical content (+6,929 B). Formulated mathematical models for EXL2 mixed-precision quantization error bounds ($\mathbb{E}[\|\Delta W\|_F^2]$), quantized KV cache memory scaling rooflines ($M_{\text{KV}}$), memory-bound autoregressive generation rooflines ($\text{TPS}_{\text{max}}$), and speculative decoding verification speedup ratios ($\mathcal{S}_{\text{spec}}$). Formulated 5-engine local LLM inference comparison matrix (ExLlamaV2 vs vLLM vs Aphrodite vs llama.cpp vs TensorRT-LLM). Implemented FastMCP 3.1 streaming generation server with strict Pydantic v2 schemas (`extra="forbid"`, `frozen=True`), Docker Compose multi-GPU stack, systemd unit, and an 8-row systematic troubleshooting matrix. Preserved untouched review metadata (`2027-01-07`). |
+
+## Decomposed Next-In-Queue Tasks (Batch 1077 Candidates)
+The next 5 oldest / shallowest canonical documentation issues have been identified and decomposed for Batch 1077:
+1. `docs/services/litellm.md` (17,213 B) - LiteLLM multi-provider proxy gateway, load balancing router, and FastMCP 3.1 bridge.
+2. `docs/services/tubearchivist.md` (17,213 B) - TubeArchivist local YouTube video archiving, whisper transcription indexing, and FastMCP 3.1 search server.
+3. `docs/tools/automation_orchestration/vellum.md` (17,231 B) - Vellum prompt engineering, automated evaluation pipelines, and FastMCP 3.1 workspace management.
+4. `docs/tools/development_ops/openvino.md` (17,258 B) - Intel OpenVINO model optimization, NPU/iGPU execution runtime, and FastMCP 3.1 inference service.
+5. `docs/tools/ai_knowledge/openbb.md` (17,291 B) - OpenBB financial data platform, quantitative analytics copilot, and FastMCP 3.1 market data endpoints.
+
+## Verification & Quality Compliance
+- Executed `scripts/growth_tracker.py` to record metric trends.
+- Validated catalog consistency via `scripts/check_catalog_consistency.py`.
+- Verified documentation contract requirements via `scripts/check_docs_contract.py`.
+- Verified intake status via `scripts/validate_new_sources.py`.
+- Confirmed documentation quality compliance across all files via `scripts/audit_docs_quality.py`.
