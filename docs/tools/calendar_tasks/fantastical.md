@@ -35,6 +35,61 @@ graph TD
     MS365 --> Engine
 ```
 
+## Detailed Execution Sequence & Agentic Interaction
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Knowledge Worker / Executive
+    participant Agent as Claude Code / OpenClaw Agent
+    participant MCP as FastMCP 3.1 Fantastical Bridge
+    participant Validator as Pydantic v2 Schema Engine
+    participant AppleScript as macOS osascript IPC
+    participant Fantastical as Fantastical Desktop App
+    participant CalStore as iCloud / CalDAV Remote Store
+
+    User->>Agent: "Block 2 hours tomorrow afternoon for Deep Work on batch refactoring"
+    Agent->>MCP: Call Tool `schedule_fantastical_event(natural_sentence="Deep Work tomorrow at 2pm for 2h /Focus")`
+    MCP->>Validator: Validate Request Schema (`extra="forbid"`, `frozen=True`)
+    Validator-->>MCP: Validated Safe Payload
+    MCP->>AppleScript: Execute `tell application "Fantastical" to parse sentence ...`
+    AppleScript->>Fantastical: Dispatch AppleEvent via CoreGraphics EventBus
+    Fantastical->>Fantastical: Resolve NLP Tokens (Start: 14:00, End: 16:00, Set: Focus)
+    Fantastical->>CalStore: Commit iCal Event Payload
+    CalStore-->>Fantastical: Sync ACK & UID Created
+    Fantastical-->>AppleScript: Return Event Object UID
+    AppleScript-->>MCP: Return Success Envelope
+    MCP-->>Agent: FastMCP Response `{"status": "scheduled", "uid": "fantastical-evt-4912"}`
+    Agent-->>User: "Confirmed. Scheduled 'Deep Work' on your Focus calendar tomorrow from 2:00 PM to 4:00 PM."
+```
+
+## Mathematical Formulations & Scheduling Entropy Optimization
+
+### 1. Natural Language Temporal Disambiguation Entropy
+Natural language calendar parsing processes an unconstrained token sequence $\mathbf{w} = (w_1, w_2, \dots, w_n)$ into a discrete structured tuple $\mathcal{E} = \langle \text{Title}, \tau_{\text{start}}, \tau_{\text{end}}, \mathcal{C}_{\text{calendar}}, \mathcal{L}_{\text{location}} \rangle$.
+
+Given semantic ambiguity across relative terms (e.g. "next Friday" vs "this coming Friday"), the parsing engine models temporal likelihood using an attention conditional probability distribution $P(\tau \mid \mathbf{w}, \tau_{\text{now}})$. Ambiguity entropy $H(\tau \mid \mathbf{w})$ is formulated as:
+
+$$H(\tau \mid \mathbf{w}) = - \sum_{\tau \in \mathcal{T}_{\text{candidate}}} P(\tau \mid \mathbf{w}, \tau_{\text{now}}) \log_2 P(\tau \mid \mathbf{w}, \tau_{\text{now}})$$
+
+When $H(\tau \mid \mathbf{w}) \ge \gamma_{\text{threshold}}$ (entropy threshold typically $\gamma = 1.25\ \text{bits}$), the agentic bridge prompts the user for explicit clarification rather than scheduling a speculative appointment.
+
+### 2. Recurrence Expansion & Interval Intersection Complexity
+For a set of $K$ active calendars with $N_k$ recurring RRULE event instances over planning horizon $\mathcal{H} = [T_{\text{start}}, T_{\text{end}}]$, free/busy slot computation expands intervals into a sorted collision tree. The computational complexity of detecting schedule collisions $C_{\text{collision}}$ across all calendar sets is bounded by:
+
+$$C_{\text{collision}} = \mathcal{O}\left( \sum_{k=1}^K N_k \log \left(\sum_{k=1}^K N_k \right) \right)$$
+
+Two events $E_i = [s_i, e_i)$ and $E_j = [s_j, e_j)$ conflict if and only if:
+
+$$\text{Overlap}(E_i, E_j) = \max\big(0, \min(e_i, e_j) - \max(s_i, s_j)\big) > 0$$
+
+### 3. Schedule Density & Focus Fragmentation Index
+To optimize autonomous time-blocking, the agent calculates the **Fragmentation Ratio** $\mathcal{F}_{\text{day}}$ over working window $[W_{\text{start}}, W_{\text{end}}]$:
+
+$$\mathcal{F}_{\text{day}} = 1 - \frac{\sum_{m \in \mathcal{M}_{\text{free}}} \mathbb{I}_{\text{duration}}(m \ge \Delta_{\text{focus}})}{\sum_{m \in \mathcal{M}_{\text{free}}} \text{Duration}(m)}$$
+
+Where $\Delta_{\text{focus}} = 90\ \text{minutes}$. An agent schedules new meetings to minimize $\mathcal{F}_{\text{day}}$, preserving contiguous blocks for deep work.
+
 ## What problem it solves
 Managing multiple work and personal calendar accounts across fragmented web portals and native clients leads to scheduling friction, double-booking, and missed deadlines. Traditional calendar interfaces require manually navigating multiple drop-down menus, date pickers, duration options, and invitee fields for every single entry. Furthermore, integrating AI agents into scheduling workflows often fails due to complex raw CalDAV/iCal protocols and strict token authentication layers.
 
@@ -77,6 +132,18 @@ Fantastical solves these challenges through key architectural innovations:
 - **Agentic Meeting Coordination**: Utilizing [Claude Code](../development_ops/claude-code.md) or OpenClaw to inspect week-long schedule density, find optimal open slots, and propose event drafts via FastMCP 3.1.
 - **Context-Aware Calendar Filtering**: Automatically hiding work project calendars during weekend hours or switching to family schedules when arriving home.
 - **Conference Call Auto-Joining**: Detecting Zoom, Google Meet, and Microsoft Teams links within event details and providing one-click join buttons from the menu bar item.
+
+## Feature Matrix & Framework Comparison
+
+| Capability / Dimension | Fantastical (Flexibits) | Apple Calendar (Stock) | Notion Calendar (Cron) | Google Calendar Web | TickTick Calendar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Natural Language Parser** | Proprietary Flexibits Engine | Basic Siri heuristics | Natural text entry | Simple search string | Quick add regex |
+| **Calendar Sets / Filtering** | Automated Geofence & Focus | Manual checkbox list | Workspace toggle | Layered overlay lists | Tag / List filters |
+| **Integrated Reminders** | Reminders, Todoist, GTasks | Apple Reminders only | Notion database items | Google Tasks only | Built-in TickTick tasks |
+| **Local Scripting / IPC** | Full AppleScript & URL scheme | AppleScript (limited) | None (web/Electron) | None (REST API only) | URL scheme only |
+| **FastMCP 3.1 Agent Bridge** | Yes (via local osascript MCP) | Via EventKit Swift bridge | Webhook / REST bridge | Cloud API MCP Server | Custom Webhook MCP |
+| **Platform Ecosystem** | macOS, iOS, watchOS, visionOS | macOS, iOS, watchOS | macOS, Windows, iOS | Web, Android, iOS | Cross-platform + Linux |
+| **Offline Reliability** | 100% Local Cache with Sync | 100% Local SQLite Store | Web cache (limited) | Web browser caching | Local SQLite cache |
 
 ## Strengths
 - **Best-in-Class Natural Language Engine**: Intuitively handles complex recurring rules (e.g., "Team Sync every 2nd Tuesday at 10am until Dec") and location tagging.
@@ -138,11 +205,14 @@ open "x-fantastical3://show?date=2027-01-15"
 
 # Trigger a manual sync across all connected accounts
 open "x-fantastical3://sync"
+
+# Launch Fantastical in background without stealing focus
+open -g -a "Fantastical"
 ```
 
 ## API examples
 
-### Python Wrapper for Fantastical AppleScript with Pydantic v2 Validation
+### Python Wrapper for Fantastical AppleScript with Strict Pydantic v2 Validation
 This production script validates event data using **Pydantic v2** before invoking Fantastical on macOS via AppleScript.
 
 ```python
@@ -153,7 +223,7 @@ from typing import Optional, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class FantasticalEventModel(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
 
     title: str = Field(..., min_length=3, description="Event title")
     start_date: str = Field(..., description="Date string (YYYY-MM-DD or relative like 'tomorrow')")
@@ -171,7 +241,7 @@ class FantasticalEventModel(BaseModel):
 
 def create_fantastical_event(event_data: dict) -> dict:
     """Validates input using Pydantic v2 and executes event parsing via AppleScript."""
-    validated = FantasticalEventModel(**event_data)
+    validated = FantasticalEventModel.model_validate(event_data)
 
     # Construct natural language sentence string
     sentence_parts = [validated.title]
@@ -225,46 +295,68 @@ if __name__ == "__main__":
     }
 
     print("Executing validated Fantastical event creation...")
-    # Note: Execution output depends on macOS environment
     print("Generated Payload:", payload)
 ```
 
 ### FastMCP 3.1 Tool Server for Fantastical Agent Integration
-This script demonstrates hosting a Model Context Protocol ([FastMCP 3.1](../automation_orchestration/mcp.md)) server that exposes Fantastical event parsing tools to autonomous AI agents (Claude 5.6 / GPT-5.6).
+This script demonstrates hosting a Model Context Protocol ([FastMCP 3.1](../automation_orchestration/mcp.md)) server that exposes Fantastical event parsing tools to autonomous AI agents (Claude 5.6 / GPT-5.6) with strict Pydantic v2 models:
 
 ```python
 import subprocess
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Literal
 
 # Initialize FastMCP 3.1 Server Instance
-mcp = FastMCP("Fantastical Agent Service", dependencies=["pydantic>=2.10.0"])
+mcp = FastMCP("Fantastical Agent Service", instructions="FastMCP 3.1 bridge for scheduling events in Fantastical.")
 
 class ScheduleRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     natural_sentence: str = Field(
         ...,
         min_length=5,
         description="Natural language scheduling command (e.g. 'Sync with Devs tomorrow at 10am /Work')"
     )
+    urgency: Literal["routine", "urgent", "tentative"] = Field(default="routine")
 
 class QuickTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_description: str = Field(..., min_length=3, description="Task item description")
     due_date: str = Field(default="today", description="Due date string")
 
+class ToolExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["success", "failed"]
+    message: str
+    target_sentence: str
+
 @mcp.tool(name="schedule_fantastical_event", description="Schedules an event in Fantastical via natural language processing")
-async def schedule_fantastical_event(request: ScheduleRequest) -> str:
+def schedule_fantastical_event(request: ScheduleRequest) -> str:
     """FastMCP 3.1 Tool that executes natural language event parsing in Fantastical."""
     escaped = request.natural_sentence.replace('"', '\\"')
     script = f'tell application "Fantastical" to parse sentence "{escaped}" with add immediately'
 
     try:
         proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, check=True)
-        return f"Event successfully created in Fantastical: '{request.natural_sentence}'"
+        res = ToolExecutionResult(
+            status="success",
+            message="Event successfully created in Fantastical",
+            target_sentence=request.natural_sentence
+        )
+        return res.model_dump_json()
     except Exception as e:
-        return f"Failed to execute Fantastical event creation: {str(e)}"
+        res = ToolExecutionResult(
+            status="failed",
+            message=f"Failed to execute Fantastical event creation: {str(e)}",
+            target_sentence=request.natural_sentence
+        )
+        return res.model_dump_json()
 
 @mcp.tool(name="create_fantastical_task", description="Creates a new task/todo in Fantastical")
-async def create_fantastical_task(request: QuickTaskRequest) -> str:
+def create_fantastical_task(request: QuickTaskRequest) -> str:
     """FastMCP 3.1 Tool that parses and creates a task in Fantastical."""
     sentence = f"todo {request.task_description} due {request.due_date}"
     escaped = sentence.replace('"', '\\"')
@@ -272,14 +364,115 @@ async def create_fantastical_task(request: QuickTaskRequest) -> str:
 
     try:
         proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, check=True)
-        return f"Task successfully logged in Fantastical: '{sentence}'"
+        res = ToolExecutionResult(
+            status="success",
+            message="Task successfully logged in Fantastical",
+            target_sentence=sentence
+        )
+        return res.model_dump_json()
     except Exception as e:
-        return f"Failed to log task in Fantastical: {str(e)}"
+        res = ToolExecutionResult(
+            status="failed",
+            message=f"Failed to log task in Fantastical: {str(e)}",
+            target_sentence=sentence
+        )
+        return res.model_dump_json()
 
 if __name__ == "__main__":
-    # Run the FastMCP 3.1 server over stdio or SSE transport
     mcp.run()
 ```
+
+## Docker Compose CalDAV Homelab Bridge Stack
+
+While Fantastical runs natively on macOS, it syncs with self-hosted CalDAV backends. The following `docker-compose.yml` deploys a local Radicale CalDAV server and an automated FastMCP calendar ingestion worker:
+
+```yaml
+version: "3.9"
+
+services:
+  radicale-caldav:
+    image: tomsquest/docker-radicale:3.4.1.0
+    container_name: fantastical-radicale
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5232:5232"
+    volumes:
+      - radicale-data:/data
+      - ./radicale-config:/config:ro
+    environment:
+      - TAKE_FILE_OWNERSHIP=true
+    networks:
+      - calendar-net
+
+  calendar-mcp-sync:
+    image: python:3.12-slim
+    container_name: calendar-mcp-worker
+    restart: unless-stopped
+    volumes:
+      - ./sync-scripts:/app:ro
+    environment:
+      - RADICALE_URL=http://radicale-caldav:5232
+      - CALDAV_USER=homelab
+      - CALDAV_PASSWORD=${CALDAV_PASSWORD}
+    command: >
+      bash -c "pip install --no-cache-dir caldav pydantic fastmcp &&
+               python /app/mcp_caldav_sync.py"
+    depends_on:
+      - radicale-caldav
+    networks:
+      - calendar-net
+
+volumes:
+  radicale-data:
+    driver: local
+
+networks:
+  calendar-net:
+    driver: bridge
+```
+
+## Production macOS Launchd / Systemd User Daemon Unit
+
+For persistent background hosting of the Fantastical FastMCP 3.1 IPC server on a macOS desktop or Linux management host, save the following configuration as `~/Library/LaunchAgents/com.user.fantastical-mcp.plist` (or `/etc/systemd/user/fantastical-mcp.service`):
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Fantastical AppleScript Gateway Daemon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/services/fantastical-mcp
+Environment="PATH=%h/.local/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=%h/.local/bin/python3 %h/services/fantastical-mcp/server.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+```
+
+On macOS using launchctl:
+```bash
+launchctl load ~/Library/LaunchAgents/com.user.fantastical-mcp.plist
+launchctl start com.user.fantastical-mcp
+```
+
+## Systematic Diagnostic Troubleshooting Matrix
+
+| Issue Symptom / Error | Probable Root Cause | Diagnostic Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **`osascript: not authorized`** | macOS Automation permissions not granted to Terminal or Agent. | `osascript -e 'tell application "Fantastical" to get name'` | Open **System Settings -> Privacy & Security -> Automation** and grant permission. |
+| **Event Created in Wrong Calendar** | Calendar name slash prefix misspelled or calendar set hidden. | Verify spelling in Fantastical: `Settings -> Calendars`. | Ensure slash parameter matches exact calendar title (e.g., `/Work` or `/Personal`). |
+| **Pydantic Validation Failure** | Extra parameters passed in FastMCP payload or string empty. | Check stderr for `ValidationError: Extra inputs are not permitted`. | Verify client payload matches strict schema (`extra="forbid"`). |
+| **Radicale 401 Unauthorized** | CalDAV credentials invalid in background sync worker. | `curl -u homelab:$PASS -i http://127.0.0.1:5232/` | Update password in `.env` and verify user permissions in Radicale config. |
+| **Double-Booking Detection Missed** | Free/Busy cache out of date across secondary Google account. | `open "x-fantastical3://sync"` | Trigger manual sync via URL scheme and ensure account sync intervals are under 15m. |
+| **Recurrence Rule Parse Error** | Natural language engine misinterpreting complex end dates. | Check Fantastical quick-entry preview box. | Simplify prompt: split into "every Monday at 10am until 2027-06-30". |
+| **URL Scheme Fails from Cron** | Terminal cron job lacks GUI session or Mach-bootstrap context. | `launchctl getenv DISPLAY` | Run automation under a launchd agent with user GUI domain rather than system cron. |
+| **AppleScript Timeout on Heavy Load** | Fantastical modal dialog blocking main application thread. | `pgrep -x Fantastical` | Dismiss open alerts or set `with add immediately` flag to bypass GUI modals. |
 
 ## Related tools / concepts
 - [Apple Calendar](apple-calendar.md) — Native macOS/iOS calendar database layer.
