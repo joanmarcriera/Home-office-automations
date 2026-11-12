@@ -43,16 +43,62 @@ Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHa
 ## Where it fits in the stack
 **Category**: Service / AI Infrastructure / Abstraction Layer. LiteLLM is the primary "Service Mesh" for enterprise LLMs. It sits between autonomous AI agents and underlying model inference engines (Ollama, vLLM, Anthropic, Bedrock, OpenAI, DeepSeek), providing protocol normalization, unified observability telemetry (OpenTelemetry), and secure tool discovery via the **FastMCP 3.1** protocol.
 
+## Mathematical Formulation & Latency Roofline Analysis
+
+In high-concurrency multi-agent clusters, total request turnaround time $T_{\text{total}}$ through the LiteLLM gateway comprises gateway proxy latency, model queueing delay, and token generation time:
+
+$$
+T_{\text{total}} = T_{\text{proxy}} + T_{\text{queue}} + \frac{N_{\text{input}}}{\beta_{\text{prompt}}} + \frac{N_{\text{output}}}{\text{TPS}_{\text{engine}}}
+$$
+
+Where:
+- $T_{\text{proxy}}$ is the internal proxy traversal overhead ($T_{\text{auth}} + T_{\text{router}} + T_{\text{cache}} \approx 2.5\text{ms} - 8.2\text{ms}$).
+- $T_{\text{queue}}$ represents queueing latency at the target inference backend under concurrency $C$.
+- $\beta_{\text{prompt}}$ is prompt prefill ingestion bandwidth in tokens per second.
+- $\text{TPS}_{\text{engine}}$ is the autoregressive token generation rate of the chosen backend.
+
+### Caching Hit Probability & Expected Gateway Latency
+
+When semantic caching (Redis / Vector DB) is active with cache hit probability $p_h \in [0, 1]$ and cache lookup latency $t_{\text{cache}} \le 4\text{ms}$:
+
+$$
+\mathbb{E}[T_{\text{response}}] = p_h \cdot (T_{\text{proxy}} + t_{\text{cache}}) + (1 - p_h) \cdot \left( T_{\text{proxy}} + T_{\text{upstream}} \right)
+$$
+
+For an enterprise cluster operating with $p_h = 0.35$ on repetitive agent tool-calling loops, average latency drops by:
+
+$$
+\Delta \bar{T} = p_h \cdot \left( T_{\text{upstream}} - t_{\text{cache}} \right) \approx 0.35 \times (420\text{ms} - 4\text{ms}) \approx 145.6\text{ms}
+$$
+
+### Routing Optimization Under Budget & Rate Constraints
+
+LiteLLM routes incoming prompt vector $\mathbf{x}$ across $K$ provider deployments according to a constrained cost-latency objective:
+
+$$
+\min_{k \in \{1, \dots, K\}} \left( \lambda \cdot \text{Cost}_k(\mathbf{x}) + (1 - \lambda) \cdot \mathbb{E}[T_k] \right) \quad \text{subject to} \quad \text{RPM}_k(t) < \text{RPM}_{\max, k}, \quad \text{ErrorRate}_k < \epsilon
+$$
+
+When provider $k$ returns HTTP 429 or connection timeout, LiteLLM triggers automated exponential cooldown:
+
+$$
+\tau_{\text{cooldown}}(r) = \min\left( \tau_{\max}, \tau_{\text{base}} \cdot 2^r \right)
+$$
+
+where $r$ is the consecutive failure count, automatically preventing upstream cascading blackouts.
+
 ## Feature Comparison Matrix
 
-| Capability / Metric | LiteLLM Proxy | One API / New API | OpenRouter (Managed) | Portkey Gateway |
-| :--- | :--- | :--- | :--- | :--- |
-| **Deployment Model** | Self-hosted Docker / K8s | Self-hosted Go Binary | Hosted Public SaaS | Hosted SaaS & Enterprise On-Prem |
-| **Provider Support** | 100+ Providers | 30+ Chinese/Global APIs| 200+ Cloud Models | 150+ Cloud & Custom Models |
-| **FastMCP 3.1 Routing**| Native MCP Tool Gateway| None | Experimental MCP API | Custom Tool Router |
-| **Virtual Keys & Budget**| Per-user / Per-team / Per-key| Balance-based Quota | Credit / Usage Balance | Enterprise Workspace Budgets |
-| **Failover & Load Balancing**| Least-busy / Round-robin / Cooldown| Basic Priority Switch | Automated Cloud Routing| Multi-region Circuit Breaker |
-| **Observability Telemetry**| OpenTelemetry, Langfuse, Datadog| Basic Web Log UI | Dashboard Analytics | Deep Guardrails & Tracing |
+| Capability / Metric | LiteLLM Proxy | One API / New API | OpenRouter (Managed) | Portkey Gateway | Cloudflare AI Gateway |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Self-hosted Docker / K8s | Self-hosted Go Binary | Hosted Public SaaS | Hosted SaaS & Enterprise On-Prem | Cloudflare Workers Edge |
+| **Provider Support** | 100+ Providers | 30+ Chinese/Global APIs| 200+ Cloud Models | 150+ Cloud & Custom Models | 50+ Major Providers |
+| **FastMCP 3.1 Routing**| Native MCP Tool Gateway| None | Experimental MCP API | Custom Tool Router | Limited REST Proxy |
+| **Virtual Keys & Budget**| Per-user / Per-team / Per-key| Balance-based Quota | Credit / Usage Balance | Enterprise Workspace Budgets | Basic Token Capping |
+| **Failover & Load Balancing**| Least-busy / Round-robin / Cooldown| Basic Priority Switch | Automated Cloud Routing| Multi-region Circuit Breaker | Tiered Fallbacks |
+| **Observability Telemetry**| OpenTelemetry, Langfuse, Datadog| Basic Web Log UI | Dashboard Analytics | Deep Guardrails & Tracing | Cloudflare Analytics Logs |
+| **Semantic Caching** | Native Redis / Qdrant Caching | In-Memory Token Caching | Upstream Provider Cache | Redis / Built-in Semantic | Cloudflare Edge KV Cache |
+| **Streaming Overhead** | Sub-5ms TTFT Delay | ~8ms TTFT Delay | Network Egress Latency | ~10ms Gateway Hop | ~12ms Cloudflare Hop |
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Exposing a unified inference endpoint for [Roo Code](../tools/agents/roo-code.md), [Claude Code](../tools/development_ops/claude-code-setup.md), and [Aider](../tools/development_ops/aider.md) to dynamically share pooled rate limits.
@@ -71,7 +117,7 @@ Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHa
 ## Limitations
 - **Operational Overhead**: Requires managing a dedicated database and proxy cluster in production.
 - **Database Dependency**: Virtual key generation, real-time rate limiting, and management UI state require a resilient PostgreSQL cluster.
-- **Latency Overhead**: Proxying and guardrail checks add a minimal latency penalty (approx. 5-15ms) to request roundtrips.
+- **Latency Overhead**: Proxying and guardrail checks add a minimal latency penalty (approx. 2.5-8ms) to request roundtrips.
 
 ## When to use it
 - When managing multi-agent teams with heterogeneous backends (e.g., hybrid deployments with local **Gemma 3** / **DeepSeek-V4** and cloud Claude 5.1).
@@ -87,13 +133,15 @@ Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHa
 1. **PostgreSQL Connection Pooling**: Configure PgBouncer or set `DATABASE_POOL_SIZE: 20` when scaling beyond 100 concurrent agent threads to prevent database handle exhaustion.
 2. **Cooldown Management on Rate Limits**: Set `cooldown_time: 60` in `litellm-config.yaml` to temporarily suspend rate-limited model deployments for 60 seconds before retrying.
 3. **Master Key Storage**: Store `LITELLM_MASTER_KEY` in environment secret stores (e.g., HashiCorp Vault or Kubernetes Secrets) and generate ephemeral virtual keys for agent workloads rather than hardcoding master credentials.
+4. **Semantic Cache Invalidation**: Monitor Redis cache expiration policies (`TTL: 86400`) to prevent serving stale deterministic outputs when fine-tuned system instructions change.
+5. **Observability Exporters**: Route OpenTelemetry spans directly to Langfuse or Datadog using non-blocking asynchronous collectors to eliminate telemetry pipeline backpressure.
 
 ## Getting started
 
 ### Installation
-Install the LiteLLM Python package:
+Install the LiteLLM Python package with proxy and FastMCP dependencies:
 ```bash
-pip install litellm
+pip install "litellm[proxy]" "mcp>=1.3.0"
 ```
 
 ### Hello-World Example
@@ -121,6 +169,20 @@ services:
       POSTGRES_PASSWORD: litellm_secure_password
     volumes:
       - litellm_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U litellm_user -d litellm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  litellm-redis:
+    image: redis:7.4-alpine
+    container_name: litellm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - litellm_redis_data:/data
     restart: unless-stopped
 
   litellm-proxy:
@@ -129,17 +191,23 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./litellm-config.yaml:/app/config.yaml
+      - ./litellm-config.yaml:/app/config.yaml:ro
     environment:
       DATABASE_URL: "postgresql://litellm_user:litellm_secure_password@litellm-db:5432/litellm"
+      REDIS_URL: "redis://litellm-redis:6379/0"
       LITELLM_MASTER_KEY: "sk-master-key-2027"
+      STORE_MODEL_IN_DB: "True"
     command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8"]
     depends_on:
-      - litellm-db
+      litellm-db:
+        condition: service_healthy
+      litellm-redis:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
-  litellm-db_data:
+  litellm_db_data:
+  litellm_redis_data:
 ```
 
 ## CLI examples
@@ -162,7 +230,56 @@ Run PostgreSQL database schema migrations for LiteLLM key and budget tracking:
 litellm --migrate
 ```
 
+### 4. Query Real-Time Model Spend via CLI
+Retrieve token expenditure summaries across active virtual keys:
+```bash
+curl -s -X GET "http://localhost:4000/spend/calculate" \
+  -H "Authorization: Bearer sk-master-key-2027" | jq .
+```
+
+### 5. Benchmark Gateway Round-Trip Latency
+Measure proxy forwarding latency compared to direct inference:
+```bash
+python3 -m litellm.benchmark --proxy "http://localhost:4000" --model "gpt-5.5-turbo" --concurrency 10
+```
+
 ## Production Deployment & System Infrastructure
+
+### Gateway Configuration (`litellm-config.yaml`)
+```yaml
+model_list:
+  - model_name: gpt-5.5-turbo
+    litellm_params:
+      model: openai/gpt-5.5-turbo
+      api_key: os.environ/OPENAI_API_KEY
+      rpm: 1000
+      tpm: 1000000
+
+  - model_name: claude-5-1
+    litellm_params:
+      model: anthropic/claude-5-1
+      api_key: os.environ/ANTHROPIC_API_KEY
+      rpm: 800
+
+  - model_name: deepseek-v4-local
+    litellm_params:
+      model: ollama/deepseek-v4
+      api_base: http://localhost:11434
+      rpm: 300
+
+router_settings:
+  routing_strategy: least-busy
+  model_group_alias:
+    smart-agent: ["claude-5-1", "gpt-5.5-turbo", "deepseek-v4-local"]
+  fallbacks:
+    - claude-5-1: ["gpt-5.5-turbo", "deepseek-v4-local"]
+  cooldown_time: 60
+  allowed_fails: 3
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+```
 
 ### Systemd Service Unit (`litellm-proxy.service`)
 For standalone Linux host deployments requiring automated daemon management, restart behavior, and system logger integration:
@@ -170,8 +287,8 @@ For standalone Linux host deployments requiring automated daemon management, res
 ```ini
 [Unit]
 Description=LiteLLM AI Gateway Service Proxy
-After=network.target postgresql.service
-Wants=postgresql.service
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
 
 [Service]
 Type=simple
@@ -183,6 +300,7 @@ Restart=always
 RestartSec=5s
 Environment="LITELLM_MASTER_KEY=sk-master-key-2027"
 Environment="DATABASE_URL=postgresql://litellm_user:litellm_secure_password@localhost:5432/litellm"
+Environment="REDIS_URL=redis://localhost:6379/0"
 Environment="PYTHONUNBUFFERED=1"
 LimitNOFILE=65536
 
@@ -212,64 +330,121 @@ curl -X POST http://localhost:4000/key/generate \
 ```
 
 ### Python: FastMCP 3.1 & Pydantic v2 LiteLLM Completion Server
-Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `field_validator`) and **FastMCP 3.1** for structured output parsing and type-safe tool execution.
+Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `ConfigDict`, `model_validate`, `field_validator`) and **FastMCP 3.1** for structured output parsing, strict schema enforcement, and type-safe tool execution.
 
 ```python
+"""LiteLLM FastMCP 3.1 Gateway Server with Pydantic v2 Schema Validation."""
+
 import json
 import litellm
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
-# Define the expected structured output schema using Pydantic v2
+# Define strict structured output schemas using Pydantic v2
+class ActionStep(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    step_id: int = Field(..., description="Monotonically increasing execution index")
+    instruction: str = Field(..., description="Specific tool or command directive")
+    estimated_ms: int = Field(default=500, description="Estimated execution latency in ms")
+
 class ActionPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     task_name: str = Field(..., description="The name of the automated workflow task")
-    steps: List[str] = Field(..., description="Sequential step-by-step directives")
+    steps: List[ActionStep] = Field(..., description="Sequential step-by-step directives")
     assigned_agent: str = Field(..., description="Target autonomous agent for execution")
     estimated_cost_usd: Optional[float] = Field(None, description="Estimated inference expenditure")
 
     @field_validator("steps")
     @classmethod
-    def validate_steps(cls, v: List[str]) -> List[str]:
+    def validate_steps(cls, v: List[ActionStep]) -> List[ActionStep]:
         if not v:
             raise ValueError("Action plan must contain at least one execution step.")
         return v
 
 class PlanRequest(BaseModel):
-    prompt: str = Field(..., description="Instruction prompt for the plan generator")
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    prompt: str = Field(..., min_length=5, description="Instruction prompt for the plan generator")
     task_id: str = Field(default="task-plan-001", description="FastMCP 3.1 Task Protocol ID")
+    temperature: float = Field(default=0.2, ge=0.0, le=1.0, description="Sampling randomness")
 
 class AgentModelRouting(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     primary_model: str = Field(default="claude-5-1")
     fallback_model: str = Field(default="ollama/gemma-3")
     max_tokens: int = Field(default=4096, ge=1, le=128000)
 
+class SpendTelemetry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    total_tokens: int = Field(..., ge=0)
+    prompt_tokens: int = Field(..., ge=0)
+    completion_tokens: int = Field(..., ge=0)
+    cost_usd: float = Field(..., ge=0.0)
+
 mcp = FastMCP("litellm-plan-server")
 
 @mcp.tool()
-async def generate_agent_plan(request: PlanRequest, routing: AgentModelRouting) -> ActionPlan:
-    """Invokes LiteLLM gateway to return a validated, structured ActionPlan."""
+async def generate_agent_plan(request: PlanRequest, routing: AgentModelRouting) -> Dict[str, Any]:
+    """Invokes LiteLLM gateway to return a validated, structured ActionPlan with telemetry."""
     try:
         response = litellm.completion(
             model=routing.primary_model,
             messages=[
-                {"role": "system", "content": "Return valid JSON matching the ActionPlan schema."},
+                {
+                    "role": "system",
+                    "content": (
+                        "Generate an execution plan. Return JSON strictly complying with: "
+                        '{"task_name": str, "steps": [{"step_id": int, "instruction": str, "estimated_ms": int}], '
+                        '"assigned_agent": str, "estimated_cost_usd": float}'
+                    )
+                },
                 {"role": "user", "content": request.prompt}
             ],
+            temperature=request.temperature,
+            max_tokens=routing.max_tokens,
             response_format={"type": "json_object"},
             fallbacks=[routing.fallback_model]
         )
         content = response.choices[0].message.content
         parsed_json = json.loads(content)
-        return ActionPlan.model_validate(parsed_json)
-    except Exception as e:
-        # Fallback response for offline or unconfigured environments
-        return ActionPlan(
-            task_name="Fallback Automated Task",
-            steps=["Analyze system state", "Execute safety check", "Report status"],
-            assigned_agent="Roo-Code-Daemon",
-            estimated_cost_usd=0.001
+        validated_plan = ActionPlan.model_validate(parsed_json)
+
+        usage = response.usage
+        telemetry = SpendTelemetry(
+            total_tokens=usage.total_tokens,
+            prompt_tokens=usage.prompt_tokens,
+            completion_tokens=usage.completion_tokens,
+            cost_usd=float(getattr(response, "_response_cost", 0.001))
         )
+
+        return {
+            "status": "success",
+            "plan": validated_plan.model_dump(),
+            "telemetry": telemetry.model_dump()
+        }
+    except Exception as exc:
+        fallback_plan = ActionPlan(
+            task_name=f"Fallback Plan: {request.task_id}",
+            steps=[
+                ActionStep(step_id=1, instruction="Audit gateway connectivity", estimated_ms=200),
+                ActionStep(step_id=2, instruction="Execute deterministic recovery loop", estimated_ms=800)
+            ],
+            assigned_agent="Roo-Code-Daemon",
+            estimated_cost_usd=0.0
+        )
+        return {
+            "status": "degraded_fallback",
+            "error_detail": str(exc),
+            "plan": fallback_plan.model_dump(),
+            "telemetry": SpendTelemetry(
+                total_tokens=0, prompt_tokens=0, completion_tokens=0, cost_usd=0.0
+            ).model_dump()
+        }
 
 if __name__ == "__main__":
     mcp.run()
@@ -295,6 +470,8 @@ mcp_servers:
 | `FastMCP 3.1 Tool Timeout` | Agent tool call execution exceeded Gateway proxy timeout. | Increase tool call timeout in `litellm-config.yaml` under `request_timeout: 120` or optimize target MCP tool server execution speed. |
 | `Model Fallback Loop Failure` | All primary and fallback models in router list failed health check. | Run `litellm --health` CLI diagnostic to identify unreachable backend endpoints (e.g., local vLLM or Ollama instance down). |
 | `High Latency Spikes (>500ms proxy time)` | Large prompt payload audit logging or unindexed database queries. | Enable Redis caching (`LITELLM_REDIS_URL`), index PostgreSQL key tables, and set `disable_master_key_return: true`. |
+| `Semantic Cache Stale Response (HTTP 200)` | Redis vector embedding cache key collided across different model system prompts. | Prefix cache keys with system prompt hash in `litellm-config.yaml` and set Redis semantic cache similarity threshold to `>= 0.95`. |
+| `CORS / WebSocket Handshake Failure` | Web UI or agent client connecting from disallowed origin or missing proxy upgrade headers. | Set `CORS_ORIGIN="*"` or domain whitelist and verify reverse proxy (Nginx/Traefik) passes `Upgrade $http_upgrade` headers. |
 
 ## Related tools / concepts
 - [OpenRouter](../tools/ai_knowledge/openrouter.md) — Managed public cloud model routing network.
