@@ -1,5 +1,70 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-11-19
+
+## Digest fallback for 2026-11-19
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The Silent Consensus](https://openai.com/index/the-silent-consensus) (OpenAI Blog)
+2. [Research acceleration: The jagged frontier](https://openai.com/index/research-acceleration-jagged-frontier) (OpenAI Blog)
+3. [How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise](https://openai.com/business/customer-stories/sumitomo-life) (OpenAI Blog)
+4. [Inside the Codex sandbox](https://openai.com/index/inside-the-codex-sandbox) (OpenAI Blog)
+5. [Managing frontier AI risk: From training to deployment](https://openai.com/index/managing-frontier-ai-risk) (OpenAI Blog)
+6. [Le Groupe Figaro and OpenAI partner to bring Le Figaro journalism to ChatGPT](https://openai.com/index/le-groupe-figaro-and-openai-announce-partnership) (OpenAI Blog)
+7. [Advancing chip design with OpenAI models](https://openai.com/index/advancing-chip-design-with-our-models) (OpenAI Blog)
+8. [Introducing GPT-6.2 Astra and Sol](https://openai.com/index/introducing-gpt-6-2-astra-sol) (OpenAI Blog)
+9. [Introducing ChatGPT for Sales](https://openai.com/index/introducing-chatgpt-for-sales) (OpenAI Blog)
+10. [The Gemini app is now available on lower-memory Android devices.](https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices/) (Google AI Blog)
+11. [Put Gemini to work for you](https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features/) (Google AI Blog)
+12. [DaisyRose-27B: Pushing the Frontier of Post-Training Efficiency](https://huggingface.co/blog/RadixArk/daisyrose-27b-pushing-the-frontier-of-post-trainin) (Hugging Face Blog)
+13. [Why your fine-tuning job takes longer than the FLOPs say](https://huggingface.co/blog/Dharma-AI/predicting-fine-tuning-time) (Hugging Face Blog)
+14. [Time-Series Models in the Streamhouse: A New Frontier and Use Cases](https://huggingface.co/blog/ibm-research/time-series-powered-streamhouse) (Hugging Face Blog)
+15. [180B Parameters, 32GB of RAM: Pushing MoE Inference to the Limit with Transformers](https://huggingface.co/blog/moe-expert-streaming) (Hugging Face Blog)
+16. [Rumble-2-Flash: an open 0.5B speech model for 40+ languages](https://huggingface.co/blog/rumble-2-flash) (Hugging Face Blog)
+17. [Running the full server-side Datasette Python app in the browser with service workers and Pyodide](https://simonwillison.net/2026/Nov/17/datasette-lite/) (Simon Willison's Weblog)
+18. [Orbin' with Amp](https://changelog.com/podcast/691) (The Changelog)
+19. [[AINews] Gemini 4 Neon: GDM's Opus/Sol Contender](https://latent.space/p/ainews-gemini-4-neon-gdm-s-opus-sol-contender/) (Latent Space)
+20. [[AINews] GPT-6.2 Astra, the #2 Frontier Model is better and 20%-600% cheaper, but has mixed reviews; 6.2 Sol likely main workhorse](https://latent.space/p/ainews-gpt-6-2-astra-the-2-frontier-model-is-better-and-20-600-cheaper-but-has-mixed-reviews-6-2-sol/) (Latent Space)
+21. [Cloudflare Joins the Jevolution and Labels Itself a Neolab](https://latent.space/p/cloudflare/) (Latent Space)
+22. [[AINews] Perplexity hits a $1B revenue run rate, up 4x in 2026](https://latent.space/p/ainews-perplexity-hits-a-1b-revenue-run-rate-up-4x-in-2026/) (Latent Space)
+23. [Why Groundcover’s CEO says agents are the power users of observability](https://thenewstack.io/groundcover-coding-agents-observability/) (The New Stack)
+24. [Google’s Gemini 4 Neon tripled its coding score without changing the model](https://thenewstack.io/gemini-neon-antigravity-harness/) (The New Stack)
+25. [Microsoft says Bing serves 1B people. Its next search engine isn’t for them.](https://thenewstack.io/microsoft-web-iq-agents/) (The New Stack)
+26. [“The best escape room players that you’ve ever met”: What Red Hat’s AI architect really thinks about agents.](https://thenewstack.io/openshell-ai-agent-security/) (The New Stack)
+27. [Qwen4-Max vs. Claude Opus 5.5: The cheaper model costs you somewhere else.](https://thenewstack.io/qwen4-max-vs-claude-opus-5-5/) (The New Stack)
+28. [OpenAI spent $1.2 million finding nearly 1,000 Linux security flaws. Sam Altman says this is just the beginning.](https://thenewstack.io/openai-entire-ai-stack/) (The New Stack)
+29. [AI needs fresh data. Vector indexing is getting in the way](https://thenewstack.io/gpu-accelerated-vector-indexing/) (The New Stack)
+30. [How Orkes ParticleDB turns an impressive demo into a remarkable application](https://thenewstack.io/orkes-particledb-agentic-database/) (The New Stack)
+31. [200 OK is dead as an AI agent health signal. Here’s what comes next.](https://thenewstack.io/silent-ai-agent-failures/) (The New Stack)
+32. [S3 vs. ScyllaDB for tiny telemetry: What Red Canary learned the hard way](https://thenewstack.io/scylladb-s3-tiny-telemetry/) (The New Stack)
+33. [Why verification, not generation, is your secret to AI coding ROI](https://thenewstack.io/ai-code-verification-gap/) (The New Stack)
+34. [“Collaboration over competition”: Hugging Face hands model inference traffic to OpenRouter](https://thenewstack.io/hugging-face-openrouter-inference/) (The New Stack)
+35. [Your AI coding agent could cost 5x more depending on the harness, benchmark finds](https://thenewstack.io/coding-agent-harness-costs/) (The New Stack)
+36. [OpenAI’s own tests show GPT-6.2 Astra is twice as likely to hide coding failures](https://thenewstack.io/astra-hides-coding-failures/) (The New Stack)
+37. [Microsoft’s new coding model promises near-Opus performance at 5% of the cost](https://thenewstack.io/microsoft-mai-code-2/) (The New Stack)
+38. [Microsoft’s ARM-based Cobalt 200 chips go GA. Why it matters for AI agents.](https://thenewstack.io/microsoft-cobalt-200-ga/) (The New Stack)
+39. [Replit’s agent swarms built an app monitoring platform in 2 days on a $3K budget. Now, it’s offering them to customers.](https://thenewstack.io/replit-missions-agent-swarms/) (The New Stack)
+40. [CoreWeave connects custom training loops to model serving](https://thenewstack.io/coreweave-forge-training-loops/) (The New Stack)
+41. [Introducing Gemini 4 Neon](https://deepmind.google/blog/introducing-gemini-4-neon/) (Google DeepMind Blog)
+42. [Genie 4 is now available](https://deepmind.google/blog/genie-4-is-now-available/) (Google DeepMind Blog)
+43. [Energy-Based Reasoners: Your Recurrent Reasoner Should Be an Energy-Based Model](https://energy-based-reasoners.github.io/) (Lobsters — AI tag)
+44. [Program-as-Weights: A Programming Paradigm for Fuzzy Functions](https://arxiv.org/abs/2607.02512) (Lobsters — AI tag)
+45. [Discord Rewrites Desktop and Mobile Clients in Rust Using Zed's GPU-Accelerated Rendering Framework](https://www.infoq.com/news/2026/11/discord-rust-rewrite-gpui-zed/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+46. [Presentation: Behind Booking.com's AI Evolution: The Unpolished Story](https://www.infoq.com/presentations/bookingcom-ml-data-platform-evolution/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+47. [Vercel Releases UI SDK for Agents to Compose UI from Reusable Behaviors](https://www.infoq.com/news/2026/11/vercel-ui-sdk/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+48. [How Shopify Orchestrates AI-Powered Mobile App Development without Overloading Developers' Machines](https://www.infoq.com/news/2026/11/shopify-remote-ai-dev/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+49. [Datadog Brings Production Experimentation to AI Agent Observability](https://www.infoq.com/news/2026/11/datadog-ai-agent-observability/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+50. [Production AI, Architecture Trade-Offs & Team Design: InfoQ Opens Registration for 6 January Cohorts](https://www.infoq.com/news/2026/11/onlinecohort-jan27-certification/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+51. [Presentation: Scaling LLM-Based Ranking Systems for Latency-Critical Search & Recommendation Workloads](https://www.infoq.com/presentations/scale-llm-ranking-systems-linkedin/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-11-17
 
 # AI & Technology Daily Digest
