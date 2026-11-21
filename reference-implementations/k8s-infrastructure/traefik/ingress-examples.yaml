@@ -1,0 +1,53 @@
+# Traefik IngressRoute Examples
+
+# This file provides examples of Traefik Custom Resource Definitions (CRDs)
+# for routing internal traffic to services like Paperless-ngx.
+
+---
+# 1. Simple HTTP IngressRoute for Whoami (Testing)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`whoami.local.home`)
+      kind: Rule
+      services:
+        - name: whoami
+          port: 80
+
+---
+# 2. HTTPS IngressRoute with Middleware (Authentik OIDC)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paperless-secure
+  namespace: paperless
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`paperless.local.home`)
+      kind: Rule
+      middlewares:
+        - name: authentik-sso # Assuming ForwardAuth middleware is configured
+          namespace: authentik
+      services:
+        - name: paperless-webserver
+          port: 8000
+  tls:
+    secretName: paperless-tls-cert # Managed by Cert-Manager
+
+---
+# 3. Middleware for Basic Auth (Optional fallback)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: basic-auth
+spec:
+  basicAuth:
+    secret: admin-password-secret # kubectl create secret generic admin-password-secret --from-literal=users="admin:HASHED_PASSWORD"
