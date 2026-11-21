@@ -1,5 +1,53 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-11-21
+
+## Digest fallback for 2026-11-21
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Combatting adversarial distillation](https://openai.com/index/combatting-adversarial-distillation) (OpenAI Blog)
+2. [Hebbia sees improvements in financial research with GPT-6 Astra](https://openai.com/business/customer-stories/hebbia) (OpenAI Blog)
+3. [Can AI help scientists identify promising drug candidates?](https://openai.com/index/introducing-medchembench) (OpenAI Blog)
+4. [How OpenAI’s Performance Factory keeps ChatGPT fast](https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast) (OpenAI Blog)
+5. [Introducing Tool Retrieval in the Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval/) (Google AI Blog)
+6. [Walter Isaacson on curiosity and creativity in the AI age.](https://blog.google/innovation-and-ai/technology/ai/dialogues-walter-isaacson/) (Google AI Blog)
+7. [Welcome Inkling 2 Mini, Cutting-edge Performance for your Local Setup](https://huggingface.co/blog/inkling2mini) (Hugging Face Blog)
+8. [Introducing harness adapters: adapt your favorite model to your harness to improve performance and cost](https://huggingface.co/blog/harness-adapters-at-scale) (Hugging Face Blog)
+9. [A seminal moment in computing](https://changelog.com/podcast/692) (The Changelog)
+10. [[AINews] Riemann Hypothesis proved...twice independently](https://latent.space/p/ainews-riemann-hypothesis-proved-twice-independently/) (Latent Space)
+11. [The War Against Slop and an Emerging Weapon to Fight it: Formal Verification](https://latent.space/p/formal-verification/) (Latent Space)
+12. [[AINews] Anthropic successfully completes largest IPO in history, valued at $1.5T](https://latent.space/p/ainews-anthropic-successfully-completes-largest-ipo-in-history-valued-at-1-5t/) (Latent Space)
+13. [Scaling Linear’s GTM to $100M ARR — Cristina Cordova, COO](https://latent.space/p/linear-scaling/) (Latent Space)
+14. [“We are not querying like humans anymore”: OpenSearch’s Bianca Lewis on why AI agent mistakes look like successes](https://thenewstack.io/opensearch-ai-agent-observability/) (The New Stack)
+15. [Your AI agent’s “memory problem” may be something else](https://thenewstack.io/ai-agent-memory-boundaries/) (The New Stack)
+16. [Anthropic says Claude writes and reviews 90% of its team’s code. The catch is how it checks the work.](https://thenewstack.io/anthropic-claude-code-verification/) (The New Stack)
+17. [Does your AI agent need an LLM to decide what to do next?](https://thenewstack.io/aws-decider-models-agents/) (The New Stack)
+18. [Google just gave Gemini the run of your Mac — three days after Apple tightened the rules](https://thenewstack.io/gemini-mac-computer-use/) (The New Stack)
+19. [An engineer didn’t message his AI for 22 of 44 days. It built an Android app anyway.](https://thenewstack.io/cognition-devin-bots-management/) (The New Stack)
+20. [“Be ready for change”: AAIF’s CTO on why the agent stack won’t settle](https://thenewstack.io/agentic-ai-foundation-projects/) (The New Stack)
+21. [IDrive wants to back up your coding agents, too](https://thenewstack.io/idrive-ai-agents-backup/) (The New Stack)
+22. [A “headless Slack”: Vercel’s new message board lets Claude Code and Codex agents work together](https://thenewstack.io/vercel-board-agent-swarms/) (The New Stack)
+23. [Where should AI workloads run? Probably next to the data.](https://thenewstack.io/ai-workloads-data-gravity/) (The New Stack)
+24. [How Amazon ECS handles blue/green, canary, and linear deployments](https://thenewstack.io/amazon-ecs-deployment-strategies/) (The New Stack)
+25. [Agent security is product security, and your marketing site counts](https://thenewstack.io/marketing-site-agent-security/) (The New Stack)
+26. [Groundcover Investigations lets engineers steer AI SRE agents](https://thenewstack.io/groundcover-ai-incident-investigations/) (The New Stack)
+27. [Rebuilding my local voice assistant pipeline](https://blog.platypush.tech/article/Rewriting-my-voice-assistant-pipeline) (Lobsters — AI tag)
+28. [Meta TLX, a Native GPU Compiler Extension Supporting Advanced Hardware Capabilities](https://www.infoq.com/news/2026/11/meta-triton-tlx-gpu-compiler/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+29. [Google Donates Agent Substrate and gVisor to the CNCF to Secure AI Agents at Scale](https://www.infoq.com/news/2026/11/google-substrate-gvisor-cncf/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+30. [QCon San Francisco 2026: The Future of Apache Iceberg](https://www.infoq.com/news/2026/11/iceberg-v4-metadata/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+31. [AWS Releases a Free Local Emulator of AWS Built Entirely by Agents](https://www.infoq.com/news/2026/11/aws-emulator-local-testing/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+32. [QCon San Francisco 2026: Use AI to Multiply Your Team as a Staff Engineer](https://www.infoq.com/news/2026/11/ai-staff-engineer/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+33. [Presentation: RIIIR: Rewrite It In *Idiomatic* Rust (with AI)](https://www.infoq.com/presentations/rust-ai-symposium-agent-client-protocol/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+34. [Self-Host Weekly (20 November 2026)](https://selfh.st/weekly/2026-11-20/) (Self-Host Weekly (selfh.st))
+
+
+---
+
+
 ## 📅 Digest for 2026-11-19
 
 ## Digest fallback for 2026-11-19
