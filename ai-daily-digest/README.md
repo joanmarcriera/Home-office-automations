@@ -1,5 +1,71 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-11-25
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Frontier Model War**: A massive day for model updates with **GPT-6** demonstrating intrinsic protein-design capabilities and Google's **Gemini 4 Neon** claiming a return to frontier leadership with significant benchmark gains.
+* 🤖 **The "Agentic" SDLC**: A strong industry trend is emerging around retrofitting the Software Development Life Cycle (SDLC) for AI agents, with Netflix, OpenAI, and Anthropic all releasing strategies to handle the "PR bottleneck" and agent security.
+* 🔬 **Scientific Breakthroughs**: AI is making deep inroads into hard sciences, from Google DeepMind using agents to cut quantum computing costs 290-fold to GPT-6 designing functional protein structures.
+* 🛠️ **Infrastructure Shifts**: New focus on "Software Factories" (Warp) and the persistence of Virtual Machines (CNCF) as the preferred isolation layer for agentic workloads.
+
+---
+
+## 🚀 Models & Releases
+
+### OpenAI
+* 📌 **GPT-6 Capabilities**: New models demonstrate intrinsic protein-design capabilities, using reasoning and code to design structures that showed binding evidence across five targets in lab tests. [OpenAI Blog](https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities)
+* **Astra in Astronomy**: Amateur astronomers are using Codex and Astra to identify potential exoplanets within NASA's Kepler and TESS public datasets. [OpenAI Blog](https://openai.com/index/searching-for-distant-planets-with-astra)
+
+### Google & DeepMind
+* 🔥 **Gemini 4 Neon**: Positioned as GDM's return to the frontier; Neon reportedly beats Astra and Fable on LiveBench and significantly reduces Rust benchmark runtimes. [Latent Space](https://latent.space/p/ainews-gemini-4-neon-marks-gdm-s-full-return-as-a-frontier-lab/)
+* **Quantum Optimization**: Google DeepMind used Gemini 4 agents and formal verification (via the open-sourced Lean 4 framework) to reduce quantum computing costs 290-fold. [The New Stack](https://thenewstack.io/deepmind-lean-quantum-verification/) | [DeepMind Blog](https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification/)
+
+### Other Notable Models
+* **Z.ai GLM-5.4**: Introduces a "Loop Transformer" architecture that re-runs the same 28 layers to achieve performance rivaling 3-trillion-parameter models with only 750B parameters. [The New Stack](https://thenewstack.io/zai-glm54-loop-transformer/)
+* **AWS Strands Decider v2**: A new family of five open decision models specifically designed for AI agents. [The New Stack](https://thenewstack.io/aws-strands-decider-v2/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Coding Agents & SDLC
+* **Anthropic's Claude Ship**: A new set of agents designed to review, fix, and approve routine pull requests to solve the bottleneck created by high-velocity AI coding. [The New Stack](https://thenewstack.io/anthropic-claude-ship-approvals/)
+* **Claude Code "Code Mode"**: An experimental feature allowing Claude to write JavaScript to orchestrate, parallelize, and filter tool calls. [InfoQ](https://www.infoq.com/news/2026/11/claude-code-mode/)
+* **Warp Factories**: Warp is betting on "cloud software factories" as the successor to traditional CI/CD. [The Changelog](https://changelog.com/podcast/693)
+* **Netflix's Agentic SDLC**: Netflix is using GraphRAG context via MCP tools and "Architecture Decision Records" to coordinate human and agent shipping. [InfoQ](https://www.infoq.com/news/2026/11/netflix-sdlc-ai-coding-agents/)
+
+### Open Source & Infrastructure
+* **Shirudo**: A joint OpenAI and Cisco project; an open-source Linux runtime to protect systems during patch rollouts. [OpenAI Blog](https://openai.com/index/introducing-shirudo)
+* **Ladybird Browser**: The ambitious new browser project has released its first alpha, featuring its own HTML/CSS/JS engines. [Simon Willison](https://simonwillison.net/2026/Nov/23/ladybird/)
+* **OpenClaw**: The open-source personal AI agent celebrates one year of growth and enterprise adoption. [The New Stack](https://thenewstack.io/openclaw-vincent-koc-interview/)
+
+---
+
+## 🔬 Research & Analysis
+
+* **Matrix Multiplication**: A new preprint claims the matrix multiplication exponent is $\Theta(n^{2.25})$. [Lobsters/PDF](https://raw.githubusercontent.com/openai/math/main/preprints/The-matrix-multiplication-exponent-is-nine-fourths-November-24-2026/paper.pdf)
+* **LLM Inflection Points**: Simon Willison analyzes three major shifts in LLM coding abilities over the last year, highlighting the impact of Claude Opus 4.5. [Simon Willison](https://simonwillison.net/2026/Nov/24/llm-inflection-points/)
+* **Robotics**: New workflows for obstacle avoidance (Microduck) and point tracking for manipulation (RoboTrack) released via Hugging Face. [Hugging Face](https://huggingface.co/blog/nvidia/microduck-obstacle-avoidance)
+
+---
+
+## 🏢 Industry News
+
+### Enterprise & Security
+* **Agent Security**: Discussions from KubeCon 2026 emphasize that sandboxing is insufficient; Teleport and Google are advocating for delegated identity and containment patterns to prevent agents from mishandling SSH keys. [The New Stack](https://thenewstack.io/teleport-agent-delegated-identity/) | [InfoQ](https://www.infoq.com/news/2026/11/qcon-ai-agent-security/)
+* **Vercel ZDR**: Vercel is implementing audited Zero Data Retention (ZDR) to force AI providers to prove they aren't storing developer prompts. [The New Stack](https://thenewstack.io/vercel-audited-zdr-inference/)
+* **M&A**: Palo Alto Networks and Elastic are acquiring AI startups to strengthen enterprise trust and observability. [The New Stack](https://thenewstack.io/palo-alto-applied-computer-elastic-honeyhive/)
+
+### Case Studies
+* **OpenAI Internal**: Brian Yang describes building a $100M ads product using Codex agents with zero human-written code. [InfoQ](https://www.infoq.com/news/2026/11/qcon-sf-openai-lessons/)
+* **Confluent Warning**: A cautionary tale where Confluent spent 3 months using AI to rewrite Kafka's Java client in Rust, only to discard the results and start over. [The New Stack](https://thenewstack.io/confluent-kafka-rust-agents/)
+* **Google Search**: Google is introducing "Personal Intelligence" to make search more tailored via integration with Wallet, Drive, and Gmail. [Google AI Blog](https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps/)
+
+---
+
+
 ## 📅 Digest for 2026-11-23
 
 ## Digest fallback for 2026-11-23
