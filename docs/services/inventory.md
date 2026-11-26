@@ -39,7 +39,9 @@ In a complex edge deployment and private cloud homelab hosting dozens of contain
 - **Agent Context Limitations**: Autonomous operations agents require deterministic, machine-readable manifests with rigorous schema contracts to perform disaster recovery, dependency-aware restarts, and infrastructure health assessments without human intervention.
 - **Resource Contention**: Unmonitored memory and VRAM spikes across concurrent local LLMs (e.g., Ollama, vLLM) and heavy ingestion workers (Paperless-ngx, Immich) risk host-wide OOM panics.
 
-This inventory provides a verifiable, schema-enforced Single Source of Truth (SSOT) accessible via human-readable tables, declarative YAML specifications, CLI auditing utilities, and native FastMCP 3.1 tools.
+This inventory provides a verifiable, schema-enforced Single Source of Truth (SSOT) accessible via human-readable tables and declarative YAML specifications.
+
+> **Status: design sketch.** The audit engine, the `homelab-inventory-sync` systemd unit and the FastMCP inventory server below are examples only. None of them ships in this repository: there is no inventory audit or orchestrator script under `scripts/` and no systemd unit or timer file.
 
 ## Where it fits in the stack
 **Category**: Infrastructure Management / Operational KnowledgeOps. The Consolidated Services Inventory sits at the boundary between raw operating system runtimes (TrueNAS SCALE, Linux systemd, Docker Engine) and higher-order intelligence frameworks (FastMCP agent gateways, n8n orchestrators, and automated backup pipelines).
@@ -54,8 +56,8 @@ This inventory provides a verifiable, schema-enforced Single Source of Truth (SS
 +-----------------------------------------------------------------------+
 |                    Consolidated Inventory Control Plane               |
 |  - docs/services/inventory.md (Canonical Markdown Manifest)           |
-|  - scripts/inventory_audit.py (Pydantic v2 Validator & Engine)        |
-|  - homelab-inventory-sync.service (Systemd Autonomous Auditor)        |
+|  - inventory audit engine (design sketch, not in this repo)           |
+|  - homelab-inventory-sync.service (design sketch, not in this repo)   |
 +-----------------------------------+-----------------------------------+
                                     |
                                     v
@@ -106,7 +108,7 @@ To guarantee predictability and fault isolation, all services in the infrastruct
 - **Protocol-First Interoperability**: Fully integrates with FastMCP 3.1 tool schemas using strict Pydantic v2 validation models (`extra="forbid"`, `frozen=True`).
 - **Deterministic Service Taxonomy**: Prevents dependency deadlocks by strictly enforcing hierarchical tiering (T1 Core down to T5 Media).
 - **ZFS Dataset Integrity**: Directly links container runtime definitions to physical ZFS snapshot schedules and backup targets.
-- **Drift-Resistant Operational Model**: Supported by automated CLI inspection scripts and recurring systemd timers.
+- **Drift-Resistant Operational Model (planned)**: Designed to be kept current by CLI inspection scripts and a recurring systemd timer; neither exists in this repository yet.
 
 ## Limitations
 - **Manual Spec Registration**: Adding novel non-containerized bare-metal services requires adding declarative YAML manifests.
@@ -197,7 +199,7 @@ networks:
 
 ## Systemd Service Unit Configuration
 
-The automated inventory synchronizer and drift engine can run as a hardened systemd service unit (`homelab-inventory-sync.service`) on bare-metal TrueNAS SCALE or Debian management nodes:
+Sketch of how an inventory synchronizer could run as a hardened systemd service unit (`homelab-inventory-sync.service`) on TrueNAS SCALE or Debian management nodes. The `scripts.inventory_orchestrator` module it starts does not exist in this repository:
 
 ```ini
 [Unit]
@@ -240,7 +242,7 @@ WantedBy=multi-user.target
 ```
 
 ## Operational Best Practices & Maintenance
-1. **Automated Drift Detection**: Schedule weekly cron execution of `scripts/inventory_audit.py` to compare running Docker image tags against catalog definitions.
+1. **Drift Detection**: Compare running Docker image tags against catalog definitions weekly. Until an audit script exists (the engine above is a sketch), do this by hand with `docker ps --format '{{.Names}} {{.Image}}'`.
 2. **Exposure Verification**: Enforce reverse proxy ACL rules so services marked `LAN / Tailscale` are unreachable from public DNS.
 3. **ZFS Dataset Mapping**: Standardize all application persistent mounts under `/mnt/<pool>/applications/<service_name>` for uniform backup retention policies.
 4. **Least-Privilege Socket Access**: Never mount the raw write-enabled `/var/run/docker.sock` directly into outward-facing containers; utilize `docker-socket-proxy` with `POST=0`.
@@ -274,7 +276,7 @@ health_check:
 ## CLI examples
 
 ### Comprehensive Inventory Audit Engine (Python + Pydantic v2)
-The following production-ready audit script validates running containers against the inventory catalog using strict Pydantic v2 schemas:
+The following example audit script (a sketch, not shipped in this repository) shows how to validate running containers against the inventory catalog using strict Pydantic v2 schemas:
 
 ```python
 import subprocess
@@ -462,7 +464,7 @@ if __name__ == "__main__":
 
 | Symptom / Failure Mode | Root Cause Analysis | Diagnostic Verification Command | Remediation Action Plan |
 | :--- | :--- | :--- | :--- |
-| **Container Image Tag Mismatch** | Local container updated via CLI or manual pull without updating manifest. | `python3 scripts/inventory_audit.py` | Sync `inventory.md` with active tag or re-pull canonical target tag in Compose stack. |
+| **Container Image Tag Mismatch** | Local container updated via CLI or manual pull without updating manifest. | `docker ps --format '{{.Names}} {{.Image}}'` | Sync `inventory.md` with active tag or re-pull canonical target tag in Compose stack. |
 | **ZFS Volume Mount Missing / Stale** | Underlying ZFS pool unmounted or pool export failed during node reboot. | `zpool status -x && zfs list -o name,mountpoint` | Remount dataset: `zfs mount -a`, verify pool scrub, and restart container daemon. |
 | **Reverse Proxy ACL Ingress Violation** | Service configured with public route but lacks Authentik forward-auth middleware. | `curl -Iv https://<subdomain>.internal.net` | Inspect Traefik labels in `docker-compose.yml`; inject `authentik@docker` middleware. |
 | **FastMCP Inventory Query Timeout** | High disk I/O wait during snapshot transfer or concurrent model weights loading. | `iostat -xz 1 5 && vmstat 1 5` | Execute disk queries in asynchronous thread pools with timeout guards; tune IOPS. |
