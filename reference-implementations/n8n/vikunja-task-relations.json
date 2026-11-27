@@ -1,0 +1,171 @@
+{
+  "name": "Vikunja Task Relations Checker",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vikunja-check-relations",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "id": "webhook-trigger-id"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\"body\"][\"vikunja_url\"] }}/api/v1/tasks/{{ $json[\"body\"][\"task_id\"] }}/relations",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "name": "Get Task Relations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        450,
+        300
+      ],
+      "id": "get-relations-id",
+      "credentials": {
+        "headerAuth": {
+          "id": "vikunja-api-token",
+          "name": "Vikunja API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json[\"relation_type\"] }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "blocking",
+              "output": 1
+            },
+            {
+              "value2": "precedes",
+              "output": 2
+            },
+            {
+              "value2": "subtask",
+              "output": 3
+            }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "name": "Switch Relation Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ],
+      "id": "switch-id"
+    },
+    {
+      "parameters": {
+        "message": "=Task {{ $node[\"Webhook Trigger\"].json[\"body\"][\"task_id\"] }} is blocked by {{ $json[\"other_task_id\"] }}",
+        "options": {}
+      },
+      "name": "Log Blocker",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        850,
+        200
+      ],
+      "id": "log-blocker-id"
+    },
+    {
+      "parameters": {
+        "message": "=Task {{ $node[\"Webhook Trigger\"].json[\"body\"][\"task_id\"] }} precedes {{ $json[\"other_task_id\"] }}",
+        "options": {}
+      },
+      "name": "Log Precedence",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ],
+      "id": "log-precedence-id"
+    },
+    {
+      "parameters": {
+        "message": "=Task {{ $node[\"Webhook Trigger\"].json[\"body\"][\"task_id\"] }} is a subtask of {{ $json[\"other_task_id\"] }}",
+        "options": {}
+      },
+      "name": "Log Subtask",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        850,
+        400
+      ],
+      "id": "log-subtask-id"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Task Relations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Task Relations": {
+      "main": [
+        [
+          {
+            "node": "Switch Relation Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Relation Type": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Log Blocker",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Precedence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Subtask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "v1",
+  "id": "vikunja-task-relations-workflow",
+  "meta": {
+    "instanceId": "local-instance"
+  }
+}

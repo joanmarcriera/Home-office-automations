@@ -1,0 +1,50 @@
+# Paperless-ngx Helm Chart Values for Homelab
+# Chart: https://github.com/paperless-ngx/paperless-ngx (or community k8s-at-home style)
+
+image:
+  repository: ghcr.io/paperless-ngx/paperless-ngx
+  tag: latest
+
+env:
+  PAPERLESS_URL: "https://paperless.riera.co.uk"
+  PAPERLESS_TIME_ZONE: "Europe/London"
+  PAPERLESS_OCR_LANGUAGE: "eng+spa"
+  PAPERLESS_REDIS: "redis://paperless-redis:6379"
+  PAPERLESS_DBHOST: "paperless-postgres"
+
+service:
+  port: 8000
+
+persistence:
+  data:
+    enabled: true
+    storageClass: "longhorn"
+    size: 10Gi
+  media:
+    enabled: true
+    storageClass: "longhorn"
+    size: 50Gi
+  export:
+    enabled: true
+    storageClass: "longhorn"
+    size: 10Gi
+  consume:
+    enabled: true
+    storageClass: "longhorn"
+    size: 5Gi
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: networking-authentik-middleware@kubernetescrd
+  hosts:
+    - host: paperless.riera.co.uk
+      paths:
+        - /
+  tls:
+    - secretName: paperless-tls
+      hosts:
+        - paperless.riera.co.uk

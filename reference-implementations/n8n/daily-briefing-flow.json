@@ -1,0 +1,88 @@
+{
+  "name": "Family Daily Briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 7
+            }
+          ]
+        }
+      },
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendar": "primary",
+        "filters": {
+          "timeMin": "={{$now.set({ hour: 0, minute: 0, second: 0 }).toISO()}}",
+          "timeMax": "={{$now.set({ hour: 23, minute: 59, second: 59 }).toISO()}}"
+        }
+      },
+      "name": "Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        450,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "task",
+        "operation": "getAll",
+        "filters": {
+          "done": false
+        }
+      },
+      "name": "Vikunja",
+      "type": "n8n-nodes-base.vikunja",
+      "typeVersion": 1,
+      "position": [
+        450,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3",
+        "prompt": "={{$node[\"Prompt Template\"].json[\"prompt\"]}}"
+      },
+      "name": "Ollama LLM",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Vikunja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

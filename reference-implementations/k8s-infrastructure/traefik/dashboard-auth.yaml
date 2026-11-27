@@ -1,0 +1,22 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-auth
+  namespace: traefik
+spec:
+  basicAuth:
+    # Use 'echo -n "user:password" | openssl md5' or similar to generate.
+    # Format is "user:hashed-password"
+    # Example: admin: (htpasswd -nb admin admin_password)
+    secret: traefik-dashboard-auth-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-dashboard-auth-secret
+  namespace: traefik
+type: Opaque
+stringData:
+  # Replace with actual htpasswd content
+  users: |
+    admin:$apr1$8uXf.eE1$vJvM/Xv8gJ5I.6JvM/Xv8.
